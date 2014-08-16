@@ -10,6 +10,8 @@ noinst_HEADERS = \
                  system.h \
                  types.h \
                  util.h \
+                 noncopyable.h \
+                 singleton.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
