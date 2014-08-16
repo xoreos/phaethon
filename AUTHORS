@@ -39,6 +39,13 @@ boost.m4
    libraries. boost.m4 is licensed under version 3 or later of the GNU General
    Public License.
 
+UTF-8 CPP
+*********
+   Phaethon uses the lightweight header-only UTF-8 CPP library
+   (<http://utfcpp.sourceforge.net/>) for handling UTF-8 encoded strings.
+   UTF-8 CPP is licensed under a copyleft license. See utf8cpp/utf8.h for
+   details.
+
 ScummVM code
 ************
    Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
