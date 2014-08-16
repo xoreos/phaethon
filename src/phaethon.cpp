@@ -24,6 +24,8 @@
 
 #include <cstdio>
 
+#include <wx/wx.h>
+
 #include "common/util.h"
 #include "common/version.h"
 #include "common/error.h"
@@ -35,6 +37,8 @@ void printUsage(const char *name);
 void printVersion();
 
 Job parseCommandLine(int argc, char **argv);
+
+void openGamePath(const Common::UString &path);
 
 
 /** Type for all operations this tool can do. */
@@ -71,6 +75,7 @@ int main(int argc, char **argv) {
 				break;
 
 			case kOperationPath:
+				openGamePath(job.path);
 				break;
 
 			case kOperationInvalid:
@@ -161,4 +166,37 @@ Job parseCommandLine(int argc, char **argv) {
 	}
 
 	return job;
+}
+
+
+class Phaethon : public wxApp {
+public:
+	Phaethon(const Common::UString &path = "");
+	~Phaethon();
+
+	bool OnInit();
+
+private:
+	Common::UString _path;
+};
+
+Phaethon::Phaethon(const Common::UString &path) : _path(path) {
+}
+
+Phaethon::~Phaethon() {
+}
+
+bool Phaethon::OnInit() {
+	return true;
+}
+
+
+void openGamePath(const Common::UString &path) {
+	wxApp *phaethon = new Phaethon(path);
+
+	wxApp::SetInstance(phaethon);
+
+	int      argc = 0;
+	wxChar **argv = 0;
+	wxEntry(argc, argv);
 }
