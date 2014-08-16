@@ -100,6 +100,7 @@ AC_SUBST(PHAETHON_LIBS)
 AC_SUBST(WERROR)
 
 AC_CONFIG_FILES([utf8cpp/Makefile])
+AC_CONFIG_FILES([src/common/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([Makefile])
 

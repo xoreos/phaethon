@@ -1,0 +1,20 @@
+include $(top_srcdir)/Makefile.common
+
+SUBDIRS = \
+          $(EMPTY)
+
+noinst_LTLIBRARIES = libcommon.la
+
+noinst_HEADERS = \
+                 endianness.h \
+                 system.h \
+                 types.h \
+                 util.h \
+                 $(EMPTY)
+
+libcommon_la_SOURCES = \
+                       util.cpp \
+                       $(EMPTY)
+
+libcommon_la_LIBADD = \
+                      $(EMPTY)

@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.common
 
 SUBDIRS = \
+          common \
           $(EMPTY)
 
 bin_PROGRAMS = phaethon
@@ -13,5 +14,6 @@ phaethon_SOURCES = \
                    $(EMPTY)
 
 phaethon_LDADD = \
+                 common/libcommon.la \
                  $(LDADD) \
                  $(EMPTY)
