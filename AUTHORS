@@ -1,0 +1,46 @@
+Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
+Copyright (c) 2014 by the following:
+
+Sven Hesse (DrMcCoy) <drmccoy@drmccoy.de>
+
+
+Phaethon is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 3
+of the License, or (at your option) any later version.
+
+Phaethon is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
+
+
+The Infinity engine, Aurora engine, Odyssey engine and Eclipse engine are
+registered trademarks of BioWare Corp., a subsidiary of Electronic Arts, Inc.
+The Electron engine and Lycium engine are trademarks of BioWare Corp., a
+subsidiary of Electronic Arts, Inc. Bink is a registered trademark of RAD Game
+Tools, Inc. Neverwinter Nights is a registered trademark of Wizards of the
+Coast, a subsidiary of Hasbro Inc. Star Wars, Knights of the Old Republic and
+The Sith Lords are registered trademarks of Lucasfilm Entertainment Company
+Ltd., a subsidiary of The Walt Disney Company. Jade Empire is a registered
+trademark of BioWare Corp., a subsidiary of Electronic Arts, Inc. Sonic the
+Hedgehog is a registered trademark of Sega Corporation. The Witcher is a
+registered trademark of CD Projekt S.A. Dragon Age is a registered trademark
+of Electronic Arts, Inc. All rights reserved.
+
+
+boost.m4
+********
+   Phaethon uses Benoit Sigoure's boost.m4 autoconf macros
+   (<http://github.com/tsuna/boost.m4>) to check for the needed Boost
+   libraries. boost.m4 is licensed under version 3 or later of the GNU General
+   Public License.
+
+ScummVM code
+************
+   Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
+   endian, singleton, stream and audio stream code. ScummVM is licensed under
+   version 2 or later of the GNU General Public License.
