@@ -14,6 +14,8 @@ Build-time library dependencies
   - Boost.Hash
   - Boost.Date_Time
 
+- wxWidgets (>= 3.0.0)
+
 - OpenAL Soft (>= 1.12)
 - MAD (>= 1.15.1b)
 - libogg (>= 1.2.0)

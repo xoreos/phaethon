@@ -59,6 +59,9 @@ AX_CHECK_ICONV( , AC_MSG_ERROR([No useable iconv() function found!]))
 AX_CHECK_ZLIB(1, 2, 3, 4, , AC_MSG_ERROR([zlib(>= 1.2.3.4) is required and could not be found!]))
 AX_CHECK_LZMA(5, 0, 5, 2, , AC_MSG_ERROR([liblzma(>= 5.0.5) is required and could not be found!]))
 
+dnl Graphic libraries
+AX_CHECK_WX(3, 0, 0, , AC_MSG_ERROR([wxWidgets (>= 3.0.0) is required and could not be found!]))
+
 dnl Sound libraries
 AX_CHECK_AL( , AC_MSG_ERROR([OpenAL or OpenAL Soft (>= 1.12) is required and could not be found!]))
 AX_CHECK_MAD(0, 15, 1, , AC_MSG_ERROR([libMAD (>= 0.15.1) is required and could not be found!]))
