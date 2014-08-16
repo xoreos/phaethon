@@ -14,6 +14,9 @@ VERSION_FLAGS += $(shell if test x$(VER_DATE) != "x"; then echo "-DPHAETHON_BUIL
 AM_CXXFLAGS += $(VERSION_FLAGS)
 AM_CFLAGS   += $(VERSION_FLAGS)
 
+# Rebuild the version.lo when the git version changed
+version.lo: $(top_srcdir)/gitstamp/gitstamp
+
 SUBDIRS = \
           $(EMPTY)
 
@@ -30,6 +33,7 @@ noinst_HEADERS = \
                  ustring.h \
                  stream.h \
                  file.h \
+                 version.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -38,6 +42,7 @@ libcommon_la_SOURCES = \
                        ustring.cpp \
                        stream.cpp \
                        file.cpp \
+                       version.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
