@@ -12,10 +12,16 @@ noinst_HEADERS = \
                  util.h \
                  noncopyable.h \
                  singleton.h \
+                 error.h \
+                 ustring.h \
+                 stream.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
                        util.cpp \
+                       error.cpp \
+                       ustring.cpp \
+                       stream.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
