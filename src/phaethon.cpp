@@ -31,6 +31,8 @@
 #include "common/error.h"
 #include "common/ustring.h"
 
+#include "mainwindow.h"
+
 struct Job;
 
 void printUsage(const char *name);
@@ -187,6 +189,9 @@ Phaethon::~Phaethon() {
 }
 
 bool Phaethon::OnInit() {
+	MainWindow *mainWindow = new MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxDefaultSize, _path);
+
+	mainWindow->Show(true);
 	return true;
 }
 

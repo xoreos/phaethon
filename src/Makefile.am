@@ -7,9 +7,11 @@ SUBDIRS = \
 bin_PROGRAMS = phaethon
 
 noinst_HEADERS = \
+                 mainwindow.h \
                  $(EMPTY)
 
 phaethon_SOURCES = \
+                   mainwindow.cpp \
                    phaethon.cpp \
                    $(EMPTY)
 
