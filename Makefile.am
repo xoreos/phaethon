@@ -3,6 +3,7 @@ ACLOCAL_AMFLAGS = -I m4 --install
 EXTRA_DIST = README.md
 
 SUBDIRS = \
+          gitstamp \
           utf8cpp \
           src \
           $(EMPTY)
