@@ -15,6 +15,7 @@ noinst_HEADERS = \
                  error.h \
                  ustring.h \
                  stream.h \
+                 file.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -22,6 +23,7 @@ libcommon_la_SOURCES = \
                        error.cpp \
                        ustring.cpp \
                        stream.cpp \
+                       file.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
