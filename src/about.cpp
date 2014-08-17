@@ -37,11 +37,11 @@ wxEND_EVENT_TABLE()
 
 
 AboutDialog::AboutDialog(wxWindow *parent) :
-	wxDialog(parent, wxID_ANY, wxString::FromUTF8((Common::UString("About ") + PHAETHON_NAME).c_str())) {
+	wxDialog(parent, wxID_ANY, Common::UString("About ") + PHAETHON_NAME) {
 
 	wxGenericStaticText *msg = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
 
-	msg->SetLabel(wxString::FromUTF8(createVersionText().c_str()));
+	msg->SetLabel(createVersionText());
 
 	wxButton *buttonClose = new wxButton(this, kEventButtonClose, "&OK");
 

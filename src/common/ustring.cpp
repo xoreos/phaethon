@@ -179,6 +179,10 @@ UString::UString(iterator sBegin, iterator sEnd) : _size(0) {
 UString::~UString() {
 }
 
+UString::operator wxString() const {
+	return wxString::FromUTF8(c_str());
+}
+
 UString &UString::operator=(const UString &str) {
 	_string = str._string;
 	_size   = str._size;

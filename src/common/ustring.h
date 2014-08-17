@@ -31,6 +31,8 @@
 
 #include <boost/functional/hash.hpp>
 
+#include <wx/string.h>
+
 #include "common/types.h"
 
 #include "utf8cpp/utf8.h"
@@ -63,6 +65,8 @@ public:
 	UString(const char *str, int n);
 	UString(iterator sBegin, iterator sEnd);
 	~UString();
+
+	operator wxString() const;
 
 	UString &operator=(const UString &str);
 	UString &operator=(const std::string &str);

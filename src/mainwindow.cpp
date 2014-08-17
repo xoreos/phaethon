@@ -48,12 +48,10 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	CreateStatusBar();
 
 	wxMenu *menuFile = new wxMenu;
-	menuFile->Append(kEventFileQuit, wxT("&Quit\tCtrl-Q"),
-	                 wxString::FromUTF8((Common::UString("Quit ") + PHAETHON_NAME).c_str()));
+	menuFile->Append(kEventFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
 
 	wxMenu *menuHelp = new wxMenu;
-	menuHelp->Append(kEventHelpAbout, wxT("&About\tF1"),
-	                 wxString::FromUTF8((Common::UString("About ") + PHAETHON_NAME).c_str()));
+	menuHelp->Append(kEventHelpAbout, wxT("&About\tF1"), Common::UString("About ") + PHAETHON_NAME);
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, wxT("&File"));
