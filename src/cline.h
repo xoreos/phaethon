@@ -1,0 +1,52 @@
+/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
+ *
+ * Phaethon is the legal property of its developers, whose names
+ * can be found in the AUTHORS file distributed with this source
+ * distribution.
+ *
+ * Phaethon is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Phaethon is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/** @file cline.h
+ *  Command line handling.
+ */
+
+#ifndef CLINE_H
+#define CLINE_H
+
+#include "common/ustring.h"
+
+/** Type for all operations this tool can do. */
+enum Operation {
+	kOperationInvalid = 0, ///< Invalid command line.
+	kOperationHelp       , ///< Show the help text.
+	kOperationVersion    , ///< Show version information.
+	kOperationPath         ///< Crawl through a game directory.
+};
+
+/** Full description of the job this tool will be doing. */
+struct Job {
+	Operation operation;  ///< The operation to perform.
+	Common::UString path; ///< The game directory to look through.
+
+	Job() : operation(kOperationInvalid) {
+	}
+};
+
+Job parseCommandLine(int argc, char **argv);
+
+Common::UString createVersionText();
+Common::UString createHelpText(const char *name);
+
+#endif // CLINE_H
