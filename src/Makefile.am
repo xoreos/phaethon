@@ -7,6 +7,7 @@ SUBDIRS = \
 bin_PROGRAMS = phaethon
 
 noinst_HEADERS = \
+                 eventid.h \
                  mainwindow.h \
                  $(EMPTY)
 

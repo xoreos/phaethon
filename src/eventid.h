@@ -18,29 +18,16 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file mainwindow.h
- *  Phaethon's main window.
+/** @file eventid.h
+ *  GUI event IDs.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef EVENTID_H
+#define EVENTID_H
 
-#include <wx/wx.h>
-
-#include "common/ustring.h"
-
-class MainWindow : public wxFrame {
-public:
-	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size,
-	           const Common::UString &path = "");
-	~MainWindow();
-
-	void onQuit(wxCommandEvent &event);
-
-private:
-	Common::UString _path;
-
-	wxDECLARE_EVENT_TABLE();
+enum {
+	kEventFileQuit  = wxID_EXIT,
+	kEventHelpAbout = wxID_ABOUT
 };
 
-#endif // MAINWINDOW_H
+#endif // EVENTID_H
