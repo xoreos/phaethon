@@ -35,11 +35,11 @@ public:
 	           const Common::UString &path = "");
 	~MainWindow();
 
-	void onQuit(wxCommandEvent &event);
-	void onAbout(wxCommandEvent &event);
-
 private:
 	Common::UString _path;
+
+	void onQuit(wxCommandEvent &event);
+	void onAbout(wxCommandEvent &event);
 
 	wxDECLARE_EVENT_TABLE();
 };
