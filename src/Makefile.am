@@ -9,11 +9,13 @@ bin_PROGRAMS = phaethon
 noinst_HEADERS = \
                  cline.h \
                  eventid.h \
+                 about.h \
                  mainwindow.h \
                  $(EMPTY)
 
 phaethon_SOURCES = \
                    cline.cpp \
+                   about.cpp \
                    mainwindow.cpp \
                    phaethon.cpp \
                    $(EMPTY)

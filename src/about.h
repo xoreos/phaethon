@@ -18,17 +18,26 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file eventid.h
- *  GUI event IDs.
+/** @file about.h
+ *  About dialog.
  */
 
-#ifndef EVENTID_H
-#define EVENTID_H
+#ifndef ABOUT_H
+#define ABOUT_H
 
-enum {
-	kEventFileQuit    = wxID_EXIT,
-	kEventHelpAbout   = wxID_ABOUT,
-	kEventButtonClose = 0
+#include <wx/wx.h>
+
+class AboutDialog : public wxDialog {
+public:
+	AboutDialog(wxWindow *parent);
+	~AboutDialog();
+
+	void show();
+
+private:
+	void onClose(wxCommandEvent &event);
+
+	wxDECLARE_EVENT_TABLE();
 };
 
-#endif // EVENTID_H
+#endif // ABOUT_H

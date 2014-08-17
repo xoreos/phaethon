@@ -27,8 +27,9 @@
 #include "common/ustring.h"
 #include "common/version.h"
 
-#include "eventid.h"
 #include "cline.h"
+#include "eventid.h"
+#include "about.h"
 #include "mainwindow.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
@@ -66,8 +67,6 @@ void MainWindow::onQuit(wxCommandEvent &event) {
 }
 
 void MainWindow::onAbout(wxCommandEvent &event) {
-	Common::UString title = Common::UString("About ") + PHAETHON_NAME;
-	Common::UString msg   = createVersionText();
-
-	wxMessageBox(wxString::FromUTF8(msg.c_str()), wxString::FromUTF8(title.c_str()), wxOK | wxICON_INFORMATION);
+	AboutDialog *about = new AboutDialog(this);
+	about->show();
 }
