@@ -23,6 +23,9 @@
  */
 
 #include <wx/menu.h>
+#include <wx/treectrl.h>
+
+#include <wx/generic/stattextg.h>
 
 #include "common/ustring.h"
 #include "common/version.h"
@@ -57,6 +60,31 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	menuBar->Append(menuHelp, wxT("&Help"));
 
 	SetMenuBar(menuBar);
+
+	wxBoxSizer *sizerMainLog     = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *sizerTreeRes     = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizerInfoPreview = new wxBoxSizer(wxVERTICAL);
+
+	wxGenericStaticText *info    = new wxGenericStaticText(this, wxID_ANY, wxT("Resource info"));
+	wxGenericStaticText *preview = new wxGenericStaticText(this, wxID_ANY, wxT("Resource preview"));
+
+	sizerInfoPreview->Add(info   , 1, wxEXPAND | wxCENTER);
+	sizerInfoPreview->Add(preview, 1, wxEXPAND | wxCENTER);
+
+	wxTreeCtrl *tree = new wxTreeCtrl(this, wxID_ANY);
+	tree->AddRoot(wxT("Resources"));
+
+	sizerTreeRes->Add(tree, 0, wxEXPAND);
+	sizerTreeRes->Add(sizerInfoPreview, 1, wxEXPAND);
+
+	wxTextCtrl *log = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+			wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+	log->SetEditable(false);
+
+	sizerMainLog->Add(sizerTreeRes, 1, wxEXPAND);
+	sizerMainLog->Add(log, 0, wxEXPAND);
+
+	SetSizer(sizerMainLog);
 }
 
 MainWindow::~MainWindow() {
