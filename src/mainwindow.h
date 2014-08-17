@@ -36,6 +36,7 @@ public:
 	~MainWindow();
 
 	void onQuit(wxCommandEvent &event);
+	void onAbout(wxCommandEvent &event);
 
 private:
 	Common::UString _path;

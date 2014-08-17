@@ -28,10 +28,12 @@
 #include "common/version.h"
 
 #include "eventid.h"
+#include "cline.h"
 #include "mainwindow.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_MENU(kEventFileQuit, MainWindow::onQuit)
+	EVT_MENU(kEventFileQuit , MainWindow::onQuit)
+	EVT_MENU(kEventHelpAbout, MainWindow::onAbout)
 wxEND_EVENT_TABLE()
 
 
@@ -61,4 +63,11 @@ MainWindow::~MainWindow() {
 
 void MainWindow::onQuit(wxCommandEvent &event) {
 	Close(true);
+}
+
+void MainWindow::onAbout(wxCommandEvent &event) {
+	Common::UString title = Common::UString("About ") + PHAETHON_NAME;
+	Common::UString msg   = createVersionText();
+
+	wxMessageBox(wxString::FromUTF8(msg.c_str()), wxString::FromUTF8(title.c_str()), wxOK | wxICON_INFORMATION);
 }
