@@ -24,6 +24,7 @@
 
 #include <wx/menu.h>
 #include <wx/treectrl.h>
+#include <wx/splitter.h>
 
 #include <wx/generic/stattextg.h>
 
@@ -59,30 +60,51 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	SetMenuBar(menuBar);
 
-	wxBoxSizer *sizerMainLog     = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer *sizerTreeRes     = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer *sizerInfoPreview = new wxBoxSizer(wxVERTICAL);
 
-	wxGenericStaticText *info    = new wxGenericStaticText(this, wxID_ANY, wxT("Resource info"));
-	wxGenericStaticText *preview = new wxGenericStaticText(this, wxID_ANY, wxT("Resource preview"));
+	wxSplitterWindow *splitterMainLog     = new wxSplitterWindow(this, wxID_ANY);
+	wxSplitterWindow *splitterTreeRes     = new wxSplitterWindow(splitterMainLog, wxID_ANY);
+	wxSplitterWindow *splitterInfoPreview = new wxSplitterWindow(splitterTreeRes, wxID_ANY);
 
-	sizerInfoPreview->Add(info   , 1, wxEXPAND | wxCENTER);
-	sizerInfoPreview->Add(preview, 1, wxEXPAND | wxCENTER);
+	wxPanel *panelLog     = new wxPanel(splitterMainLog    , wxID_ANY);
+	wxPanel *panelPreview = new wxPanel(splitterInfoPreview, wxID_ANY);
+	wxPanel *panelInfo    = new wxPanel(splitterInfoPreview, wxID_ANY);
+	wxPanel *panelTree    = new wxPanel(splitterTreeRes    , wxID_ANY);
 
-	wxTreeCtrl *tree = new wxTreeCtrl(this, wxID_ANY);
-	tree->AddRoot(wxT("Resources"));
+	wxTreeCtrl *tree = new wxTreeCtrl(panelTree, wxID_ANY);
 
-	sizerTreeRes->Add(tree, 0, wxEXPAND);
-	sizerTreeRes->Add(sizerInfoPreview, 1, wxEXPAND);
+	wxGenericStaticText *info    = new wxGenericStaticText(panelInfo   , wxID_ANY, wxT("Info..."));
+	wxGenericStaticText *preview = new wxGenericStaticText(panelPreview, wxID_ANY, wxT("Preview..."));
 
-	wxTextCtrl *log = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
-			wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-	log->SetEditable(false);
+	wxTextCtrl *log = new wxTextCtrl(panelLog, wxID_ANY, wxEmptyString, wxDefaultPosition,
+	                                 wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
 
-	sizerMainLog->Add(sizerTreeRes, 1, wxEXPAND);
-	sizerMainLog->Add(log, 0, wxEXPAND);
+	wxBoxSizer *sizerWindow = new wxBoxSizer(wxVERTICAL);
 
-	SetSizer(sizerMainLog);
+	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(wxHORIZONTAL, panelLog    , wxT("Log"));
+	wxStaticBoxSizer *sizerPreview = new wxStaticBoxSizer(wxHORIZONTAL, panelPreview, wxT("Preview"));
+	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxHORIZONTAL, panelInfo   , wxT("Resource info"));
+	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(wxHORIZONTAL, panelTree   , wxT("Resources"));
+
+	sizerTree->Add(tree, 1, wxEXPAND, 0);
+	panelTree->SetSizer(sizerTree);
+
+	sizerInfo->Add(info, 0, 0, 0);
+	panelInfo->SetSizer(sizerInfo);
+
+	sizerPreview->Add(preview, 0, 0, 0);
+	panelPreview->SetSizer(sizerPreview);
+
+	sizerLog->Add(log, 1, wxEXPAND, 0);
+	panelLog->SetSizer(sizerLog);
+
+	splitterInfoPreview->SplitHorizontally(panelInfo, panelPreview);
+	splitterTreeRes->SplitVertically(panelTree, splitterInfoPreview);
+	splitterMainLog->SplitHorizontally(splitterTreeRes, panelLog);
+
+	sizerWindow->Add(splitterMainLog, 1, wxEXPAND, 0);
+	SetSizer(sizerWindow);
+
+	Layout();
 }
 
 MainWindow::~MainWindow() {
