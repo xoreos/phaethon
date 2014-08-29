@@ -92,7 +92,7 @@ Phaethon::~Phaethon() {
 }
 
 bool Phaethon::OnInit() {
-	MainWindow *mainWindow = new MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxDefaultSize, _path);
+	MainWindow *mainWindow = new MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxSize(800, 600), _path);
 
 	mainWindow->Show(true);
 	return true;

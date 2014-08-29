@@ -97,6 +97,12 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	sizerLog->Add(log, 1, wxEXPAND, 0);
 	panelLog->SetSizer(sizerLog);
 
+	splitterInfoPreview->SetMinimumPaneSize(20);
+	splitterTreeRes->SetMinimumPaneSize(20);
+	splitterMainLog->SetMinimumPaneSize(20);
+
+	splitterMainLog->SetSashGravity(1.0);
+
 	splitterInfoPreview->SplitHorizontally(panelInfo, panelPreview);
 	splitterTreeRes->SplitVertically(panelTree, splitterInfoPreview);
 	splitterMainLog->SplitHorizontally(splitterTreeRes, panelLog);
@@ -105,6 +111,10 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	SetSizer(sizerWindow);
 
 	Layout();
+
+	splitterInfoPreview->SetSashPosition(150);
+	splitterTreeRes->SetSashPosition(200);
+	splitterMainLog->SetSashPosition(480);
 }
 
 MainWindow::~MainWindow() {
