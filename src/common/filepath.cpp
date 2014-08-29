@@ -27,7 +27,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/system/config.hpp>
 #include <boost/regex.hpp>
-#include <boost/version.hpp>
 
 #include "common/filepath.h"
 #include "common/util.h"
@@ -39,18 +38,12 @@ using boost::filesystem::is_regular_file;
 using boost::filesystem::is_directory;
 using boost::filesystem::file_size;
 using boost::filesystem::directory_iterator;
+using boost::filesystem::absolute;
+using boost::filesystem::canonical;
 
 // boost-string_algo
 using boost::equals;
 using boost::iequals;
-
-#if ((((BOOST_VERSION / 100000) == 1) && (((BOOST_VERSION / 100) % 1000) < 44)) || BOOST_FILESYSTEM_VERSION == 2)
-#define generic_string() string()
-#elif BOOST_FILESYSTEM_VERSION == 3
-#define stem() stem().string()
-#define extension() extension().string()
-#define filename() filename().string()
-#endif
 
 namespace Common {
 
@@ -74,19 +67,19 @@ uint32 FilePath::getFileSize(const UString &p) {
 UString FilePath::getFile(const UString &p) {
 	path file(p.c_str());
 
-	return file.filename();
+	return file.filename().c_str();
 }
 
 UString FilePath::getStem(const UString &p) {
 	path file(p.c_str());
 
-	return file.stem();
+	return file.stem().c_str();
 }
 
 UString FilePath::getExtension(const UString &p) {
 	path file(p.c_str());
 
-	return file.extension();
+	return file.extension().c_str();
 }
 
 UString FilePath::changeExtension(const UString &p, const UString &ext) {
@@ -98,108 +91,35 @@ UString FilePath::changeExtension(const UString &p, const UString &ext) {
 }
 
 path FilePath::normalize(const boost::filesystem::path &p) {
-	UString ustring = p.string();
+	if (!exists(p.c_str()))
+		return path("");
 
-	return path(normalize(ustring).c_str());
+	Common::UString norm = canonical(p).c_str();
+
+	norm.replaceAll('\\', '/');
+
+	return path(norm.c_str());
 }
 
 UString FilePath::normalize(const UString &p) {
-	UString norm;
-
-	// Make sure there's a path qualifier
-	if (!isAbsolute(p)) {
-		UString::iterator it = p.begin();
-
-		if ((it == p.end()) || (*it != '.')) {
-			norm += "./";
-		} else {
-			++it;
-			if ((it == p.end()) || (*it != '/'))
-				norm += "./";
-		}
-	}
-
-	// Remove consecutive '/'
-	bool hasSlash = !norm.empty();
-	for (UString::iterator it = p.begin(); it != p.end(); ++it) {
-		if ((*it == '/') || (*it == '\\')) {
-			// Only append the '/' if the last character wasn't one as well and this
-			// is not the final character.
-
-			if (!hasSlash && (it != --p.end()))
-				norm += '/';
-
-			hasSlash = true;
-			continue;
-		}
-
-		// Append the character
-		norm += *it;
-		hasSlash = false;
-	}
-
-#if defined(BOOST_WINDOWS_API)
-	// Special case: On Windows, we want "x:/" instead of "x:", because the
-	// latter references the current directory of that drive.
-	if ((norm.size() == 2) && (*--norm.end() == ':'))
-		norm += '/';
-#endif
-
-	return norm;
+	return normalize(path(p.c_str())).c_str();
 }
 
 bool FilePath::isAbsolute(const UString &p) {
-	if (p.empty())
-		return false;
-
-#if defined(BOOST_WINDOWS_API)
-	if (p.size() >= 2) {
-		UString::iterator it = p.begin();
-		if (isalpha(*it))
-			if (*++it == ':') {
-				if (p.size() == 2)
-					return true;
-
-				++it;
-				if ((*it == '/') || (*it == '\\'))
-					return true;
-			}
-	}
-#elif defined(BOOST_POSIX_API)
-	if (*p.begin() == '/')
-		return true;
-#else
-	#error Neither BOOST_WINDOWS_API nor BOOST_POSIX_API defined
-#endif
-
-	return false;
+	return path(p.c_str()).has_root_directory();
 }
 
-boost::filesystem::path FilePath::makeAbsolute(const boost::filesystem::path &p) {
-	UString ustring = p.string();
+UString FilePath::makeRelative(UString basePath, const UString &path) {
+	if (basePath.empty())
+		return path;
 
-	return path(makeAbsolute(ustring).c_str());
-}
+	if (!basePath.endsWith("/"))
+		basePath += '/';
 
-UString FilePath::makeAbsolute(const UString &p) {
-	UString absolute;
+	if (!path.beginsWith(basePath))
+		return "";
 
-	if (isAbsolute(p))
-		absolute = p;
-	else
-		absolute = boost::filesystem::initial_path().generic_string() + "/" + p.c_str();
-
-	return normalize(absolute);
-}
-
-UString FilePath::makeRelative(const UString &basePath, const UString &path) {
-	UString relative = "";
-
-	if (path.beginsWith(basePath)) {
-		relative = path.substr(path.getPosition(basePath.size() + 1), path.end());
-	}
-
-	return relative;
+	return path.substr(path.getPosition(basePath.size()), path.end());
 }
 
 void FilePath::getSubDirectories(const UString &directory, std::list<UString> &subDirectories) {
@@ -255,10 +175,10 @@ static UString findSubDirectory_internal(const UString &directory, const UString
 				// It's a directory. Check if it's the one we're looking for
 
 				if (caseInsensitive) {
-					if (iequals(itDir->path().filename(), subDirectory.c_str()))
+					if (iequals(itDir->path().filename().c_str(), subDirectory.c_str()))
 						return itDir->path().generic_string();
 				} else {
-					if (equals(itDir->path().filename(), subDirectory.c_str()))
+					if (equals(itDir->path().filename().c_str(), subDirectory.c_str()))
 						return itDir->path().generic_string();
 				}
 			}

@@ -97,8 +97,8 @@ public:
 
 	/** Normalize a path.
 	 *
-	 *  A normalized path contains no consecutive '/', uses '/' as a directory path separator,
-	 *  starts with either "/", "[A-Za-z]:/" or "./" and does not end with a '/'.
+	 *  A normalized path is absolute, contains no consecutive '/', uses '/'
+	 *  as a directory separator and must exist.
 	 *
 	 *  @param  p The path to normalize.
 	 *  @return The normalized path.
@@ -107,8 +107,8 @@ public:
 
 	/** Normalize a path.
 	 *
-	 *  A normalized path contains no consecutive '/', uses '/' as a directory path separator
-	 *  and and starts either "/", "[A-Za-z]:/" or "./".
+	 *  A normalized path is absolute, contains no consecutive '/', uses '/'
+	 *  as a directory separator, don't end with an '/' and must exist.
 	 *
 	 *  @param  p The path to normalize.
 	 *  @return The normalized path.
@@ -122,26 +122,6 @@ public:
 	 */
 	static bool isAbsolute(const UString &p);
 
-	/** Return the absolute path.
-	 *
-	 *  If the path is already absolute, just return that path. If not, interpret it
-	 *  as relative to the program starting path and then return an absolute path of that.
-	 *
-	 *  @param  p The path to absolutize.
-	 *  @return The absolutized path.
-	 */
-	static boost::filesystem::path makeAbsolute(const boost::filesystem::path &p);
-
-	/** Return the absolute path.
-	 *
-	 *  If the path is already absolute, just return that path. If not, interpret it
-	 *  as relative to the program starting path and then return an absolute path of that.
-	 *
-	 *  @param  p The path to absolutize.
-	 *  @return The absolutized path.
-	 */
-	static UString makeAbsolute(const UString &p);
-
 	/** Return the path relative to the base path.
 	 *
 	 *  If the path does not start with the base path, an empty path will be returned;
@@ -149,7 +129,7 @@ public:
 	 *  @param  path The path to make relative.
 	 *  @return The relative path.
 	 */
-	static UString makeRelative(const UString &basePath, const UString &path);
+	static UString makeRelative(UString basePath, const UString &path);
 
 	/** Find a directory's subdirectory.
 	 *
