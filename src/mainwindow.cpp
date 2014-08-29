@@ -25,6 +25,7 @@
 #include <wx/menu.h>
 #include <wx/treectrl.h>
 #include <wx/splitter.h>
+#include <wx/artprov.h>
 
 #include <wx/generic/stattextg.h>
 
@@ -37,8 +38,11 @@
 #include "mainwindow.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_MENU(kEventFileQuit , MainWindow::onQuit)
-	EVT_MENU(kEventHelpAbout, MainWindow::onAbout)
+	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
+	EVT_MENU(kEventFileOpenFile, MainWindow::onOpenFile)
+	EVT_MENU(kEventFileClose   , MainWindow::onClose)
+	EVT_MENU(kEventFileQuit    , MainWindow::onQuit)
+	EVT_MENU(kEventHelpAbout   , MainWindow::onAbout)
 wxEND_EVENT_TABLE()
 
 
@@ -50,7 +54,25 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	GetStatusBar()->SetStatusText(wxT("Idle..."));
 
 	wxMenu *menuFile = new wxMenu;
+
+	wxMenuItem *menuFileOpenDir =
+		new wxMenuItem(0, kEventFileOpenDir, wxT("Open &directory\tCtrl-D"), Common::UString("Open directory"));
+	wxMenuItem *menuFileOpenFile =
+		new wxMenuItem(0, kEventFileOpenFile, wxT("Open &file\tCtrl-D"), Common::UString("Open file"));
+	wxMenuItem *menuFileClose =
+		new wxMenuItem(0, kEventFileClose, wxT("&Close\tCtrl-W"), Common::UString("Close"));
+
+	menuFileOpenDir->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+	menuFileOpenFile->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+	menuFileClose->SetBitmap(wxArtProvider::GetBitmap(wxART_CLOSE));
+
+	menuFile->Append(menuFileOpenDir);
+	menuFile->Append(menuFileOpenFile);
+	menuFile->AppendSeparator();
+	menuFile->Append(menuFileClose);
+	menuFile->AppendSeparator();
 	menuFile->Append(kEventFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
+
 
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(kEventHelpAbout, wxT("&About\tF1"), Common::UString("About ") + PHAETHON_NAME);
@@ -128,4 +150,38 @@ void MainWindow::onQuit(wxCommandEvent &event) {
 void MainWindow::onAbout(wxCommandEvent &event) {
 	AboutDialog *about = new AboutDialog(this);
 	about->show();
+}
+
+void MainWindow::onOpenDir(wxCommandEvent &event) {
+	wxDirDialog dialog(this, wxT("Open Aurora game directory"), wxEmptyString,
+	                   wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+
+	if (dialog.ShowModal() != wxID_OK)
+		return;
+
+	open(dialog.GetPath());
+}
+
+void MainWindow::onOpenFile(wxCommandEvent &event) {
+	wxFileDialog dialog(this, wxT("Open Aurora game resource file"), wxEmptyString, wxEmptyString,
+	                    wxT("Aurora game resource (*.*)|*.*"), wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
+
+	if (dialog.ShowModal() != wxID_OK)
+		return;
+
+	open(dialog.GetPath());
+}
+
+void MainWindow::onClose(wxCommandEvent &event) {
+	close();
+}
+
+void MainWindow::open(const Common::UString &path) {
+	close();
+
+	_path = path;
+}
+
+void MainWindow::close() {
+	_path.clear();
 }

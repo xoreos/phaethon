@@ -26,9 +26,12 @@
 #define EVENTID_H
 
 enum {
-	kEventFileQuit    = wxID_EXIT,
-	kEventHelpAbout   = wxID_ABOUT,
-	kEventButtonClose = 0
+	kEventFileQuit     = wxID_EXIT,
+	kEventHelpAbout    = wxID_ABOUT,
+	kEventFileOpenDir  = 0,
+	kEventFileOpenFile    ,
+	kEventFileClose       ,
+	kEventButtonClose
 };
 
 #endif // EVENTID_H

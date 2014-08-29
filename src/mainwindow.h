@@ -38,8 +38,14 @@ public:
 private:
 	Common::UString _path;
 
+	void onOpenDir(wxCommandEvent &event);
+	void onOpenFile(wxCommandEvent &event);
+	void onClose(wxCommandEvent &event);
 	void onQuit(wxCommandEvent &event);
 	void onAbout(wxCommandEvent &event);
+
+	void open(const Common::UString &path);
+	void close();
 
 	wxDECLARE_EVENT_TABLE();
 };
