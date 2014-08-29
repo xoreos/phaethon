@@ -31,6 +31,8 @@
 
 #include "common/ustring.h"
 #include "common/version.h"
+#include "common/util.h"
+#include "common/filepath.h"
 
 #include "cline.h"
 #include "eventid.h"
@@ -46,9 +48,8 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 wxEND_EVENT_TABLE()
 
 
-MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size,
-                       const Common::UString &path) :
-	wxFrame(NULL, wxID_ANY, title, pos, size), _path(path) {
+MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
+	wxFrame(NULL, wxID_ANY, title, pos, size) {
 
 	CreateStatusBar();
 	GetStatusBar()->SetStatusText(wxT("Idle..."));
@@ -176,12 +177,49 @@ void MainWindow::onClose(wxCommandEvent &event) {
 	close();
 }
 
-void MainWindow::open(const Common::UString &path) {
+void MainWindow::forceRedraw() {
+	Refresh();
+	Update();
+}
+
+bool MainWindow::open(Common::UString path) {
 	close();
 
+	path = Common::FilePath::normalize(path);
+
+	if (Common::FilePath::isDirectory(path)) {
+		GetStatusBar()->PushStatusText(Common::UString("Recursively adding all files in ") + path + "...");
+		forceRedraw();
+
+		bool result = _files.addDirectory(path, -1);
+
+		GetStatusBar()->PopStatusText();
+
+		if (!result)
+			return false;
+
+	} else if (Common::FilePath::isRegularFile(path)) {
+		GetStatusBar()->PushStatusText(Common::UString("Adding file ") + path + "...");
+		forceRedraw();
+
+		bool result = _files.addFile(path);
+
+		GetStatusBar()->PopStatusText();
+
+		if (!result)
+			return false;
+
+	} else {
+		warning("Doesn't exist");
+		return false;
+	}
+
 	_path = path;
+
+	return true;
 }
 
 void MainWindow::close() {
+	_files.clear();
 	_path.clear();
 }

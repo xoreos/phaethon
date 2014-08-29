@@ -28,15 +28,18 @@
 #include <wx/wx.h>
 
 #include "common/ustring.h"
+#include "common/filelist.h"
 
 class MainWindow : public wxFrame {
 public:
-	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size,
-	           const Common::UString &path = "");
+	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size);
 	~MainWindow();
+
+	bool open(Common::UString path);
 
 private:
 	Common::UString _path;
+	Common::FileList _files;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
@@ -44,7 +47,8 @@ private:
 	void onQuit(wxCommandEvent &event);
 	void onAbout(wxCommandEvent &event);
 
-	void open(const Common::UString &path);
+	void forceRedraw();
+
 	void close();
 
 	wxDECLARE_EVENT_TABLE();
