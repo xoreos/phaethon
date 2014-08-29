@@ -159,6 +159,10 @@ UString::UString(const UString &str) {
 	*this = str;
 }
 
+UString::UString(const wxString &str) {
+	*this = str;
+}
+
 UString::UString(const std::string &str) {
 	*this = str;
 }
@@ -186,6 +190,14 @@ UString::operator wxString() const {
 UString &UString::operator=(const UString &str) {
 	_string = str._string;
 	_size   = str._size;
+
+	return *this;
+}
+
+UString &UString::operator=(const wxString &str) {
+	_string = str.mb_str(wxConvUTF8);
+
+	recalculateSize();
 
 	return *this;
 }
@@ -228,6 +240,14 @@ UString UString::operator+(const UString &str) const {
 	return tmp;
 }
 
+UString UString::operator+(const wxString &str) const {
+	UString tmp(*this);
+
+	tmp += str;
+
+	return tmp;
+}
+
 UString UString::operator+(const std::string &str) const {
 	UString tmp(*this);
 
@@ -257,6 +277,12 @@ UString &UString::operator+=(const UString &str) {
 	_size   += str._size;
 
 	return *this;
+}
+
+UString &UString::operator+=(const wxString &str) {
+	UString ustr(str);
+
+	return *this += ustr;
 }
 
 UString &UString::operator+=(const std::string &str) {

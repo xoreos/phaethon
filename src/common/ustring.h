@@ -60,6 +60,7 @@ public:
 	};
 
 	UString(const UString &str);
+	UString(const wxString &str);
 	UString(const std::string &str);
 	UString(const char *str = "");
 	UString(const char *str, int n);
@@ -69,6 +70,7 @@ public:
 	operator wxString() const;
 
 	UString &operator=(const UString &str);
+	UString &operator=(const wxString &str);
 	UString &operator=(const std::string &str);
 	UString &operator=(const char *str);
 
@@ -78,11 +80,13 @@ public:
 	bool operator>(const UString &str) const;
 
 	UString operator+(const UString &str) const;
+	UString operator+(const wxString &str) const;
 	UString operator+(const std::string &str) const;
 	UString operator+(const char *str) const;
 	UString operator+(uint32 c) const;
 
 	UString &operator+=(const UString &str);
+	UString &operator+=(const wxString &str);
 	UString &operator+=(const std::string &str);
 	UString &operator+=(const char *str);
 	UString &operator+=(uint32 c);
