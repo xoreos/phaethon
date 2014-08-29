@@ -47,6 +47,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxFrame(NULL, wxID_ANY, title, pos, size), _path(path) {
 
 	CreateStatusBar();
+	GetStatusBar()->SetStatusText(wxT("Idle..."));
 
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(kEventFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
