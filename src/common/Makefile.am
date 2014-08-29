@@ -34,6 +34,8 @@ noinst_HEADERS = \
                  stream.h \
                  file.h \
                  version.h \
+                 filepath.h \
+                 filelist.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -43,6 +45,8 @@ libcommon_la_SOURCES = \
                        stream.cpp \
                        file.cpp \
                        version.cpp \
+                       filepath.cpp \
+                       filelist.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
