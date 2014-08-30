@@ -262,6 +262,7 @@ private:
 
 
 // Right-binding concatenation operators
+
 static inline UString operator+(const std::string &left, const UString &right) {
 	return UString(left) + right;
 }
@@ -270,6 +271,15 @@ static inline UString operator+(const char *left, const UString &right) {
 	return UString(left) + right;
 }
 
+// Static comparison functions
+
+static inline bool compareUStringCaseSensitive(const UString &str1, const UString &str2) {
+	return str1.less(str2);
+}
+
+static inline bool compareUStringCaseInsensitive(const UString &str1, const UString &str2) {
+	return str1.lessIgnoreCase(str2);
+}
 
 // Hash functions
 
