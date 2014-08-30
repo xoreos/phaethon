@@ -31,6 +31,28 @@
 #include "common/ustring.h"
 #include "common/filetree.h"
 
+class ResourceTreeItem : public wxTreeItemData {
+public:
+	ResourceTreeItem(const Common::FileTree::Entry &entry);
+	~ResourceTreeItem();
+
+	const Common::FileTree::Entry &getEntry() const;
+
+private:
+	const Common::FileTree::Entry &_entry;
+};
+
+class ResourceTree : public wxTreeCtrl {
+wxDECLARE_DYNAMIC_CLASS(ResourceTree);
+
+public:
+	ResourceTree();
+	ResourceTree(wxWindow *parent);
+	~ResourceTree();
+
+	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
+};
+
 class MainWindow : public wxFrame {
 public:
 	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size);
@@ -42,7 +64,7 @@ private:
 	Common::UString _path;
 	Common::FileTree _files;
 
-	wxTreeCtrl *_resourceTree;
+	ResourceTree *_resourceTree;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);

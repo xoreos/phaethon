@@ -39,6 +39,54 @@
 #include "about.h"
 #include "mainwindow.h"
 
+
+ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) : _entry(entry) {
+}
+
+ResourceTreeItem::~ResourceTreeItem() {
+}
+
+const Common::FileTree::Entry &ResourceTreeItem::getEntry() const {
+	return _entry;
+}
+
+
+wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
+ResourceTree::ResourceTree() {
+}
+
+ResourceTree::ResourceTree(wxWindow *parent) :
+	wxTreeCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE) {
+
+}
+
+ResourceTree::~ResourceTree() {
+}
+
+int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2) {
+	ResourceTreeItem *d1 = dynamic_cast<ResourceTreeItem *>(GetItemData(item1));
+	ResourceTreeItem *d2 = dynamic_cast<ResourceTreeItem *>(GetItemData(item2));
+
+	// No data sorts before data
+	if (!d1)
+		return -1;
+	if (!d2)
+		return 1;
+
+	const Common::FileTree::Entry &e1 = d1->getEntry();
+	const Common::FileTree::Entry &e2 = d2->getEntry();
+
+	// Directories sort before files
+	if (boost::filesystem::is_directory(e1.path) && !boost::filesystem::is_directory(e2.path))
+		return -1;
+	if (!boost::filesystem::is_directory(e1.path) && boost::filesystem::is_directory(e2.path))
+		return 1;
+
+	// Compare entries case-insensitively
+	return Common::UString(e1.path.c_str()).stricmp(Common::UString(e2.path.c_str()));
+}
+
+
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
 	EVT_MENU(kEventFileOpenFile, MainWindow::onOpenFile)
@@ -94,8 +142,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxPanel *panelInfo    = new wxPanel(splitterInfoPreview, wxID_ANY);
 	wxPanel *panelTree    = new wxPanel(splitterTreeRes    , wxID_ANY);
 
-	_resourceTree = new wxTreeCtrl(panelTree, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-	                               wxTR_HAS_BUTTONS | wxTR_SINGLE);
+	_resourceTree = new ResourceTree(panelTree);
 
 	wxGenericStaticText *info    = new wxGenericStaticText(panelInfo   , wxID_ANY, wxT("Info..."));
 	wxGenericStaticText *preview = new wxGenericStaticText(panelPreview, wxID_ANY, wxT("Preview..."));
@@ -209,11 +256,12 @@ bool MainWindow::open(Common::UString path) {
 		return false;
 	}
 
-	GetStatusBar()->PopStatusText();
-
 	_path = path;
 
+	GetStatusBar()->PopStatusText();
+	GetStatusBar()->PushStatusText(Common::UString("Populating resource tree..."));
 	populateTree();
+	GetStatusBar()->PopStatusText();
 
 	return true;
 }
@@ -229,15 +277,18 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
 	     c != e.children.end(); ++c) {
 
-		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name);
+		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name, -1, -1, new ResourceTreeItem(*c));
 		populateTree(*c, cT);
 	}
+
+	_resourceTree->SortChildren(t);
 }
 
 void MainWindow::populateTree() {
 	const Common::FileTree::Entry &fileRoot = _files.getRoot();
 
-	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name);
+	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name, -1, -1, new ResourceTreeItem(fileRoot));
 
 	populateTree(fileRoot, treeRoot);
+	_resourceTree->Expand(treeRoot);
 }
