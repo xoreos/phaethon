@@ -23,7 +23,6 @@
  */
 
 #include <wx/menu.h>
-#include <wx/treectrl.h>
 #include <wx/splitter.h>
 #include <wx/artprov.h>
 
@@ -32,6 +31,7 @@
 #include "common/ustring.h"
 #include "common/version.h"
 #include "common/util.h"
+#include "common/error.h"
 #include "common/filepath.h"
 
 #include "cline.h"
@@ -94,7 +94,8 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxPanel *panelInfo    = new wxPanel(splitterInfoPreview, wxID_ANY);
 	wxPanel *panelTree    = new wxPanel(splitterTreeRes    , wxID_ANY);
 
-	wxTreeCtrl *tree = new wxTreeCtrl(panelTree, wxID_ANY);
+	_resourceTree = new wxTreeCtrl(panelTree, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+	                               wxTR_HAS_BUTTONS | wxTR_SINGLE);
 
 	wxGenericStaticText *info    = new wxGenericStaticText(panelInfo   , wxID_ANY, wxT("Info..."));
 	wxGenericStaticText *preview = new wxGenericStaticText(panelPreview, wxID_ANY, wxT("Preview..."));
@@ -109,7 +110,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxHORIZONTAL, panelInfo   , wxT("Resource info"));
 	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(wxHORIZONTAL, panelTree   , wxT("Resources"));
 
-	sizerTree->Add(tree, 1, wxEXPAND, 0);
+	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
 
 	sizerInfo->Add(info, 0, 0, 0);
@@ -185,41 +186,58 @@ void MainWindow::forceRedraw() {
 bool MainWindow::open(Common::UString path) {
 	close();
 
-	path = Common::FilePath::normalize(path);
-
-	if (Common::FilePath::isDirectory(path)) {
-		GetStatusBar()->PushStatusText(Common::UString("Recursively adding all files in ") + path + "...");
-		forceRedraw();
-
-		bool result = _files.addDirectory(path, -1);
-
-		GetStatusBar()->PopStatusText();
-
-		if (!result)
-			return false;
-
-	} else if (Common::FilePath::isRegularFile(path)) {
-		GetStatusBar()->PushStatusText(Common::UString("Adding file ") + path + "...");
-		forceRedraw();
-
-		bool result = _files.addFile(path);
-
-		GetStatusBar()->PopStatusText();
-
-		if (!result)
-			return false;
-
-	} else {
-		warning("Doesn't exist");
+	if (!Common::FilePath::isDirectory(path) && !Common::FilePath::isRegularFile(path)) {
+		warning("Path \"%s\" is neither a directory nor a regular file", path.c_str());
 		return false;
 	}
 
+	path = Common::FilePath::normalize(path);
+
+	if (Common::FilePath::isDirectory(path))
+		GetStatusBar()->PushStatusText(Common::UString("Recursively adding all files in ") + path + "...");
+	else
+		GetStatusBar()->PushStatusText(Common::UString("Adding file ") + path + "...");
+
+	forceRedraw();
+
+	try {
+		_files.readPath(path, -1);
+	} catch (Common::Exception &e) {
+		GetStatusBar()->PopStatusText();
+
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	GetStatusBar()->PopStatusText();
+
 	_path = path;
+
+	populateTree();
 
 	return true;
 }
 
 void MainWindow::close() {
+	_resourceTree->DeleteAllItems();
+
 	_files.clear();
 	_path.clear();
+}
+
+void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
+	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
+	     c != e.children.end(); ++c) {
+
+		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name);
+		populateTree(*c, cT);
+	}
+}
+
+void MainWindow::populateTree() {
+	const Common::FileTree::Entry &fileRoot = _files.getRoot();
+
+	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name);
+
+	populateTree(fileRoot, treeRoot);
 }

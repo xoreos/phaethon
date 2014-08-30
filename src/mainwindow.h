@@ -26,9 +26,10 @@
 #define MAINWINDOW_H
 
 #include <wx/wx.h>
+#include <wx/treectrl.h>
 
 #include "common/ustring.h"
-#include "common/filelist.h"
+#include "common/filetree.h"
 
 class MainWindow : public wxFrame {
 public:
@@ -39,7 +40,9 @@ public:
 
 private:
 	Common::UString _path;
-	Common::FileList _files;
+	Common::FileTree _files;
+
+	wxTreeCtrl *_resourceTree;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
@@ -50,6 +53,8 @@ private:
 	void forceRedraw();
 
 	void close();
+	void populateTree();
+	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
 
 	wxDECLARE_EVENT_TABLE();
 };
