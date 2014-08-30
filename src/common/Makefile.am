@@ -36,6 +36,7 @@ noinst_HEADERS = \
                  version.h \
                  filepath.h \
                  filelist.h \
+                 filetree.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -47,6 +48,7 @@ libcommon_la_SOURCES = \
                        version.cpp \
                        filepath.cpp \
                        filelist.cpp \
+                       filetree.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
