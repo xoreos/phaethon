@@ -2,6 +2,7 @@ include $(top_srcdir)/Makefile.common
 
 SUBDIRS = \
           common \
+          aurora \
           $(EMPTY)
 
 bin_PROGRAMS = phaethon
@@ -21,6 +22,7 @@ phaethon_SOURCES = \
                    $(EMPTY)
 
 phaethon_LDADD = \
+                 aurora/libaurora.la \
                  common/libcommon.la \
                  $(LDADD) \
                  $(EMPTY)
