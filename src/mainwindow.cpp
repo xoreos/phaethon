@@ -89,9 +89,9 @@ int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &
 	const Common::FileTree::Entry &e2 = d2->getEntry();
 
 	// Directories sort before files
-	if (boost::filesystem::is_directory(e1.path) && !boost::filesystem::is_directory(e2.path))
+	if (e1.isDirectory() && !e2.isDirectory())
 		return -1;
-	if (!boost::filesystem::is_directory(e1.path) && boost::filesystem::is_directory(e2.path))
+	if (!e1.isDirectory() && e2.isDirectory())
 		return 1;
 
 	// Compare entries case-insensitively
@@ -289,7 +289,7 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
 	     c != e.children.end(); ++c) {
 
-		int image = boost::filesystem::is_directory(c->path) ? ResourceTree::kImageDir : ResourceTree::kImageFile;
+		int image = c->isDirectory() ? ResourceTree::kImageDir : ResourceTree::kImageFile;
 
 		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name, image, image, new ResourceTreeItem(*c));
 		populateTree(*c, cT);
@@ -301,7 +301,7 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 void MainWindow::populateTree() {
 	const Common::FileTree::Entry &fileRoot = _files.getRoot();
 
-	int image = boost::filesystem::is_directory(fileRoot.path) ? ResourceTree::kImageDir : ResourceTree::kImageFile;
+	int image = fileRoot.isDirectory() ? ResourceTree::kImageDir : ResourceTree::kImageFile;
 
 	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name, image, image, new ResourceTreeItem(fileRoot));
 

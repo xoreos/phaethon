@@ -34,6 +34,10 @@ FileTree::Entry::Entry() {
 FileTree::Entry::Entry(const boost::filesystem::path &p) : name(p.filename().c_str()), path(p) {
 }
 
+bool FileTree::Entry::isDirectory() const {
+	return boost::filesystem::is_directory(path);
+}
+
 
 FileTree::FileTree() {
 }

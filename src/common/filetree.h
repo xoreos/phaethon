@@ -48,6 +48,8 @@ public:
 
 		Entry();
 		Entry(const boost::filesystem::path &p);
+
+		bool isDirectory() const;
 	};
 
 	FileTree();
