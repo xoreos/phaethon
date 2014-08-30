@@ -25,6 +25,7 @@
 #include <wx/menu.h>
 #include <wx/splitter.h>
 #include <wx/artprov.h>
+#include <wx/imaglist.h>
 
 #include <wx/generic/stattextg.h>
 
@@ -58,6 +59,17 @@ ResourceTree::ResourceTree() {
 ResourceTree::ResourceTree(wxWindow *parent) :
 	wxTreeCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE) {
 
+	wxIcon icon[kImageMAX];
+
+	icon[kImageDir]  = wxArtProvider::GetIcon(wxART_FOLDER     , wxART_LIST);
+	icon[kImageFile] = wxArtProvider::GetIcon(wxART_NORMAL_FILE, wxART_LIST);
+
+	wxImageList *images = new wxImageList(icon[0].GetWidth(), icon[0].GetHeight(), true);
+
+	for (int i = 0; i < kImageMAX; i++)
+		images->Add(icon[i]);
+
+	AssignImageList(images);
 }
 
 ResourceTree::~ResourceTree() {
@@ -277,7 +289,9 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
 	     c != e.children.end(); ++c) {
 
-		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name, -1, -1, new ResourceTreeItem(*c));
+		int image = boost::filesystem::is_directory(c->path) ? ResourceTree::kImageDir : ResourceTree::kImageFile;
+
+		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name, image, image, new ResourceTreeItem(*c));
 		populateTree(*c, cT);
 	}
 
@@ -287,7 +301,9 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 void MainWindow::populateTree() {
 	const Common::FileTree::Entry &fileRoot = _files.getRoot();
 
-	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name, -1, -1, new ResourceTreeItem(fileRoot));
+	int image = boost::filesystem::is_directory(fileRoot.path) ? ResourceTree::kImageDir : ResourceTree::kImageFile;
+
+	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name, image, image, new ResourceTreeItem(fileRoot));
 
 	populateTree(fileRoot, treeRoot);
 	_resourceTree->Expand(treeRoot);

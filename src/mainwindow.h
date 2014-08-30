@@ -46,6 +46,12 @@ class ResourceTree : public wxTreeCtrl {
 wxDECLARE_DYNAMIC_CLASS(ResourceTree);
 
 public:
+	enum Image {
+		kImageDir  = 0,
+		kImageFile,
+		kImageMAX
+	};
+
 	ResourceTree();
 	ResourceTree(wxWindow *parent);
 	~ResourceTree();
