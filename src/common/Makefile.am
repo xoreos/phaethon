@@ -34,6 +34,7 @@ noinst_HEADERS = \
                  stream.h \
                  file.h \
                  version.h \
+                 hash.h \
                  filepath.h \
                  filelist.h \
                  filetree.h \
