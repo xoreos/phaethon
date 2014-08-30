@@ -28,8 +28,12 @@
 #include <wx/wx.h>
 #include <wx/treectrl.h>
 
+#include <wx/generic/stattextg.h>
+
 #include "common/ustring.h"
 #include "common/filetree.h"
+
+#include "aurora/types.h"
 
 class ResourceTreeItem : public wxTreeItemData {
 public:
@@ -38,9 +42,14 @@ public:
 
 	const Common::FileTree::Entry &getEntry() const;
 
+	Aurora::FileType getFileType() const;
+	Aurora::ResourceType getResourceType() const;
+
 private:
 	const Common::FileTree::Entry &_entry;
 };
+
+class MainWindow;
 
 class ResourceTree : public wxTreeCtrl {
 wxDECLARE_DYNAMIC_CLASS(ResourceTree);
@@ -53,10 +62,17 @@ public:
 	};
 
 	ResourceTree();
-	ResourceTree(wxWindow *parent);
+	ResourceTree(wxWindow *parent, MainWindow &mainWindow);
 	~ResourceTree();
 
 	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
+
+	void onSelChanged(wxTreeEvent &event);
+
+private:
+	MainWindow *_mainWindow;
+
+	wxDECLARE_EVENT_TABLE();
 };
 
 class MainWindow : public wxFrame {
@@ -66,11 +82,18 @@ public:
 
 	bool open(Common::UString path);
 
+	void resourceTreeSelect(const ResourceTreeItem *item);
+
 private:
 	Common::UString _path;
 	Common::FileTree _files;
 
 	ResourceTree *_resourceTree;
+
+	wxGenericStaticText *_resInfoName;
+	wxGenericStaticText *_resInfoFileType;
+	wxGenericStaticText *_resInfoResType;
+
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);

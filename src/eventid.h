@@ -31,7 +31,8 @@ enum {
 	kEventFileOpenDir  = 0,
 	kEventFileOpenFile    ,
 	kEventFileClose       ,
-	kEventButtonClose
+	kEventButtonClose     ,
+	kEventResourceTree
 };
 
 #endif // EVENTID_H

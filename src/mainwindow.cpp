@@ -27,13 +27,13 @@
 #include <wx/artprov.h>
 #include <wx/imaglist.h>
 
-#include <wx/generic/stattextg.h>
-
 #include "common/ustring.h"
 #include "common/version.h"
 #include "common/util.h"
 #include "common/error.h"
 #include "common/filepath.h"
+
+#include "aurora/util.h"
 
 #include "cline.h"
 #include "eventid.h"
@@ -51,13 +51,26 @@ const Common::FileTree::Entry &ResourceTreeItem::getEntry() const {
 	return _entry;
 }
 
-
-wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
-ResourceTree::ResourceTree() {
+Aurora::FileType ResourceTreeItem::getFileType() const {
+	return TypeMan.getFileType(_entry.name);
 }
 
-ResourceTree::ResourceTree(wxWindow *parent) :
-	wxTreeCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE) {
+Aurora::ResourceType ResourceTreeItem::getResourceType() const {
+	return TypeMan.getResourceType(_entry.name);
+}
+
+
+wxBEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
+	EVT_TREE_SEL_CHANGED(kEventResourceTree, ResourceTree::onSelChanged)
+wxEND_EVENT_TABLE()
+
+wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
+ResourceTree::ResourceTree() : _mainWindow(0) {
+}
+
+ResourceTree::ResourceTree(wxWindow *parent, MainWindow &mainWindow) :
+	wxTreeCtrl(parent, kEventResourceTree, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE),
+	_mainWindow(&mainWindow) {
 
 	wxIcon icon[kImageMAX];
 
@@ -96,6 +109,12 @@ int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &
 
 	// Compare entries case-insensitively
 	return Common::UString(e1.path.c_str()).stricmp(Common::UString(e2.path.c_str()));
+}
+
+void ResourceTree::onSelChanged(wxTreeEvent &event) {
+	assert(_mainWindow);
+
+	_mainWindow->resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem())));
 }
 
 
@@ -154,9 +173,12 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxPanel *panelInfo    = new wxPanel(splitterInfoPreview, wxID_ANY);
 	wxPanel *panelTree    = new wxPanel(splitterTreeRes    , wxID_ANY);
 
-	_resourceTree = new ResourceTree(panelTree);
+	_resourceTree = new ResourceTree(panelTree, *this);
 
-	wxGenericStaticText *info    = new wxGenericStaticText(panelInfo   , wxID_ANY, wxT("Info..."));
+	_resInfoName     = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
+	_resInfoFileType = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
+	_resInfoResType  = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
+
 	wxGenericStaticText *preview = new wxGenericStaticText(panelPreview, wxID_ANY, wxT("Preview..."));
 
 	wxTextCtrl *log = new wxTextCtrl(panelLog, wxID_ANY, wxEmptyString, wxDefaultPosition,
@@ -166,13 +188,15 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(wxHORIZONTAL, panelLog    , wxT("Log"));
 	wxStaticBoxSizer *sizerPreview = new wxStaticBoxSizer(wxHORIZONTAL, panelPreview, wxT("Preview"));
-	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxHORIZONTAL, panelInfo   , wxT("Resource info"));
+	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxVERTICAL  , panelInfo   , wxT("Resource info"));
 	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(wxHORIZONTAL, panelTree   , wxT("Resources"));
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
 
-	sizerInfo->Add(info, 0, 0, 0);
+	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
+	sizerInfo->Add(_resInfoFileType, 0, wxEXPAND, 0);
+	sizerInfo->Add(_resInfoResType , 0, wxEXPAND, 0);
 	panelInfo->SetSizer(sizerInfo);
 
 	sizerPreview->Add(preview, 0, 0, 0);
@@ -199,6 +223,8 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	splitterInfoPreview->SetSashPosition(150);
 	splitterTreeRes->SetSashPosition(200);
 	splitterMainLog->SetSashPosition(480);
+
+	resourceTreeSelect(0);
 }
 
 MainWindow::~MainWindow() {
@@ -307,4 +333,36 @@ void MainWindow::populateTree() {
 
 	populateTree(fileRoot, treeRoot);
 	_resourceTree->Expand(treeRoot);
+
+	resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(_resourceTree->GetItemData(treeRoot)));
+}
+
+void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
+	Common::UString labelInfoName     = "Resource name: ";
+	Common::UString labelInfoFileType = "File type: ";
+	Common::UString labelInfoResType  = "Resource type: ";
+
+	if (item) {
+		labelInfoName += item->getEntry().name;
+
+		if (item->getEntry().isDirectory()) {
+			labelInfoFileType += "Directory";
+			labelInfoResType  += "Directory";
+		} else {
+			Aurora::FileType     fileType = item->getFileType();
+			Aurora::ResourceType resType  = item->getResourceType();
+
+			labelInfoFileType += Common::UString::sprintf("%d", fileType);
+			labelInfoResType  += Common::UString::sprintf("%d", resType);
+
+			if (fileType != Aurora::kFileTypeNone)
+				labelInfoFileType += Common::UString::sprintf(" (%s)", TypeMan.getExtension(fileType).c_str());
+			if (resType  != Aurora::kResourceNone)
+				labelInfoResType  += Common::UString::sprintf(" (%s)", getResourceTypeDescription(resType).c_str());
+		}
+	}
+
+	_resInfoName->SetLabel(labelInfoName);
+	_resInfoFileType->SetLabel(labelInfoFileType);
+	_resInfoResType->SetLabel(labelInfoResType);
 }
