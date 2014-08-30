@@ -70,7 +70,7 @@ public:
 	 *                       If -1, the recursion is limitless.
 	 *  @return true if the path was successfully read, false otherwise.
 	 */
-	bool readPath(boost::filesystem::path path, int recurseDepth = 0);
+	void readPath(boost::filesystem::path path, int recurseDepth = 0);
 
 	/** Fill the tree with this path.
 	 *
@@ -80,12 +80,12 @@ public:
 	 *                       If -1, the recursion is limitless.
 	 *  @return true if the path was successfully read, false otherwise.
 	 */
-	bool readPath(const Common::UString &path, int recurseDepth = 0);
+	void readPath(const Common::UString &path, int recurseDepth = 0);
 
 private:
 	Entry _root;
 
-	bool addPath(Entry &entry, const boost::filesystem::path &path, int recurseDepth);
+	void addPath(Entry &entry, const boost::filesystem::path &path, int recurseDepth);
 };
 
 } // End of namespace Common

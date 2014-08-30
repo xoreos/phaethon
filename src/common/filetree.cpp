@@ -24,6 +24,7 @@
 
 #include "common/filetree.h"
 #include "common/filepath.h"
+#include "common/error.h"
 
 namespace Common {
 
@@ -54,16 +55,16 @@ const FileTree::Entry &FileTree::getRoot() const {
 	return _root;
 }
 
-bool FileTree::readPath(const Common::UString &path, int recurseDepth) {
+void FileTree::readPath(const Common::UString &path, int recurseDepth) {
 	return readPath(boost::filesystem::path(path.c_str()), recurseDepth);
 }
 
-bool FileTree::readPath(boost::filesystem::path path, int recurseDepth) {
+void FileTree::readPath(boost::filesystem::path path, int recurseDepth) {
 	clear();
 
 	// The path needs to exist
 	if (!boost::filesystem::exists(path))
-		return false;
+		throw Common::Exception("Path \"%s\" does not exist", path.c_str());
 
 	path = FilePath::normalize(path);
 
@@ -72,12 +73,12 @@ bool FileTree::readPath(boost::filesystem::path path, int recurseDepth) {
 
 	// If we can't or shouldn't recurse, we're done
 	if (boost::filesystem::is_regular_file(path) || (recurseDepth == 0))
-		return true;
+		return;
 
-	return addPath(_root, path, (recurseDepth == -1) ? -1 : (recurseDepth - 1));
+	addPath(_root, path, (recurseDepth == -1) ? -1 : (recurseDepth - 1));
 }
 
-bool FileTree::addPath(Entry &entry, const boost::filesystem::path &path, int recurseDepth) {
+void FileTree::addPath(Entry &entry, const boost::filesystem::path &path, int recurseDepth) {
 	try {
 		// Iterator over the directory's contents
 		boost::filesystem::directory_iterator itEnd;
@@ -88,14 +89,18 @@ bool FileTree::addPath(Entry &entry, const boost::filesystem::path &path, int re
 			// Recurse into directory until the depth limit is reached
 			if (is_directory(itDir->status()))
 				if (recurseDepth != 0)
-					if (!addPath(entry.children.back(), itDir->path(), (recurseDepth == -1) ? -1 : (recurseDepth - 1)))
-						return false;
+					addPath(entry.children.back(), itDir->path(), (recurseDepth == -1) ? -1 : (recurseDepth - 1));
 		}
-	} catch (...) {
-		return false;
-	}
+	} catch (Exception &e) {
+		e.add("Failed to read path \"%s\"", path.c_str());
 
-	return true;
+		throw;
+	} catch (std::exception &e) {
+		Exception se(e);
+
+		se.add("Failed to read path \"%s\"", path.c_str());
+		throw se;
+	}
 }
 
 } // End of namespace Common
