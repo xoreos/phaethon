@@ -124,6 +124,44 @@ void ResourceTree::onSelChanged(wxTreeEvent &event) {
 	_mainWindow->resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem())));
 }
 
+ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {
+	switch (item.getSource()) {
+		case ResourceTreeItem::kSourceDirectory:
+			return kImageDir;
+
+		case ResourceTreeItem::kSourceFile:
+			return kImageFile;
+
+		default:
+			break;
+	}
+
+	return kImageNone;
+}
+
+wxTreeItemId ResourceTree::addRoot(ResourceTreeItem *item) {
+	assert(item);
+
+	return AddRoot(item->getName(), getImage(*item), getImage(*item), item);
+}
+
+wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *item) {
+	assert(item);
+
+	return AppendItem(parent, item->getName(), getImage(*item), getImage(*item), item);
+}
+
+void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
+	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
+	     c != e.children.end(); ++c) {
+
+		wxTreeItemId cT = _resourceTree->appendItem(t, new ResourceTreeItem(*c));
+		populateTree(*c, cT);
+	}
+
+	_resourceTree->SortChildren(t);
+}
+
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
@@ -318,25 +356,10 @@ void MainWindow::close() {
 	_path.clear();
 }
 
-void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
-	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
-	     c != e.children.end(); ++c) {
-
-		int image = c->isDirectory() ? ResourceTree::kImageDir : ResourceTree::kImageFile;
-
-		wxTreeItemId cT = _resourceTree->AppendItem(t, c->name, image, image, new ResourceTreeItem(*c));
-		populateTree(*c, cT);
-	}
-
-	_resourceTree->SortChildren(t);
-}
-
 void MainWindow::populateTree() {
 	const Common::FileTree::Entry &fileRoot = _files.getRoot();
 
-	int image = fileRoot.isDirectory() ? ResourceTree::kImageDir : ResourceTree::kImageFile;
-
-	wxTreeItemId treeRoot = _resourceTree->AddRoot(fileRoot.name, image, image, new ResourceTreeItem(fileRoot));
+	wxTreeItemId treeRoot = _resourceTree->addRoot(new ResourceTreeItem(fileRoot));
 
 	populateTree(fileRoot, treeRoot);
 	_resourceTree->Expand(treeRoot);

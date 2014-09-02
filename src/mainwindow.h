@@ -67,22 +67,28 @@ class ResourceTree : public wxTreeCtrl {
 wxDECLARE_DYNAMIC_CLASS(ResourceTree);
 
 public:
-	enum Image {
-		kImageDir  = 0,
-		kImageFile,
-		kImageMAX
-	};
-
 	ResourceTree();
 	ResourceTree(wxWindow *parent, MainWindow &mainWindow);
 	~ResourceTree();
+
+	wxTreeItemId addRoot(ResourceTreeItem *item);
+	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
 
 	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
 
 	void onSelChanged(wxTreeEvent &event);
 
 private:
+	enum Image {
+		kImageNone = -1,
+		kImageDir  =  0,
+		kImageFile     ,
+		kImageMAX
+	};
+
 	MainWindow *_mainWindow;
+
+	static Image getImage(const ResourceTreeItem &item);
 
 	wxDECLARE_EVENT_TABLE();
 };
