@@ -350,6 +350,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::onQuit(wxCommandEvent &event) {
+	close();
 	Close(true);
 }
 
