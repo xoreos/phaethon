@@ -25,6 +25,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <map>
+
 #include <wx/wx.h>
 #include <wx/treectrl.h>
 
@@ -34,15 +36,18 @@
 #include "common/filetree.h"
 
 #include "aurora/types.h"
+#include "aurora/archive.h"
 
 class ResourceTreeItem : public wxTreeItemData {
 public:
 	enum Source {
-		kSourceDirectory = 0,
-		kSourceFile      = 1
+		kSourceDirectory   = 0,
+		kSourceFile        = 1,
+		kSourceArchiveFile = 2
 	};
 
 	ResourceTreeItem(const Common::FileTree::Entry &entry);
+	ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
 	~ResourceTreeItem();
 
 	const Common::UString &getName() const;
@@ -51,14 +56,22 @@ public:
 	Aurora::FileType getFileType() const;
 	Aurora::ResourceType getResourceType() const;
 
-	const boost::filesystem::path &getPath() const;
-
 private:
+	struct Data {
+		boost::filesystem::path path;
+
+		Aurora::Archive *archive;
+		bool addedArchiveMembers;
+		uint32 archiveIndex;
+	};
+
 	Common::UString _name;
-
 	Source _source;
+	Data _data;
 
-	boost::filesystem::path _path;
+	Data &getData();
+
+	friend class ResourceTree;
 };
 
 class MainWindow;
@@ -77,6 +90,7 @@ public:
 	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
 
 	void onSelChanged(wxTreeEvent &event);
+	void onItemExpanding(wxTreeEvent &event);
 
 private:
 	enum Image {
@@ -102,7 +116,11 @@ public:
 
 	void resourceTreeSelect(const ResourceTreeItem *item);
 
+	Aurora::Archive *getArchive(const boost::filesystem::path &path);
+
 private:
+	typedef std::map<Common::UString, Aurora::Archive *> ArchiveMap;
+
 	Common::UString _path;
 	Common::FileTree _files;
 
@@ -112,6 +130,7 @@ private:
 	wxGenericStaticText *_resInfoFileType;
 	wxGenericStaticText *_resInfoResType;
 
+	ArchiveMap _archives;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);

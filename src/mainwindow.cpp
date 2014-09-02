@@ -34,6 +34,9 @@
 #include "common/filepath.h"
 
 #include "aurora/util.h"
+#include "aurora/zipfile.h"
+#include "aurora/erffile.h"
+#include "aurora/rimfile.h"
 
 #include "cline.h"
 #include "eventid.h"
@@ -42,8 +45,21 @@
 
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-	_name(entry.name), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile), _path(entry.path) {
+	_name(entry.name), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
+	_data.path = entry.path;
+
+	_data.archive = 0;
+	_data.addedArchiveMembers = false;
+	_data.archiveIndex = 0xFFFFFFFF;
+}
+
+ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
+	_name(TypeMan.setFileType(resource.name, resource.type)), _source(kSourceArchiveFile) {
+
+	_data.archive = archive;
+	_data.addedArchiveMembers = false;
+	_data.archiveIndex = resource.index;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
@@ -57,8 +73,8 @@ ResourceTreeItem::Source ResourceTreeItem::getSource() const {
 	return _source;
 }
 
-const boost::filesystem::path &ResourceTreeItem::getPath() const {
-	return _path;
+ResourceTreeItem::Data &ResourceTreeItem::getData() {
+	return _data;
 }
 
 Aurora::FileType ResourceTreeItem::getFileType() const {
@@ -72,6 +88,7 @@ Aurora::ResourceType ResourceTreeItem::getResourceType() const {
 
 wxBEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED(kEventResourceTree, ResourceTree::onSelChanged)
+	EVT_TREE_ITEM_EXPANDING(kEventResourceTree, ResourceTree::onItemExpanding)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
@@ -124,12 +141,57 @@ void ResourceTree::onSelChanged(wxTreeEvent &event) {
 	_mainWindow->resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem())));
 }
 
+void ResourceTree::onItemExpanding(wxTreeEvent &event) {
+	ResourceTreeItem *item = dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem()));
+	if (!item)
+		return;
+
+	// We only need special treatment for these archives
+	if ((item->getFileType() != Aurora::kFileTypeZIP) &&
+	    (item->getFileType() != Aurora::kFileTypeERF) &&
+	    (item->getFileType() != Aurora::kFileTypeMOD) &&
+	    (item->getFileType() != Aurora::kFileTypeSAV) &&
+	    (item->getFileType() != Aurora::kFileTypeHAK) &&
+	    (item->getFileType() != Aurora::kFileTypeRIM))
+		return;
+
+	// We already added the archive members. Nothing to do
+	ResourceTreeItem::Data &data = item->getData();
+	if (data.addedArchiveMembers)
+		return;
+
+	// Load the archive, if necessary
+	if (!data.archive) {
+		try {
+			data.archive = _mainWindow->getArchive(data.path);
+		} catch (Common::Exception &e) {
+			// If that fails, print the error and treat this archive as empty
+
+			e.add("Failed to load archive \"%s\"", item->getName().c_str());
+			Common::printException(e, "WARNING: ");
+
+			event.Veto();
+			SetItemHasChildren(event.GetItem(), false);
+			return;
+		}
+	}
+
+	const Aurora::Archive::ResourceList &resources = data.archive->getResources();
+	for (Aurora::Archive::ResourceList::const_iterator r = resources.begin(); r != resources.end(); ++r)
+		appendItem(event.GetItem(), new ResourceTreeItem(data.archive, *r));
+
+	data.addedArchiveMembers = true;
+}
+
 ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {
 	switch (item.getSource()) {
 		case ResourceTreeItem::kSourceDirectory:
 			return kImageDir;
 
 		case ResourceTreeItem::kSourceFile:
+			return kImageFile;
+
+		case ResourceTreeItem::kSourceArchiveFile:
 			return kImageFile;
 
 		default:
@@ -148,7 +210,19 @@ wxTreeItemId ResourceTree::addRoot(ResourceTreeItem *item) {
 wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *item) {
 	assert(item);
 
-	return AppendItem(parent, item->getName(), getImage(*item), getImage(*item), item);
+	wxTreeItemId id = AppendItem(parent, item->getName(), getImage(*item), getImage(*item), item);
+
+	// We want archive to be expandable
+	if ((item->getSource() == ResourceTreeItem::kSourceFile) &&
+	    ((item->getFileType() == Aurora::kFileTypeZIP) ||
+	     (item->getFileType() == Aurora::kFileTypeERF) ||
+	     (item->getFileType() == Aurora::kFileTypeMOD) ||
+	     (item->getFileType() == Aurora::kFileTypeSAV) ||
+	     (item->getFileType() == Aurora::kFileTypeHAK) ||
+	     (item->getFileType() == Aurora::kFileTypeRIM)))
+		SetItemHasChildren(id, true);
+
+	return id;
 }
 
 void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
@@ -354,6 +428,11 @@ void MainWindow::close() {
 
 	_files.clear();
 	_path.clear();
+
+	for (ArchiveMap::iterator a = _archives.begin(); a != _archives.end(); ++a)
+		delete a->second;
+
+	_archives.clear();
 }
 
 void MainWindow::populateTree() {
@@ -376,9 +455,13 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 		labelInfoName += item->getName();
 
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
+
 			labelInfoFileType += "Directory";
 			labelInfoResType  += "Directory";
-		} else {
+
+		} else if ((item->getSource() == ResourceTreeItem::kSourceFile) ||
+		           (item->getSource() == ResourceTreeItem::kSourceArchiveFile)) {
+
 			Aurora::FileType     fileType = item->getFileType();
 			Aurora::ResourceType resType  = item->getResourceType();
 
@@ -395,4 +478,34 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	_resInfoName->SetLabel(labelInfoName);
 	_resInfoFileType->SetLabel(labelInfoFileType);
 	_resInfoResType->SetLabel(labelInfoResType);
+}
+
+Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
+	ArchiveMap::iterator a = _archives.find(path.c_str());
+	if (a != _archives.end())
+		return a->second;
+
+	Aurora::Archive *arch = 0;
+	switch (TypeMan.getFileType(path.c_str())) {
+		case Aurora::kFileTypeZIP:
+			arch = new Aurora::ZIPFile(path.c_str());
+			break;
+
+		case Aurora::kFileTypeERF:
+		case Aurora::kFileTypeMOD:
+		case Aurora::kFileTypeSAV:
+		case Aurora::kFileTypeHAK:
+			arch = new Aurora::ERFFile(path.c_str());
+			break;
+
+		case Aurora::kFileTypeRIM:
+			arch = new Aurora::RIMFile(path.c_str());
+			break;
+
+		default:
+			throw Common::Exception("Invalid archive file \"%s\"", path.c_str());
+	}
+
+	_archives.insert(std::make_pair(path.c_str(), arch));
+	return arch;
 }
