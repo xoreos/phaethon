@@ -13,6 +13,7 @@ noinst_HEADERS = \
                  archive.h \
                  zipfile.h \
                  erffile.h \
+                 rimfile.h \
                  $(EMPTY)
 
 libaurora_la_SOURCES = \
@@ -22,6 +23,7 @@ libaurora_la_SOURCES = \
                        archive.cpp \
                        zipfile.cpp \
                        erffile.cpp \
+                       rimfile.cpp \
                        $(EMPTY)
 
 libaurora_la_LIBADD = \
