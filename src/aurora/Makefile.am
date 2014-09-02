@@ -11,6 +11,7 @@ noinst_HEADERS = \
                  locstring.h \
                  aurorafile.h \
                  archive.h \
+                 zipfile.h \
                  $(EMPTY)
 
 libaurora_la_SOURCES = \
@@ -18,6 +19,7 @@ libaurora_la_SOURCES = \
                        locstring.cpp \
                        aurorafile.cpp \
                        archive.cpp \
+                       zipfile.cpp \
                        $(EMPTY)
 
 libaurora_la_LIBADD = \
