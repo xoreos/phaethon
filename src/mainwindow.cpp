@@ -170,12 +170,16 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	if (data.addedArchiveMembers)
 		return;
 
+	_mainWindow->GetStatusBar()->PushStatusText(Common::UString("Loading archive ") + item->getName() + "...");
+
 	// Load the archive, if necessary
 	if (!data.archive) {
 		try {
 			data.archive = _mainWindow->getArchive(data.path);
 		} catch (Common::Exception &e) {
 			// If that fails, print the error and treat this archive as empty
+
+			_mainWindow->GetStatusBar()->PopStatusText();
 
 			e.add("Failed to load archive \"%s\"", item->getName().c_str());
 			Common::printException(e, "WARNING: ");
@@ -190,6 +194,7 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	for (Aurora::Archive::ResourceList::const_iterator r = resources.begin(); r != resources.end(); ++r)
 		appendItem(event.GetItem(), new ResourceTreeItem(data.archive, *r));
 
+	_mainWindow->GetStatusBar()->PopStatusText();
 	data.addedArchiveMembers = true;
 }
 
