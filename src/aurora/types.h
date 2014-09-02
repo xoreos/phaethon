@@ -395,6 +395,8 @@ enum Language {
 	kLanguageInvalid                   = 0xFFFFFFFF
 };
 
+static const uint32 kStrRefInvalid = 0xFFFFFFFF;
+
 } // End of namespace Aurora
 
 #endif // AURORA_TYPES_H
