@@ -41,22 +41,32 @@
 #include "mainwindow.h"
 
 
-ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) : _entry(entry) {
+ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
+	_name(entry.name), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile), _path(entry.path) {
+
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
 }
 
-const Common::FileTree::Entry &ResourceTreeItem::getEntry() const {
-	return _entry;
+const Common::UString &ResourceTreeItem::getName() const {
+	return _name;
+}
+
+ResourceTreeItem::Source ResourceTreeItem::getSource() const {
+	return _source;
+}
+
+const boost::filesystem::path &ResourceTreeItem::getPath() const {
+	return _path;
 }
 
 Aurora::FileType ResourceTreeItem::getFileType() const {
-	return TypeMan.getFileType(_entry.name);
+	return TypeMan.getFileType(_name);
 }
 
 Aurora::ResourceType ResourceTreeItem::getResourceType() const {
-	return TypeMan.getResourceType(_entry.name);
+	return TypeMan.getResourceType(_name);
 }
 
 
@@ -98,17 +108,14 @@ int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &
 	if (!d2)
 		return 1;
 
-	const Common::FileTree::Entry &e1 = d1->getEntry();
-	const Common::FileTree::Entry &e2 = d2->getEntry();
-
-	// Directories sort before files
-	if (e1.isDirectory() && !e2.isDirectory())
+	// Sort by source first
+	if (d1->getSource() < d2->getSource())
 		return -1;
-	if (!e1.isDirectory() && e2.isDirectory())
-		return 1;
+	if (d1->getSource() > d2->getSource())
+		return  1;
 
-	// Compare entries case-insensitively
-	return Common::UString(e1.path.c_str()).stricmp(Common::UString(e2.path.c_str()));
+	// Sort case insensitively by name
+	return Common::UString(d1->getName().c_str()).stricmp(Common::UString(d2->getName().c_str()));
 }
 
 void ResourceTree::onSelChanged(wxTreeEvent &event) {
@@ -343,9 +350,9 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	Common::UString labelInfoResType  = "Resource type: ";
 
 	if (item) {
-		labelInfoName += item->getEntry().name;
+		labelInfoName += item->getName();
 
-		if (item->getEntry().isDirectory()) {
+		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 			labelInfoFileType += "Directory";
 			labelInfoResType  += "Directory";
 		} else {

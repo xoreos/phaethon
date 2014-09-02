@@ -37,16 +37,28 @@
 
 class ResourceTreeItem : public wxTreeItemData {
 public:
+	enum Source {
+		kSourceDirectory = 0,
+		kSourceFile      = 1
+	};
+
 	ResourceTreeItem(const Common::FileTree::Entry &entry);
 	~ResourceTreeItem();
 
-	const Common::FileTree::Entry &getEntry() const;
+	const Common::UString &getName() const;
+	Source getSource() const;
 
 	Aurora::FileType getFileType() const;
 	Aurora::ResourceType getResourceType() const;
 
+	const boost::filesystem::path &getPath() const;
+
 private:
-	const Common::FileTree::Entry &_entry;
+	Common::UString _name;
+
+	Source _source;
+
+	boost::filesystem::path _path;
 };
 
 class MainWindow;
