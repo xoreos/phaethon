@@ -433,6 +433,8 @@ void MainWindow::close() {
 		delete a->second;
 
 	_archives.clear();
+
+	resourceTreeSelect(0);
 }
 
 void MainWindow::populateTree() {
