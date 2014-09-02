@@ -14,6 +14,8 @@ noinst_HEADERS = \
                  zipfile.h \
                  erffile.h \
                  rimfile.h \
+                 keyfile.h \
+                 biffile.h \
                  $(EMPTY)
 
 libaurora_la_SOURCES = \
@@ -24,6 +26,8 @@ libaurora_la_SOURCES = \
                        zipfile.cpp \
                        erffile.cpp \
                        rimfile.cpp \
+                       keyfile.cpp \
+                       biffile.cpp \
                        $(EMPTY)
 
 libaurora_la_LIBADD = \
