@@ -51,6 +51,7 @@ public:
 	~ResourceTreeItem();
 
 	const Common::UString &getName() const;
+	uint32 getSize() const;
 	Source getSource() const;
 
 	Aurora::FileType getFileType() const;
@@ -66,6 +67,7 @@ private:
 	};
 
 	Common::UString _name;
+	uint32 _size;
 	Source _source;
 	Data _data;
 
@@ -127,6 +129,7 @@ private:
 	ResourceTree *_resourceTree;
 
 	wxGenericStaticText *_resInfoName;
+	wxGenericStaticText *_resInfoSize;
 	wxGenericStaticText *_resInfoFileType;
 	wxGenericStaticText *_resInfoResType;
 

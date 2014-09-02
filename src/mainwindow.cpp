@@ -52,6 +52,10 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 	_data.archive = 0;
 	_data.addedArchiveMembers = false;
 	_data.archiveIndex = 0xFFFFFFFF;
+
+	_size = Common::kFileInvalid;
+	if (_source == kSourceFile)
+		_size = Common::FilePath::getFileSize(entry.path.c_str());
 }
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
@@ -60,6 +64,8 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archi
 	_data.archive = archive;
 	_data.addedArchiveMembers = false;
 	_data.archiveIndex = resource.index;
+
+	_size = archive->getResourceSize(resource.index);
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
@@ -67,6 +73,10 @@ ResourceTreeItem::~ResourceTreeItem() {
 
 const Common::UString &ResourceTreeItem::getName() const {
 	return _name;
+}
+
+uint32 ResourceTreeItem::getSize() const {
+	return _size;
 }
 
 ResourceTreeItem::Source ResourceTreeItem::getSource() const {
@@ -295,6 +305,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	_resourceTree = new ResourceTree(panelTree, *this);
 
 	_resInfoName     = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
+	_resInfoSize     = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
 	_resInfoFileType = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
 	_resInfoResType  = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
 
@@ -314,6 +325,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	panelTree->SetSizer(sizerTree);
 
 	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
+	sizerInfo->Add(_resInfoSize    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoFileType, 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoResType , 0, wxEXPAND, 0);
 	panelInfo->SetSizer(sizerInfo);
@@ -451,6 +463,7 @@ void MainWindow::populateTree() {
 
 void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	Common::UString labelInfoName     = "Resource name: ";
+	Common::UString labelInfoSize     = "Size: ";
 	Common::UString labelInfoFileType = "File type: ";
 	Common::UString labelInfoResType  = "Resource type: ";
 
@@ -459,11 +472,23 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 
+			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
 			labelInfoResType  += "Directory";
 
 		} else if ((item->getSource() == ResourceTreeItem::kSourceFile) ||
 		           (item->getSource() == ResourceTreeItem::kSourceArchiveFile)) {
+
+			if (item->getSize() != Common::kFileInvalid) {
+
+				if (item->getSize() >= 1024)
+					labelInfoSize += Common::UString::sprintf("%s (%u)",
+							Common::FilePath::getHumanReadableSize(item->getSize()).c_str(), item->getSize());
+				else
+					labelInfoSize += Common::UString::sprintf("%u", item->getSize());
+
+			} else
+				labelInfoSize += "-";
 
 			Aurora::FileType     fileType = item->getFileType();
 			Aurora::ResourceType resType  = item->getResourceType();
@@ -479,6 +504,7 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
+	_resInfoSize->SetLabel(labelInfoSize);
 	_resInfoFileType->SetLabel(labelInfoFileType);
 	_resInfoResType->SetLabel(labelInfoResType);
 }
