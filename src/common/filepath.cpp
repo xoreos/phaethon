@@ -220,4 +220,18 @@ UString FilePath::escapeStringLiteral(const UString &str) {
 	return boost::regex_replace(std::string(str.c_str()), esc, rep, boost::match_default | boost::format_sed);
 }
 
+UString FilePath::getHumanReadableSize(uint32 size) {
+	static const char *sizes[] = {"B", "K", "M", "G"};
+
+	double s = size;
+	int n = 0;
+
+	while ((s >= 1024) && ((n + 1) < ARRAYSIZE(sizes))) {
+		n++;
+		s /= 1024;
+	}
+
+	return UString::sprintf("%.2lf%s", s, sizes[n]);
+}
+
 } // End of namespace Common
