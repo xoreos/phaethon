@@ -28,7 +28,6 @@
 #include "common/file.h"
 
 #include "aurora/biffile.h"
-#include "aurora/keyfile.h"
 
 static const uint32 kBIFID     = MKTAG('B', 'I', 'F', 'F');
 static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
@@ -97,33 +96,6 @@ void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
 		res->size   = bif.readUint32LE();
 		res->type   = (FileType) bif.readUint32LE();
 	}
-}
-
-void BIFFile::mergeKEY(const KEYFile &key, uint32 bifIndex) {
-	const KEYFile::ResourceList &keyResList = key.getResources();
-
-	for (KEYFile::ResourceList::const_iterator keyRes = keyResList.begin(); keyRes != keyResList.end(); ++keyRes) {
-		if (keyRes->bifIndex != bifIndex)
-			continue;
-
-		if (keyRes->resIndex >= _iResources.size()) {
-			warning("Resource index out of range (%d/%d)", keyRes->resIndex, (int) _iResources.size());
-			continue;
-		}
-
-		if (keyRes->type != _iResources[keyRes->resIndex].type)
-			warning("KEY and BIF disagree on the type of the resource \"%s\" (%d, %d). Trusting the BIF",
-			        keyRes->name.c_str(), keyRes->type, _iResources[keyRes->resIndex].type);
-
-		Resource res;
-
-		res.name  = keyRes->name;
-		res.type  = _iResources[keyRes->resIndex].type;
-		res.index = keyRes->resIndex;
-
-		_resources.push_back(res);
-	}
-
 }
 
 const Archive::ResourceList &BIFFile::getResources() const {

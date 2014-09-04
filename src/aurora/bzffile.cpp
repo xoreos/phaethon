@@ -33,7 +33,6 @@
 #include "common/file.h"
 
 #include "aurora/bzffile.h"
-#include "aurora/keyfile.h"
 
 static const uint32 kBZFID     = MKTAG('B', 'I', 'F', 'F');
 static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
@@ -104,33 +103,6 @@ void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32 offset) {
 
 	if (!_iResources.empty())
 		_iResources.back().packedSize = bzf.size() - _iResources.back().offset;
-}
-
-void BZFFile::mergeKEY(const KEYFile &key, uint32 bifIndex) {
-	const KEYFile::ResourceList &keyResList = key.getResources();
-
-	for (KEYFile::ResourceList::const_iterator keyRes = keyResList.begin(); keyRes != keyResList.end(); ++keyRes) {
-		if (keyRes->bifIndex != bifIndex)
-			continue;
-
-		if (keyRes->resIndex >= _iResources.size()) {
-			warning("Resource index out of range (%d/%d)", keyRes->resIndex, (int) _iResources.size());
-			continue;
-		}
-
-		if (keyRes->type != _iResources[keyRes->resIndex].type)
-			warning("KEY and BZF disagree on the type of the resource \"%s\" (%d, %d). Trusting the BZF",
-			        keyRes->name.c_str(), keyRes->type, _iResources[keyRes->resIndex].type);
-
-		Resource res;
-
-		res.name  = keyRes->name;
-		res.type  = _iResources[keyRes->resIndex].type;
-		res.index = keyRes->resIndex;
-
-		_resources.push_back(res);
-	}
-
 }
 
 const Archive::ResourceList &BZFFile::getResources() const {

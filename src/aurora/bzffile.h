@@ -43,8 +43,6 @@ namespace Common {
 
 namespace Aurora {
 
-class KEYFile;
-
 /** Class to hold resource data information of a bzf file. */
 class BZFFile : public Archive, public AuroraBase {
 public:
@@ -62,9 +60,6 @@ public:
 
 	/** Return a stream of the resource's contents. */
 	Common::SeekableReadStream *getResource(uint32 index) const;
-
-	/** Merge information from the KEY into the BZF. */
-	void mergeKEY(const KEYFile &key, uint32 bifIndex);
 
 private:
 	/** Internal resource information. */

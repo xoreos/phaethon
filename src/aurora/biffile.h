@@ -40,8 +40,6 @@ namespace Common {
 
 namespace Aurora {
 
-class KEYFile;
-
 /** Class to hold resource data information of a bif file. */
 class BIFFile : public Archive, public AuroraBase {
 public:
@@ -59,9 +57,6 @@ public:
 
 	/** Return a stream of the resource's contents. */
 	Common::SeekableReadStream *getResource(uint32 index) const;
-
-	/** Merge information from the KEY into the BIF. */
-	void mergeKEY(const KEYFile &key, uint32 bifIndex);
 
 private:
 	/** Internal resource information. */
