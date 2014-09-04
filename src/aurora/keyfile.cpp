@@ -46,6 +46,12 @@ KEYFile::KEYFile(const Common::UString &fileName) {
 KEYFile::~KEYFile() {
 }
 
+void KEYFile::clear() {
+	_resources.clear();
+	_iResources.clear();
+	_bifs.clear();
+}
+
 void KEYFile::load(Common::SeekableReadStream &key) {
 	readHeader(key);
 
@@ -58,15 +64,12 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 	uint32 bifCount = key.readUint32LE();
 	uint32 resCount = key.readUint32LE();
 
-	_bifs.reserve(bifCount);
-	_resources.reserve(resCount);
-
 	// Version 1.1 has some NULL bytes here
 	if (_version == kVersion11)
 		key.skip(4);
 
-	uint32 offFileTable     = key.readUint32LE();
-	uint32 offResTable      = key.readUint32LE();
+	uint32 offFileTable = key.readUint32LE();
+	uint32 offResTable  = key.readUint32LE();
 
 	key.skip( 8); // Build year and day
 	key.skip(32); // Reserved
@@ -77,6 +80,7 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 		readBIFList(key, offFileTable);
 
 		_resources.resize(resCount);
+		_iResources.resize(resCount);
 		readResList(key, offResTable);
 
 		if (key.err())
@@ -119,9 +123,13 @@ void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
 	if (!key.seek(offset))
 		throw Common::Exception(Common::kSeekError);
 
-	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++res) {
+	uint32 index = 0;
+	ResourceList::iterator   res = _resources.begin();
+	IResourceList::iterator iRes = _iResources.begin();
+	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
 		res->name.readFixedASCII(key, 16);
-		res->type = (FileType) key.readUint16LE();
+		res->type  = (FileType) key.readUint16LE();
+		res->index = index;
 
 		uint32 id = key.readUint32LE();
 
@@ -129,21 +137,25 @@ void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
 		// resource info.
 		if (_version == kVersion11) {
 			uint32 flags = key.readUint32LE();
-			res->bifIndex = (flags & 0xFFF00000) >> 20;
+			iRes->bifIndex = (flags & 0xFFF00000) >> 20;
 		} else
-			res->bifIndex = id >> 20;
+			iRes->bifIndex = id >> 20;
 
 		// TODO: Fixed resources?
-		res->resIndex = id & 0xFFFFF;
+		iRes->resIndex = id & 0xFFFFF;
 	}
 }
 
-const KEYFile::BIFList &KEYFile::getBIFs() const {
-	return _bifs;
+const Archive::ResourceList &KEYFile::getResources() const {
+	return _resources;
 }
 
-const KEYFile::ResourceList &KEYFile::getResources() const {
-	return _resources;
+uint32 KEYFile::getResourceSize(uint32 index) const {
+	return 0xFFFFFFFF;
+}
+
+Common::SeekableReadStream *KEYFile::getResource(uint32 index) const {
+	throw Common::Exception("KEYFile::getResource(): TODO");
 }
 
 } // End of namespace Aurora

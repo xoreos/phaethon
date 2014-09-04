@@ -32,41 +32,50 @@
 
 #include "aurora/types.h"
 #include "aurora/aurorafile.h"
+#include "aurora/archive.h"
 
 namespace Common {
 	class SeekableReadStream;
-	class File;
 }
 
 namespace Aurora {
 
-/** Class to hold resource index information of a key file. */
-class KEYFile : public AuroraBase {
+class KEYFile : public Archive, public AuroraBase {
 public:
-	/** A key resource index. */
-	struct Resource {
-		Common::UString name; ///< The resource's name.
-		FileType        type; ///< The resource's type.
+	KEYFile(const Common::UString &fileName);
+	~KEYFile();
 
+	/** Clear the resource list. */
+	void clear();
+
+	/** Return the list of resources. */
+	const ResourceList &getResources() const;
+
+	/** Return the size of a resource. */
+	uint32 getResourceSize(uint32 index) const;
+
+	/** Return a stream of the resource's contents. */
+	Common::SeekableReadStream *getResource(uint32 index) const;
+
+private:
+	/** Internal resource information. */
+	struct IResource {
 		uint32 bifIndex; ///< Index into the bif list.
 		uint32 resIndex; ///< Index into the bif's resource table.
 	};
 
-	typedef std::vector<Resource> ResourceList;
+	typedef std::vector<IResource> IResourceList;
+
 	typedef std::vector<Common::UString> BIFList;
 
-	KEYFile(const Common::UString &fileName);
-	~KEYFile();
+	/** External list of resource names and types. */
+	ResourceList _resources;
 
-	/** Return a list of all managed bifs. */
-	const BIFList &getBIFs() const;
+	/** Internal list of resource BIF indices. */
+	IResourceList _iResources;
 
-	/** Return a list of all containing resources. */
-	const ResourceList &getResources() const;
-
-private:
-	BIFList      _bifs;      ///< All managed bifs.
-	ResourceList _resources; ///< All containing resources.
+	/** All managed bifs. */
+	BIFList _bifs;
 
 	void load(Common::SeekableReadStream &key);
 
