@@ -37,6 +37,7 @@
 #include "aurora/zipfile.h"
 #include "aurora/erffile.h"
 #include "aurora/rimfile.h"
+#include "aurora/keyfile.h"
 
 #include "cline.h"
 #include "eventid.h"
@@ -162,7 +163,8 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	    (item->getFileType() != Aurora::kFileTypeMOD) &&
 	    (item->getFileType() != Aurora::kFileTypeSAV) &&
 	    (item->getFileType() != Aurora::kFileTypeHAK) &&
-	    (item->getFileType() != Aurora::kFileTypeRIM))
+	    (item->getFileType() != Aurora::kFileTypeRIM) &&
+	    (item->getFileType() != Aurora::kFileTypeKEY))
 		return;
 
 	// We already added the archive members. Nothing to do
@@ -234,7 +236,8 @@ wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *ite
 	     (item->getFileType() == Aurora::kFileTypeMOD) ||
 	     (item->getFileType() == Aurora::kFileTypeSAV) ||
 	     (item->getFileType() == Aurora::kFileTypeHAK) ||
-	     (item->getFileType() == Aurora::kFileTypeRIM)))
+	     (item->getFileType() == Aurora::kFileTypeRIM) ||
+	     (item->getFileType() == Aurora::kFileTypeKEY)))
 		SetItemHasChildren(id, true);
 
 	return id;
@@ -534,6 +537,10 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 
 		case Aurora::kFileTypeRIM:
 			arch = new Aurora::RIMFile(path.c_str());
+			break;
+
+		case Aurora::kFileTypeKEY:
+			arch = new Aurora::KEYFile(path.c_str());
 			break;
 
 		default:
