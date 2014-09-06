@@ -42,6 +42,7 @@ noinst_HEADERS = \
                  zipfile.h \
                  bitstream.h \
                  huffman.h \
+                 sinewindows.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -57,6 +58,7 @@ libcommon_la_SOURCES = \
                        filetree.cpp \
                        zipfile.cpp \
                        huffman.cpp \
+                       sinewindows.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
