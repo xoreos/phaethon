@@ -111,6 +111,8 @@ private:
 
 	static Image getImage(const ResourceTreeItem &item);
 
+	void forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id);
+
 	wxDECLARE_EVENT_TABLE();
 };
 

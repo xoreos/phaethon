@@ -221,10 +221,27 @@ ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {
 	return kImageNone;
 }
 
+void ResourceTree::forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id) {
+	// We want archive to be expandable
+	if ((item.getSource() == ResourceTreeItem::kSourceFile) &&
+	    ((item.getFileType() == Aurora::kFileTypeZIP) ||
+	     (item.getFileType() == Aurora::kFileTypeERF) ||
+	     (item.getFileType() == Aurora::kFileTypeMOD) ||
+	     (item.getFileType() == Aurora::kFileTypeSAV) ||
+	     (item.getFileType() == Aurora::kFileTypeHAK) ||
+	     (item.getFileType() == Aurora::kFileTypeRIM) ||
+	     (item.getFileType() == Aurora::kFileTypeKEY)))
+		SetItemHasChildren(id, true);
+}
+
 wxTreeItemId ResourceTree::addRoot(ResourceTreeItem *item) {
 	assert(item);
 
-	return AddRoot(item->getName(), getImage(*item), getImage(*item), item);
+	wxTreeItemId id = AddRoot(item->getName(), getImage(*item), getImage(*item), item);
+
+	forceArchiveChildren(*item, id);
+
+	return id;
 }
 
 wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *item) {
@@ -232,16 +249,7 @@ wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *ite
 
 	wxTreeItemId id = AppendItem(parent, item->getName(), getImage(*item), getImage(*item), item);
 
-	// We want archive to be expandable
-	if ((item->getSource() == ResourceTreeItem::kSourceFile) &&
-	    ((item->getFileType() == Aurora::kFileTypeZIP) ||
-	     (item->getFileType() == Aurora::kFileTypeERF) ||
-	     (item->getFileType() == Aurora::kFileTypeMOD) ||
-	     (item->getFileType() == Aurora::kFileTypeSAV) ||
-	     (item->getFileType() == Aurora::kFileTypeHAK) ||
-	     (item->getFileType() == Aurora::kFileTypeRIM) ||
-	     (item->getFileType() == Aurora::kFileTypeKEY)))
-		SetItemHasChildren(id, true);
+	forceArchiveChildren(*item, id);
 
 	return id;
 }
