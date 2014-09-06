@@ -461,13 +461,12 @@ void MainWindow::onOpenDir(wxCommandEvent &event) {
 }
 
 void MainWindow::onOpenFile(wxCommandEvent &event) {
-	wxFileDialog dialog(this, wxT("Open Aurora game resource file"), wxEmptyString, wxEmptyString,
-	                    wxT("Aurora game resource (*.*)|*.*"), wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
-
-	if (dialog.ShowModal() != wxID_OK)
+	Common::UString path = dialogOpenFile("Open Aurora game resource file",
+	                                      "Aurora game resource (*.*)|*.*");
+	if (path.empty())
 		return;
 
-	open(dialog.GetPath());
+	open(path);
 }
 
 void MainWindow::onClose(wxCommandEvent &event) {
@@ -513,6 +512,17 @@ void MainWindow::forceRedraw() {
 
 Common::UString MainWindow::dialogOpenDir(const Common::UString &title) {
 	wxDirDialog dialog(this, title, wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+	if (dialog.ShowModal() == wxID_OK)
+		return dialog.GetPath();
+
+	return "";
+}
+
+Common::UString MainWindow::dialogOpenFile(const Common::UString &title,
+                                           const Common::UString &mask) {
+
+	wxFileDialog dialog(this, title, wxEmptyString, wxEmptyString, mask,
+	                    wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
 	if (dialog.ShowModal() == wxID_OK)
 		return dialog.GetPath();
 

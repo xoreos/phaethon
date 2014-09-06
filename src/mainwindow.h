@@ -189,6 +189,7 @@ private:
 	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
 
 	Common::UString dialogOpenDir(const Common::UString &title);
+	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
 
 	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
 	bool exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path);
