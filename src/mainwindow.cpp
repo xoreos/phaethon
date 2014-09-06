@@ -453,13 +453,11 @@ void MainWindow::onAbout(wxCommandEvent &event) {
 }
 
 void MainWindow::onOpenDir(wxCommandEvent &event) {
-	wxDirDialog dialog(this, wxT("Open Aurora game directory"), wxEmptyString,
-	                   wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-
-	if (dialog.ShowModal() != wxID_OK)
+	Common::UString path = dialogOpenDir("Open Aurora game directory");
+	if (path.empty())
 		return;
 
-	open(dialog.GetPath());
+	open(path);
 }
 
 void MainWindow::onOpenFile(wxCommandEvent &event) {
@@ -511,6 +509,14 @@ void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
 void MainWindow::forceRedraw() {
 	Refresh();
 	Update();
+}
+
+Common::UString MainWindow::dialogOpenDir(const Common::UString &title) {
+	wxDirDialog dialog(this, title, wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+	if (dialog.ShowModal() == wxID_OK)
+		return dialog.GetPath();
+
+	return "";
 }
 
 bool MainWindow::open(Common::UString path) {
