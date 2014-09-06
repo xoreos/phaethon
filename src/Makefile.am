@@ -2,6 +2,7 @@ include $(top_srcdir)/Makefile.common
 
 SUBDIRS = \
           common \
+          sound \
           aurora \
           $(EMPTY)
 
@@ -23,6 +24,7 @@ phaethon_SOURCES = \
 
 phaethon_LDADD = \
                  aurora/libaurora.la \
+                 sound/libsound.la \
                  common/libcommon.la \
                  $(LDADD) \
                  $(EMPTY)
