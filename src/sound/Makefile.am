@@ -8,9 +8,11 @@ noinst_LTLIBRARIES = libsound.la
 
 noinst_HEADERS = \
                  audiostream.h \
+                 sound.h \
                  $(EMPTY)
 
 libsound_la_SOURCES = \
+                      sound.cpp \
                       $(EMPTY)
 
 libsound_la_LIBADD = \
