@@ -40,6 +40,7 @@ noinst_HEADERS = \
                  filetree.h \
                  zipfile.h \
                  bitstream.h \
+                 huffman.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -53,6 +54,7 @@ libcommon_la_SOURCES = \
                        filelist.cpp \
                        filetree.cpp \
                        zipfile.cpp \
+                       huffman.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
