@@ -39,6 +39,7 @@ noinst_HEADERS = \
                  filelist.h \
                  filetree.h \
                  zipfile.h \
+                 bitstream.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
