@@ -45,24 +45,34 @@ namespace Aurora {
 
 class ResourceTreeItem : public wxTreeItemData {
 public:
+	/** Where does the resource come from? */
 	enum Source {
-		kSourceDirectory   = 0,
-		kSourceFile        = 1,
-		kSourceArchiveFile = 2
+		kSourceDirectory   = 0, ///< It's a plain directory on the filesystem.
+		kSourceFile        = 1, ///< It's a plain file on the filesystem.
+		kSourceArchiveFile = 2  ///< It's a file contained in an archive.
 	};
 
+	/** Create a resource tree item from a raw file/directory. */
 	ResourceTreeItem(const Common::FileTree::Entry &entry);
+	/** Create a resource tree item from an archive file. */
 	ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
 	~ResourceTreeItem();
 
+	/** Return the name of the resource, without path. */
 	const Common::UString &getName() const;
+	/** Return the size of the resource's data. */
 	uint32 getSize() const;
+
+	/** Return where the resource comes from. */
 	Source getSource() const;
 
+	/** Get the Aurora file type of the resource. */
 	Aurora::FileType getFileType() const;
+	/** Get the Aurora resource type. */
 	Aurora::ResourceType getResourceType() const;
 
 private:
+	/** Internal resource information. */
 	struct Data {
 		boost::filesystem::path path;
 
