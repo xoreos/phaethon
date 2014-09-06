@@ -94,6 +94,8 @@ public:
 	wxTreeItemId addRoot(ResourceTreeItem *item);
 	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
 
+	ResourceTreeItem *getItemData(const wxTreeItemId &id) const;
+
 	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
 
 	void onSelChanged(wxTreeEvent &event);

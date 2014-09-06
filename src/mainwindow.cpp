@@ -130,8 +130,8 @@ ResourceTree::~ResourceTree() {
 }
 
 int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2) {
-	ResourceTreeItem *d1 = dynamic_cast<ResourceTreeItem *>(GetItemData(item1));
-	ResourceTreeItem *d2 = dynamic_cast<ResourceTreeItem *>(GetItemData(item2));
+	ResourceTreeItem *d1 = getItemData(item1);
+	ResourceTreeItem *d2 = getItemData(item2);
 
 	// No data sorts before data
 	if (!d1)
@@ -152,11 +152,11 @@ int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &
 void ResourceTree::onSelChanged(wxTreeEvent &event) {
 	assert(_mainWindow);
 
-	_mainWindow->resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem())));
+	_mainWindow->resourceTreeSelect(getItemData(event.GetItem()));
 }
 
 void ResourceTree::onItemExpanding(wxTreeEvent &event) {
-	ResourceTreeItem *item = dynamic_cast<ResourceTreeItem *>(GetItemData(event.GetItem()));
+	ResourceTreeItem *item = getItemData(event.GetItem());
 	if (!item)
 		return;
 
@@ -219,6 +219,10 @@ ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {
 	}
 
 	return kImageNone;
+}
+
+ResourceTreeItem *ResourceTree::getItemData(const wxTreeItemId &id) const {
+	return dynamic_cast<ResourceTreeItem *>(GetItemData(id));
 }
 
 void ResourceTree::forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id) {
@@ -482,7 +486,7 @@ void MainWindow::populateTree() {
 	populateTree(fileRoot, treeRoot);
 	_resourceTree->Expand(treeRoot);
 
-	resourceTreeSelect(dynamic_cast<ResourceTreeItem *>(_resourceTree->GetItemData(treeRoot)));
+	resourceTreeSelect(_resourceTree->getItemData(treeRoot));
 }
 
 void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
