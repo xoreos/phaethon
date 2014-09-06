@@ -163,6 +163,8 @@ private:
 	wxGenericStaticText *_resInfoFileType;
 	wxGenericStaticText *_resInfoResType;
 
+	wxButton *_buttonExportRaw;
+
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
 
@@ -172,11 +174,16 @@ private:
 	void onQuit(wxCommandEvent &event);
 	void onAbout(wxCommandEvent &event);
 
+	void onExportRaw(wxCommandEvent &event);
+
 	void forceRedraw();
 
 	void close();
+
 	void populateTree();
 	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
+
+	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);

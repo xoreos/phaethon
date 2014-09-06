@@ -315,6 +315,8 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileClose   , MainWindow::onClose)
 	EVT_MENU(kEventFileQuit    , MainWindow::onQuit)
 	EVT_MENU(kEventHelpAbout   , MainWindow::onAbout)
+
+	EVT_BUTTON(kEventButtonExportRaw, MainWindow::onExportRaw)
 wxEND_EVENT_TABLE()
 
 
@@ -386,10 +388,20 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
 
+	wxBoxSizer *sizerExport = new wxBoxSizer(wxHORIZONTAL);
+
+	_buttonExportRaw = new wxButton(panelInfo, kEventButtonExportRaw, wxT("Save"));
+	_buttonExportRaw->Disable();
+
+	sizerExport->Add(_buttonExportRaw, 0, wxEXPAND, 0);
+
 	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoSize    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoFileType, 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoResType , 0, wxEXPAND, 0);
+
+	sizerInfo->Add(sizerExport, 0, wxEXPAND | wxTOP, 5);
+
 	panelInfo->SetSizer(sizerInfo);
 
 	sizerPreview->Add(preview, 0, 0, 0);
@@ -455,6 +467,20 @@ void MainWindow::onOpenFile(wxCommandEvent &event) {
 
 void MainWindow::onClose(wxCommandEvent &event) {
 	close();
+}
+
+void MainWindow::onExportRaw(wxCommandEvent &event) {
+	ResourceTreeItem *item = _resourceTree->getSelection();
+	if (!item)
+		return;
+
+	wxFileDialog dialog(this, wxT("Save Aurora game resource file"), wxEmptyString, item->getName(),
+	                    wxT("Aurora game resource (*.*)|*.*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+	if (dialog.ShowModal() != wxID_OK)
+		return;
+
+	exportRaw(*item, dialog.GetPath());
 }
 
 void MainWindow::forceRedraw() {
@@ -539,12 +565,16 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 
+			_buttonExportRaw->Disable();
+
 			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
 			labelInfoResType  += "Directory";
 
 		} else if ((item->getSource() == ResourceTreeItem::kSourceFile) ||
 		           (item->getSource() == ResourceTreeItem::kSourceArchiveFile)) {
+
+			_buttonExportRaw->Enable();
 
 			if (item->getSize() != Common::kFileInvalid) {
 
@@ -568,12 +598,43 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 			if (resType  != Aurora::kResourceNone)
 				labelInfoResType  += Common::UString::sprintf(" (%s)", getResourceTypeDescription(resType).c_str());
 		}
+	} else {
+		_buttonExportRaw->Disable();
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
 	_resInfoSize->SetLabel(labelInfoSize);
 	_resInfoFileType->SetLabel(labelInfoFileType);
 	_resInfoResType->SetLabel(labelInfoResType);
+}
+
+bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &path) {
+	Common::UString msg = Common::UString("Saving \"") + item.getName() + "\" to \"" + path + "\"...";
+	GetStatusBar()->PushStatusText(msg);
+
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = item.getResourceData();
+
+		Common::DumpFile file(path);
+
+		file.writeStream(*res);
+
+		if (!file.flush() || file.err())
+			throw Common::Exception(Common::kWriteError);
+
+		delete res;
+
+	} catch (Common::Exception &e) {
+		delete res;
+
+		GetStatusBar()->PopStatusText();
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	GetStatusBar()->PopStatusText();
+	return true;
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
