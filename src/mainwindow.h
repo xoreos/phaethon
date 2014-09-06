@@ -38,6 +38,10 @@
 #include "aurora/types.h"
 #include "aurora/archive.h"
 
+namespace Common {
+	class SeekableReadStream;
+}
+
 namespace Aurora {
 	class KEYFile;
 	class KEYDataFile;
@@ -70,6 +74,9 @@ public:
 	Aurora::FileType getFileType() const;
 	/** Get the Aurora resource type. */
 	Aurora::ResourceType getResourceType() const;
+
+	/** Return a stream of the resource file data. */
+	Common::SeekableReadStream *getResourceData() const;
 
 private:
 	/** Internal resource information. */

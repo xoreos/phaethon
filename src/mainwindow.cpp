@@ -32,6 +32,8 @@
 #include "common/util.h"
 #include "common/error.h"
 #include "common/filepath.h"
+#include "common/stream.h"
+#include "common/file.h"
 
 #include "aurora/util.h"
 #include "aurora/zipfile.h"
@@ -97,6 +99,30 @@ Aurora::FileType ResourceTreeItem::getFileType() const {
 
 Aurora::ResourceType ResourceTreeItem::getResourceType() const {
 	return TypeMan.getResourceType(_name);
+}
+
+Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
+	try {
+		switch (_source) {
+			case kSourceDirectory:
+				throw Common::Exception("Can't get file data of a directory");
+
+			case kSourceFile:
+				return new Common::File(_data.path.c_str());
+
+			case kSourceArchiveFile:
+				if (!_data.archive)
+					throw Common::Exception("No archive opened");
+
+				return _data.archive->getResource(_data.archiveIndex);
+		}
+	} catch (Common::Exception &e) {
+		e.add("Failed to get resource data for resource \"%s\"", _name.c_str());
+		throw;
+	}
+
+	assert(false);
+	return 0;
 }
 
 
