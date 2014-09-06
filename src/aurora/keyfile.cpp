@@ -28,6 +28,7 @@
 #include "common/file.h"
 
 #include "aurora/keyfile.h"
+#include "aurora/keydatafile.h"
 
 static const uint32 kKEYID     = MKTAG('K', 'E', 'Y', ' ');
 static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
@@ -49,7 +50,32 @@ KEYFile::~KEYFile() {
 void KEYFile::clear() {
 	_resources.clear();
 	_iResources.clear();
-	_bifs.clear();
+	_dataFiles.clear();
+}
+
+bool KEYFile::haveDataFile(uint32 index) const {
+	return getIResource(index).dataFile != 0;
+}
+
+void KEYFile::addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile) {
+	ResourceList::iterator   res = _resources.begin();
+	IResourceList::iterator iRes = _iResources.begin();
+	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++res, ++iRes) {
+		// Merge information for all resources where the data file index matches
+		if (iRes->dataFileIndex != dataFileIndex)
+			continue;
+
+		if (res->type != dataFile->getResourceType(iRes->resIndex))
+			throw Common::Exception("Resource type doesn't match in data file (%d, %d, %d, %d, %d)",
+			                        res->index, iRes->dataFileIndex, iRes->resIndex,
+			                        res->type, dataFile->getResourceType(iRes->resIndex));
+
+		iRes->dataFile = dataFile;
+	}
+}
+
+const std::vector<Common::UString> &KEYFile::getDataFileList() const {
+	return _dataFiles;
 }
 
 void KEYFile::load(Common::SeekableReadStream &key) {
@@ -61,8 +87,8 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 	if ((_version != kVersion1) && (_version != kVersion11))
 		throw Common::Exception("Unsupported KEY file version %08X", _version);
 
-	uint32 bifCount = key.readUint32LE();
-	uint32 resCount = key.readUint32LE();
+	uint32 dataFileCount = key.readUint32LE();
+	uint32 resCount      = key.readUint32LE();
 
 	// Version 1.1 has some NULL bytes here
 	if (_version == kVersion11)
@@ -76,8 +102,8 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 
 	try {
 
-		_bifs.resize(bifCount);
-		readBIFList(key, offFileTable);
+		_dataFiles.resize(dataFileCount);
+		readDataFileList(key, offFileTable);
 
 		_resources.resize(resCount);
 		_iResources.resize(resCount);
@@ -93,12 +119,12 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 
 }
 
-void KEYFile::readBIFList(Common::SeekableReadStream &key, uint32 offset) {
+void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 	if (!key.seek(offset))
 		throw Common::Exception(Common::kSeekError);
 
-	for (BIFList::iterator bif = _bifs.begin(); bif != _bifs.end(); ++bif) {
-		key.skip(4); // File size of the bif
+	for (std::vector<Common::UString>::iterator d = _dataFiles.begin(); d != _dataFiles.end(); ++d) {
+		key.skip(4); // File size of the data file
 
 		uint32 nameOffset = key.readUint32LE();
 		uint32 nameSize   = 0;
@@ -108,14 +134,14 @@ void KEYFile::readBIFList(Common::SeekableReadStream &key, uint32 offset) {
 			nameSize = key.readUint32LE();
 		} else {
 			nameSize = key.readUint16LE();
-			key.skip(2); // Location of the bif (HD, CD, ...)
+			key.skip(2); // Location of the data file (HD, CD, ...)
 		}
 
 		uint32 curPos = key.seekTo(nameOffset);
-		bif->readFixedASCII(key, nameSize);
+		d->readFixedASCII(key, nameSize);
 		key.seekTo(curPos);
 
-		AuroraFile::cleanupPath(*bif);
+		AuroraFile::cleanupPath(*d);
 	}
 }
 
@@ -127,19 +153,21 @@ void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
+		iRes->dataFile = 0;
+
 		res->name.readFixedASCII(key, 16);
 		res->type  = (FileType) key.readUint16LE();
 		res->index = index;
 
 		uint32 id = key.readUint32LE();
 
-		// The new flags field holds the bifIndex now. The rest contains fixed
+		// The new flags field holds the data file index now. The rest contains fixed
 		// resource info.
 		if (_version == kVersion11) {
 			uint32 flags = key.readUint32LE();
-			iRes->bifIndex = (flags & 0xFFF00000) >> 20;
+			iRes->dataFileIndex = (flags & 0xFFF00000) >> 20;
 		} else
-			iRes->bifIndex = id >> 20;
+			iRes->dataFileIndex = id >> 20;
 
 		// TODO: Fixed resources?
 		iRes->resIndex = id & 0xFFFFF;
@@ -150,12 +178,28 @@ const Archive::ResourceList &KEYFile::getResources() const {
 	return _resources;
 }
 
+const KEYFile::IResource &KEYFile::getIResource(uint32 index) const {
+	if (index >= _iResources.size())
+		throw Common::Exception("Resource index out of range (%d/%d)", index, _iResources.size());
+
+	return _iResources[index];
+}
+
 uint32 KEYFile::getResourceSize(uint32 index) const {
-	return 0xFFFFFFFF;
+	const IResource &iRes = getIResource(index);
+	if (!iRes.dataFile)
+		return 0xFFFFFFFF;
+
+	return iRes.dataFile->getResourceSize(iRes.resIndex);
 }
 
 Common::SeekableReadStream *KEYFile::getResource(uint32 index) const {
-	throw Common::Exception("KEYFile::getResource(): TODO");
+	const IResource &iRes = getIResource(index);
+	if (!iRes.dataFile)
+		throw Common::Exception("Data files for resource %d (\"%s\") missing", index,
+		                        _dataFiles[iRes.dataFileIndex].c_str());
+
+	return iRes.dataFile->getResource(iRes.resIndex);
 }
 
 } // End of namespace Aurora

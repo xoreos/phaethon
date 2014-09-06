@@ -40,6 +40,8 @@ namespace Common {
 
 namespace Aurora {
 
+class KEYDataFile;
+
 class KEYFile : public Archive, public AuroraBase {
 public:
 	KEYFile(const Common::UString &fileName);
@@ -48,39 +50,61 @@ public:
 	/** Clear the resource list. */
 	void clear();
 
+	/** Add a data file that's managed by this KEY file. */
+	void addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile);
+
+	/** Return the list of data files (BIF/BZF) this KEY file indexes. */
+	const std::vector<Common::UString> &getDataFileList() const;
+
+	/** Do we have a data file associated for this resource? */
+	bool haveDataFile(uint32 index) const;
+
 	/** Return the list of resources. */
 	const ResourceList &getResources() const;
 
-	/** Return the size of a resource. */
+	/** Return the size of a resource.
+	 *
+	 *  Note: The size of the resource is stored in data file.
+	 *        If the data files containing this resource's data
+	 *        was not added first with addDataFile(), this method
+	 *        will return 0xFFFFFFFF.
+	 */
 	uint32 getResourceSize(uint32 index) const;
 
-	/** Return a stream of the resource's contents. */
+	/** Return a stream of the resource's contents.
+	 *
+	 *  Note: Since the resource's data is stored in data files,
+	 *        this method will throw an error if the respective
+	 *        data file was not added first with addDataFile().
+	 */
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
 	/** Internal resource information. */
 	struct IResource {
-		uint32 bifIndex; ///< Index into the bif list.
-		uint32 resIndex; ///< Index into the bif's resource table.
+		uint32 dataFileIndex; ///< Index into the data file list.
+		uint32 resIndex;      ///< Index into the data file's resource table.
+
+		KEYDataFile *dataFile; ///< The actual data file containing this resource.
 	};
 
 	typedef std::vector<IResource> IResourceList;
 
-	typedef std::vector<Common::UString> BIFList;
-
 	/** External list of resource names and types. */
 	ResourceList _resources;
 
-	/** Internal list of resource BIF indices. */
+	/** Internal list of resource data file indices. */
 	IResourceList _iResources;
 
-	/** All managed bifs. */
-	BIFList _bifs;
+	/** All managed data files (BIF/BZF). */
+	std::vector<Common::UString> _dataFiles;
 
 	void load(Common::SeekableReadStream &key);
 
-	void readBIFList(Common::SeekableReadStream &key, uint32 offset);
+	void readDataFileList(Common::SeekableReadStream &key, uint32 offset);
 	void readResList(Common::SeekableReadStream &key, uint32 offset);
+
+	const IResource &getIResource(uint32 index) const;
 };
 
 } // End of namespace Aurora
