@@ -34,7 +34,8 @@ enum {
 
 	kEventButtonClose,
 
-	kEventButtonExportRaw,
+	kEventButtonExportRaw   ,
+	kEventButtonExportBMUMP3,
 
 	kEventResourceTree
 };

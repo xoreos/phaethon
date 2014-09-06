@@ -40,6 +40,7 @@
 
 namespace Common {
 	class SeekableReadStream;
+	class WriteStream;
 }
 
 namespace Aurora {
@@ -163,7 +164,10 @@ private:
 	wxGenericStaticText *_resInfoFileType;
 	wxGenericStaticText *_resInfoResType;
 
+	wxBoxSizer *_sizerExport;
+
 	wxButton *_buttonExportRaw;
+	wxButton *_buttonExportBMUMP3;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
@@ -175,6 +179,7 @@ private:
 	void onAbout(wxCommandEvent &event);
 
 	void onExportRaw(wxCommandEvent &event);
+	void onExportBMUMP3(wxCommandEvent &event);
 
 	void forceRedraw();
 
@@ -184,6 +189,8 @@ private:
 	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
 
 	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
+	bool exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path);
+	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);

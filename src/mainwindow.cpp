@@ -318,7 +318,8 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileQuit    , MainWindow::onQuit)
 	EVT_MENU(kEventHelpAbout   , MainWindow::onAbout)
 
-	EVT_BUTTON(kEventButtonExportRaw, MainWindow::onExportRaw)
+	EVT_BUTTON(kEventButtonExportRaw   , MainWindow::onExportRaw)
+	EVT_BUTTON(kEventButtonExportBMUMP3, MainWindow::onExportBMUMP3)
 wxEND_EVENT_TABLE()
 
 
@@ -390,19 +391,23 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
 
-	wxBoxSizer *sizerExport = new wxBoxSizer(wxHORIZONTAL);
+	_sizerExport = new wxBoxSizer(wxHORIZONTAL);
 
-	_buttonExportRaw = new wxButton(panelInfo, kEventButtonExportRaw, wxT("Save"));
+	_buttonExportRaw    = new wxButton(panelInfo, kEventButtonExportRaw   , wxT("Save"));
+	_buttonExportBMUMP3 = new wxButton(panelInfo, kEventButtonExportBMUMP3, wxT("Export as MP3"));
+
 	_buttonExportRaw->Disable();
+	_buttonExportBMUMP3->Hide();
 
-	sizerExport->Add(_buttonExportRaw, 0, wxEXPAND, 0);
+	_sizerExport->Add(_buttonExportRaw   , 0, wxEXPAND, 0);
+	_sizerExport->Add(_buttonExportBMUMP3, 0, wxEXPAND, 0);
 
 	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoSize    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoFileType, 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoResType , 0, wxEXPAND, 0);
 
-	sizerInfo->Add(sizerExport, 0, wxEXPAND | wxTOP, 5);
+	sizerInfo->Add(_sizerExport, 0, wxEXPAND | wxTOP, 5);
 
 	panelInfo->SetSizer(sizerInfo);
 
@@ -483,6 +488,24 @@ void MainWindow::onExportRaw(wxCommandEvent &event) {
 		return;
 
 	exportRaw(*item, dialog.GetPath());
+}
+
+void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
+	ResourceTreeItem *item = _resourceTree->getSelection();
+	if (!item)
+		return;
+
+	assert(item->getFileType() == Aurora::kFileTypeBMU);
+
+	Common::UString mp3 = TypeMan.setFileType(item->getName(), Aurora::kFileTypeMP3);
+
+	wxFileDialog dialog(this, wxT("Save MP3 file"), wxEmptyString, mp3,
+	                    wxT("MP3 file (*.mp3)|*.mp3"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+	if (dialog.ShowModal() != wxID_OK)
+		return;
+
+	exportBMUMP3(*item, dialog.GetPath());
 }
 
 void MainWindow::forceRedraw() {
@@ -568,6 +591,7 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 
 			_buttonExportRaw->Disable();
+			_buttonExportBMUMP3->Hide();
 
 			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
@@ -599,15 +623,24 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 				labelInfoFileType += Common::UString::sprintf(" (%s)", TypeMan.getExtension(fileType).c_str());
 			if (resType  != Aurora::kResourceNone)
 				labelInfoResType  += Common::UString::sprintf(" (%s)", getResourceTypeDescription(resType).c_str());
+
+			if (fileType == Aurora::kFileTypeBMU)
+				_buttonExportBMUMP3->Show();
+			else
+				_buttonExportBMUMP3->Hide();
+
 		}
 	} else {
 		_buttonExportRaw->Disable();
+		_buttonExportBMUMP3->Hide();
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
 	_resInfoSize->SetLabel(labelInfoSize);
 	_resInfoFileType->SetLabel(labelInfoFileType);
 	_resInfoResType->SetLabel(labelInfoResType);
+
+	_sizerExport->Layout();
 }
 
 bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &path) {
@@ -637,6 +670,44 @@ bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &
 
 	GetStatusBar()->PopStatusText();
 	return true;
+}
+
+bool MainWindow::exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path) {
+	Common::UString msg = Common::UString("Exporting \"") + item.getName() + "\" to \"" + path + "\"...";
+	GetStatusBar()->PushStatusText(msg);
+
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = item.getResourceData();
+
+		Common::DumpFile file(path);
+
+		exportBMUMP3(*res, file);
+
+		if (!file.flush() || file.err())
+			throw Common::Exception(Common::kWriteError);
+
+		delete res;
+
+	} catch (Common::Exception &e) {
+		delete res;
+
+		GetStatusBar()->PopStatusText();
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	GetStatusBar()->PopStatusText();
+	return true;
+}
+
+void MainWindow::exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
+	if ((bmu.size() <= 8) ||
+	    (bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
+	    (bmu.readUint32BE() != MKTAG('V', '1', '.', '0')))
+		throw Common::Exception("Not a valid BMU file");
+
+	mp3.writeStream(bmu);
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
