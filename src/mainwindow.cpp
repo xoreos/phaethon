@@ -478,13 +478,12 @@ void MainWindow::onExportRaw(wxCommandEvent &event) {
 	if (!item)
 		return;
 
-	wxFileDialog dialog(this, wxT("Save Aurora game resource file"), wxEmptyString, item->getName(),
-	                    wxT("Aurora game resource (*.*)|*.*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-	if (dialog.ShowModal() != wxID_OK)
+	Common::UString path = dialogSaveFile("Save Aurora game resource file",
+	                                      "Aurora game resource (*.*)|*.*", item->getName());
+	if (path.empty())
 		return;
 
-	exportRaw(*item, dialog.GetPath());
+	exportRaw(*item, path);
 }
 
 void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
@@ -494,15 +493,12 @@ void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
 
 	assert(item->getFileType() == Aurora::kFileTypeBMU);
 
-	Common::UString mp3 = TypeMan.setFileType(item->getName(), Aurora::kFileTypeMP3);
-
-	wxFileDialog dialog(this, wxT("Save MP3 file"), wxEmptyString, mp3,
-	                    wxT("MP3 file (*.mp3)|*.mp3"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-
-	if (dialog.ShowModal() != wxID_OK)
+	Common::UString path = dialogSaveFile("Save MP3 file", "MP3 file (*.mp3)|*.mp3",
+	                                      TypeMan.setFileType(item->getName(), Aurora::kFileTypeMP3));
+	if (path.empty())
 		return;
 
-	exportBMUMP3(*item, dialog.GetPath());
+	exportBMUMP3(*item, path);
 }
 
 void MainWindow::forceRedraw() {
@@ -523,6 +519,18 @@ Common::UString MainWindow::dialogOpenFile(const Common::UString &title,
 
 	wxFileDialog dialog(this, title, wxEmptyString, wxEmptyString, mask,
 	                    wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
+	if (dialog.ShowModal() == wxID_OK)
+		return dialog.GetPath();
+
+	return "";
+}
+
+Common::UString MainWindow::dialogSaveFile(const Common::UString &title,
+                                           const Common::UString &mask,
+                                           const Common::UString &def) {
+
+	wxFileDialog dialog(this, title, wxEmptyString, def, mask,
+	                    wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if (dialog.ShowModal() == wxID_OK)
 		return dialog.GetPath();
 

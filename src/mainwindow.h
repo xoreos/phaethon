@@ -190,6 +190,8 @@ private:
 
 	Common::UString dialogOpenDir(const Common::UString &title);
 	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
+	Common::UString dialogSaveFile(const Common::UString &title, const Common::UString &mask,
+	                               const Common::UString &def = "");
 
 	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
 	bool exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path);
