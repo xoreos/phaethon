@@ -46,8 +46,9 @@ BZFFile::BZFFile(const Common::UString &fileName) : _fileName(fileName) {
 BZFFile::~BZFFile() {
 }
 
-void BZFFile::clear() {
-	_resources.clear();
+void BZFFile::open(Common::File &file) const {
+	if (!file.open(_fileName))
+		throw Common::Exception(Common::kOpenError);
 }
 
 void BZFFile::load() {
@@ -68,12 +69,11 @@ void BZFFile::load() {
 	if (fixResCount != 0)
 		throw Common::Exception("TODO: Fixed BZF resources");
 
-	_iResources.resize(varResCount);
-
 	uint32 offVarResTable = bzf.readUint32LE();
 
 	try {
 
+		_resources.resize(varResCount);
 		readVarResTable(bzf, offVarResTable);
 
 		if (bzf.err())
@@ -90,38 +90,23 @@ void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32 offset) {
 	if (!bzf.seek(offset))
 		throw Common::Exception(Common::kSeekError);
 
-	for (uint32_t i = 0; i < _iResources.size(); i++) {
+	for (uint32_t i = 0; i < _resources.size(); i++) {
 		bzf.skip(4); // ID
 
-		_iResources[i].offset = bzf.readUint32LE();
-		_iResources[i].size   = bzf.readUint32LE();
-		_iResources[i].type   = (FileType) bzf.readUint32LE();
+		_resources[i].offset = bzf.readUint32LE();
+		_resources[i].size   = bzf.readUint32LE();
+		_resources[i].type   = (FileType) bzf.readUint32LE();
 
 		if (i > 0)
-			_iResources[i - 1].packedSize = _iResources[i].offset - _iResources[i - 1].offset;
+			_resources[i - 1].packedSize = _resources[i].offset - _resources[i - 1].offset;
 	}
 
-	if (!_iResources.empty())
-		_iResources.back().packedSize = bzf.size() - _iResources.back().offset;
-}
-
-const Archive::ResourceList &BZFFile::getResources() const {
-	return _resources;
-}
-
-const BZFFile::IResource &BZFFile::getIResource(uint32 index) const {
-	if (index >= _iResources.size())
-		throw Common::Exception("Resource index out of range (%d/%d)", index, _iResources.size());
-
-	return _iResources[index];
-}
-
-uint32 BZFFile::getResourceSize(uint32 index) const {
-	return getIResource(index).size;
+	if (!_resources.empty())
+		_resources.back().packedSize = bzf.size() - _resources.back().offset;
 }
 
 Common::SeekableReadStream *BZFFile::getResource(uint32 index) const {
-	const IResource &res = getIResource(index);
+	const Resource &res = getRes(index);
 	if ((res.packedSize == 0) || (res.size == 0))
 		return new Common::MemoryReadStream(0, 0);
 
@@ -147,11 +132,6 @@ Common::SeekableReadStream *BZFFile::getResource(uint32 index) const {
 
 	delete[] compressedData;
 	return resStream;
-}
-
-void BZFFile::open(Common::File &file) const {
-	if (!file.open(_fileName))
-		throw Common::Exception(Common::kOpenError);
 }
 
 Common::SeekableReadStream *BZFFile::decompress(byte *compressedData, uint32 packedSize, uint32 unpackedSize) const {
