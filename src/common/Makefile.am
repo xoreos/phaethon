@@ -27,6 +27,7 @@ noinst_HEADERS = \
                  system.h \
                  types.h \
                  util.h \
+                 maths.h \
                  noncopyable.h \
                  singleton.h \
                  error.h \
@@ -45,6 +46,7 @@ noinst_HEADERS = \
 
 libcommon_la_SOURCES = \
                        util.cpp \
+                       maths.cpp \
                        error.cpp \
                        ustring.cpp \
                        stream.cpp \
