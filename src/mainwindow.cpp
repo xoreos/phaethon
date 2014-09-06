@@ -225,6 +225,19 @@ ResourceTreeItem *ResourceTree::getItemData(const wxTreeItemId &id) const {
 	return dynamic_cast<ResourceTreeItem *>(GetItemData(id));
 }
 
+ResourceTreeItem *ResourceTree::getSelection() const {
+	wxTreeItemId id;
+	return getSelection(id);
+}
+
+ResourceTreeItem *ResourceTree::getSelection(wxTreeItemId &id) const {
+	id = GetSelection();
+	if (!id.IsOk())
+		return 0;
+
+	return getItemData(id);
+}
+
 void ResourceTree::forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id) {
 	// We want archive to be expandable
 	if ((item.getSource() == ResourceTreeItem::kSourceFile) &&

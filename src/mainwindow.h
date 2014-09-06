@@ -96,6 +96,9 @@ public:
 
 	ResourceTreeItem *getItemData(const wxTreeItemId &id) const;
 
+	ResourceTreeItem *getSelection() const;
+	ResourceTreeItem *getSelection(wxTreeItemId &id) const;
+
 	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
 
 	void onSelChanged(wxTreeEvent &event);
