@@ -168,6 +168,7 @@ private:
 
 	wxButton *_buttonExportRaw;
 	wxButton *_buttonExportBMUMP3;
+	wxButton *_buttonExportWAV;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
@@ -180,6 +181,7 @@ private:
 
 	void onExportRaw(wxCommandEvent &event);
 	void onExportBMUMP3(wxCommandEvent &event);
+	void onExportWAV(wxCommandEvent &event);
 
 	void forceRedraw();
 
@@ -195,7 +197,10 @@ private:
 
 	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
 	bool exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path);
+	bool exportWAV(const ResourceTreeItem &item, const Common::UString &path);
+
 	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+	void exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav);
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);

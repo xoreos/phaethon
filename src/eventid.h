@@ -36,6 +36,7 @@ enum {
 
 	kEventButtonExportRaw   ,
 	kEventButtonExportBMUMP3,
+	kEventButtonExportWAV   ,
 
 	kEventResourceTree
 };

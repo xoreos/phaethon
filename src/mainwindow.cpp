@@ -35,6 +35,9 @@
 #include "common/stream.h"
 #include "common/file.h"
 
+#include "sound/sound.h"
+#include "sound/audiostream.h"
+
 #include "aurora/util.h"
 #include "aurora/zipfile.h"
 #include "aurora/erffile.h"
@@ -320,6 +323,7 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_BUTTON(kEventButtonExportRaw   , MainWindow::onExportRaw)
 	EVT_BUTTON(kEventButtonExportBMUMP3, MainWindow::onExportBMUMP3)
+	EVT_BUTTON(kEventButtonExportWAV   , MainWindow::onExportWAV)
 wxEND_EVENT_TABLE()
 
 
@@ -395,12 +399,15 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	_buttonExportRaw    = new wxButton(panelInfo, kEventButtonExportRaw   , wxT("Save"));
 	_buttonExportBMUMP3 = new wxButton(panelInfo, kEventButtonExportBMUMP3, wxT("Export as MP3"));
+	_buttonExportWAV    = new wxButton(panelInfo, kEventButtonExportWAV   , wxT("Export as PCM WAV"));
 
 	_buttonExportRaw->Disable();
 	_buttonExportBMUMP3->Hide();
+	_buttonExportWAV->Hide();
 
 	_sizerExport->Add(_buttonExportRaw   , 0, wxEXPAND, 0);
 	_sizerExport->Add(_buttonExportBMUMP3, 0, wxEXPAND, 0);
+	_sizerExport->Add(_buttonExportWAV   , 0, wxEXPAND, 0);
 
 	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_resInfoSize    , 0, wxEXPAND, 0);
@@ -499,6 +506,19 @@ void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
 		return;
 
 	exportBMUMP3(*item, path);
+}
+
+void MainWindow::onExportWAV(wxCommandEvent &event) {
+	ResourceTreeItem *item = _resourceTree->getSelection();
+	if (!item)
+		return;
+
+	Common::UString path = dialogSaveFile("Save PCM WAV file", "WAV file (*.wav)|*.wav",
+	                                      TypeMan.setFileType(item->getName(), Aurora::kFileTypeWAV));
+	if (path.empty())
+		return;
+
+	exportWAV(*item, path);
 }
 
 void MainWindow::forceRedraw() {
@@ -616,6 +636,7 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 
 			_buttonExportRaw->Disable();
 			_buttonExportBMUMP3->Hide();
+			_buttonExportWAV->Hide();
 
 			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
@@ -653,10 +674,16 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 			else
 				_buttonExportBMUMP3->Hide();
 
+			if (resType == Aurora::kResourceSound)
+				_buttonExportWAV->Show();
+			else
+				_buttonExportWAV->Hide();
+
 		}
 	} else {
 		_buttonExportRaw->Disable();
 		_buttonExportBMUMP3->Hide();
+		_buttonExportWAV->Hide();
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
@@ -725,6 +752,33 @@ bool MainWindow::exportBMUMP3(const ResourceTreeItem &item, const Common::UStrin
 	return true;
 }
 
+bool MainWindow::exportWAV(const ResourceTreeItem &item, const Common::UString &path) {
+	Common::UString msg = Common::UString("Exporting \"") + item.getName() + "\" to \"" + path + "\"...";
+	GetStatusBar()->PushStatusText(msg);
+
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = item.getResourceData();
+
+		Common::DumpFile file(path);
+
+		exportWAV(res, file);
+
+		if (!file.flush() || file.err())
+			throw Common::Exception(Common::kWriteError);
+
+	} catch (Common::Exception &e) {
+		delete res;
+
+		GetStatusBar()->PopStatusText();
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	GetStatusBar()->PopStatusText();
+	return true;
+}
+
 void MainWindow::exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
 	if ((bmu.size() <= 8) ||
 	    (bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
@@ -732,6 +786,75 @@ void MainWindow::exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStre
 		throw Common::Exception("Not a valid BMU file");
 
 	mp3.writeStream(bmu);
+}
+
+struct SoundBuffer {
+	int16 buffer[4096];
+	int samples;
+
+	SoundBuffer() : samples(0) {
+	}
+};
+
+void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav) {
+	Sound::AudioStream *sound = 0;
+	try {
+		sound = SoundMan.makeAudioStream(soundData);
+	} catch (Common::Exception &e) {
+		delete soundData;
+		throw;
+	}
+
+	const uint16 channels = sound->getChannels();
+	const uint32 rate     = sound->getRate();
+
+	std::list<SoundBuffer> buffers;
+
+	uint32 samples = 0;
+	while (!sound->endOfStream()) {
+		buffers.push_back(SoundBuffer());
+		SoundBuffer &buffer = buffers.back();
+
+		try {
+			buffer.samples = sound->readBuffer(buffer.buffer, 4096);
+		} catch (Common::Exception &e) {
+			delete sound;
+			throw;
+		}
+
+		if (buffer.samples < 0)
+			break;
+
+		samples += buffer.samples;
+	}
+
+	delete sound;
+
+	samples /= channels;
+
+	const uint32 dataSize   = samples * channels * 2;
+	const uint32 byteRate   = rate * channels * 2;
+	const uint16 blockAlign = channels * 2;
+
+	wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
+	wav.writeUint32LE(36 + dataSize);
+	wav.writeUint32BE(MKTAG('W', 'A', 'V', 'E'));
+
+	wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
+	wav.writeUint32LE(16);
+	wav.writeUint16LE(1);
+	wav.writeUint16LE(channels);
+	wav.writeUint32LE(rate);
+	wav.writeUint32LE(byteRate);
+	wav.writeUint16LE(blockAlign);
+	wav.writeUint16LE(16);
+
+	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
+	wav.writeUint32LE(dataSize);
+
+	for (std::list<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
+		for (int i = 0; i < b->samples; i++)
+			wav.writeUint16LE(b->buffer[i]);
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
