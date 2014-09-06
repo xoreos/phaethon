@@ -38,6 +38,11 @@
 #include "aurora/types.h"
 #include "aurora/archive.h"
 
+namespace Aurora {
+	class KEYFile;
+	class KEYDataFile;
+}
+
 class ResourceTreeItem : public wxTreeItemData {
 public:
 	enum Source {
@@ -122,6 +127,7 @@ public:
 
 private:
 	typedef std::map<Common::UString, Aurora::Archive *> ArchiveMap;
+	typedef std::map<Common::UString, Aurora::KEYDataFile *> KEYDataFileMap;
 
 	Common::UString _path;
 	Common::FileTree _files;
@@ -134,6 +140,7 @@ private:
 	wxGenericStaticText *_resInfoResType;
 
 	ArchiveMap _archives;
+	KEYDataFileMap _keyDataFiles;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
@@ -146,6 +153,9 @@ private:
 	void close();
 	void populateTree();
 	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
+
+	void loadKEYDataFiles(Aurora::KEYFile &key);
+	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
 
 	wxDECLARE_EVENT_TABLE();
 };

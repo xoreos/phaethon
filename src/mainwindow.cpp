@@ -38,6 +38,9 @@
 #include "aurora/erffile.h"
 #include "aurora/rimfile.h"
 #include "aurora/keyfile.h"
+#include "aurora/keydatafile.h"
+#include "aurora/biffile.h"
+#include "aurora/bzffile.h"
 
 #include "cline.h"
 #include "eventid.h"
@@ -455,6 +458,11 @@ void MainWindow::close() {
 
 	_archives.clear();
 
+	for (KEYDataFileMap::iterator d = _keyDataFiles.begin(); d != _keyDataFiles.end(); ++d)
+		delete d->second;
+
+	_keyDataFiles.clear();
+
 	resourceTreeSelect(0);
 }
 
@@ -539,9 +547,13 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 			arch = new Aurora::RIMFile(path.c_str());
 			break;
 
-		case Aurora::kFileTypeKEY:
-			arch = new Aurora::KEYFile(path.c_str());
-			break;
+		case Aurora::kFileTypeKEY: {
+				Aurora::KEYFile *key = new Aurora::KEYFile(path.c_str());
+				loadKEYDataFiles(*key);
+
+				arch = key;
+				break;
+			}
 
 		default:
 			throw Common::Exception("Invalid archive file \"%s\"", path.c_str());
@@ -549,4 +561,54 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 
 	_archives.insert(std::make_pair(path.c_str(), arch));
 	return arch;
+}
+
+Aurora::KEYDataFile *MainWindow::getKEYDataFile(const Common::UString &file) {
+	KEYDataFileMap::iterator d = _keyDataFiles.find(file);
+	if (d != _keyDataFiles.end())
+		return d->second;
+
+	Common::UString path = Common::FilePath::normalize(_path + "/" + file);
+	if (path.empty())
+		throw Common::Exception("No such file or directory \"%s\"", (_path + "/" + file).c_str());
+
+	Aurora::FileType type = TypeMan.getFileType(file);
+
+	Aurora::KEYDataFile *dataFile = 0;
+	switch (type) {
+		case Aurora::kFileTypeBIF:
+			dataFile = new Aurora::BIFFile(path);
+			break;
+
+		case Aurora::kFileTypeBZF:
+			dataFile = new Aurora::BZFFile(path);
+			break;
+
+		default:
+			throw Common::Exception("Unknown KEY data file type %d\n", type);
+	}
+
+	_keyDataFiles.insert(std::make_pair(file, dataFile));
+	return dataFile;
+}
+
+void MainWindow::loadKEYDataFiles(Aurora::KEYFile &key) {
+	const std::vector<Common::UString> dataFiles = key.getDataFileList();
+	for (uint i = 0; i < dataFiles.size(); i++) {
+		try {
+
+			GetStatusBar()->PushStatusText(Common::UString("Loading data file") + dataFiles[i] + "...");
+
+			Aurora::KEYDataFile *dataFile = getKEYDataFile(dataFiles[i]);
+			key.addDataFile(i, dataFile);
+
+			GetStatusBar()->PopStatusText();
+
+		} catch (Common::Exception &e) {
+			e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());
+
+			GetStatusBar()->PopStatusText();
+			Common::printException(e, "WARNING: ");
+		}
+	}
 }
