@@ -44,6 +44,7 @@ noinst_HEADERS = \
                  huffman.h \
                  sinewindows.h \
                  cosinetables.h \
+                 fft.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -61,6 +62,7 @@ libcommon_la_SOURCES = \
                        huffman.cpp \
                        sinewindows.cpp \
                        cosinetables.cpp \
+                       fft.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
