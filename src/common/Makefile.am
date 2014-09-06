@@ -43,6 +43,7 @@ noinst_HEADERS = \
                  bitstream.h \
                  huffman.h \
                  sinewindows.h \
+                 cosinetables.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -59,6 +60,7 @@ libcommon_la_SOURCES = \
                        zipfile.cpp \
                        huffman.cpp \
                        sinewindows.cpp \
+                       cosinetables.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
