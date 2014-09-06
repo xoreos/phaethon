@@ -42,8 +42,9 @@ BIFFile::BIFFile(const Common::UString &fileName) : _fileName(fileName) {
 BIFFile::~BIFFile() {
 }
 
-void BIFFile::clear() {
-	_resources.clear();
+void BIFFile::open(Common::File &file) const {
+	if (!file.open(_fileName))
+		throw Common::Exception(Common::kOpenError);
 }
 
 void BIFFile::load() {
@@ -64,12 +65,11 @@ void BIFFile::load() {
 	if (fixResCount != 0)
 		throw Common::Exception("TODO: Fixed BIF resources");
 
-	_iResources.resize(varResCount);
-
 	uint32 offVarResTable = bif.readUint32LE();
 
 	try {
 
+		_resources.resize(varResCount);
 		readVarResTable(bif, offVarResTable);
 
 		if (bif.err())
@@ -86,7 +86,7 @@ void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
 	if (!bif.seek(offset))
 		throw Common::Exception(Common::kSeekError);
 
-	for (IResourceList::iterator res = _iResources.begin(); res != _iResources.end(); ++res) {
+	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++res) {
 		bif.skip(4); // ID
 
 		if (_version == kVersion11)
@@ -95,26 +95,13 @@ void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
 		res->offset = bif.readUint32LE();
 		res->size   = bif.readUint32LE();
 		res->type   = (FileType) bif.readUint32LE();
+
+		res->packedSize = res->size;
 	}
 }
 
-const Archive::ResourceList &BIFFile::getResources() const {
-	return _resources;
-}
-
-const BIFFile::IResource &BIFFile::getIResource(uint32 index) const {
-	if (index >= _iResources.size())
-		throw Common::Exception("Resource index out of range (%d/%d)", index, _iResources.size());
-
-	return _iResources[index];
-}
-
-uint32 BIFFile::getResourceSize(uint32 index) const {
-	return getIResource(index).size;
-}
-
 Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
-	const IResource &res = getIResource(index);
+	const Resource &res = getRes(index);
 	if (res.size == 0)
 		return new Common::MemoryReadStream(0, 0);
 
@@ -132,11 +119,6 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 	}
 
 	return resStream;
-}
-
-void BIFFile::open(Common::File &file) const {
-	if (!file.open(_fileName))
-		throw Common::Exception(Common::kOpenError);
 }
 
 } // End of namespace Aurora

@@ -25,65 +25,34 @@
 #ifndef AURORA_BIFFILE_H
 #define AURORA_BIFFILE_H
 
-#include <vector>
-
-#include "common/types.h"
+#include "common/ustring.h"
 
 #include "aurora/types.h"
-#include "aurora/archive.h"
 #include "aurora/aurorafile.h"
+#include "aurora/keydatafile.h"
 
 namespace Common {
-	class SeekableReadStream;
 	class File;
 }
 
 namespace Aurora {
 
 /** Class to hold resource data information of a bif file. */
-class BIFFile : public Archive, public AuroraBase {
+class BIFFile : public AuroraBase, public KEYDataFile {
 public:
 	BIFFile(const Common::UString &fileName);
 	~BIFFile();
-
-	/** Clear the resource list. */
-	void clear();
-
-	/** Return the list of resources. */
-	const ResourceList &getResources() const;
-
-	/** Return the size of a resource. */
-	uint32 getResourceSize(uint32 index) const;
 
 	/** Return a stream of the resource's contents. */
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
-	/** Internal resource information. */
-	struct IResource {
-		FileType type; ///< The resource's type.
-
-		uint32 offset; ///< The offset of the resource within the BIF.
-		uint32 size;   ///< The resource's size.
-	};
-
-	typedef std::vector<IResource> IResourceList;
-
-	/** External list of resource names and types. */
-	ResourceList _resources;
-
-	/** Internal list of resource offsets and sizes. */
-	IResourceList _iResources;
-
-	/** The name of the BIF file. */
 	Common::UString _fileName;
 
 	void open(Common::File &file) const;
-
 	void load();
-	void readVarResTable(Common::SeekableReadStream &bif, uint32 offset);
 
-	const IResource &getIResource(uint32 index) const;
+	void readVarResTable(Common::SeekableReadStream &bif, uint32 offset);
 };
 
 } // End of namespace Aurora
