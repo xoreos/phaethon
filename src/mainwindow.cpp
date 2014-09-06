@@ -190,6 +190,7 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	if ((item->getFileType() != Aurora::kFileTypeZIP) &&
 	    (item->getFileType() != Aurora::kFileTypeERF) &&
 	    (item->getFileType() != Aurora::kFileTypeMOD) &&
+	    (item->getFileType() != Aurora::kFileTypeNWM) &&
 	    (item->getFileType() != Aurora::kFileTypeSAV) &&
 	    (item->getFileType() != Aurora::kFileTypeHAK) &&
 	    (item->getFileType() != Aurora::kFileTypeRIM) &&
@@ -270,6 +271,7 @@ void ResourceTree::forceArchiveChildren(const ResourceTreeItem &item, wxTreeItem
 	    ((item.getFileType() == Aurora::kFileTypeZIP) ||
 	     (item.getFileType() == Aurora::kFileTypeERF) ||
 	     (item.getFileType() == Aurora::kFileTypeMOD) ||
+	     (item.getFileType() == Aurora::kFileTypeNWM) ||
 	     (item.getFileType() == Aurora::kFileTypeSAV) ||
 	     (item.getFileType() == Aurora::kFileTypeHAK) ||
 	     (item.getFileType() == Aurora::kFileTypeRIM) ||
@@ -650,6 +652,7 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 
 		case Aurora::kFileTypeERF:
 		case Aurora::kFileTypeMOD:
+		case Aurora::kFileTypeNWM:
 		case Aurora::kFileTypeSAV:
 		case Aurora::kFileTypeHAK:
 			arch = new Aurora::ERFFile(path.c_str());
