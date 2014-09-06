@@ -334,6 +334,7 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceArchive].push_back(kFileTypeRIM);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeZIP);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeMOD);
+	_resourceTypes[kResourceArchive].push_back(kFileTypeNWM);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeSAV);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeHAK);
 }
