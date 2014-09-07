@@ -22,6 +22,8 @@
  *  Phaethon's main window.
  */
 
+#include <deque>
+
 #include <wx/menu.h>
 #include <wx/splitter.h>
 #include <wx/artprov.h>
@@ -818,29 +820,44 @@ void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteS
 	const uint16 channels = sound->getChannels();
 	const uint32 rate     = sound->getRate();
 
-	std::list<SoundBuffer> buffers;
+	std::deque<SoundBuffer> buffers;
+
+	uint64 length = Sound::RewindableAudioStream::kInvalidLength;
+	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
+	if (rewSound)
+		length = rewSound->getLength();
+
+	warning("LENGTH: %lu, DURATION: %lu", length, rewSound ? rewSound->getDuration() : 0);
+
+	if (length != Sound::RewindableAudioStream::kInvalidLength)
+		buffers.resize((length / (ARRAYSIZE(SoundBuffer::buffer) / channels)) + 1);
 
 	uint32 samples = 0;
+	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
 	while (!sound->endOfStream()) {
-		buffers.push_back(SoundBuffer());
-		SoundBuffer &buffer = buffers.back();
+		if (buffer == buffers.end()) {
+			buffers.push_back(SoundBuffer());
+			buffer = --buffers.end();
+		}
 
 		try {
-			buffer.samples = sound->readBuffer(buffer.buffer, 4096);
+			buffer->samples = sound->readBuffer(buffer->buffer, 4096);
 		} catch (Common::Exception &e) {
 			delete sound;
 			throw;
 		}
 
-		if (buffer.samples < 0)
-			break;
+		if (buffer->samples > 0)
+			samples += buffer->samples;
 
-		samples += buffer.samples;
+		++buffer;
 	}
 
 	delete sound;
 
 	samples /= channels;
+
+	warning("Real samples: %u", samples);
 
 	const uint32 dataSize   = samples * channels * 2;
 	const uint32 byteRate   = rate * channels * 2;
@@ -862,7 +879,7 @@ void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteS
 	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
 	wav.writeUint32LE(dataSize);
 
-	for (std::list<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
+	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
 		for (int i = 0; i < b->samples; i++)
 			wav.writeUint16LE(b->buffer[i]);
 }
