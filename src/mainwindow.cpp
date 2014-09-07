@@ -757,16 +757,10 @@ bool MainWindow::exportWAV(const ResourceTreeItem &item, const Common::UString &
 	GetStatusBar()->PushStatusText(msg);
 
 	Common::SeekableReadStream *res = 0;
+	Common::DumpFile *file = 0;
 	try {
-		res = item.getResourceData();
-
-		Common::DumpFile file(path);
-
-		exportWAV(res, file);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
-
+		res  = item.getResourceData();
+		file = new Common::DumpFile(path);
 	} catch (Common::Exception &e) {
 		delete res;
 
@@ -774,6 +768,22 @@ bool MainWindow::exportWAV(const ResourceTreeItem &item, const Common::UString &
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
+
+	try {
+		exportWAV(res, *file);
+
+		if (!file->flush() || file->err())
+			throw Common::Exception(Common::kWriteError);
+
+	} catch (Common::Exception &e) {
+		delete file;
+
+		GetStatusBar()->PopStatusText();
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	delete file;
 
 	GetStatusBar()->PopStatusText();
 	return true;
