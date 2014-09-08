@@ -304,17 +304,6 @@ wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *ite
 	return id;
 }
 
-void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
-	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
-	     c != e.children.end(); ++c) {
-
-		wxTreeItemId cT = _resourceTree->appendItem(t, new ResourceTreeItem(*c));
-		populateTree(*c, cT);
-	}
-
-	_resourceTree->SortChildren(t);
-}
-
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
@@ -623,6 +612,17 @@ void MainWindow::populateTree() {
 	_resourceTree->Expand(treeRoot);
 
 	resourceTreeSelect(_resourceTree->getItemData(treeRoot));
+}
+
+void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
+	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
+	     c != e.children.end(); ++c) {
+
+		wxTreeItemId cT = _resourceTree->appendItem(t, new ResourceTreeItem(*c));
+		populateTree(*c, cT);
+	}
+
+	_resourceTree->SortChildren(t);
 }
 
 void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
