@@ -13,6 +13,7 @@ Build-time library dependencies
   - Boost.Unordered
   - Boost.Hash
   - Boost.Date_Time
+  - Boost.Atomic
   - Boost.Thread
 
 - wxWidgets (>= 3.0.0)
