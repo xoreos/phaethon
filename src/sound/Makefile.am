@@ -7,6 +7,7 @@ SUBDIRS = \
 noinst_LTLIBRARIES = libsound.la
 
 noinst_HEADERS = \
+                 types.h \
                  audiostream.h \
                  sound.h \
                  $(EMPTY)
