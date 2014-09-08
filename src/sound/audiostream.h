@@ -114,6 +114,46 @@ public:
 	}
 };
 
+/**
+ * A looping audio stream. This object does nothing besides using
+ * a RewindableAudioStream to play a stream in a loop.
+ */
+class LoopingAudioStream : public RewindableAudioStream {
+public:
+	/**
+	 * Creates a looping audio stream object.
+	 *
+	 * @see makeLoopingAudioStream
+	 *
+	 * @param stream Stream to loop
+	 * @param loops How often to loop (0 = infinite)
+	 * @param disposeAfterUse Destroy the stream after the LoopingAudioStream has finished playback.
+	 */
+	LoopingAudioStream(RewindableAudioStream *stream, uint loops, bool disposeAfterUse = true);
+	~LoopingAudioStream();
+
+	int readBuffer(int16 *buffer, const int numSamples);
+	bool endOfData() const;
+
+	int getChannels() const { return _parent->getChannels(); }
+	int getRate() const { return _parent->getRate(); }
+
+	/** Returns number of loops the stream has played. */
+	uint getCompleteIterations() const { return _completeIterations; }
+
+	bool rewind();
+
+	uint64 getLength() const;
+	uint64 getDuration() const;
+
+private:
+	RewindableAudioStream *_parent;
+	bool _disposeAfterUse;
+
+	uint _loops;
+	uint _completeIterations;
+};
+
 } // End of namespace Sound
 
 #endif

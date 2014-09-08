@@ -12,6 +12,7 @@ noinst_HEADERS = \
                  $(EMPTY)
 
 libsound_la_SOURCES = \
+                      audiostream.cpp \
                       sound.cpp \
                       $(EMPTY)
 
