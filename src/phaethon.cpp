@@ -31,6 +31,8 @@
 #include "common/error.h"
 #include "common/ustring.h"
 
+#include "sound/sound.h"
+
 #include "cline.h"
 #include "mainwindow.h"
 
@@ -80,9 +82,13 @@ public:
 	~Phaethon();
 
 	bool OnInit();
+	int OnExit();
 
 private:
 	Common::UString _path;
+
+	void initSubsystems();
+	void deinitSubsystems();
 };
 
 Phaethon::Phaethon(const Common::UString &path) : _path(path) {
@@ -91,7 +97,32 @@ Phaethon::Phaethon(const Common::UString &path) : _path(path) {
 Phaethon::~Phaethon() {
 }
 
+void Phaethon::initSubsystems() {
+	try {
+		SoundMan.init();
+	} catch (Common::Exception &e) {
+		e.add("Failed to initialize subsystems");
+
+		Common::printException(e);
+		std::exit(1);
+	}
+}
+
+void Phaethon::deinitSubsystems() {
+	try {
+		SoundMan.deinit();
+
+		Sound::SoundManager::destroy();
+	} catch (Common::Exception &e) {
+		e.add("Failed to deinitialize subsystems");
+
+		Common::printException(e, "WARNING: ");
+	}
+}
+
 bool Phaethon::OnInit() {
+	initSubsystems();
+
 	MainWindow *mainWindow = new MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxSize(800, 600));
 
 	mainWindow->Show(true);
@@ -99,6 +130,11 @@ bool Phaethon::OnInit() {
 		mainWindow->open(_path);
 
 	return true;
+}
+
+int Phaethon::OnExit() {
+	deinitSubsystems();
+	return 0;
 }
 
 
