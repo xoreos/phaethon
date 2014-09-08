@@ -47,6 +47,7 @@ noinst_HEADERS = \
                  fft.h \
                  mdct.h \
                  mutex.h \
+                 thread.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -67,6 +68,7 @@ libcommon_la_SOURCES = \
                        fft.cpp \
                        mdct.cpp \
                        mutex.cpp \
+                       thread.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
