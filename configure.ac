@@ -77,6 +77,7 @@ BOOST_REGEX
 BOOST_UNORDERED
 BOOST_HASH
 BOOST_DATE_TIME
+BOOST_THREAD
 
 dnl Extra flags
 case "$target" in
