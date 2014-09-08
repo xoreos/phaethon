@@ -13,6 +13,7 @@ Build-time library dependencies
   - Boost.Unordered
   - Boost.Hash
   - Boost.Date_Time
+  - Boost.Chrono
   - Boost.Atomic
   - Boost.Thread
 
