@@ -26,6 +26,7 @@
 #define COMMON_MUTEX_H
 
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 
 #include "common/types.h"
 
@@ -42,6 +43,8 @@ public:
 
 private:
 	boost::recursive_mutex _mutex;
+
+	friend class Condition;
 };
 
 /** Convenience class that locks a mutex on creation and unlocks it on destruction. */
@@ -52,6 +55,29 @@ public:
 
 private:
 	Mutex *_mutex;
+};
+
+/** A condition. */
+class Condition {
+public:
+	Condition();
+	Condition(Mutex &mutex);
+	~Condition();
+
+	/** Wait for this condition to be signaled or the timeout to expire.
+	 *
+	 *  @param  timeout Time to wait for a signal in ms.
+	 *  @return true If the timeout expired without a signal occurring, false otherwise.
+	 */
+	bool wait(uint32 timeout = 0);
+	void signal();
+
+private:
+	bool _ownMutex;
+
+	Mutex *_mutex;
+
+	boost::condition_variable_any _condition;
 };
 
 } // End of namespace Common

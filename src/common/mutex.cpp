@@ -22,6 +22,10 @@
  *  Thread mutex classes.
  */
 
+#include <boost/chrono/duration.hpp>
+#include <boost/thread/lock_types.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 #include "common/mutex.h"
 
 namespace Common {
@@ -47,6 +51,29 @@ StackLock::StackLock(Mutex &mutex) : _mutex(&mutex) {
 
 StackLock::~StackLock() {
 	_mutex->unlock();
+}
+
+
+Condition::Condition() : _ownMutex(true), _mutex(new Mutex) {
+}
+
+Condition::Condition(Mutex &mutex) : _ownMutex(false), _mutex(&mutex) {
+}
+
+Condition::~Condition() {
+	if (_ownMutex)
+		delete _mutex;
+}
+
+bool Condition::wait(uint32 timeout) {
+	boost::unique_lock<boost::recursive_mutex> lock(_mutex->_mutex);
+	boost::chrono::milliseconds t(timeout);
+
+	return _condition.wait_for(lock, t) == boost::cv_status::timeout;
+}
+
+void Condition::signal() {
+	_condition.notify_one();
 }
 
 } // End of namespace Common
