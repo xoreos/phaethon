@@ -46,6 +46,7 @@ noinst_HEADERS = \
                  cosinetables.h \
                  fft.h \
                  mdct.h \
+                 mutex.h \
                  $(EMPTY)
 
 libcommon_la_SOURCES = \
@@ -65,6 +66,7 @@ libcommon_la_SOURCES = \
                        cosinetables.cpp \
                        fft.cpp \
                        mdct.cpp \
+                       mutex.cpp \
                        $(EMPTY)
 
 libcommon_la_LIBADD = \
