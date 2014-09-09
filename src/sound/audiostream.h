@@ -146,6 +146,9 @@ public:
 	uint64 getLength() const;
 	uint64 getDuration() const;
 
+	/** Return the length of one loop. */
+	uint64 getLengthOnce() const;
+
 private:
 	RewindableAudioStream *_parent;
 	bool _disposeAfterUse;
