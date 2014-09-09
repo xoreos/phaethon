@@ -29,7 +29,6 @@
 
 #include <wx/wx.h>
 #include <wx/splitter.h>
-#include <wx/treectrl.h>
 
 #include <wx/generic/stattextg.h>
 
@@ -124,9 +123,6 @@ private:
 	Common::UString getResTypeLabel(Aurora::ResourceType type);
 
 	void close();
-
-	void populateTree();
-	void populateTree(const Common::FileTree::Entry &e, wxTreeItemId t);
 
 	Common::UString dialogOpenDir(const Common::UString &title);
 	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);

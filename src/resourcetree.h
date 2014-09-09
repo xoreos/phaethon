@@ -98,8 +98,7 @@ public:
 	ResourceTree(wxWindow *parent, MainWindow &mainWindow);
 	~ResourceTree();
 
-	wxTreeItemId addRoot(ResourceTreeItem *item);
-	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
+	void populate(const Common::FileTree::Entry &root);
 
 	ResourceTreeItem *getItemData(const wxTreeItemId &id) const;
 
@@ -123,6 +122,11 @@ private:
 	MainWindow *_mainWindow;
 
 	static Image getImage(const ResourceTreeItem &item);
+
+	void populate(const Common::FileTree::Entry &e, wxTreeItemId t);
+
+	wxTreeItemId addRoot(ResourceTreeItem *item);
+	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
 
 	void forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id);
 

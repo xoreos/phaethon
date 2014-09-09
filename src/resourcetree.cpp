@@ -142,6 +142,26 @@ ResourceTree::ResourceTree(wxWindow *parent, MainWindow &mainWindow) :
 ResourceTree::~ResourceTree() {
 }
 
+void ResourceTree::populate(const Common::FileTree::Entry &root) {
+	wxTreeItemId treeRoot = addRoot(new ResourceTreeItem(root));
+
+	populate(root, treeRoot);
+	Expand(treeRoot);
+
+	_mainWindow->resourceTreeSelect(getItemData(treeRoot));
+}
+
+void ResourceTree::populate(const Common::FileTree::Entry &e, wxTreeItemId t) {
+	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
+	     c != e.children.end(); ++c) {
+
+		wxTreeItemId cT = appendItem(t, new ResourceTreeItem(*c));
+		populate(*c, cT);
+	}
+
+	SortChildren(t);
+}
+
 int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2) {
 	ResourceTreeItem *d1 = getItemData(item1);
 	ResourceTreeItem *d2 = getItemData(item2);

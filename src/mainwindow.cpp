@@ -373,7 +373,7 @@ bool MainWindow::open(Common::UString path) {
 
 	GetStatusBar()->PopStatusText();
 	GetStatusBar()->PushStatusText(Common::UString("Populating resource tree..."));
-	populateTree();
+	_resourceTree->populate(_files.getRoot());
 	GetStatusBar()->PopStatusText();
 
 	return true;
@@ -396,28 +396,6 @@ void MainWindow::close() {
 	_keyDataFiles.clear();
 
 	resourceTreeSelect(0);
-}
-
-void MainWindow::populateTree() {
-	const Common::FileTree::Entry &fileRoot = _files.getRoot();
-
-	wxTreeItemId treeRoot = _resourceTree->addRoot(new ResourceTreeItem(fileRoot));
-
-	populateTree(fileRoot, treeRoot);
-	_resourceTree->Expand(treeRoot);
-
-	resourceTreeSelect(_resourceTree->getItemData(treeRoot));
-}
-
-void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) {
-	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
-	     c != e.children.end(); ++c) {
-
-		wxTreeItemId cT = _resourceTree->appendItem(t, new ResourceTreeItem(*c));
-		populateTree(*c, cT);
-	}
-
-	_resourceTree->SortChildren(t);
 }
 
 void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
