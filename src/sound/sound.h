@@ -35,6 +35,9 @@
 	#include <AL/alc.h>
 #endif
 
+#include <list>
+#include <map>
+
 #include "common/types.h"
 #include "common/singleton.h"
 #include "common/thread.h"
@@ -149,6 +152,9 @@ public:
 	/** Set the pitch of the channel. */
 	void setChannelPitch(const ChannelHandle &handle, float pitch);
 
+	/** Return the number of samples this channel has already played. */
+	uint64 getChannelSamplesPlayed(const ChannelHandle &handle);
+
 
 	// Type properties
 
@@ -190,8 +196,13 @@ private:
 		std::list<ALuint> buffers;     ///< List of buffers for that channel.
 		std::list<ALuint> freeBuffers; ///< List of free buffers not filled with data.
 
+		std::map<ALuint, uint32> bufferSize; ///< Size of a buffer in bytes.
+
 		SoundType type;            ///< The channel's sound type.
 		TypeList::iterator typeIt; ///< Iterator into the type list.
+
+		/** Number of bytes in all buffers that finished playing and were unqueued. */
+		uint64 finishedBuffers;
 
 		float gain; ///< The channel's gain.
 	};
@@ -250,7 +261,8 @@ private:
 	void threadMethod();
 
 	/** Fill the buffer with data from the audio stream. */
-	bool fillBuffer(ALuint source, ALuint alBuffer, AudioStream *stream) const;
+	bool fillBuffer(ALuint source, ALuint alBuffer,
+	                AudioStream *stream, uint32 &bufferedSize) const;
 };
 
 } // End of namespace Sound

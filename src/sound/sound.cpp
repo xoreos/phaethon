@@ -282,6 +282,7 @@ ChannelHandle SoundManager::playAudioStream(AudioStream *audStream, SoundType ty
 	channel.disposeAfterUse = disposeAfterUse;
 	channel.type            = type;
 	channel.typeIt          = _types[channel.type].list.end();
+	channel.finishedBuffers = 0;
 	channel.gain            = 1.0;
 
 	try {
@@ -305,7 +306,7 @@ ChannelHandle SoundManager::playAudioStream(AudioStream *audStream, SoundType ty
 				if ((error = alGetError()) != AL_NO_ERROR)
 					throw Common::Exception("OpenAL error while generating buffers: %X", error);
 
-				if (fillBuffer(channel.source, buffer, channel.stream)) {
+				if (fillBuffer(channel.source, buffer, channel.stream, channel.bufferSize[buffer])) {
 					// If we could fill the buffer with data, queue it
 
 					alSourceQueueBuffers(channel.source, 1, &buffer);
@@ -480,6 +481,27 @@ void SoundManager::setChannelPitch(const ChannelHandle &handle, float pitch) {
 		alSourcef(channel->source, AL_PITCH, pitch);
 }
 
+uint64 SoundManager::getChannelSamplesPlayed(const ChannelHandle &handle) {
+	Common::StackLock lock(_mutex);
+
+	Channel *channel = getChannel(handle);
+	if (!channel || !channel->stream)
+		return 0;
+
+	// Update the queued/unqueued buffers to make sure the channel is up-to-date
+	bufferData(*channel);
+
+	// The position within the currently playing buffer
+	ALint currentPosition;
+	alGetSourcei(channel->source, AL_BYTE_OFFSET, &currentPosition);
+
+	// Total number of bytes processed
+	uint64 byteCount = channel->finishedBuffers + currentPosition;
+
+	// Number of 16bit samples per channel
+	return byteCount / channel->stream->getChannels() / 2;
+}
+
 void SoundManager::setTypeGain(SoundType type, float gain) {
 	assert((type >= 0) && (type < kSoundTypeMAX));
 
@@ -497,7 +519,11 @@ void SoundManager::setTypeGain(SoundType type, float gain) {
 	}
 }
 
-bool SoundManager::fillBuffer(ALuint source, ALuint alBuffer, AudioStream *stream) const {
+bool SoundManager::fillBuffer(ALuint source, ALuint alBuffer,
+                              AudioStream *stream, uint32 &bufferedSize) const {
+
+	bufferedSize = 0;
+
 	if (!stream)
 		throw Common::Exception("No stream");
 
@@ -534,9 +560,9 @@ bool SoundManager::fillBuffer(ALuint source, ALuint alBuffer, AudioStream *strea
 	memset(buffer, 0, kOpenALBufferSize);
 	numSamples = stream->readBuffer((int16 *)buffer, numSamples);
 
-	uint32 bufferSize = numSamples * 2;
+	bufferedSize = numSamples * 2;
 
-	alBufferData(alBuffer, format, buffer, bufferSize, stream->getRate());
+	alBufferData(alBuffer, format, buffer, bufferedSize, stream->getRate());
 
 	delete[] buffer;
 
@@ -574,12 +600,14 @@ void SoundManager::bufferData(Channel &channel) {
 		alSourceUnqueueBuffers(channel.source, 1, &alBuffer);
 
 		channel.freeBuffers.push_back(alBuffer);
+
+		channel.finishedBuffers += channel.bufferSize[alBuffer];
 	}
 
 	// Buffer as long as we still have data and free buffers
 	std::list<ALuint>::iterator buffer = channel.freeBuffers.begin();
 	while (buffer != channel.freeBuffers.end()) {
-		if (!fillBuffer(channel.source, *buffer, channel.stream))
+		if (!fillBuffer(channel.source, *buffer, channel.stream, channel.bufferSize[*buffer]))
 			break;
 
 		alSourceQueueBuffers(channel.source, 1, &*buffer);
