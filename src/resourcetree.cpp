@@ -30,6 +30,9 @@
 #include "common/file.h"
 #include "common/filepath.h"
 
+#include "sound/sound.h"
+#include "sound/audiostream.h"
+
 #include "aurora/util.h"
 
 #include "resourcetree.h"
@@ -48,6 +51,9 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 	_size = Common::kFileInvalid;
 	if (_source == kSourceFile)
 		_size = Common::FilePath::getFileSize(entry.path.c_str());
+
+	_triedDuration = getResourceType() != Aurora::kResourceSound;
+	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
@@ -58,6 +64,9 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archi
 	_data.archiveIndex = resource.index;
 
 	_size = archive->getResourceSize(resource.index);
+
+	_triedDuration = getResourceType() != Aurora::kResourceSound;
+	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
@@ -109,6 +118,34 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 
 	assert(false);
 	return 0;
+}
+
+uint64 ResourceTreeItem::getSoundDuration() const {
+	if (_triedDuration)
+		return _duration;
+
+	_triedDuration = true;
+
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = getResourceData();
+	} catch (...) {
+		return _duration;
+	}
+
+	Sound::AudioStream *sound = 0;
+	try {
+		sound = SoundMan.makeAudioStream(res);
+	} catch (...) {
+		delete res;
+	}
+
+	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
+	if (rewSound)
+		_duration = rewSound->getDuration();
+
+	delete sound;
+	return _duration;
 }
 
 

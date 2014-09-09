@@ -70,6 +70,13 @@ public:
 	/** Return a stream of the resource file data. */
 	Common::SeekableReadStream *getResourceData() const;
 
+	/** If this is a sound resource, return the estimated duration in milliseconds.
+	 *
+	 *  If this is not a sound resource, or the length can not be estimated,
+	 *  return Sound::RewindableAudioStream::kInvalidLength.
+	 */
+	uint64 getSoundDuration() const;
+
 private:
 	/** Internal resource information. */
 	struct Data {
@@ -84,6 +91,9 @@ private:
 	uint32 _size;
 	Source _source;
 	Data _data;
+
+	mutable bool _triedDuration;
+	mutable uint64 _duration;
 
 	Data &getData();
 
