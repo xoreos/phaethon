@@ -133,6 +133,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 wxBEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED(kEventResourceTree, ResourceTree::onSelChanged)
 	EVT_TREE_ITEM_EXPANDING(kEventResourceTree, ResourceTree::onItemExpanding)
+	EVT_TREE_ITEM_ACTIVATED(kEventResourceTree, ResourceTree::onItemActivated)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
@@ -232,6 +233,17 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 
 	_mainWindow->GetStatusBar()->PopStatusText();
 	data.addedArchiveMembers = true;
+}
+
+void ResourceTree::onItemActivated(wxTreeEvent &event) {
+	assert(_mainWindow);
+
+	const ResourceTreeItem *item = getItemData(event.GetItem());
+	if (!item)
+		return;
+
+	if (item->getResourceType() == Aurora::kResourceSound)
+		_mainWindow->play(*item);
 }
 
 ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {

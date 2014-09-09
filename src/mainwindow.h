@@ -124,6 +124,7 @@ public:
 
 	void onSelChanged(wxTreeEvent &event);
 	void onItemExpanding(wxTreeEvent &event);
+	void onItemActivated(wxTreeEvent &event);
 
 private:
 	enum Image {
@@ -150,6 +151,10 @@ public:
 	bool open(Common::UString path);
 
 	void resourceTreeSelect(const ResourceTreeItem *item);
+
+	bool play(const ResourceTreeItem &item);
+	void pause();
+	void stop();
 
 	Aurora::Archive *getArchive(const boost::filesystem::path &path);
 
@@ -223,10 +228,6 @@ private:
 
 	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
 	void exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav);
-
-	bool play(const ResourceTreeItem &item);
-	void pause();
-	void stop();
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
