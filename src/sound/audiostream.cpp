@@ -75,11 +75,14 @@ bool LoopingAudioStream::rewind() {
 }
 
 uint64 LoopingAudioStream::getLength() const {
+	if (!_loops)
+		return kInvalidLength;
+
 	uint64 length = _parent->getLength();
 	if (length == kInvalidLength)
 		return kInvalidLength;
 
-	return _loops * kInvalidLength;
+	return _loops * length;
 }
 
 uint64 LoopingAudioStream::getDuration() const {
