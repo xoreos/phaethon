@@ -25,7 +25,6 @@
 #include <deque>
 
 #include <wx/menu.h>
-#include <wx/splitter.h>
 #include <wx/artprov.h>
 #include <wx/imaglist.h>
 
@@ -315,6 +314,10 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(kEventButtonExportRaw   , MainWindow::onExportRaw)
 	EVT_BUTTON(kEventButtonExportBMUMP3, MainWindow::onExportBMUMP3)
 	EVT_BUTTON(kEventButtonExportWAV   , MainWindow::onExportWAV)
+
+	EVT_BUTTON(kEventButtonPlay , MainWindow::onPlay)
+	EVT_BUTTON(kEventButtonPause, MainWindow::onPause)
+	EVT_BUTTON(kEventButtonStop , MainWindow::onStop)
 wxEND_EVENT_TABLE()
 
 
@@ -355,14 +358,19 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	SetMenuBar(menuBar);
 
 
-	wxSplitterWindow *splitterMainLog     = new wxSplitterWindow(this, wxID_ANY);
-	wxSplitterWindow *splitterTreeRes     = new wxSplitterWindow(splitterMainLog, wxID_ANY);
-	wxSplitterWindow *splitterInfoPreview = new wxSplitterWindow(splitterTreeRes, wxID_ANY);
+	wxSplitterWindow *splitterMainLog = new wxSplitterWindow(this, wxID_ANY);
+	wxSplitterWindow *splitterTreeRes = new wxSplitterWindow(splitterMainLog, wxID_ANY);
 
-	wxPanel *panelLog     = new wxPanel(splitterMainLog    , wxID_ANY);
-	wxPanel *panelPreview = new wxPanel(splitterInfoPreview, wxID_ANY);
-	wxPanel *panelInfo    = new wxPanel(splitterInfoPreview, wxID_ANY);
-	wxPanel *panelTree    = new wxPanel(splitterTreeRes    , wxID_ANY);
+	_splitterInfoPreview = new wxSplitterWindow(splitterTreeRes, wxID_ANY);
+
+	wxPanel *panelLog     = new wxPanel( splitterMainLog    , wxID_ANY);
+	wxPanel *panelInfo    = new wxPanel(_splitterInfoPreview, wxID_ANY);
+	wxPanel *panelTree    = new wxPanel( splitterTreeRes    , wxID_ANY);
+
+	_panelPreviewEmpty = new wxPanel(_splitterInfoPreview, wxID_ANY);
+	_panelPreviewSound = new wxPanel(_splitterInfoPreview, wxID_ANY);
+
+	_panelPreviewSound->Hide();
 
 	_resourceTree = new ResourceTree(panelTree, *this);
 
@@ -371,7 +379,9 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	_resInfoFileType = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
 	_resInfoResType  = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
 
-	wxGenericStaticText *preview = new wxGenericStaticText(panelPreview, wxID_ANY, wxT("Preview..."));
+	wxButton *buttonPlay  = new wxButton(_panelPreviewSound, kEventButtonPlay , wxT("Play"));
+	wxButton *buttonPause = new wxButton(_panelPreviewSound, kEventButtonPause, wxT("Pause"));
+	wxButton *buttonStop  = new wxButton(_panelPreviewSound, kEventButtonStop , wxT("Stop"));
 
 	wxTextCtrl *log = new wxTextCtrl(panelLog, wxID_ANY, wxEmptyString, wxDefaultPosition,
 	                                 wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
@@ -379,9 +389,13 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	wxBoxSizer *sizerWindow = new wxBoxSizer(wxVERTICAL);
 
 	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(wxHORIZONTAL, panelLog    , wxT("Log"));
-	wxStaticBoxSizer *sizerPreview = new wxStaticBoxSizer(wxHORIZONTAL, panelPreview, wxT("Preview"));
 	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxVERTICAL  , panelInfo   , wxT("Resource info"));
 	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(wxHORIZONTAL, panelTree   , wxT("Resources"));
+
+	wxStaticBoxSizer *sizerPreviewSound =
+		new wxStaticBoxSizer(wxHORIZONTAL, _panelPreviewSound, wxT("Preview"));
+	wxStaticBoxSizer *sizerPreviewEmpty =
+		new wxStaticBoxSizer(wxHORIZONTAL, _panelPreviewEmpty, wxT("Preview"));
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
@@ -409,20 +423,24 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	panelInfo->SetSizer(sizerInfo);
 
-	sizerPreview->Add(preview, 0, 0, 0);
-	panelPreview->SetSizer(sizerPreview);
+	_panelPreviewEmpty->SetSizer(sizerPreviewEmpty);
+
+	sizerPreviewSound->Add(buttonPlay , 0, 0, 0);
+	sizerPreviewSound->Add(buttonPause, 0, 0, 0);
+	sizerPreviewSound->Add(buttonStop , 0, 0, 0);
+	_panelPreviewSound->SetSizer(sizerPreviewSound);
 
 	sizerLog->Add(log, 1, wxEXPAND, 0);
 	panelLog->SetSizer(sizerLog);
 
-	splitterInfoPreview->SetMinimumPaneSize(20);
+	_splitterInfoPreview->SetMinimumPaneSize(20);
 	splitterTreeRes->SetMinimumPaneSize(20);
 	splitterMainLog->SetMinimumPaneSize(20);
 
 	splitterMainLog->SetSashGravity(1.0);
 
-	splitterInfoPreview->SplitHorizontally(panelInfo, panelPreview);
-	splitterTreeRes->SplitVertically(panelTree, splitterInfoPreview);
+	_splitterInfoPreview->SplitHorizontally(panelInfo, _panelPreviewEmpty);
+	splitterTreeRes->SplitVertically(panelTree, _splitterInfoPreview);
 	splitterMainLog->SplitHorizontally(splitterTreeRes, panelLog);
 
 	sizerWindow->Add(splitterMainLog, 1, wxEXPAND, 0);
@@ -430,7 +448,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	Layout();
 
-	splitterInfoPreview->SetSashPosition(150);
+	_splitterInfoPreview->SetSashPosition(150);
 	splitterTreeRes->SetSashPosition(200);
 	splitterMainLog->SetSashPosition(480);
 
@@ -438,6 +456,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 }
 
 MainWindow::~MainWindow() {
+	stop();
 }
 
 void MainWindow::onQuit(wxCommandEvent &event) {
@@ -510,6 +529,22 @@ void MainWindow::onExportWAV(wxCommandEvent &event) {
 		return;
 
 	exportWAV(*item, path);
+}
+
+void MainWindow::onPlay(wxCommandEvent &event) {
+	ResourceTreeItem *item = _resourceTree->getSelection();
+	if (!item || (item->getResourceType() != Aurora::kResourceSound))
+		return;
+
+	play(*item);
+}
+
+void MainWindow::onPause(wxCommandEvent &event) {
+	pause();
+}
+
+void MainWindow::onStop(wxCommandEvent &event) {
+	stop();
 }
 
 void MainWindow::forceRedraw() {
@@ -631,6 +666,28 @@ void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
 	_buttonExportWAV->Show(showWAV);
 }
 
+void MainWindow::showPreviewPanel(Aurora::ResourceType type) {
+	switch (type) {
+		case Aurora::kResourceSound:
+			showPreviewPanel(_panelPreviewSound);
+			break;
+
+		default:
+			showPreviewPanel(_panelPreviewEmpty);
+			break;
+	}
+}
+
+void MainWindow::showPreviewPanel(wxPanel *panel) {
+	wxWindow *old = _splitterInfoPreview->GetWindow2();
+
+	Freeze();
+	old->Hide();
+	_splitterInfoPreview->ReplaceWindow(old, panel);
+	panel->Show();
+	Thaw();
+}
+
 Common::UString MainWindow::getSizeLabel(uint32 size) {
 	if (size == Common::kFileInvalid)
 		return "-";
@@ -671,6 +728,7 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 
 			showExportButtons(false, false, false);
+			showPreviewPanel(Aurora::kResourceNone);
 
 			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
@@ -687,10 +745,12 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 			labelInfoResType  += getResTypeLabel(resType);
 
 			showExportButtons(true, fileType == Aurora::kFileTypeBMU, resType == Aurora::kResourceSound);
+			showPreviewPanel(resType);
 
 		}
 	} else {
 		showExportButtons(false, false, false);
+		showPreviewPanel(Aurora::kResourceNone);
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
@@ -887,6 +947,38 @@ void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteS
 	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
 		for (int i = 0; i < b->samples; i++)
 			wav.writeUint16LE(b->buffer[i]);
+}
+
+bool MainWindow::play(const ResourceTreeItem &item) {
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = item.getResourceData();
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	if (SoundMan.isPlaying(_sound))
+		SoundMan.stopChannel(_sound);
+
+	try {
+		_sound = SoundMan.playSoundFile(res, Sound::kSoundTypeUnknown);
+	} catch (Common::Exception &e) {
+		delete res;
+	}
+
+	SoundMan.startChannel(_sound);
+	return true;
+}
+
+void MainWindow::pause() {
+	if (SoundMan.isPlaying(_sound))
+		SoundMan.pauseChannel(_sound);
+}
+
+void MainWindow::stop() {
+	if (SoundMan.isPlaying(_sound))
+		SoundMan.stopChannel(_sound);
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {

@@ -38,6 +38,10 @@ enum {
 	kEventButtonExportBMUMP3,
 	kEventButtonExportWAV   ,
 
+	kEventButtonPlay ,
+	kEventButtonPause,
+	kEventButtonStop ,
+
 	kEventResourceTree
 };
 

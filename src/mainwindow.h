@@ -28,12 +28,15 @@
 #include <map>
 
 #include <wx/wx.h>
+#include <wx/splitter.h>
 #include <wx/treectrl.h>
 
 #include <wx/generic/stattextg.h>
 
 #include "common/ustring.h"
 #include "common/filetree.h"
+
+#include "sound/types.h"
 
 #include "aurora/types.h"
 #include "aurora/archive.h"
@@ -159,6 +162,8 @@ private:
 
 	ResourceTree *_resourceTree;
 
+	wxSplitterWindow *_splitterInfoPreview;
+
 	wxGenericStaticText *_resInfoName;
 	wxGenericStaticText *_resInfoSize;
 	wxGenericStaticText *_resInfoFileType;
@@ -170,8 +175,13 @@ private:
 	wxButton *_buttonExportBMUMP3;
 	wxButton *_buttonExportWAV;
 
+	wxPanel *_panelPreviewEmpty;
+	wxPanel *_panelPreviewSound;
+
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
+
+	Sound::ChannelHandle _sound;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
@@ -183,9 +193,15 @@ private:
 	void onExportBMUMP3(wxCommandEvent &event);
 	void onExportWAV(wxCommandEvent &event);
 
+	void onPlay(wxCommandEvent &event);
+	void onPause(wxCommandEvent &event);
+	void onStop(wxCommandEvent &event);
+
 	void forceRedraw();
 
 	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
+	void showPreviewPanel(wxPanel *panel);
+	void showPreviewPanel(Aurora::ResourceType type);
 
 	Common::UString getSizeLabel(uint32 size);
 	Common::UString getFileTypeLabel(Aurora::FileType type);
@@ -207,6 +223,10 @@ private:
 
 	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
 	void exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav);
+
+	bool play(const ResourceTreeItem &item);
+	void pause();
+	void stop();
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
