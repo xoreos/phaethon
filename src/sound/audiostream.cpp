@@ -66,13 +66,6 @@ bool LoopingAudioStream::endOfData() const {
 	return (_loops != 0 && (_completeIterations == _loops));
 }
 
-AudioStream *makeLoopingAudioStream(RewindableAudioStream *stream, uint loops) {
-	if (loops != 1)
-		return new LoopingAudioStream(stream, loops);
-	else
-		return stream;
-}
-
 bool LoopingAudioStream::rewind() {
 	if (!_parent->rewind())
 		return false;
