@@ -13,12 +13,14 @@ noinst_HEADERS = \
                  eventid.h \
                  about.h \
                  mainwindow.h \
+                 resourcetree.h \
                  $(EMPTY)
 
 phaethon_SOURCES = \
                    cline.cpp \
                    about.cpp \
                    mainwindow.cpp \
+                   resourcetree.cpp \
                    phaethon.cpp \
                    $(EMPTY)
 
