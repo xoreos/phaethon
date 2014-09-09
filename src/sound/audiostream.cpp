@@ -86,11 +86,14 @@ uint64 LoopingAudioStream::getLength() const {
 }
 
 uint64 LoopingAudioStream::getDuration() const {
+	if (!_loops)
+		return kInvalidLength;
+
 	uint64 duration = _parent->getDuration();
 	if (duration == kInvalidLength)
 		return kInvalidLength;
 
-	return _loops * kInvalidLength;
+	return _loops * duration;
 }
 
 } // End of namespace Sound
