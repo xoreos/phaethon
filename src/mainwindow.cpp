@@ -759,6 +759,8 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	_resInfoResType->SetLabel(labelInfoResType);
 
 	_sizerExport->Layout();
+
+	stop();
 }
 
 bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &path) {
