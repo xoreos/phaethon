@@ -100,4 +100,8 @@ uint64 LoopingAudioStream::getLengthOnce() const {
 	return _parent->getLength();
 }
 
+uint64 LoopingAudioStream::getDurationOnce() const {
+	return _parent->getDuration();
+}
+
 } // End of namespace Sound
