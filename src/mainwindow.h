@@ -185,6 +185,12 @@ private:
 
 	void forceRedraw();
 
+	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
+
+	Common::UString getSizeLabel(uint32 size);
+	Common::UString getFileTypeLabel(Aurora::FileType type);
+	Common::UString getResTypeLabel(Aurora::ResourceType type);
+
 	void close();
 
 	void populateTree();

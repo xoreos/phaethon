@@ -625,6 +625,40 @@ void MainWindow::populateTree(const Common::FileTree::Entry &e, wxTreeItemId t) 
 	_resourceTree->SortChildren(t);
 }
 
+void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
+	_buttonExportRaw->Enable(enableRaw);
+	_buttonExportBMUMP3->Show(showMP3);
+	_buttonExportWAV->Show(showWAV);
+}
+
+Common::UString MainWindow::getSizeLabel(uint32 size) {
+	if (size == Common::kFileInvalid)
+		return "-";
+
+	if (size < 1024)
+		return Common::UString::sprintf("%u", size);
+
+	Common::UString humanRead = Common::FilePath::getHumanReadableSize(size);
+
+	return Common::UString::sprintf("%s (%u)", humanRead.c_str(), size);
+}
+
+Common::UString MainWindow::getFileTypeLabel(Aurora::FileType type) {
+	Common::UString label = Common::UString::sprintf("%d", type);
+	if (type != Aurora::kFileTypeNone)
+		label += Common::UString::sprintf(" (%s)", TypeMan.getExtension(type).c_str());
+
+	return label;
+}
+
+Common::UString MainWindow::getResTypeLabel(Aurora::ResourceType type) {
+	Common::UString label = Common::UString::sprintf("%d", type);
+	if (type != Aurora::kResourceNone)
+		label += Common::UString::sprintf(" (%s)", getResourceTypeDescription(type).c_str());
+
+	return label;
+}
+
 void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 	Common::UString labelInfoName     = "Resource name: ";
 	Common::UString labelInfoSize     = "Size: ";
@@ -636,9 +670,7 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 
 		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
 
-			_buttonExportRaw->Disable();
-			_buttonExportBMUMP3->Hide();
-			_buttonExportWAV->Hide();
+			showExportButtons(false, false, false);
 
 			labelInfoSize     += "-";
 			labelInfoFileType += "Directory";
@@ -647,45 +679,18 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 		} else if ((item->getSource() == ResourceTreeItem::kSourceFile) ||
 		           (item->getSource() == ResourceTreeItem::kSourceArchiveFile)) {
 
-			_buttonExportRaw->Enable();
-
-			if (item->getSize() != Common::kFileInvalid) {
-
-				if (item->getSize() >= 1024)
-					labelInfoSize += Common::UString::sprintf("%s (%u)",
-							Common::FilePath::getHumanReadableSize(item->getSize()).c_str(), item->getSize());
-				else
-					labelInfoSize += Common::UString::sprintf("%u", item->getSize());
-
-			} else
-				labelInfoSize += "-";
-
 			Aurora::FileType     fileType = item->getFileType();
 			Aurora::ResourceType resType  = item->getResourceType();
 
-			labelInfoFileType += Common::UString::sprintf("%d", fileType);
-			labelInfoResType  += Common::UString::sprintf("%d", resType);
+			labelInfoSize     += getSizeLabel(item->getSize());
+			labelInfoFileType += getFileTypeLabel(fileType);
+			labelInfoResType  += getResTypeLabel(resType);
 
-			if (fileType != Aurora::kFileTypeNone)
-				labelInfoFileType += Common::UString::sprintf(" (%s)", TypeMan.getExtension(fileType).c_str());
-			if (resType  != Aurora::kResourceNone)
-				labelInfoResType  += Common::UString::sprintf(" (%s)", getResourceTypeDescription(resType).c_str());
-
-			if (fileType == Aurora::kFileTypeBMU)
-				_buttonExportBMUMP3->Show();
-			else
-				_buttonExportBMUMP3->Hide();
-
-			if (resType == Aurora::kResourceSound)
-				_buttonExportWAV->Show();
-			else
-				_buttonExportWAV->Hide();
+			showExportButtons(true, fileType == Aurora::kFileTypeBMU, resType == Aurora::kResourceSound);
 
 		}
 	} else {
-		_buttonExportRaw->Disable();
-		_buttonExportBMUMP3->Hide();
-		_buttonExportWAV->Hide();
+		showExportButtons(false, false, false);
 	}
 
 	_resInfoName->SetLabel(labelInfoName);
