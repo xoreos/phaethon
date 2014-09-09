@@ -400,14 +400,26 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	wxBoxSizer *sizerWindow = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(wxHORIZONTAL, panelLog    , wxT("Log"));
-	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(wxVERTICAL  , panelInfo   , wxT("Resource info"));
-	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(wxHORIZONTAL, panelTree   , wxT("Resources"));
+	wxStaticBox *boxLog  = new wxStaticBox(panelLog , wxID_ANY,  wxT("Log"));
+	wxStaticBox *boxInfo = new wxStaticBox(panelInfo, wxID_ANY,  wxT("Resource info"));
+	wxStaticBox *boxTree = new wxStaticBox(panelTree, wxID_ANY,  wxT("Resources"));
 
-	wxStaticBoxSizer *sizerPreviewSound =
-		new wxStaticBoxSizer(wxHORIZONTAL, _panelPreviewSound, wxT("Preview"));
-	wxStaticBoxSizer *sizerPreviewEmpty =
-		new wxStaticBoxSizer(wxHORIZONTAL, _panelPreviewEmpty, wxT("Preview"));
+	boxLog->Lower();
+	boxInfo->Lower();
+	boxTree->Lower();
+
+	wxStaticBox *boxPreviewSound = new wxStaticBox(_panelPreviewSound, wxID_ANY,  wxT("Preview"));
+	wxStaticBox *boxPreviewEmpty = new wxStaticBox(_panelPreviewEmpty, wxID_ANY,  wxT("Preview"));
+
+	boxPreviewSound->Lower();
+	boxPreviewEmpty->Lower();
+
+	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
+	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
+	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
+
+	wxStaticBoxSizer *sizerPreviewSound = new wxStaticBoxSizer(boxPreviewSound, wxHORIZONTAL);
+	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxHORIZONTAL);
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
