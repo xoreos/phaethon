@@ -112,6 +112,7 @@ private:
 	void onPause(wxCommandEvent &event);
 	void onStop(wxCommandEvent &event);
 
+	void createLayout();
 	void forceRedraw();
 
 	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);

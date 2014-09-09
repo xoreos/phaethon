@@ -72,6 +72,16 @@ wxEND_EVENT_TABLE()
 MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
 	wxFrame(NULL, wxID_ANY, title, pos, size) {
 
+	createLayout();
+
+	resourceTreeSelect(0);
+}
+
+MainWindow::~MainWindow() {
+	stop();
+}
+
+void MainWindow::createLayout() {
 	CreateStatusBar();
 	GetStatusBar()->SetStatusText(wxT("Idle..."));
 
@@ -111,9 +121,9 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	_splitterInfoPreview = new wxSplitterWindow(splitterTreeRes, wxID_ANY);
 
-	wxPanel *panelLog     = new wxPanel( splitterMainLog    , wxID_ANY);
-	wxPanel *panelInfo    = new wxPanel(_splitterInfoPreview, wxID_ANY);
-	wxPanel *panelTree    = new wxPanel( splitterTreeRes    , wxID_ANY);
+	wxPanel *panelLog  = new wxPanel( splitterMainLog    , wxID_ANY);
+	wxPanel *panelInfo = new wxPanel(_splitterInfoPreview, wxID_ANY);
+	wxPanel *panelTree = new wxPanel( splitterTreeRes    , wxID_ANY);
 
 	_panelPreviewEmpty = new wxPanel(_splitterInfoPreview, wxID_ANY);
 	_panelPreviewSound = new wxPanel(_splitterInfoPreview, wxID_ANY);
@@ -150,9 +160,9 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	boxPreviewSound->Lower();
 	boxPreviewEmpty->Lower();
 
-	wxStaticBoxSizer *sizerLog     = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
-	wxStaticBoxSizer *sizerInfo    = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
-	wxStaticBoxSizer *sizerTree    = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
+	wxStaticBoxSizer *sizerLog  = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
+	wxStaticBoxSizer *sizerInfo = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
+	wxStaticBoxSizer *sizerTree = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
 
 	wxStaticBoxSizer *sizerPreviewSound = new wxStaticBoxSizer(boxPreviewSound, wxHORIZONTAL);
 	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxHORIZONTAL);
@@ -211,12 +221,6 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 	_splitterInfoPreview->SetSashPosition(150);
 	splitterTreeRes->SetSashPosition(200);
 	splitterMainLog->SetSashPosition(480);
-
-	resourceTreeSelect(0);
-}
-
-MainWindow::~MainWindow() {
-	stop();
 }
 
 void MainWindow::onQuit(wxCommandEvent &event) {
