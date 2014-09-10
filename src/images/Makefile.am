@@ -9,11 +9,13 @@ noinst_HEADERS = \
                  types.h \
                  s3tc.h \
                  decoder.h \
+                 dumptga.h \
                  $(EMPTY)
 
 libimages_la_SOURCES = \
                        s3tc.cpp \
                        decoder.cpp \
+                       dumptga.cpp \
                        $(EMPTY)
 
 libimages_la_LIBADD = \
