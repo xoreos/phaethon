@@ -357,7 +357,7 @@ void MainWindow::onStop(wxCommandEvent &event) {
 void MainWindow::onVolumeChange(wxScrollEvent &event) {
 	double volume = _soundCtrl->sliderVolume->GetValue() / (double)_soundCtrl->sliderVolume->GetMax();
 
-	Common::UString label = Common::UString::sprintf("<tt>%d%%</tt>", (int) (volume * 100));
+	Common::UString label = Common::UString::sprintf("<tt>%3d%%</tt>", (int) (volume * 100));
 	_soundCtrl->textVolume->SetLabelMarkup(label);
 
 	SoundMan.setListenerGain(volume);
