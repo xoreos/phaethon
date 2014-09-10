@@ -82,8 +82,6 @@ private:
 
 	void createLayout(const Common::UString &title);
 
-	void update();
-
 
 	bool exportRaw(const Common::UString &path);
 	bool exportBMUMP3(const Common::UString &path);
@@ -93,7 +91,11 @@ private:
 	void exportWAV(Sound::AudioStream *sound, Common::WriteStream &wav);
 
 
+	void update();
+	void setLabels();
+	void showExportButtons();
 	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
+
 
 	static uint64 getLength(Sound::AudioStream *sound);
 

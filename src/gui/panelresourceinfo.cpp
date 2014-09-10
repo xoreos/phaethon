@@ -104,12 +104,6 @@ void PanelResourceInfo::setCurrentItem(const ResourceTreeItem *item) {
 	update();
 }
 
-void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
-	_buttonExportRaw->Enable(enableRaw);
-	_buttonExportBMUMP3->Show(showMP3);
-	_buttonExportWAV->Show(showWAV);
-}
-
 uint64 PanelResourceInfo::getLength(Sound::AudioStream *sound) {
 	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
 	if (!rewSound)
@@ -364,7 +358,27 @@ void PanelResourceInfo::exportWAV(Sound::AudioStream *sound, Common::WriteStream
 			wav.writeUint16LE(b->buffer[i]);
 }
 
-void PanelResourceInfo::update() {
+void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
+	_buttonExportRaw->Enable(enableRaw);
+	_buttonExportBMUMP3->Show(showMP3);
+	_buttonExportWAV->Show(showWAV);
+
+	_sizerExport->Layout();
+}
+
+void PanelResourceInfo::showExportButtons() {
+	if (!_currentItem || _currentItem->getSource() == ResourceTreeItem::kSourceDirectory) {
+		showExportButtons(false, false, false, false);
+		return;
+	}
+
+	bool isBMU   = _currentItem->getFileType()     == Aurora::kFileTypeBMU;
+	bool isSound = _currentItem->getResourceType() == Aurora::kResourceSound;
+
+	showExportButtons(true, isBMU, isSound);
+}
+
+void PanelResourceInfo::setLabels() {
 	Common::UString labelName     = "Resource name: ";
 	Common::UString labelSize     = "Size: ";
 	Common::UString labelFileType = "File type: ";
@@ -374,8 +388,6 @@ void PanelResourceInfo::update() {
 		labelName += _currentItem->getName();
 
 		if (_currentItem->getSource() == ResourceTreeItem::kSourceDirectory) {
-
-			showExportButtons(false, false, false);
 
 			labelSize     += "-";
 			labelFileType += "Directory";
@@ -390,20 +402,18 @@ void PanelResourceInfo::update() {
 			labelSize     += getSizeLabel(_currentItem->getSize());
 			labelFileType += getFileTypeLabel(fileType);
 			labelResType  += getResTypeLabel(resType);
-
-			showExportButtons(true, fileType == Aurora::kFileTypeBMU, resType == Aurora::kResourceSound);
-
 		}
-	} else {
-		showExportButtons(false, false, false);
 	}
 
 	_textName->SetLabel(labelName);
 	_textSize->SetLabel(labelSize);
 	_textFileType->SetLabel(labelFileType);
 	_textResType->SetLabel(labelResType);
+}
 
-	_sizerExport->Layout();
+void PanelResourceInfo::update() {
+	showExportButtons();
+	setLabels();
 }
 
 } // End of namespace GUI
