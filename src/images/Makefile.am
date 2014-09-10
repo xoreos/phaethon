@@ -14,6 +14,7 @@ noinst_HEADERS = \
                  winiconimage.h \
                  tga.h \
                  dds.h \
+                 tpc.h \
                  $(EMPTY)
 
 libimages_la_SOURCES = \
@@ -23,6 +24,7 @@ libimages_la_SOURCES = \
                        winiconimage.cpp \
                        tga.cpp \
                        dds.cpp \
+                       tpc.cpp \
                        $(EMPTY)
 
 libimages_la_LIBADD = \
