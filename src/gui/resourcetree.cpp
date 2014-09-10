@@ -91,10 +91,16 @@ ResourceTreeItem::Data &ResourceTreeItem::getData() {
 }
 
 Aurora::FileType ResourceTreeItem::getFileType() const {
+	if (_source == kSourceDirectory)
+		return Aurora::kFileTypeNone;
+
 	return TypeMan.getFileType(_name);
 }
 
 Aurora::ResourceType ResourceTreeItem::getResourceType() const {
+	if (_source == kSourceDirectory)
+		return Aurora::kResourceNone;
+
 	return TypeMan.getResourceType(_name);
 }
 
