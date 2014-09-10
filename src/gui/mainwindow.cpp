@@ -25,7 +25,6 @@
 #include <deque>
 
 #include <wx/sizer.h>
-#include <wx/gbsizer.h>
 #include <wx/panel.h>
 #include <wx/statbox.h>
 #include <wx/splitter.h>
@@ -43,11 +42,6 @@
 #include "common/util.h"
 #include "common/error.h"
 #include "common/filepath.h"
-#include "common/stream.h"
-#include "common/file.h"
-
-#include "sound/sound.h"
-#include "sound/audiostream.h"
 
 #include "aurora/util.h"
 #include "aurora/zipfile.h"
@@ -62,6 +56,7 @@
 #include "gui/about.h"
 #include "gui/mainwindow.h"
 #include "gui/resourcetree.h"
+#include "gui/panelresourceinfo.h"
 #include "gui/panelpreviewempty.h"
 #include "gui/panelpreviewsound.h"
 
@@ -75,10 +70,6 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileClose   , MainWindow::onClose)
 	EVT_MENU(kEventFileQuit    , MainWindow::onQuit)
 	EVT_MENU(kEventHelpAbout   , MainWindow::onAbout)
-
-	EVT_BUTTON(kEventButtonExportRaw   , MainWindow::onExportRaw)
-	EVT_BUTTON(kEventButtonExportBMUMP3, MainWindow::onExportBMUMP3)
-	EVT_BUTTON(kEventButtonExportWAV   , MainWindow::onExportWAV)
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
@@ -86,7 +77,7 @@ MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &
 
 	createLayout();
 
-	resourceTreeSelect(0);
+	resourceSelect(0);
 }
 
 MainWindow::~MainWindow() {
@@ -133,8 +124,9 @@ void MainWindow::createLayout() {
 	_splitterInfoPreview = new wxSplitterWindow(splitterTreeRes, wxID_ANY);
 
 	wxPanel *panelLog  = new wxPanel( splitterMainLog    , wxID_ANY);
-	wxPanel *panelInfo = new wxPanel(_splitterInfoPreview, wxID_ANY);
 	wxPanel *panelTree = new wxPanel( splitterTreeRes    , wxID_ANY);
+
+	_panelResourceInfo = new PanelResourceInfo(_splitterInfoPreview, *this, "Resource info");
 
 	_panelPreviewEmpty = new PanelPreviewEmpty(_splitterInfoPreview, "Preview");
 	_panelPreviewSound = new PanelPreviewSound(_splitterInfoPreview, "Preview");
@@ -143,53 +135,22 @@ void MainWindow::createLayout() {
 
 	_resourceTree = new ResourceTree(panelTree, *this);
 
-	_resInfoName     = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
-	_resInfoSize     = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
-	_resInfoFileType = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
-	_resInfoResType  = new wxGenericStaticText(panelInfo, wxID_ANY, wxEmptyString);
-
 	wxTextCtrl *log = new wxTextCtrl(panelLog, wxID_ANY, wxEmptyString, wxDefaultPosition,
 	                                 wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
 
 	wxBoxSizer *sizerWindow = new wxBoxSizer(wxVERTICAL);
 
 	wxStaticBox *boxLog  = new wxStaticBox(panelLog , wxID_ANY,  wxT("Log"));
-	wxStaticBox *boxInfo = new wxStaticBox(panelInfo, wxID_ANY,  wxT("Resource info"));
 	wxStaticBox *boxTree = new wxStaticBox(panelTree, wxID_ANY,  wxT("Resources"));
 
 	boxLog->Lower();
-	boxInfo->Lower();
 	boxTree->Lower();
 
 	wxStaticBoxSizer *sizerLog  = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
-	wxStaticBoxSizer *sizerInfo = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
 	wxStaticBoxSizer *sizerTree = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
-
-	_sizerExport = new wxBoxSizer(wxHORIZONTAL);
-
-	_buttonExportRaw    = new wxButton(panelInfo, kEventButtonExportRaw   , wxT("Save"));
-	_buttonExportBMUMP3 = new wxButton(panelInfo, kEventButtonExportBMUMP3, wxT("Export as MP3"));
-	_buttonExportWAV    = new wxButton(panelInfo, kEventButtonExportWAV   , wxT("Export as PCM WAV"));
-
-	_buttonExportRaw->Disable();
-	_buttonExportBMUMP3->Hide();
-	_buttonExportWAV->Hide();
-
-	_sizerExport->Add(_buttonExportRaw   , 0, wxEXPAND, 0);
-	_sizerExport->Add(_buttonExportBMUMP3, 0, wxEXPAND, 0);
-	_sizerExport->Add(_buttonExportWAV   , 0, wxEXPAND, 0);
-
-	sizerInfo->Add(_resInfoName    , 0, wxEXPAND, 0);
-	sizerInfo->Add(_resInfoSize    , 0, wxEXPAND, 0);
-	sizerInfo->Add(_resInfoFileType, 0, wxEXPAND, 0);
-	sizerInfo->Add(_resInfoResType , 0, wxEXPAND, 0);
-
-	sizerInfo->Add(_sizerExport, 0, wxEXPAND | wxTOP, 5);
-
-	panelInfo->SetSizer(sizerInfo);
 
 	sizerLog->Add(log, 1, wxEXPAND, 0);
 	panelLog->SetSizer(sizerLog);
@@ -200,7 +161,7 @@ void MainWindow::createLayout() {
 
 	splitterMainLog->SetSashGravity(1.0);
 
-	_splitterInfoPreview->SplitHorizontally(panelInfo, _panelPreviewEmpty);
+	_splitterInfoPreview->SplitHorizontally(_panelResourceInfo, _panelPreviewEmpty);
 	splitterTreeRes->SplitVertically(panelTree, _splitterInfoPreview);
 	splitterMainLog->SplitHorizontally(splitterTreeRes, panelLog);
 
@@ -245,50 +206,17 @@ void MainWindow::onClose(wxCommandEvent &event) {
 	close();
 }
 
-void MainWindow::onExportRaw(wxCommandEvent &event) {
-	ResourceTreeItem *item = _resourceTree->getSelection();
-	if (!item)
-		return;
-
-	Common::UString path = dialogSaveFile("Save Aurora game resource file",
-	                                      "Aurora game resource (*.*)|*.*", item->getName());
-	if (path.empty())
-		return;
-
-	exportRaw(*item, path);
-}
-
-void MainWindow::onExportBMUMP3(wxCommandEvent &event) {
-	ResourceTreeItem *item = _resourceTree->getSelection();
-	if (!item)
-		return;
-
-	assert(item->getFileType() == Aurora::kFileTypeBMU);
-
-	Common::UString path = dialogSaveFile("Save MP3 file", "MP3 file (*.mp3)|*.mp3",
-	                                      TypeMan.setFileType(item->getName(), Aurora::kFileTypeMP3));
-	if (path.empty())
-		return;
-
-	exportBMUMP3(*item, path);
-}
-
-void MainWindow::onExportWAV(wxCommandEvent &event) {
-	ResourceTreeItem *item = _resourceTree->getSelection();
-	if (!item)
-		return;
-
-	Common::UString path = dialogSaveFile("Save PCM WAV file", "WAV file (*.wav)|*.wav",
-	                                      TypeMan.setFileType(item->getName(), Aurora::kFileTypeWAV));
-	if (path.empty())
-		return;
-
-	exportWAV(*item, path);
-}
-
 void MainWindow::forceRedraw() {
 	Refresh();
 	Update();
+}
+
+void MainWindow::pushStatus(const Common::UString &text) {
+	GetStatusBar()->PushStatusText(text);
+}
+
+void MainWindow::popStatus() {
+	GetStatusBar()->PopStatusText();
 }
 
 Common::UString MainWindow::dialogOpenDir(const Common::UString &title) {
@@ -304,18 +232,6 @@ Common::UString MainWindow::dialogOpenFile(const Common::UString &title,
 
 	wxFileDialog dialog(this, title, wxEmptyString, wxEmptyString, mask,
 	                    wxFD_DEFAULT_STYLE | wxFD_FILE_MUST_EXIST);
-	if (dialog.ShowModal() == wxID_OK)
-		return dialog.GetPath();
-
-	return "";
-}
-
-Common::UString MainWindow::dialogSaveFile(const Common::UString &title,
-                                           const Common::UString &mask,
-                                           const Common::UString &def) {
-
-	wxFileDialog dialog(this, title, wxEmptyString, def, mask,
-	                    wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if (dialog.ShowModal() == wxID_OK)
 		return dialog.GetPath();
 
@@ -374,13 +290,11 @@ void MainWindow::close() {
 
 	_keyDataFiles.clear();
 
-	resourceTreeSelect(0);
+	resourceSelect(0);
 }
 
-void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
-	_buttonExportRaw->Enable(enableRaw);
-	_buttonExportBMUMP3->Show(showMP3);
-	_buttonExportWAV->Show(showWAV);
+void MainWindow::showPreviewPanel(const ResourceTreeItem *item) {
+	showPreviewPanel(item ? item->getResourceType() : Aurora::kResourceNone);
 }
 
 void MainWindow::showPreviewPanel(Aurora::ResourceType type) {
@@ -405,274 +319,18 @@ void MainWindow::showPreviewPanel(wxPanel *panel) {
 	Thaw();
 }
 
-Common::UString MainWindow::getSizeLabel(uint32 size) {
-	if (size == Common::kFileInvalid)
-		return "-";
+void MainWindow::resourceSelect(const ResourceTreeItem *item) {
+	showPreviewPanel(item);
 
-	if (size < 1024)
-		return Common::UString::sprintf("%u", size);
-
-	Common::UString humanRead = Common::FilePath::getHumanReadableSize(size);
-
-	return Common::UString::sprintf("%s (%u)", humanRead.c_str(), size);
-}
-
-Common::UString MainWindow::getFileTypeLabel(Aurora::FileType type) {
-	Common::UString label = Common::UString::sprintf("%d", type);
-	if (type != Aurora::kFileTypeNone)
-		label += Common::UString::sprintf(" (%s)", TypeMan.getExtension(type).c_str());
-
-	return label;
-}
-
-Common::UString MainWindow::getResTypeLabel(Aurora::ResourceType type) {
-	Common::UString label = Common::UString::sprintf("%d", type);
-	if (type != Aurora::kResourceNone)
-		label += Common::UString::sprintf(" (%s)", getResourceTypeDescription(type).c_str());
-
-	return label;
-}
-
-void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
-	Common::UString labelInfoName     = "Resource name: ";
-	Common::UString labelInfoSize     = "Size: ";
-	Common::UString labelInfoFileType = "File type: ";
-	Common::UString labelInfoResType  = "Resource type: ";
-
-	if (item) {
-		labelInfoName += item->getName();
-
-		if (item->getSource() == ResourceTreeItem::kSourceDirectory) {
-
-			showExportButtons(false, false, false);
-			showPreviewPanel(Aurora::kResourceNone);
-
-			labelInfoSize     += "-";
-			labelInfoFileType += "Directory";
-			labelInfoResType  += "Directory";
-
-		} else if ((item->getSource() == ResourceTreeItem::kSourceFile) ||
-		           (item->getSource() == ResourceTreeItem::kSourceArchiveFile)) {
-
-			Aurora::FileType     fileType = item->getFileType();
-			Aurora::ResourceType resType  = item->getResourceType();
-
-			labelInfoSize     += getSizeLabel(item->getSize());
-			labelInfoFileType += getFileTypeLabel(fileType);
-			labelInfoResType  += getResTypeLabel(resType);
-
-			showExportButtons(true, fileType == Aurora::kFileTypeBMU, resType == Aurora::kResourceSound);
-			showPreviewPanel(resType);
-
-		}
-	} else {
-		showExportButtons(false, false, false);
-		showPreviewPanel(Aurora::kResourceNone);
-	}
-
-	_resInfoName->SetLabel(labelInfoName);
-	_resInfoSize->SetLabel(labelInfoSize);
-	_resInfoFileType->SetLabel(labelInfoFileType);
-	_resInfoResType->SetLabel(labelInfoResType);
-
-	_sizerExport->Layout();
-
+	_panelResourceInfo->setCurrentItem(item);
 	_panelPreviewSound->setCurrentItem(item);
 }
 
-void MainWindow::resourceTreeActivate(const ResourceTreeItem &item) {
+void MainWindow::resourceActivate(const ResourceTreeItem &item) {
 	if (item.getResourceType() == Aurora::kResourceSound) {
 		_panelPreviewSound->setCurrentItem(&item);
 		_panelPreviewSound->play();;
 	}
-}
-
-bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &path) {
-	Common::UString msg = Common::UString("Saving \"") + item.getName() + "\" to \"" + path + "\"...";
-	GetStatusBar()->PushStatusText(msg);
-
-	Common::SeekableReadStream *res = 0;
-	try {
-		res = item.getResourceData();
-
-		Common::DumpFile file(path);
-
-		file.writeStream(*res);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
-
-		delete res;
-
-	} catch (Common::Exception &e) {
-		delete res;
-
-		GetStatusBar()->PopStatusText();
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
-	GetStatusBar()->PopStatusText();
-	return true;
-}
-
-bool MainWindow::exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path) {
-	Common::UString msg = Common::UString("Exporting \"") + item.getName() + "\" to \"" + path + "\"...";
-	GetStatusBar()->PushStatusText(msg);
-
-	Common::SeekableReadStream *res = 0;
-	try {
-		res = item.getResourceData();
-
-		Common::DumpFile file(path);
-
-		exportBMUMP3(*res, file);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
-
-		delete res;
-
-	} catch (Common::Exception &e) {
-		delete res;
-
-		GetStatusBar()->PopStatusText();
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
-	GetStatusBar()->PopStatusText();
-	return true;
-}
-
-bool MainWindow::exportWAV(const ResourceTreeItem &item, const Common::UString &path) {
-	Common::UString msg = Common::UString("Exporting \"") + item.getName() + "\" to \"" + path + "\"...";
-	GetStatusBar()->PushStatusText(msg);
-
-	Common::SeekableReadStream *res = 0;
-	Common::DumpFile *file = 0;
-	try {
-		res  = item.getResourceData();
-		file = new Common::DumpFile(path);
-	} catch (Common::Exception &e) {
-		delete res;
-
-		GetStatusBar()->PopStatusText();
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
-	try {
-		exportWAV(res, *file);
-
-		if (!file->flush() || file->err())
-			throw Common::Exception(Common::kWriteError);
-
-	} catch (Common::Exception &e) {
-		delete file;
-
-		GetStatusBar()->PopStatusText();
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
-	delete file;
-
-	GetStatusBar()->PopStatusText();
-	return true;
-}
-
-void MainWindow::exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
-	if ((bmu.size() <= 8) ||
-	    (bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
-	    (bmu.readUint32BE() != MKTAG('V', '1', '.', '0')))
-		throw Common::Exception("Not a valid BMU file");
-
-	mp3.writeStream(bmu);
-}
-
-struct SoundBuffer {
-	int16 buffer[4096];
-	int samples;
-
-	SoundBuffer() : samples(0) {
-	}
-};
-
-void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav) {
-	Sound::AudioStream *sound = 0;
-	try {
-		sound = SoundMan.makeAudioStream(soundData);
-	} catch (Common::Exception &e) {
-		delete soundData;
-		throw;
-	}
-
-	const uint16 channels = sound->getChannels();
-	const uint32 rate     = sound->getRate();
-
-	std::deque<SoundBuffer> buffers;
-
-	uint64 length = Sound::RewindableAudioStream::kInvalidLength;
-	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
-	if (rewSound)
-		length = rewSound->getLength();
-
-	warning("LENGTH: %lu, DURATION: %lu", length, rewSound ? rewSound->getDuration() : 0);
-
-	if (length != Sound::RewindableAudioStream::kInvalidLength)
-		buffers.resize((length / (ARRAYSIZE(SoundBuffer::buffer) / channels)) + 1);
-
-	uint32 samples = 0;
-	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
-	while (!sound->endOfStream()) {
-		if (buffer == buffers.end()) {
-			buffers.push_back(SoundBuffer());
-			buffer = --buffers.end();
-		}
-
-		try {
-			buffer->samples = sound->readBuffer(buffer->buffer, 4096);
-		} catch (Common::Exception &e) {
-			delete sound;
-			throw;
-		}
-
-		if (buffer->samples > 0)
-			samples += buffer->samples;
-
-		++buffer;
-	}
-
-	delete sound;
-
-	samples /= channels;
-
-	warning("Real samples: %u", samples);
-
-	const uint32 dataSize   = samples * channels * 2;
-	const uint32 byteRate   = rate * channels * 2;
-	const uint16 blockAlign = channels * 2;
-
-	wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
-	wav.writeUint32LE(36 + dataSize);
-	wav.writeUint32BE(MKTAG('W', 'A', 'V', 'E'));
-
-	wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
-	wav.writeUint32LE(16);
-	wav.writeUint16LE(1);
-	wav.writeUint16LE(channels);
-	wav.writeUint32LE(rate);
-	wav.writeUint32LE(byteRate);
-	wav.writeUint16LE(blockAlign);
-	wav.writeUint16LE(16);
-
-	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
-	wav.writeUint32LE(dataSize);
-
-	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
-		for (int i = 0; i < b->samples; i++)
-			wav.writeUint16LE(b->buffer[i]);
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {

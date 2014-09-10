@@ -35,11 +35,6 @@
 #include "aurora/types.h"
 #include "aurora/archive.h"
 
-namespace Common {
-	class SeekableReadStream;
-	class WriteStream;
-}
-
 namespace Aurora {
 	class KEYFile;
 	class KEYDataFile;
@@ -56,6 +51,8 @@ namespace GUI {
 class ResourceTree;
 class ResourceTreeItem;
 
+class PanelResourceInfo;
+
 class PanelPreviewEmpty;
 class PanelPreviewSound;
 
@@ -66,8 +63,12 @@ public:
 
 	bool open(Common::UString path);
 
-	void resourceTreeSelect(const ResourceTreeItem *item);
-	void resourceTreeActivate(const ResourceTreeItem &item);
+	void forceRedraw();
+	void pushStatus(const Common::UString &text);
+	void popStatus();
+
+	void resourceSelect(const ResourceTreeItem *item);
+	void resourceActivate(const ResourceTreeItem &item);
 
 	Aurora::Archive *getArchive(const boost::filesystem::path &path);
 
@@ -82,16 +83,7 @@ private:
 
 	wxSplitterWindow *_splitterInfoPreview;
 
-	wxGenericStaticText *_resInfoName;
-	wxGenericStaticText *_resInfoSize;
-	wxGenericStaticText *_resInfoFileType;
-	wxGenericStaticText *_resInfoResType;
-
-	wxBoxSizer *_sizerExport;
-
-	wxButton *_buttonExportRaw;
-	wxButton *_buttonExportBMUMP3;
-	wxButton *_buttonExportWAV;
+	PanelResourceInfo *_panelResourceInfo;
 
 	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewSound *_panelPreviewSound;
@@ -105,34 +97,16 @@ private:
 	void onQuit(wxCommandEvent &event);
 	void onAbout(wxCommandEvent &event);
 
-	void onExportRaw(wxCommandEvent &event);
-	void onExportBMUMP3(wxCommandEvent &event);
-	void onExportWAV(wxCommandEvent &event);
-
 	void createLayout();
-	void forceRedraw();
-
-	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
-	void showPreviewPanel(wxPanel *panel);
-	void showPreviewPanel(Aurora::ResourceType type);
-
-	Common::UString getSizeLabel(uint32 size);
-	Common::UString getFileTypeLabel(Aurora::FileType type);
-	Common::UString getResTypeLabel(Aurora::ResourceType type);
 
 	void close();
 
+	void showPreviewPanel(wxPanel *panel);
+	void showPreviewPanel(Aurora::ResourceType type);
+	void showPreviewPanel(const ResourceTreeItem *item);
+
 	Common::UString dialogOpenDir(const Common::UString &title);
 	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
-	Common::UString dialogSaveFile(const Common::UString &title, const Common::UString &mask,
-	                               const Common::UString &def = "");
-
-	bool exportRaw(const ResourceTreeItem &item, const Common::UString &path);
-	bool exportBMUMP3(const ResourceTreeItem &item, const Common::UString &path);
-	bool exportWAV(const ResourceTreeItem &item, const Common::UString &path);
-
-	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
-	void exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav);
 
 	void loadKEYDataFiles(Aurora::KEYFile &key);
 	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
