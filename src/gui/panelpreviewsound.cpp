@@ -19,7 +19,7 @@
  */
 
 /** @file gui/panelpreviewsound.cpp
- *  Controls for handling sound playback / preview.
+ *  Preview panel for sound resources.
  */
 
 #include <wx/sizer.h>

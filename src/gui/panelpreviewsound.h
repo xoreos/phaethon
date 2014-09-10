@@ -19,7 +19,7 @@
  */
 
 /** @file gui/panelpreviewsound.h
- *  Controls for handling sound playback / preview.
+ *  Preview panel for sound resources.
  */
 
 #ifndef PANELPREVIEWSOUND_H
