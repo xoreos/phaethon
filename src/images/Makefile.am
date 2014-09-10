@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = libimages.la
 
 noinst_HEADERS = \
                  types.h \
+                 util.h \
                  s3tc.h \
                  decoder.h \
                  dumptga.h \
