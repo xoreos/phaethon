@@ -213,14 +213,6 @@ bool PanelPreviewSound::play() {
 	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceSound))
 		return false;
 
-	Common::SeekableReadStream *res = 0;
-	try {
-		res = _currentItem->getResourceData();
-	} catch (Common::Exception &e) {
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
 	if (SoundMan.isPlaying(_sound)) {
 		if (SoundMan.isPaused(_sound)) {
 			SoundMan.pauseChannel(_sound, false);
@@ -230,10 +222,15 @@ bool PanelPreviewSound::play() {
 		SoundMan.stopChannel(_sound);
 	}
 
+	Sound::AudioStream *sound = _currentItem->getAudioStream();
+
 	try {
-		_sound = SoundMan.playSoundFile(res, Sound::kSoundTypeUnknown);
+		_sound = SoundMan.playAudioStream(sound, Sound::kSoundTypeUnknown);
 	} catch (Common::Exception &e) {
-		delete res;
+		delete sound;
+
+		Common::printException(e, "WARNING: ");
+		return false;
 	}
 
 	SoundMan.startChannel(_sound);
