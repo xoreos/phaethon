@@ -42,6 +42,8 @@ enum {
 	kEventButtonPause,
 	kEventButtonStop ,
 
+	kEventSliderVolume,
+
 	kEventResourceTree
 };
 

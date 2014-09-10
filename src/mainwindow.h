@@ -114,6 +114,8 @@ private:
 	void onPause(wxCommandEvent &event);
 	void onStop(wxCommandEvent &event);
 
+	void onVolumeChange(wxScrollEvent &event);
+
 	void createLayout();
 	void forceRedraw();
 

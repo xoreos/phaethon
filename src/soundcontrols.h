@@ -42,8 +42,10 @@ struct SoundControls {
 	wxGenericStaticText *textPosition;
 	wxGenericStaticText *textPercent;
 	wxGenericStaticText *textDuration;
+	wxGenericStaticText *textVolume;
 
 	wxSlider *sliderPosition;
+	wxSlider *sliderVolume;
 
 	wxButton *buttonPlay;
 	wxButton *buttonPause;

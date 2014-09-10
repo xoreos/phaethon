@@ -69,6 +69,8 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(kEventButtonPlay , MainWindow::onPlay)
 	EVT_BUTTON(kEventButtonPause, MainWindow::onPause)
 	EVT_BUTTON(kEventButtonStop , MainWindow::onStop)
+
+	EVT_COMMAND_SCROLL(kEventSliderVolume, MainWindow::onVolumeChange)
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
@@ -204,9 +206,13 @@ void MainWindow::createLayout() {
 	_soundCtrl->textPosition = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
 	_soundCtrl->textPercent  = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
 	_soundCtrl->textDuration = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
+	_soundCtrl->textVolume   = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
 
 	_soundCtrl->sliderPosition = new wxSlider(_panelPreviewSound, wxID_ANY, 0, 0, 10000,
 	                                          wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+
+	_soundCtrl->sliderVolume = new wxSlider(_panelPreviewSound, kEventSliderVolume, 100, 0, 100,
+	                                        wxDefaultPosition, wxDefaultSize, wxSL_VERTICAL | wxSL_INVERSE);
 
 	_soundCtrl->buttonPlay  = new wxButton(_panelPreviewSound, kEventButtonPlay , wxT("Play"));
 	_soundCtrl->buttonPause = new wxButton(_panelPreviewSound, kEventButtonPause, wxT("Pause"));
@@ -215,6 +221,7 @@ void MainWindow::createLayout() {
 	_soundCtrl->textPosition->SetLabelMarkup(wxT("<tt>00:00:00.000</tt>"));
 	_soundCtrl->textPercent->SetLabelMarkup(wxT("<tt>???%</tt>"));
 	_soundCtrl->textDuration->SetLabelMarkup(wxT("<tt>??:??:??.???""</tt>"));
+	_soundCtrl->textVolume->SetLabelMarkup(wxT("<tt>100%</tt>"));
 
 	_soundCtrl->sliderPosition->Disable();
 
@@ -228,6 +235,10 @@ void MainWindow::createLayout() {
 	sizerSoundControls->Add(_soundCtrl->buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
 
 	sizerSoundControls->Add(_soundCtrl->sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
+
+	sizerSoundControls->Add(_soundCtrl->sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
+
+	sizerSoundControls->Add(_soundCtrl->textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
 
 	sizerPreviewSound->Add(sizerSoundControls, 0, 0, 0);
 	_panelPreviewSound->SetSizer(sizerPreviewSound);
@@ -341,6 +352,15 @@ void MainWindow::onPause(wxCommandEvent &event) {
 
 void MainWindow::onStop(wxCommandEvent &event) {
 	stop();
+}
+
+void MainWindow::onVolumeChange(wxScrollEvent &event) {
+	double volume = _soundCtrl->sliderVolume->GetValue() / (double)_soundCtrl->sliderVolume->GetMax();
+
+	Common::UString label = Common::UString::sprintf("<tt>%d%%</tt>", (int) (volume * 100));
+	_soundCtrl->textVolume->SetLabelMarkup(label);
+
+	SoundMan.setListenerGain(volume);
 }
 
 void MainWindow::forceRedraw() {
