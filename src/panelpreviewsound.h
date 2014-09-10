@@ -18,12 +18,12 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file soundcontrols.h
+/** @file panelpreviewsound.h
  *  Controls for handling sound playback / preview.
  */
 
-#ifndef SOUNDCONTROLS_H
-#define SOUNDCONTROLS_H
+#ifndef PANELPREVIEWSOUND_H
+#define PANELPREVIEWSOUND_H
 
 #include <wx/panel.h>
 #include <wx/timer.h>
@@ -39,10 +39,10 @@
 
 class ResourceTreeItem;
 
-class SoundControls : public wxPanel {
+class PanelPreviewSound : public wxPanel {
 public:
-	SoundControls(wxWindow *parent, const Common::UString &title);
-	~SoundControls();
+	PanelPreviewSound(wxWindow *parent, const Common::UString &title);
+	~PanelPreviewSound();
 
 	void setCurrentItem(const ResourceTreeItem *item);
 
@@ -97,4 +97,4 @@ private:
 	wxDECLARE_EVENT_TABLE();
 };
 
-#endif // SOUNDCONTROLS_H
+#endif // PANELPREVIEWSOUND_H

@@ -51,7 +51,7 @@ namespace Aurora {
 class ResourceTree;
 class ResourceTreeItem;
 
-class SoundControls;
+class PanelPreviewSound;
 
 class MainWindow : public wxFrame {
 public:
@@ -87,8 +87,8 @@ private:
 	wxButton *_buttonExportBMUMP3;
 	wxButton *_buttonExportWAV;
 
-	wxPanel       *_panelPreviewEmpty;
-	SoundControls *_panelPreviewSound;
+	wxPanel           *_panelPreviewEmpty;
+	PanelPreviewSound *_panelPreviewSound;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;

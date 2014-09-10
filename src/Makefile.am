@@ -14,7 +14,7 @@ noinst_HEADERS = \
                  about.h \
                  mainwindow.h \
                  resourcetree.h \
-                 soundcontrols.h \
+                 panelpreviewsound.h \
                  $(EMPTY)
 
 phaethon_SOURCES = \
@@ -22,7 +22,7 @@ phaethon_SOURCES = \
                    about.cpp \
                    mainwindow.cpp \
                    resourcetree.cpp \
-                   soundcontrols.cpp \
+                   panelpreviewsound.cpp \
                    phaethon.cpp \
                    $(EMPTY)
 

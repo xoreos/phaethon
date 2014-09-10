@@ -53,7 +53,7 @@
 #include "about.h"
 #include "mainwindow.h"
 #include "resourcetree.h"
-#include "soundcontrols.h"
+#include "panelpreviewsound.h"
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
@@ -123,7 +123,7 @@ void MainWindow::createLayout() {
 	wxPanel *panelTree = new wxPanel( splitterTreeRes    , wxID_ANY);
 
 	_panelPreviewEmpty = new wxPanel(_splitterInfoPreview, wxID_ANY);
-	_panelPreviewSound = new SoundControls(_splitterInfoPreview, "Preview");
+	_panelPreviewSound = new PanelPreviewSound(_splitterInfoPreview, "Preview");
 
 	_panelPreviewSound->Hide();
 

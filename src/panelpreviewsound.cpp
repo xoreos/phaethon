@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file soundcontrols.cpp
+/** @file panelpreviewsound.cpp
  *  Controls for handling sound playback / preview.
  */
 
@@ -33,21 +33,21 @@
 #include "sound/sound.h"
 #include "sound/audiostream.h"
 
-#include "soundcontrols.h"
+#include "panelpreviewsound.h"
 #include "eventid.h"
 #include "resourcetree.h"
 
-wxBEGIN_EVENT_TABLE(SoundControls, wxPanel)
-	EVT_BUTTON(kEventButtonPlay , SoundControls::onPlay)
-	EVT_BUTTON(kEventButtonPause, SoundControls::onPause)
-	EVT_BUTTON(kEventButtonStop , SoundControls::onStop)
+wxBEGIN_EVENT_TABLE(PanelPreviewSound, wxPanel)
+	EVT_BUTTON(kEventButtonPlay , PanelPreviewSound::onPlay)
+	EVT_BUTTON(kEventButtonPause, PanelPreviewSound::onPause)
+	EVT_BUTTON(kEventButtonStop , PanelPreviewSound::onStop)
 
-	EVT_TIMER(wxID_ANY, SoundControls::onTimer)
+	EVT_TIMER(wxID_ANY, PanelPreviewSound::onTimer)
 
-	EVT_COMMAND_SCROLL(kEventSliderVolume, SoundControls::onVolumeChange)
+	EVT_COMMAND_SCROLL(kEventSliderVolume, PanelPreviewSound::onVolumeChange)
 wxEND_EVENT_TABLE()
 
-SoundControls::SoundControls(wxWindow *parent, const Common::UString &title) :
+PanelPreviewSound::PanelPreviewSound(wxWindow *parent, const Common::UString &title) :
 	wxPanel(parent, wxID_ANY), _currentItem(0),
 	_duration(Sound::RewindableAudioStream::kInvalidLength), _timer(0) {
 
@@ -57,11 +57,11 @@ SoundControls::SoundControls(wxWindow *parent, const Common::UString &title) :
 	_timer->Start(10);
 }
 
-SoundControls::~SoundControls() {
+PanelPreviewSound::~PanelPreviewSound() {
 	delete _timer;
 }
 
-void SoundControls::createLayout(const Common::UString &title) {
+void PanelPreviewSound::createLayout(const Common::UString &title) {
 	wxStaticBox *boxPreviewSound = new wxStaticBox(this, wxID_ANY, title);
 	boxPreviewSound->Lower();
 
@@ -89,26 +89,26 @@ void SoundControls::createLayout(const Common::UString &title) {
 
 	_sliderPosition->Disable();
 
-	wxGridBagSizer *sizerSoundControls = new wxGridBagSizer();
+	wxGridBagSizer *sizerControls = new wxGridBagSizer();
 
-	sizerSoundControls->Add(_textPosition, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxBOTTOM, 5);
-	sizerSoundControls->Add(_textPercent , wxGBPosition(0, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxBOTTOM, 5);
-	sizerSoundControls->Add(_textDuration, wxGBPosition(0, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxBOTTOM, 5);
-	sizerSoundControls->Add(_buttonPlay  , wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxTOP   , 5);
-	sizerSoundControls->Add(_buttonPause , wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxTOP   , 5);
-	sizerSoundControls->Add(_buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
+	sizerControls->Add(_textPosition, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxBOTTOM, 5);
+	sizerControls->Add(_textPercent , wxGBPosition(0, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxBOTTOM, 5);
+	sizerControls->Add(_textDuration, wxGBPosition(0, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxBOTTOM, 5);
+	sizerControls->Add(_buttonPlay  , wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxTOP   , 5);
+	sizerControls->Add(_buttonPause , wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxTOP   , 5);
+	sizerControls->Add(_buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
 
-	sizerSoundControls->Add(_sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
+	sizerControls->Add(_sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
 
-	sizerSoundControls->Add(_sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
+	sizerControls->Add(_sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
 
-	sizerSoundControls->Add(_textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
+	sizerControls->Add(_textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
 
-	sizerPreviewSound->Add(sizerSoundControls, 0, 0, 0);
+	sizerPreviewSound->Add(sizerControls, 0, 0, 0);
 	SetSizer(sizerPreviewSound);
 }
 
-void SoundControls::setCurrentItem(const ResourceTreeItem *item) {
+void PanelPreviewSound::setCurrentItem(const ResourceTreeItem *item) {
 	if (item == _currentItem)
 		return;
 
@@ -123,13 +123,13 @@ void SoundControls::setCurrentItem(const ResourceTreeItem *item) {
 	_duration = item->getSoundDuration();
 }
 
-void SoundControls::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
+void PanelPreviewSound::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
 	_buttonPlay->Enable(enablePlay);
 	_buttonPause->Enable(enablePause);
 	_buttonStop->Enable(enableStop);
 }
 
-Common::UString SoundControls::formatTime(uint64 t) {
+Common::UString PanelPreviewSound::formatTime(uint64 t) {
 	if (t == Sound::RewindableAudioStream::kInvalidLength)
 		return "??:??:??.???";
 
@@ -150,7 +150,7 @@ Common::UString SoundControls::formatTime(uint64 t) {
 	return Common::UString::sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
 }
 
-Common::UString SoundControls::formatPercent(uint64 total, uint64 t) {
+Common::UString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
 	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
 	    (t == Sound::RewindableAudioStream::kInvalidLength))
 		return "???%";
@@ -163,7 +163,7 @@ Common::UString SoundControls::formatPercent(uint64 total, uint64 t) {
 	return Common::UString::sprintf("%3u%%", percent);
 }
 
-int SoundControls::getSliderPos(uint64 total, uint64 t) {
+int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) {
 	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
 	    (t == Sound::RewindableAudioStream::kInvalidLength))
 		return 0;
@@ -174,7 +174,7 @@ int SoundControls::getSliderPos(uint64 total, uint64 t) {
 	return CLIP<int>((t * 10000) / total, 0, 10000);
 }
 
-void SoundControls::update() {
+void PanelPreviewSound::update() {
 	uint64 t = SoundMan.getChannelDurationPlayed(_sound);
 
 	Common::UString played  = formatTime(t);
@@ -193,7 +193,7 @@ void SoundControls::update() {
 	setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
 }
 
-void SoundControls::setVolume() {
+void PanelPreviewSound::setVolume() {
 	double volume = _sliderVolume->GetValue() / (double)_sliderVolume->GetMax();
 
 	Common::UString label = Common::UString::sprintf("<tt>%3d%%</tt>", (int) (volume * 100));
@@ -202,7 +202,7 @@ void SoundControls::setVolume() {
 	SoundMan.setListenerGain(volume);
 }
 
-bool SoundControls::play() {
+bool PanelPreviewSound::play() {
 	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceSound))
 		return false;
 
@@ -233,33 +233,33 @@ bool SoundControls::play() {
 	return true;
 }
 
-void SoundControls::pause() {
+void PanelPreviewSound::pause() {
 	if (SoundMan.isPlaying(_sound))
 		SoundMan.pauseChannel(_sound);
 }
 
-void SoundControls::stop() {
+void PanelPreviewSound::stop() {
 	if (SoundMan.isPlaying(_sound))
 		SoundMan.stopChannel(_sound);
 }
 
-void SoundControls::onPlay(wxCommandEvent &event) {
+void PanelPreviewSound::onPlay(wxCommandEvent &event) {
 	play();
 }
 
-void SoundControls::onPause(wxCommandEvent &event) {
+void PanelPreviewSound::onPause(wxCommandEvent &event) {
 	pause();
 }
 
-void SoundControls::onStop(wxCommandEvent &event) {
+void PanelPreviewSound::onStop(wxCommandEvent &event) {
 	stop();
 }
 
-void SoundControls::onTimer(wxTimerEvent &event) {
+void PanelPreviewSound::onTimer(wxTimerEvent &event) {
 	update();
 }
 
-void SoundControls::onVolumeChange(wxScrollEvent &event) {
+void PanelPreviewSound::onVolumeChange(wxScrollEvent &event) {
 	setVolume();
 }
 
