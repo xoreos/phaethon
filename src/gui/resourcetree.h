@@ -41,6 +41,10 @@ namespace Sound {
 	class AudioStream;
 }
 
+namespace Images {
+	class Decoder;
+}
+
 namespace GUI {
 
 class MainWindow;
@@ -82,6 +86,12 @@ public:
 	 */
 	Sound::AudioStream *getAudioStream() const;
 
+	/** If this is an image resource, return an image decoder.
+	 *
+	 *  If this is not an image resource, an Exception is thrown.
+	 */
+	Images::Decoder *getImage() const;
+
 	/** If this is a sound resource, return the estimated duration in milliseconds.
 	 *
 	 *  If this is not a sound resource, or the length can not be estimated,
@@ -108,6 +118,8 @@ private:
 	mutable uint64 _duration;
 
 	Data &getData();
+
+	static Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
 
 	friend class ResourceTree;
 };

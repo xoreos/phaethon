@@ -33,6 +33,13 @@
 #include "sound/sound.h"
 #include "sound/audiostream.h"
 
+#include "images/winiconimage.h"
+#include "images/tga.h"
+#include "images/dds.h"
+#include "images/tpc.h"
+#include "images/txb.h"
+#include "images/sbm.h"
+
 #include "aurora/util.h"
 
 #include "gui/resourcetree.h"
@@ -136,13 +143,82 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
 	Sound::AudioStream *sound = 0;
 	try {
 		sound = SoundMan.makeAudioStream(res);
-	} catch (...) {
+	} catch (Common::Exception &e) {
 		e.add("Failed to get audio stream from \"%s\"", getName().c_str());
 		delete res;
 		throw;
 	}
 
 	return sound;
+}
+
+Images::Decoder *ResourceTreeItem::getImage() const {
+	if (getResourceType() != Aurora::kResourceImage)
+		throw Common::Exception("\"%s\" is not an image resource", getName().c_str());
+
+	Common::SeekableReadStream *res = getResourceData();
+	Images::Decoder            *img = 0;
+
+	try {
+		img = getImage(*res, getFileType());
+	} catch (Common::Exception &e) {
+		e.add("Failed to get image from \"%s\"", getName().c_str());
+		delete res;
+		throw;
+	}
+
+	delete res;
+	return img;
+}
+
+Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) {
+	Images::Decoder *img = 0;
+	switch (type) {
+		case Aurora::kFileTypeDDS:
+			img = new Images::DDS(res);
+			break;
+
+		case Aurora::kFileTypeTPC:
+			img = new Images::TPC(res);
+			break;
+
+		// TXB may be actually TPC
+		case Aurora::kFileTypeTXB:
+			try {
+				img = new Images::TXB(res);
+			} catch (Common::Exception &e1) {
+
+				try {
+					img = new Images::TPC(res);
+
+				} catch (Common::Exception &e2) {
+					e1.add("Can't load image as TCP");
+					e1.add(e2);
+					e1.add("Can't load image as TXB");
+
+					throw e1;
+				}
+			}
+			break;
+
+		case Aurora::kFileTypeTGA:
+			img = new Images::TGA(res);
+			break;
+
+		case Aurora::kFileTypeSBM:
+			img = new Images::SBM(res);
+			break;
+
+		case Aurora::kFileTypeCUR:
+		case Aurora::kFileTypeCURS:
+			img = new Images::WinIconImage(res);
+			break;
+
+		default:
+			throw Common::Exception("Unsupported image type \"%s\"", type);
+	}
+
+	return img;
 }
 
 uint64 ResourceTreeItem::getSoundDuration() const {
