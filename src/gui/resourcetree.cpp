@@ -128,24 +128,34 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 	return 0;
 }
 
+Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
+	if (getResourceType() != Aurora::kResourceSound)
+		throw Common::Exception("\"%s\" is not a sound resource", getName().c_str());
+
+	Common::SeekableReadStream *res = getResourceData();
+	Sound::AudioStream *sound = 0;
+	try {
+		sound = SoundMan.makeAudioStream(res);
+	} catch (...) {
+		e.add("Failed to get audio stream from \"%s\"", getName().c_str());
+		delete res;
+		throw;
+	}
+
+	return sound;
+}
+
 uint64 ResourceTreeItem::getSoundDuration() const {
 	if (_triedDuration)
 		return _duration;
 
 	_triedDuration = true;
 
-	Common::SeekableReadStream *res = 0;
-	try {
-		res = getResourceData();
-	} catch (...) {
-		return _duration;
-	}
-
 	Sound::AudioStream *sound = 0;
 	try {
-		sound = SoundMan.makeAudioStream(res);
+		sound = getAudioStream();
 	} catch (...) {
-		delete res;
+		return _duration;
 	}
 
 	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);

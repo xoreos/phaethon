@@ -37,6 +37,10 @@ namespace Common {
 	class SeekableReadStream;
 }
 
+namespace Sound {
+	class AudioStream;
+}
+
 namespace GUI {
 
 class MainWindow;
@@ -71,6 +75,12 @@ public:
 
 	/** Return a stream of the resource file data. */
 	Common::SeekableReadStream *getResourceData() const;
+
+	/** If this is a sound resource, return an audio stream.
+	 *
+	 *  If this is not a sound resource, an Exception is thrown.
+	 */
+	Sound::AudioStream *getAudioStream() const;
 
 	/** If this is a sound resource, return the estimated duration in milliseconds.
 	 *
