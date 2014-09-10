@@ -41,6 +41,7 @@ enum {
 	kEventButtonExportRaw   ,
 	kEventButtonExportBMUMP3,
 	kEventButtonExportWAV   ,
+	kEventButtonExportTGA   ,
 
 	kEventButtonPlay ,
 	kEventButtonPause,

@@ -73,11 +73,13 @@ private:
 	wxButton *_buttonExportRaw;
 	wxButton *_buttonExportBMUMP3;
 	wxButton *_buttonExportWAV;
+	wxButton *_buttonExportTGA;
 
 
 	void onExportRaw(wxCommandEvent &event);
 	void onExportBMUMP3(wxCommandEvent &event);
 	void onExportWAV(wxCommandEvent &event);
+	void onExportTGA(wxCommandEvent &event);
 
 
 	void createLayout(const Common::UString &title);
@@ -86,6 +88,7 @@ private:
 	bool exportRaw(const Common::UString &path);
 	bool exportBMUMP3(const Common::UString &path);
 	bool exportWAV(const Common::UString &path);
+	bool exportTGA(const Common::UString &path);
 
 	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
 	void exportWAV(Sound::AudioStream *sound, Common::WriteStream &wav);
@@ -94,7 +97,7 @@ private:
 	void update();
 	void setLabels();
 	void showExportButtons();
-	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
+	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
 
 
 	static uint64 getLength(Sound::AudioStream *sound);

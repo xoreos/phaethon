@@ -38,6 +38,8 @@
 #include "sound/sound.h"
 #include "sound/audiostream.h"
 
+#include "images/decoder.h"
+
 #include "aurora/util.h"
 
 #include "gui/panelresourceinfo.h"
@@ -51,6 +53,7 @@ wxBEGIN_EVENT_TABLE(PanelResourceInfo, wxPanel)
 	EVT_BUTTON(kEventButtonExportRaw   , PanelResourceInfo::onExportRaw)
 	EVT_BUTTON(kEventButtonExportBMUMP3, PanelResourceInfo::onExportBMUMP3)
 	EVT_BUTTON(kEventButtonExportWAV   , PanelResourceInfo::onExportWAV)
+	EVT_BUTTON(kEventButtonExportTGA   , PanelResourceInfo::onExportTGA)
 wxEND_EVENT_TABLE()
 
 PanelResourceInfo::PanelResourceInfo(wxWindow *parent, MainWindow &mainWindow, const Common::UString &title) :
@@ -76,15 +79,18 @@ void PanelResourceInfo::createLayout(const Common::UString &title) {
 	_buttonExportRaw    = new wxButton(this, kEventButtonExportRaw   , wxT("Save"));
 	_buttonExportBMUMP3 = new wxButton(this, kEventButtonExportBMUMP3, wxT("Export as MP3"));
 	_buttonExportWAV    = new wxButton(this, kEventButtonExportWAV   , wxT("Export as PCM WAV"));
+	_buttonExportTGA    = new wxButton(this, kEventButtonExportTGA   , wxT("Export as TGA"));
 
 	_buttonExportRaw->Disable();
 	_buttonExportBMUMP3->Hide();
 	_buttonExportWAV->Hide();
+	_buttonExportTGA->Hide();
 
 	_sizerExport = new wxBoxSizer(wxHORIZONTAL);
 	_sizerExport->Add(_buttonExportRaw   , 0, wxEXPAND, 0);
 	_sizerExport->Add(_buttonExportBMUMP3, 0, wxEXPAND, 0);
 	_sizerExport->Add(_buttonExportWAV   , 0, wxEXPAND, 0);
+	_sizerExport->Add(_buttonExportTGA   , 0, wxEXPAND, 0);
 
 	sizerInfo->Add(_textName    , 0, wxEXPAND, 0);
 	sizerInfo->Add(_textSize    , 0, wxEXPAND, 0);
@@ -193,6 +199,19 @@ void PanelResourceInfo::onExportWAV(wxCommandEvent &event) {
 	exportWAV(dialogSaveFile(title, mask, def));
 }
 
+void PanelResourceInfo::onExportTGA(wxCommandEvent &event) {
+	if (!_currentItem)
+		return;
+
+	assert(_currentItem->getResourceType() == Aurora::kResourceImage);
+
+	const Common::UString title = "Save TGA file";
+	const Common::UString mask  = "TGA file (*.tga)|*.tga";
+	const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeTGA);
+
+	exportTGA(dialogSaveFile(title, mask, def));
+}
+
 bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 	if (!_currentItem || path.empty())
 		return false;
@@ -286,6 +305,32 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 	return true;
 }
 
+bool PanelResourceInfo::exportTGA(const Common::UString &path) {
+	if (!_currentItem || path.empty())
+		return false;
+
+	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+
+	Images::Decoder *image = 0;
+	try {
+		image = _currentItem->getImage();
+
+		image->dumpTGA(path);
+
+	} catch (Common::Exception &e) {
+		delete image;
+
+		_mainWindow->popStatus();
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	delete image;
+
+	_mainWindow->popStatus();
+	return true;
+}
+
 void PanelResourceInfo::exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
 	if ((bmu.size() <= 8) ||
 	    (bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
@@ -358,10 +403,11 @@ void PanelResourceInfo::exportWAV(Sound::AudioStream *sound, Common::WriteStream
 			wav.writeUint16LE(b->buffer[i]);
 }
 
-void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV) {
+void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
 	_buttonExportRaw->Enable(enableRaw);
 	_buttonExportBMUMP3->Show(showMP3);
 	_buttonExportWAV->Show(showWAV);
+	_buttonExportTGA->Show(showTGA);
 
 	_sizerExport->Layout();
 }
@@ -374,8 +420,9 @@ void PanelResourceInfo::showExportButtons() {
 
 	bool isBMU   = _currentItem->getFileType()     == Aurora::kFileTypeBMU;
 	bool isSound = _currentItem->getResourceType() == Aurora::kResourceSound;
+	bool isImage = _currentItem->getResourceType() == Aurora::kResourceImage;
 
-	showExportButtons(true, isBMU, isSound);
+	showExportButtons(true, isBMU, isSound, isImage);
 }
 
 void PanelResourceInfo::setLabels() {
