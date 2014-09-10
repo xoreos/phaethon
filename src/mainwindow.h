@@ -35,8 +35,6 @@
 #include "common/ustring.h"
 #include "common/filetree.h"
 
-#include "sound/types.h"
-
 #include "aurora/types.h"
 #include "aurora/archive.h"
 
@@ -52,6 +50,9 @@ namespace Aurora {
 
 class ResourceTree;
 class ResourceTreeItem;
+
+struct SoundControls;
+class SoundTimer;
 
 class MainWindow : public wxFrame {
 public:
@@ -96,7 +97,8 @@ private:
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
 
-	Sound::ChannelHandle _sound;
+	SoundControls *_soundCtrl;
+	SoundTimer *_soundTimer;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
