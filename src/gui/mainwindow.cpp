@@ -24,9 +24,19 @@
 
 #include <deque>
 
+#include <wx/sizer.h>
 #include <wx/gbsizer.h>
+#include <wx/panel.h>
+#include <wx/statbox.h>
+#include <wx/splitter.h>
+#include <wx/button.h>
+#include <wx/textctrl.h>
 #include <wx/menu.h>
 #include <wx/artprov.h>
+#include <wx/dirdlg.h>
+#include <wx/filedlg.h>
+
+#include <wx/generic/stattextg.h>
 
 #include "common/ustring.h"
 #include "common/version.h"

@@ -24,7 +24,7 @@
 
 #include <cstdio>
 
-#include <wx/wx.h>
+#include <wx/app.h>
 
 #include "common/util.h"
 #include "common/version.h"

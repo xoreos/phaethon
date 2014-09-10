@@ -26,16 +26,20 @@
 #define PANELPREVIEWSOUND_H
 
 #include <wx/panel.h>
-#include <wx/timer.h>
-#include <wx/slider.h>
-#include <wx/button.h>
-
-#include <wx/generic/stattextg.h>
 
 #include "common/types.h"
 #include "common/ustring.h"
 
 #include "sound/types.h"
+
+class wxGenericStaticText;
+class wxSlider;
+class wxButton;
+class wxTimer;
+
+class wxCommandEvent;
+class wxTimerEvent;
+class wxScrollEvent;
 
 namespace GUI {
 

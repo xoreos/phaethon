@@ -25,6 +25,11 @@
 #include <wx/sizer.h>
 #include <wx/gbsizer.h>
 #include <wx/statbox.h>
+#include <wx/timer.h>
+#include <wx/slider.h>
+#include <wx/button.h>
+
+#include <wx/generic/stattextg.h>
 
 #include "common/util.h"
 #include "common/error.h"

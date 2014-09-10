@@ -22,6 +22,9 @@
  *  About dialog.
  */
 
+#include <wx/sizer.h>
+#include <wx/button.h>
+
 #include <wx/generic/stattextg.h>
 
 #include "common/ustring.h"

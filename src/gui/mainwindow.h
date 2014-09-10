@@ -27,10 +27,7 @@
 
 #include <map>
 
-#include <wx/wx.h>
-#include <wx/splitter.h>
-
-#include <wx/generic/stattextg.h>
+#include <wx/frame.h>
 
 #include "common/ustring.h"
 #include "common/filetree.h"
@@ -47,6 +44,12 @@ namespace Aurora {
 	class KEYFile;
 	class KEYDataFile;
 }
+
+class wxPanel;
+class wxSplitterWindow;
+class wxGenericStaticText;
+class wxBoxSizer;
+class wxButton;
 
 namespace GUI {
 

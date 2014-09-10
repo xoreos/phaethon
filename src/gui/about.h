@@ -25,7 +25,7 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
-#include <wx/wx.h>
+#include <wx/dialog.h>
 
 namespace GUI {
 
