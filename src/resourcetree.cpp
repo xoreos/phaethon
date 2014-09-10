@@ -281,8 +281,7 @@ void ResourceTree::onItemActivated(wxTreeEvent &event) {
 	if (!item)
 		return;
 
-	if (item->getResourceType() == Aurora::kResourceSound)
-		_mainWindow->play(*item);
+	_mainWindow->resourceTreeActivate(*item);
 }
 
 ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {

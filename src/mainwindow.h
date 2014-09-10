@@ -51,8 +51,7 @@ namespace Aurora {
 class ResourceTree;
 class ResourceTreeItem;
 
-struct SoundControls;
-class SoundTimer;
+class SoundControls;
 
 class MainWindow : public wxFrame {
 public:
@@ -62,10 +61,7 @@ public:
 	bool open(Common::UString path);
 
 	void resourceTreeSelect(const ResourceTreeItem *item);
-
-	bool play(const ResourceTreeItem &item);
-	void pause();
-	void stop();
+	void resourceTreeActivate(const ResourceTreeItem &item);
 
 	Aurora::Archive *getArchive(const boost::filesystem::path &path);
 
@@ -91,14 +87,11 @@ private:
 	wxButton *_buttonExportBMUMP3;
 	wxButton *_buttonExportWAV;
 
-	wxPanel *_panelPreviewEmpty;
-	wxPanel *_panelPreviewSound;
+	wxPanel       *_panelPreviewEmpty;
+	SoundControls *_panelPreviewSound;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
-
-	SoundControls *_soundCtrl;
-	SoundTimer *_soundTimer;
 
 	void onOpenDir(wxCommandEvent &event);
 	void onOpenFile(wxCommandEvent &event);
@@ -109,12 +102,6 @@ private:
 	void onExportRaw(wxCommandEvent &event);
 	void onExportBMUMP3(wxCommandEvent &event);
 	void onExportWAV(wxCommandEvent &event);
-
-	void onPlay(wxCommandEvent &event);
-	void onPause(wxCommandEvent &event);
-	void onStop(wxCommandEvent &event);
-
-	void onVolumeChange(wxScrollEvent &event);
 
 	void createLayout();
 	void forceRedraw();

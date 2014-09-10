@@ -65,32 +65,17 @@ wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(kEventButtonExportRaw   , MainWindow::onExportRaw)
 	EVT_BUTTON(kEventButtonExportBMUMP3, MainWindow::onExportBMUMP3)
 	EVT_BUTTON(kEventButtonExportWAV   , MainWindow::onExportWAV)
-
-	EVT_BUTTON(kEventButtonPlay , MainWindow::onPlay)
-	EVT_BUTTON(kEventButtonPause, MainWindow::onPause)
-	EVT_BUTTON(kEventButtonStop , MainWindow::onStop)
-
-	EVT_COMMAND_SCROLL(kEventSliderVolume, MainWindow::onVolumeChange)
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
-	wxFrame(NULL, wxID_ANY, title, pos, size), _soundCtrl(0), _soundTimer(0) {
-
-	_soundCtrl = new SoundControls;
+	wxFrame(NULL, wxID_ANY, title, pos, size) {
 
 	createLayout();
-
-	_soundTimer = new SoundTimer(*_soundCtrl);
-	_soundTimer->Start(10);
 
 	resourceTreeSelect(0);
 }
 
 MainWindow::~MainWindow() {
-	delete _soundTimer;
-	delete _soundCtrl;
-
-	stop();
 }
 
 void MainWindow::createLayout() {
@@ -138,7 +123,7 @@ void MainWindow::createLayout() {
 	wxPanel *panelTree = new wxPanel( splitterTreeRes    , wxID_ANY);
 
 	_panelPreviewEmpty = new wxPanel(_splitterInfoPreview, wxID_ANY);
-	_panelPreviewSound = new wxPanel(_splitterInfoPreview, wxID_ANY);
+	_panelPreviewSound = new SoundControls(_splitterInfoPreview, "Preview");
 
 	_panelPreviewSound->Hide();
 
@@ -162,17 +147,14 @@ void MainWindow::createLayout() {
 	boxInfo->Lower();
 	boxTree->Lower();
 
-	wxStaticBox *boxPreviewSound = new wxStaticBox(_panelPreviewSound, wxID_ANY,  wxT("Preview"));
 	wxStaticBox *boxPreviewEmpty = new wxStaticBox(_panelPreviewEmpty, wxID_ANY,  wxT("Preview"));
 
-	boxPreviewSound->Lower();
 	boxPreviewEmpty->Lower();
 
 	wxStaticBoxSizer *sizerLog  = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
 	wxStaticBoxSizer *sizerInfo = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
 	wxStaticBoxSizer *sizerTree = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
 
-	wxStaticBoxSizer *sizerPreviewSound = new wxStaticBoxSizer(boxPreviewSound, wxVERTICAL);
 	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxHORIZONTAL);
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
@@ -202,46 +184,6 @@ void MainWindow::createLayout() {
 	panelInfo->SetSizer(sizerInfo);
 
 	_panelPreviewEmpty->SetSizer(sizerPreviewEmpty);
-
-	_soundCtrl->textPosition = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
-	_soundCtrl->textPercent  = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
-	_soundCtrl->textDuration = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
-	_soundCtrl->textVolume   = new wxGenericStaticText(_panelPreviewSound, wxID_ANY, wxEmptyString);
-
-	_soundCtrl->sliderPosition = new wxSlider(_panelPreviewSound, wxID_ANY, 0, 0, 10000,
-	                                          wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-
-	_soundCtrl->sliderVolume = new wxSlider(_panelPreviewSound, kEventSliderVolume, 100, 0, 100,
-	                                        wxDefaultPosition, wxDefaultSize, wxSL_VERTICAL | wxSL_INVERSE);
-
-	_soundCtrl->buttonPlay  = new wxButton(_panelPreviewSound, kEventButtonPlay , wxT("Play"));
-	_soundCtrl->buttonPause = new wxButton(_panelPreviewSound, kEventButtonPause, wxT("Pause"));
-	_soundCtrl->buttonStop  = new wxButton(_panelPreviewSound, kEventButtonStop , wxT("Stop"));
-
-	_soundCtrl->textPosition->SetLabelMarkup(wxT("<tt>00:00:00.000</tt>"));
-	_soundCtrl->textPercent->SetLabelMarkup(wxT("<tt>???%</tt>"));
-	_soundCtrl->textDuration->SetLabelMarkup(wxT("<tt>??:??:??.???""</tt>"));
-	_soundCtrl->textVolume->SetLabelMarkup(wxT("<tt>100%</tt>"));
-
-	_soundCtrl->sliderPosition->Disable();
-
-	wxGridBagSizer *sizerSoundControls = new wxGridBagSizer();
-
-	sizerSoundControls->Add(_soundCtrl->textPosition, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxBOTTOM, 5);
-	sizerSoundControls->Add(_soundCtrl->textPercent , wxGBPosition(0, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxBOTTOM, 5);
-	sizerSoundControls->Add(_soundCtrl->textDuration, wxGBPosition(0, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxBOTTOM, 5);
-	sizerSoundControls->Add(_soundCtrl->buttonPlay  , wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxTOP   , 5);
-	sizerSoundControls->Add(_soundCtrl->buttonPause , wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxTOP   , 5);
-	sizerSoundControls->Add(_soundCtrl->buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
-
-	sizerSoundControls->Add(_soundCtrl->sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
-
-	sizerSoundControls->Add(_soundCtrl->sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
-
-	sizerSoundControls->Add(_soundCtrl->textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
-
-	sizerPreviewSound->Add(sizerSoundControls, 0, 0, 0);
-	_panelPreviewSound->SetSizer(sizerPreviewSound);
 
 	sizerLog->Add(log, 1, wxEXPAND, 0);
 	panelLog->SetSizer(sizerLog);
@@ -336,31 +278,6 @@ void MainWindow::onExportWAV(wxCommandEvent &event) {
 		return;
 
 	exportWAV(*item, path);
-}
-
-void MainWindow::onPlay(wxCommandEvent &event) {
-	ResourceTreeItem *item = _resourceTree->getSelection();
-	if (!item || (item->getResourceType() != Aurora::kResourceSound))
-		return;
-
-	play(*item);
-}
-
-void MainWindow::onPause(wxCommandEvent &event) {
-	pause();
-}
-
-void MainWindow::onStop(wxCommandEvent &event) {
-	stop();
-}
-
-void MainWindow::onVolumeChange(wxScrollEvent &event) {
-	double volume = _soundCtrl->sliderVolume->GetValue() / (double)_soundCtrl->sliderVolume->GetMax();
-
-	Common::UString label = Common::UString::sprintf("<tt>%3d%%</tt>", (int) (volume * 100));
-	_soundCtrl->textVolume->SetLabelMarkup(label);
-
-	SoundMan.setListenerGain(volume);
 }
 
 void MainWindow::forceRedraw() {
@@ -554,12 +471,14 @@ void MainWindow::resourceTreeSelect(const ResourceTreeItem *item) {
 
 	_sizerExport->Layout();
 
-	uint64 duration = Sound::RewindableAudioStream::kInvalidLength;
-	if (item)
-		duration = item->getSoundDuration();
+	_panelPreviewSound->setCurrentItem(item);
+}
 
-	stop();
-	_soundTimer->setDuration(duration);
+void MainWindow::resourceTreeActivate(const ResourceTreeItem &item) {
+	if (item.getResourceType() == Aurora::kResourceSound) {
+		_panelPreviewSound->setCurrentItem(&item);
+		_panelPreviewSound->play();;
+	}
 }
 
 bool MainWindow::exportRaw(const ResourceTreeItem &item, const Common::UString &path) {
@@ -748,44 +667,6 @@ void MainWindow::exportWAV(Common::SeekableReadStream *soundData, Common::WriteS
 	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
 		for (int i = 0; i < b->samples; i++)
 			wav.writeUint16LE(b->buffer[i]);
-}
-
-bool MainWindow::play(const ResourceTreeItem &item) {
-	Common::SeekableReadStream *res = 0;
-	try {
-		res = item.getResourceData();
-	} catch (Common::Exception &e) {
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
-
-	if (SoundMan.isPlaying(_soundCtrl->sound)) {
-		if (SoundMan.isPaused(_soundCtrl->sound)) {
-			SoundMan.pauseChannel(_soundCtrl->sound, false);
-			return true;
-		}
-
-		SoundMan.stopChannel(_soundCtrl->sound);
-	}
-
-	try {
-		_soundCtrl->sound = SoundMan.playSoundFile(res, Sound::kSoundTypeUnknown);
-	} catch (Common::Exception &e) {
-		delete res;
-	}
-
-	SoundMan.startChannel(_soundCtrl->sound);
-	return true;
-}
-
-void MainWindow::pause() {
-	if (SoundMan.isPlaying(_soundCtrl->sound))
-		SoundMan.pauseChannel(_soundCtrl->sound);
-}
-
-void MainWindow::stop() {
-	if (SoundMan.isPlaying(_soundCtrl->sound))
-		SoundMan.stopChannel(_soundCtrl->sound);
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {

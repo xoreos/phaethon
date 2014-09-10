@@ -22,51 +22,114 @@
  *  Controls for handling sound playback / preview.
  */
 
+#include <wx/sizer.h>
+#include <wx/gbsizer.h>
+#include <wx/statbox.h>
+
 #include "common/util.h"
+#include "common/error.h"
+#include "common/stream.h"
 
 #include "sound/sound.h"
 #include "sound/audiostream.h"
 
 #include "soundcontrols.h"
+#include "eventid.h"
+#include "resourcetree.h"
 
-SoundTimer::SoundTimer(SoundControls &soundCtrl) :
-	_duration(Sound::RewindableAudioStream::kInvalidLength), _soundCtrl(&soundCtrl) {
+wxBEGIN_EVENT_TABLE(SoundControls, wxPanel)
+	EVT_BUTTON(kEventButtonPlay , SoundControls::onPlay)
+	EVT_BUTTON(kEventButtonPause, SoundControls::onPause)
+	EVT_BUTTON(kEventButtonStop , SoundControls::onStop)
 
+	EVT_TIMER(wxID_ANY, SoundControls::onTimer)
+
+	EVT_COMMAND_SCROLL(kEventSliderVolume, SoundControls::onVolumeChange)
+wxEND_EVENT_TABLE()
+
+SoundControls::SoundControls(wxWindow *parent, const Common::UString &title) :
+	wxPanel(parent, wxID_ANY), _currentItem(0),
+	_duration(Sound::RewindableAudioStream::kInvalidLength), _timer(0) {
+
+	createLayout(title);
+
+	_timer = new wxTimer(this, wxID_ANY);
+	_timer->Start(10);
 }
 
-SoundTimer::~SoundTimer() {
+SoundControls::~SoundControls() {
+	delete _timer;
 }
 
-void SoundTimer::setDuration(uint64 duration) {
-	_duration = duration;
+void SoundControls::createLayout(const Common::UString &title) {
+	wxStaticBox *boxPreviewSound = new wxStaticBox(this, wxID_ANY, title);
+	boxPreviewSound->Lower();
+
+	wxStaticBoxSizer *sizerPreviewSound = new wxStaticBoxSizer(boxPreviewSound, wxVERTICAL);
+
+	_textPosition = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
+	_textPercent  = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
+	_textDuration = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
+	_textVolume   = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
+
+	_sliderPosition = new wxSlider(this, wxID_ANY, 0, 0, 10000,
+	                               wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+
+	_sliderVolume = new wxSlider(this, kEventSliderVolume, 100, 0, 100,
+	                             wxDefaultPosition, wxDefaultSize, wxSL_VERTICAL | wxSL_INVERSE);
+
+	_buttonPlay  = new wxButton(this, kEventButtonPlay , wxT("Play"));
+	_buttonPause = new wxButton(this, kEventButtonPause, wxT("Pause"));
+	_buttonStop  = new wxButton(this, kEventButtonStop , wxT("Stop"));
+
+	_textPosition->SetLabelMarkup(wxT("<tt>00:00:00.000</tt>"));
+	_textPercent->SetLabelMarkup(wxT("<tt>???%</tt>"));
+	_textDuration->SetLabelMarkup(wxT("<tt>??:??:??.???""</tt>"));
+	_textVolume->SetLabelMarkup(wxT("<tt>100%</tt>"));
+
+	_sliderPosition->Disable();
+
+	wxGridBagSizer *sizerSoundControls = new wxGridBagSizer();
+
+	sizerSoundControls->Add(_textPosition, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxBOTTOM, 5);
+	sizerSoundControls->Add(_textPercent , wxGBPosition(0, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxBOTTOM, 5);
+	sizerSoundControls->Add(_textDuration, wxGBPosition(0, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxBOTTOM, 5);
+	sizerSoundControls->Add(_buttonPlay  , wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxTOP   , 5);
+	sizerSoundControls->Add(_buttonPause , wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxTOP   , 5);
+	sizerSoundControls->Add(_buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
+
+	sizerSoundControls->Add(_sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
+
+	sizerSoundControls->Add(_sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
+
+	sizerSoundControls->Add(_textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
+
+	sizerPreviewSound->Add(sizerSoundControls, 0, 0, 0);
+	SetSizer(sizerPreviewSound);
 }
 
-void SoundTimer::Notify() {
-	uint64 t = SoundMan.getChannelDurationPlayed(_soundCtrl->sound);
+void SoundControls::setCurrentItem(const ResourceTreeItem *item) {
+	if (item == _currentItem)
+		return;
 
-	Common::UString played  = formatTime(t);
-	Common::UString total   = formatTime(_duration);
-	Common::UString percent = formatPercent(_duration, t);
+	stop();
 
-	_soundCtrl->textPosition->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", played.c_str()));
-	_soundCtrl->textPercent->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", percent.c_str()));
-	_soundCtrl->textDuration->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", total.c_str()));
+	_currentItem = item;
+	if (!item) {
+		_duration = Sound::RewindableAudioStream::kInvalidLength;
+		return;
+	}
 
-	_soundCtrl->sliderPosition->SetValue(getSliderPos(_duration, t));
-
-	bool isPlaying = SoundMan.isPlaying(_soundCtrl->sound);
-	bool isPaused  = SoundMan.isPaused(_soundCtrl->sound);
-
-	setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
+	_duration = item->getSoundDuration();
 }
 
-void SoundTimer::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
-	_soundCtrl->buttonPlay->Enable(enablePlay);
-	_soundCtrl->buttonPause->Enable(enablePause);
-	_soundCtrl->buttonStop->Enable(enableStop);
+void SoundControls::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
+	_buttonPlay->Enable(enablePlay);
+	_buttonPause->Enable(enablePause);
+	_buttonStop->Enable(enableStop);
 }
 
-Common::UString SoundTimer::formatTime(uint64 t) {
+Common::UString SoundControls::formatTime(uint64 t) {
 	if (t == Sound::RewindableAudioStream::kInvalidLength)
 		return "??:??:??.???";
 
@@ -87,7 +150,7 @@ Common::UString SoundTimer::formatTime(uint64 t) {
 	return Common::UString::sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
 }
 
-Common::UString SoundTimer::formatPercent(uint64 total, uint64 t) {
+Common::UString SoundControls::formatPercent(uint64 total, uint64 t) {
 	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
 	    (t == Sound::RewindableAudioStream::kInvalidLength))
 		return "???%";
@@ -100,7 +163,7 @@ Common::UString SoundTimer::formatPercent(uint64 total, uint64 t) {
 	return Common::UString::sprintf("%3u%%", percent);
 }
 
-int SoundTimer::getSliderPos(uint64 total, uint64 t) {
+int SoundControls::getSliderPos(uint64 total, uint64 t) {
 	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
 	    (t == Sound::RewindableAudioStream::kInvalidLength))
 		return 0;
@@ -110,3 +173,93 @@ int SoundTimer::getSliderPos(uint64 total, uint64 t) {
 
 	return CLIP<int>((t * 10000) / total, 0, 10000);
 }
+
+void SoundControls::update() {
+	uint64 t = SoundMan.getChannelDurationPlayed(_sound);
+
+	Common::UString played  = formatTime(t);
+	Common::UString total   = formatTime(_duration);
+	Common::UString percent = formatPercent(_duration, t);
+
+	_textPosition->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", played.c_str()));
+	_textPercent->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", percent.c_str()));
+	_textDuration->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", total.c_str()));
+
+	_sliderPosition->SetValue(getSliderPos(_duration, t));
+
+	bool isPlaying = SoundMan.isPlaying(_sound);
+	bool isPaused  = SoundMan.isPaused(_sound);
+
+	setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
+}
+
+void SoundControls::setVolume() {
+	double volume = _sliderVolume->GetValue() / (double)_sliderVolume->GetMax();
+
+	Common::UString label = Common::UString::sprintf("<tt>%3d%%</tt>", (int) (volume * 100));
+	_textVolume->SetLabelMarkup(label);
+
+	SoundMan.setListenerGain(volume);
+}
+
+bool SoundControls::play() {
+	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceSound))
+		return false;
+
+	Common::SeekableReadStream *res = 0;
+	try {
+		res = _currentItem->getResourceData();
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return false;
+	}
+
+	if (SoundMan.isPlaying(_sound)) {
+		if (SoundMan.isPaused(_sound)) {
+			SoundMan.pauseChannel(_sound, false);
+			return true;
+		}
+
+		SoundMan.stopChannel(_sound);
+	}
+
+	try {
+		_sound = SoundMan.playSoundFile(res, Sound::kSoundTypeUnknown);
+	} catch (Common::Exception &e) {
+		delete res;
+	}
+
+	SoundMan.startChannel(_sound);
+	return true;
+}
+
+void SoundControls::pause() {
+	if (SoundMan.isPlaying(_sound))
+		SoundMan.pauseChannel(_sound);
+}
+
+void SoundControls::stop() {
+	if (SoundMan.isPlaying(_sound))
+		SoundMan.stopChannel(_sound);
+}
+
+void SoundControls::onPlay(wxCommandEvent &event) {
+	play();
+}
+
+void SoundControls::onPause(wxCommandEvent &event) {
+	pause();
+}
+
+void SoundControls::onStop(wxCommandEvent &event) {
+	stop();
+}
+
+void SoundControls::onTimer(wxTimerEvent &event) {
+	update();
+}
+
+void SoundControls::onVolumeChange(wxScrollEvent &event) {
+	setVolume();
+}
+

@@ -25,6 +25,7 @@
 #ifndef SOUNDCONTROLS_H
 #define SOUNDCONTROLS_H
 
+#include <wx/panel.h>
 #include <wx/timer.h>
 #include <wx/slider.h>
 #include <wx/button.h>
@@ -36,35 +37,55 @@
 
 #include "sound/types.h"
 
-struct SoundControls {
-	Sound::ChannelHandle sound;
+class ResourceTreeItem;
 
-	wxGenericStaticText *textPosition;
-	wxGenericStaticText *textPercent;
-	wxGenericStaticText *textDuration;
-	wxGenericStaticText *textVolume;
-
-	wxSlider *sliderPosition;
-	wxSlider *sliderVolume;
-
-	wxButton *buttonPlay;
-	wxButton *buttonPause;
-	wxButton *buttonStop;
-};
-
-class SoundTimer : public wxTimer {
+class SoundControls : public wxPanel {
 public:
-	SoundTimer(SoundControls &soundCtrl);
-	~SoundTimer();
+	SoundControls(wxWindow *parent, const Common::UString &title);
+	~SoundControls();
 
-	void setDuration(uint64 duration);
+	void setCurrentItem(const ResourceTreeItem *item);
 
-	void Notify();
+	bool play();
+	void pause();
+	void stop();
 
 private:
+	Sound::ChannelHandle _sound;
+
+	const ResourceTreeItem *_currentItem;
 	uint64 _duration;
 
-	SoundControls *_soundCtrl;
+	wxGenericStaticText *_textPosition;
+	wxGenericStaticText *_textPercent;
+	wxGenericStaticText *_textDuration;
+	wxGenericStaticText *_textVolume;
+
+	wxSlider *_sliderPosition;
+	wxSlider *_sliderVolume;
+
+	wxButton *_buttonPlay;
+	wxButton *_buttonPause;
+	wxButton *_buttonStop;
+
+	wxTimer *_timer;
+
+
+	void onPlay(wxCommandEvent &event);
+	void onPause(wxCommandEvent &event);
+	void onStop(wxCommandEvent &event);
+
+	void onTimer(wxTimerEvent &event);
+
+	void onVolumeChange(wxScrollEvent &event);
+
+
+	void update();
+
+	void setVolume();
+
+
+	void createLayout(const Common::UString &title);
 
 	void setButtons(bool enablePlay, bool enablePause, bool enableStop);
 
@@ -72,6 +93,8 @@ private:
 	static Common::UString formatPercent(uint64 total, uint64 t);
 
 	static int getSliderPos(uint64 total, uint64 t);
+
+	wxDECLARE_EVENT_TABLE();
 };
 
 #endif // SOUNDCONTROLS_H
