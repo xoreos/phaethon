@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file about.cpp
+/** @file gui/about.cpp
  *  About dialog.
  */
 
@@ -27,14 +27,16 @@
 #include "common/ustring.h"
 #include "common/version.h"
 
-#include "about.h"
+#include "gui/about.h"
+#include "gui/eventid.h"
+
 #include "cline.h"
-#include "eventid.h"
+
+namespace GUI {
 
 wxBEGIN_EVENT_TABLE(AboutDialog, wxDialog)
 	EVT_BUTTON(kEventButtonClose, AboutDialog::onClose)
 wxEND_EVENT_TABLE()
-
 
 AboutDialog::AboutDialog(wxWindow *parent) :
 	wxDialog(parent, wxID_ANY, Common::UString("About ") + PHAETHON_NAME) {
@@ -62,3 +64,5 @@ void AboutDialog::show() {
 void AboutDialog::onClose(wxCommandEvent &event) {
 	Close(true);
 }
+
+} // End of namespace GUI

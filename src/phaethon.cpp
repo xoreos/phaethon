@@ -33,8 +33,9 @@
 
 #include "sound/sound.h"
 
+#include "gui/mainwindow.h"
+
 #include "cline.h"
-#include "mainwindow.h"
 
 void openGamePath(const Common::UString &path);
 
@@ -123,7 +124,8 @@ void Phaethon::deinitSubsystems() {
 bool Phaethon::OnInit() {
 	initSubsystems();
 
-	MainWindow *mainWindow = new MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxSize(800, 600));
+	GUI::MainWindow *mainWindow =
+		new GUI::MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxSize(800, 600));
 
 	mainWindow->Show(true);
 	if (!_path.empty())

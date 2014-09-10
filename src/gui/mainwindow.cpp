@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file mainwindow.cpp
+/** @file gui/mainwindow.cpp
  *  Phaethon's main window.
  */
 
@@ -48,12 +48,15 @@
 #include "aurora/biffile.h"
 #include "aurora/bzffile.h"
 
+#include "gui/eventid.h"
+#include "gui/about.h"
+#include "gui/mainwindow.h"
+#include "gui/resourcetree.h"
+#include "gui/panelpreviewsound.h"
+
 #include "cline.h"
-#include "eventid.h"
-#include "about.h"
-#include "mainwindow.h"
-#include "resourcetree.h"
-#include "panelpreviewsound.h"
+
+namespace GUI {
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
@@ -757,3 +760,5 @@ void MainWindow::loadKEYDataFiles(Aurora::KEYFile &key) {
 		}
 	}
 }
+
+} // End of namespace GUI

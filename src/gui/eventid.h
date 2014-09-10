@@ -18,12 +18,16 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file eventid.h
+/** @file gui/eventid.h
  *  GUI event IDs.
  */
 
 #ifndef EVENTID_H
 #define EVENTID_H
+
+#include <wx/defs.h>
+
+namespace GUI {
 
 enum {
 	kEventFileQuit        = wxID_EXIT,
@@ -46,5 +50,7 @@ enum {
 
 	kEventResourceTree
 };
+
+} // End of namespace GUI
 
 #endif // EVENTID_H

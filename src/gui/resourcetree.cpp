@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file resourcetree.cpp
+/** @file gui/resourcetree.cpp
  *  Phaethon's tree of game resource files.
  */
 
@@ -35,9 +35,11 @@
 
 #include "aurora/util.h"
 
-#include "resourcetree.h"
-#include "eventid.h"
-#include "mainwindow.h"
+#include "gui/resourcetree.h"
+#include "gui/eventid.h"
+#include "gui/mainwindow.h"
+
+namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 	_name(entry.name), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
@@ -352,3 +354,5 @@ wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *ite
 
 	return id;
 }
+
+} // End of namespace GUI

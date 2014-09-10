@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file mainwindow.h
+/** @file gui/mainwindow.h
  *  Phaethon's main window.
  */
 
@@ -47,6 +47,8 @@ namespace Aurora {
 	class KEYFile;
 	class KEYDataFile;
 }
+
+namespace GUI {
 
 class ResourceTree;
 class ResourceTreeItem;
@@ -133,5 +135,7 @@ private:
 
 	wxDECLARE_EVENT_TABLE();
 };
+
+} // End of namespace GUI
 
 #endif // MAINWINDOW_H

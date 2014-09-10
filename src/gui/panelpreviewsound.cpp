@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file panelpreviewsound.cpp
+/** @file gui/panelpreviewsound.cpp
  *  Controls for handling sound playback / preview.
  */
 
@@ -33,9 +33,11 @@
 #include "sound/sound.h"
 #include "sound/audiostream.h"
 
-#include "panelpreviewsound.h"
-#include "eventid.h"
-#include "resourcetree.h"
+#include "gui/panelpreviewsound.h"
+#include "gui/eventid.h"
+#include "gui/resourcetree.h"
+
+namespace GUI {
 
 wxBEGIN_EVENT_TABLE(PanelPreviewSound, wxPanel)
 	EVT_BUTTON(kEventButtonPlay , PanelPreviewSound::onPlay)
@@ -263,3 +265,4 @@ void PanelPreviewSound::onVolumeChange(wxScrollEvent &event) {
 	setVolume();
 }
 
+} // End of namespace GUI

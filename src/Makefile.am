@@ -4,29 +4,22 @@ SUBDIRS = \
           common \
           sound \
           aurora \
+          gui \
           $(EMPTY)
 
 bin_PROGRAMS = phaethon
 
 noinst_HEADERS = \
                  cline.h \
-                 eventid.h \
-                 about.h \
-                 mainwindow.h \
-                 resourcetree.h \
-                 panelpreviewsound.h \
                  $(EMPTY)
 
 phaethon_SOURCES = \
                    cline.cpp \
-                   about.cpp \
-                   mainwindow.cpp \
-                   resourcetree.cpp \
-                   panelpreviewsound.cpp \
                    phaethon.cpp \
                    $(EMPTY)
 
 phaethon_LDADD = \
+                 gui/libgui.la \
                  aurora/libaurora.la \
                  sound/libsound.la \
                  common/libcommon.la \

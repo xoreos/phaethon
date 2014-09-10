@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file about.h
+/** @file gui/about.h
  *  About dialog.
  */
 
@@ -26,6 +26,8 @@
 #define ABOUT_H
 
 #include <wx/wx.h>
+
+namespace GUI {
 
 class AboutDialog : public wxDialog {
 public:
@@ -39,5 +41,7 @@ private:
 
 	wxDECLARE_EVENT_TABLE();
 };
+
+} // End of namespace GUI
 
 #endif // ABOUT_H

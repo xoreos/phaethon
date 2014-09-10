@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file panelpreviewsound.h
+/** @file gui/panelpreviewsound.h
  *  Controls for handling sound playback / preview.
  */
 
@@ -36,6 +36,8 @@
 #include "common/ustring.h"
 
 #include "sound/types.h"
+
+namespace GUI {
 
 class ResourceTreeItem;
 
@@ -96,5 +98,7 @@ private:
 
 	wxDECLARE_EVENT_TABLE();
 };
+
+} // End of namespace GUI
 
 #endif // PANELPREVIEWSOUND_H

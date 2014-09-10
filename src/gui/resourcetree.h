@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file resourcetree.h
+/** @file gui/resourcetree.h
  *  Phaethon's tree of game resource files.
  */
 
@@ -36,6 +36,8 @@
 namespace Common {
 	class SeekableReadStream;
 }
+
+namespace GUI {
 
 class MainWindow;
 
@@ -142,5 +144,7 @@ private:
 
 	wxDECLARE_EVENT_TABLE();
 };
+
+} // End of namespace GUI
 
 #endif // RESOURCETREE_H
