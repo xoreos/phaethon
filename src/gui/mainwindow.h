@@ -56,6 +56,7 @@ namespace GUI {
 class ResourceTree;
 class ResourceTreeItem;
 
+class PanelPreviewEmpty;
 class PanelPreviewSound;
 
 class MainWindow : public wxFrame {
@@ -92,7 +93,7 @@ private:
 	wxButton *_buttonExportBMUMP3;
 	wxButton *_buttonExportWAV;
 
-	wxPanel           *_panelPreviewEmpty;
+	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewSound *_panelPreviewSound;
 
 	ArchiveMap _archives;

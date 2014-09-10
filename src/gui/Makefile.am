@@ -10,6 +10,7 @@ noinst_HEADERS = \
                  mainwindow.h \
                  about.h \
                  resourcetree.h \
+                 panelpreviewempty.h \
                  panelpreviewsound.h \
                  $(EMPTY)
 
@@ -17,6 +18,7 @@ libgui_la_SOURCES = \
                     mainwindow.cpp \
                     about.cpp \
                     resourcetree.cpp \
+                    panelpreviewempty.cpp \
                     panelpreviewsound.cpp \
                     $(EMPTY)
 

@@ -62,6 +62,7 @@
 #include "gui/about.h"
 #include "gui/mainwindow.h"
 #include "gui/resourcetree.h"
+#include "gui/panelpreviewempty.h"
 #include "gui/panelpreviewsound.h"
 
 #include "cline.h"
@@ -135,7 +136,7 @@ void MainWindow::createLayout() {
 	wxPanel *panelInfo = new wxPanel(_splitterInfoPreview, wxID_ANY);
 	wxPanel *panelTree = new wxPanel( splitterTreeRes    , wxID_ANY);
 
-	_panelPreviewEmpty = new wxPanel(_splitterInfoPreview, wxID_ANY);
+	_panelPreviewEmpty = new PanelPreviewEmpty(_splitterInfoPreview, "Preview");
 	_panelPreviewSound = new PanelPreviewSound(_splitterInfoPreview, "Preview");
 
 	_panelPreviewSound->Hide();
@@ -160,15 +161,9 @@ void MainWindow::createLayout() {
 	boxInfo->Lower();
 	boxTree->Lower();
 
-	wxStaticBox *boxPreviewEmpty = new wxStaticBox(_panelPreviewEmpty, wxID_ANY,  wxT("Preview"));
-
-	boxPreviewEmpty->Lower();
-
 	wxStaticBoxSizer *sizerLog  = new wxStaticBoxSizer(boxLog , wxHORIZONTAL);
 	wxStaticBoxSizer *sizerInfo = new wxStaticBoxSizer(boxInfo, wxVERTICAL);
 	wxStaticBoxSizer *sizerTree = new wxStaticBoxSizer(boxTree, wxHORIZONTAL);
-
-	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxHORIZONTAL);
 
 	sizerTree->Add(_resourceTree, 1, wxEXPAND, 0);
 	panelTree->SetSizer(sizerTree);
@@ -195,8 +190,6 @@ void MainWindow::createLayout() {
 	sizerInfo->Add(_sizerExport, 0, wxEXPAND | wxTOP, 5);
 
 	panelInfo->SetSizer(sizerInfo);
-
-	_panelPreviewEmpty->SetSizer(sizerPreviewEmpty);
 
 	sizerLog->Add(log, 1, wxEXPAND, 0);
 	panelLog->SetSizer(sizerLog);
