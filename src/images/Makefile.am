@@ -15,6 +15,7 @@ noinst_HEADERS = \
                  tga.h \
                  dds.h \
                  tpc.h \
+                 txb.h \
                  $(EMPTY)
 
 libimages_la_SOURCES = \
@@ -25,6 +26,7 @@ libimages_la_SOURCES = \
                        tga.cpp \
                        dds.cpp \
                        tpc.cpp \
+                       txb.cpp \
                        $(EMPTY)
 
 libimages_la_LIBADD = \
