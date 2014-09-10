@@ -36,6 +36,10 @@ namespace Common {
 	class WriteStream;
 }
 
+namespace Sound {
+	class AudioStream;
+}
+
 class wxBoxSizer;
 class wxGenericStaticText;
 class wxButton;
@@ -86,10 +90,12 @@ private:
 	bool exportWAV(const Common::UString &path);
 
 	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
-	void exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav);
+	void exportWAV(Sound::AudioStream *sound, Common::WriteStream &wav);
 
 
 	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV);
+
+	static uint64 getLength(Sound::AudioStream *sound);
 
 	static Common::UString constructStatus(const Common::UString &action,
 			const Common::UString &name, const Common::UString &destination);

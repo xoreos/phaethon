@@ -110,6 +110,14 @@ void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool sho
 	_buttonExportWAV->Show(showWAV);
 }
 
+uint64 PanelResourceInfo::getLength(Sound::AudioStream *sound) {
+	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
+	if (!rewSound)
+		return Sound::RewindableAudioStream::kInvalidLength;
+
+	return rewSound->getLength();
+}
+
 Common::UString PanelResourceInfo::constructStatus(const Common::UString &action,
 		const Common::UString &name, const Common::UString &destination) {
 
@@ -259,34 +267,26 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 
 	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 
-	Common::SeekableReadStream *res = 0;
-	Common::DumpFile *file = 0;
+	Sound::AudioStream *sound = 0;
 	try {
-		res  = _currentItem->getResourceData();
-		file = new Common::DumpFile(path);
-	} catch (Common::Exception &e) {
-		delete res;
+		sound = _currentItem->getAudioStream();
 
-		_mainWindow->popStatus();
-		Common::printException(e, "WARNING: ");
-		return false;
-	}
+		Common::DumpFile file(path);
 
-	try {
-		exportWAV(res, *file);
+		exportWAV(sound, file);
 
-		if (!file->flush() || file->err())
+		if (!file.flush() || file.err())
 			throw Common::Exception(Common::kWriteError);
 
 	} catch (Common::Exception &e) {
-		delete file;
+		delete sound;
 
 		_mainWindow->popStatus();
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
 
-	delete file;
+	delete sound;
 
 	_mainWindow->popStatus();
 	return true;
@@ -309,25 +309,15 @@ struct SoundBuffer {
 	}
 };
 
-void PanelResourceInfo::exportWAV(Common::SeekableReadStream *soundData, Common::WriteStream &wav) {
-	Sound::AudioStream *sound = 0;
-	try {
-		sound = SoundMan.makeAudioStream(soundData);
-	} catch (Common::Exception &e) {
-		delete soundData;
-		throw;
-	}
+void PanelResourceInfo::exportWAV(Sound::AudioStream *sound, Common::WriteStream &wav) {
+	assert(sound);
 
 	const uint16 channels = sound->getChannels();
 	const uint32 rate     = sound->getRate();
 
 	std::deque<SoundBuffer> buffers;
 
-	uint64 length = Sound::RewindableAudioStream::kInvalidLength;
-	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
-	if (rewSound)
-		length = rewSound->getLength();
-
+	uint64 length = getLength(sound);
 	if (length != Sound::RewindableAudioStream::kInvalidLength)
 		buffers.resize((length / (ARRAYSIZE(SoundBuffer::buffer) / channels)) + 1);
 
@@ -339,20 +329,13 @@ void PanelResourceInfo::exportWAV(Common::SeekableReadStream *soundData, Common:
 			buffer = --buffers.end();
 		}
 
-		try {
-			buffer->samples = sound->readBuffer(buffer->buffer, 4096);
-		} catch (Common::Exception &e) {
-			delete sound;
-			throw;
-		}
+		buffer->samples = sound->readBuffer(buffer->buffer, 4096);
 
 		if (buffer->samples > 0)
 			samples += buffer->samples;
 
 		++buffer;
 	}
-
-	delete sound;
 
 	samples /= channels;
 
