@@ -12,6 +12,7 @@ noinst_HEADERS = \
                  decoder.h \
                  dumptga.h \
                  winiconimage.h \
+                 tga.h \
                  $(EMPTY)
 
 libimages_la_SOURCES = \
@@ -19,6 +20,7 @@ libimages_la_SOURCES = \
                        decoder.cpp \
                        dumptga.cpp \
                        winiconimage.cpp \
+                       tga.cpp \
                        $(EMPTY)
 
 libimages_la_LIBADD = \
