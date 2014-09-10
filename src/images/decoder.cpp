@@ -28,6 +28,7 @@
 
 #include "images/decoder.h"
 #include "images/s3tc.h"
+#include "images/dumptga.h"
 
 namespace Images {
 
@@ -114,6 +115,22 @@ void Decoder::decompress() {
 	}
 
 	_format = kPixelFormatR8G8B8A8;
+}
+
+bool Decoder::dumpTGA(const Common::UString &fileName) const {
+	if (_mipMaps.size() < 1)
+		return false;
+
+	if (!isCompressed()) {
+		Images::dumpTGA(fileName, this);
+		return true;
+	}
+
+	MipMap mipMap;
+	decompress(mipMap, *_mipMaps[0], _format);
+	Images::dumpTGA(fileName, mipMap.data, mipMap.width, mipMap.height, kPixelFormatR8G8B8A8);
+
+	return true;
 }
 
 } // End of namespace Images

@@ -69,6 +69,9 @@ public:
 	/** Return TXI data, if embedded in the image. */
 	virtual Common::SeekableReadStream *getTXI() const;
 
+	/** Dump the image into a TGA. */
+	bool dumpTGA(const Common::UString &fileName) const;
+
 protected:
 	PixelFormat _format;
 
