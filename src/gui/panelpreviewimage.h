@@ -39,6 +39,7 @@ class wxImage;
 class wxBitmap;
 class wxSlider;
 class wxButton;
+class wxCheckBox;
 
 namespace GUI {
 
@@ -46,6 +47,11 @@ class ResourceTreeItem;
 
 class ImageCanvas : public wxScrolledCanvas {
 public:
+	enum ScaleQuality {
+		kScaleQualityNearest,
+		kScaleQualityBest
+	};
+
 	ImageCanvas(wxWindow *parent);
 	~ImageCanvas();
 
@@ -54,6 +60,8 @@ public:
 	void setCurrentItem(const ResourceTreeItem *item);
 	void setColor(uint8 color);
 
+	void setScaleQuality(ScaleQuality scaleQuality);
+
 	void getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
 	void setSize(int width, int height);
 
@@ -61,6 +69,8 @@ private:
 	const ResourceTreeItem *_currentItem;
 
 	uint8 _color;
+
+	ScaleQuality _scaleQuality;
 
 	wxImage  *_image;
 	wxBitmap *_bitmap;
@@ -94,6 +104,8 @@ private:
 	wxButton *_buttonZoomShrinkFit;
 	wxButton *_buttonZoomShrinkFitWidth;
 
+	wxCheckBox *_checkZoomNearest;
+
 	void onColorChange(wxScrollEvent &event);
 
 	void onZoomIn(wxCommandEvent &event);
@@ -103,6 +115,8 @@ private:
 	void onZoomFitWidth(wxCommandEvent &event);
 	void onZoomShrinkFit(wxCommandEvent &event);
 	void onZoomShrinkFitWidth(wxCommandEvent &event);
+
+	void onZoomNearest(wxCommandEvent &event);
 
 	void zoomStep(double step);
 	void zoomTo(double zoom);

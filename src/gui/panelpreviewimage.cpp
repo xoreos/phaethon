@@ -28,6 +28,7 @@
 #include <wx/statbox.h>
 #include <wx/slider.h>
 #include <wx/button.h>
+#include <wx/checkbox.h>
 #include <wx/dc.h>
 
 #include "common/util.h"
@@ -43,7 +44,7 @@
 namespace GUI {
 
 ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY),
-	_currentItem(0), _color(0), _image(0), _bitmap(0) {
+	_currentItem(0), _color(0), _scaleQuality(kScaleQualityBest), _image(0), _bitmap(0) {
 
 	ShowScrollbars(wxSHOW_SB_ALWAYS, wxSHOW_SB_ALWAYS);
 }
@@ -71,6 +72,12 @@ void ImageCanvas::setColor(uint8 color) {
 	forceRedraw();
 }
 
+void ImageCanvas::setScaleQuality(ScaleQuality scaleQuality) {
+	_scaleQuality = scaleQuality;
+	if (_image && _bitmap)
+		setSize(_bitmap->GetWidth(), _bitmap->GetHeight());
+}
+
 void ImageCanvas::getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const {
 	if (!_image || !_bitmap) {
 		fullWidth = fullHeight = currentWidth = currentHeight = 0;
@@ -91,7 +98,11 @@ void ImageCanvas::setSize(int width, int height) {
 
 	delete _bitmap;
 
-	_bitmap = new wxBitmap(_image->Scale(width, height, wxIMAGE_QUALITY_HIGH ));
+	wxImageResizeQuality quality = wxIMAGE_QUALITY_NEAREST;
+	if (_scaleQuality == kScaleQualityBest)
+		quality = wxIMAGE_QUALITY_HIGH;
+
+	_bitmap = new wxBitmap(_image->Scale(width, height, quality));
 
 	SetVirtualSize(width, height);
 	SetScrollRate(1, 1);
@@ -237,6 +248,8 @@ wxBEGIN_EVENT_TABLE(PanelPreviewImage, wxPanel)
 	EVT_BUTTON(kEventButtonZoomFitWidth      , PanelPreviewImage::onZoomFitWidth)
 	EVT_BUTTON(kEventButtonZoomShrinkFit     , PanelPreviewImage::onZoomShrinkFit)
 	EVT_BUTTON(kEventButtonZoomShrinkFitWidth, PanelPreviewImage::onZoomShrinkFitWidth)
+
+	EVT_CHECKBOX(kEventCheckZoomNearest, PanelPreviewImage::onZoomNearest)
 wxEND_EVENT_TABLE()
 
 PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
@@ -260,6 +273,9 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 	_buttonZoomShrinkFit      = new wxButton(this, kEventButtonZoomShrinkFit     , wxT("Shrink fit"));
 	_buttonZoomShrinkFitWidth = new wxButton(this, kEventButtonZoomShrinkFitWidth, wxT("Shrink fit width"));
 
+	_checkZoomNearest = new wxCheckBox(this, kEventCheckZoomNearest, wxT("Nearest"));
+	_checkZoomNearest->SetValue(false);
+
 	wxBoxSizer *sizerZoom = new wxBoxSizer(wxVERTICAL);
 
 	sizerZoom->Add(_buttonZoomIn            , 0, wxEXPAND, 0);
@@ -269,6 +285,7 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 	sizerZoom->Add(_buttonZoomFitWidth      , 0, wxEXPAND, 0);
 	sizerZoom->Add(_buttonZoomShrinkFit     , 0, wxEXPAND, 0);
 	sizerZoom->Add(_buttonZoomShrinkFitWidth, 0, wxEXPAND, 0);
+	sizerZoom->Add(_checkZoomNearest        , 0, wxEXPAND, 0);
 
 	wxBoxSizer *sizerImage = new wxBoxSizer(wxHORIZONTAL);
 
@@ -318,6 +335,11 @@ void PanelPreviewImage::onZoomShrinkFit(wxCommandEvent &event) {
 
 void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &event) {
 	zoomFit(true, false);
+}
+
+void PanelPreviewImage::onZoomNearest(wxCommandEvent &event) {
+	_canvas->setScaleQuality(_checkZoomNearest->GetValue() ?
+			ImageCanvas::kScaleQualityNearest : ImageCanvas::kScaleQualityBest);
 }
 
 void PanelPreviewImage::zoomTo(int width, int height, double zoom) {

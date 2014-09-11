@@ -56,6 +56,8 @@ enum {
 	kEventButtonZoomShrinkFit     ,
 	kEventButtonZoomShrinkFitWidth,
 
+	kEventCheckZoomNearest,
+
 	kEventSliderVolume,
 	kEventSliderColor ,
 
