@@ -55,6 +55,7 @@ class PanelResourceInfo;
 
 class PanelPreviewEmpty;
 class PanelPreviewSound;
+class PanelPreviewImage;
 
 class MainWindow : public wxFrame {
 public:
@@ -87,6 +88,7 @@ private:
 
 	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewSound *_panelPreviewSound;
+	PanelPreviewImage *_panelPreviewImage;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;

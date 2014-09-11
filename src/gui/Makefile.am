@@ -13,6 +13,7 @@ noinst_HEADERS = \
                  panelresourceinfo.h \
                  panelpreviewempty.h \
                  panelpreviewsound.h \
+                 panelpreviewimage.h \
                  $(EMPTY)
 
 libgui_la_SOURCES = \
@@ -22,6 +23,7 @@ libgui_la_SOURCES = \
                     panelresourceinfo.cpp \
                     panelpreviewempty.cpp \
                     panelpreviewsound.cpp \
+                    panelpreviewimage.cpp \
                     $(EMPTY)
 
 libgui_la_LIBADD = \

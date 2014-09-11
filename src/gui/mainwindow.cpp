@@ -59,6 +59,7 @@
 #include "gui/panelresourceinfo.h"
 #include "gui/panelpreviewempty.h"
 #include "gui/panelpreviewsound.h"
+#include "gui/panelpreviewimage.h"
 
 #include "cline.h"
 
@@ -130,8 +131,10 @@ void MainWindow::createLayout() {
 
 	_panelPreviewEmpty = new PanelPreviewEmpty(_splitterInfoPreview, "Preview");
 	_panelPreviewSound = new PanelPreviewSound(_splitterInfoPreview, "Preview");
+	_panelPreviewImage = new PanelPreviewImage(_splitterInfoPreview, "Preview");
 
 	_panelPreviewSound->Hide();
+	_panelPreviewImage->Hide();
 
 	_resourceTree = new ResourceTree(panelTree, *this);
 
@@ -301,6 +304,10 @@ void MainWindow::showPreviewPanel(Aurora::ResourceType type) {
 	switch (type) {
 		case Aurora::kResourceSound:
 			showPreviewPanel(_panelPreviewSound);
+			break;
+
+		case Aurora::kResourceImage:
+			showPreviewPanel(_panelPreviewImage);
 			break;
 
 		default:

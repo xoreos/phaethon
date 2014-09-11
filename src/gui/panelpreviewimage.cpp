@@ -1,0 +1,200 @@
+/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
+ *
+ * Phaethon is the legal property of its developers, whose names
+ * can be found in the AUTHORS file distributed with this source
+ * distribution.
+ *
+ * Phaethon is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * Phaethon is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/** @file gui/panelpreviewimage.cpp
+ *  Preview panel for resources we can't do anything with.
+ */
+
+#include <cstdlib>
+
+#include <wx/sizer.h>
+#include <wx/statbox.h>
+#include <wx/dc.h>
+
+#include "common/util.h"
+#include "common/error.h"
+#include "common/ustring.h"
+
+#include "images/decoder.h"
+
+#include "gui/panelpreviewimage.h"
+#include "gui/resourcetree.h"
+
+namespace GUI {
+
+ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY), _image(0), _bitmap(0) {
+}
+
+ImageCanvas::~ImageCanvas() {
+	delete _image;
+	delete _bitmap;
+}
+
+void ImageCanvas::setCurrentItem(const ResourceTreeItem *item) {
+	if (item == _currentItem)
+		return;
+
+	_currentItem = item;
+	loadImage();
+}
+
+void ImageCanvas::loadImage() {
+	delete _image;
+	delete _bitmap;
+
+	_image  = 0;
+	_bitmap = 0;
+
+	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceImage)) {
+		SetVirtualSize(0, 0);
+		SetScrollRate(0, 0);
+		return;
+	}
+
+	Images::Decoder *image = 0;
+	try {
+		image = _currentItem->getImage();
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
+
+	if (image->getMipMapCount() == 0) {
+		delete image;
+
+		SetVirtualSize(0, 0);
+		SetScrollRate(0, 0);
+		return;
+	}
+
+	const Images::Decoder::MipMap &mipMap = image->getMipMap(0);
+
+	byte *data_rgb   = (byte *) malloc(mipMap.width * mipMap.height * 3);
+	byte *data_alpha = (byte *) malloc(mipMap.width * mipMap.height);
+
+	memset(data_rgb  , 0, mipMap.width * mipMap.height * 3);
+	memset(data_alpha, 0, mipMap.width * mipMap.height);
+
+	try {
+		convertImage(*image, data_rgb, data_alpha);
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+
+		free(data_rgb);
+		free(data_alpha);
+		return;
+	}
+
+	_image  = new wxImage(mipMap.width, mipMap.height, data_rgb, data_alpha);
+	_bitmap = new wxBitmap(*_image);
+
+	SetVirtualSize(mipMap.width, mipMap.height);
+	SetScrollRate(1, 1);
+}
+
+void ImageCanvas::writePixel(const byte *&data, Images::PixelFormat format,
+                                   byte *&data_rgb, byte *&data_alpha) {
+
+	if (format == Images::kPixelFormatR8G8B8) {
+		*data_rgb++   = data[0];
+		*data_rgb++   = data[1];
+		*data_rgb++   = data[2];
+		*data_alpha++ = 0xFF;
+		data += 3;
+	} else if (format == Images::kPixelFormatB8G8R8) {
+		*data_rgb++   = data[2];
+		*data_rgb++   = data[1];
+		*data_rgb++   = data[0];
+		*data_alpha++ = 0xFF;
+		data += 3;
+	} else if (format == Images::kPixelFormatR8G8B8A8) {
+		*data_rgb++   = data[0];
+		*data_rgb++   = data[1];
+		*data_rgb++   = data[2];
+		*data_alpha++ = data[3];
+		data += 4;
+	} else if (format == Images::kPixelFormatB8G8R8A8) {
+		*data_rgb++   = data[2];
+		*data_rgb++   = data[1];
+		*data_rgb++   = data[0];
+		*data_alpha++ = data[3];
+		data += 4;
+	} else if (format == Images::kPixelFormatR5G6B5) {
+		uint16 color = READ_LE_UINT16(data);
+		*data_rgb++   =  color & 0x001F;
+		*data_rgb++   = (color & 0x07E0) >>  5;
+		*data_rgb++   = (color & 0xF800) >> 11;
+		*data_alpha++ = 0xFF;
+		data += 2;
+	} else if (format == Images::kPixelFormatA1R5G5B5) {
+		uint16 color = READ_LE_UINT16(data);
+		*data_rgb++   =  color & 0x001F;
+		*data_rgb++   = (color & 0x03E0) >>  5;
+		*data_rgb++   = (color & 0x7C00) >> 10;
+		*data_alpha++ = (color & 0x8000) ? 0xFF : 0x00;
+		data += 2;
+	} else
+		throw Common::Exception("Unsupported pixel format: %d", (int) format);
+}
+
+void ImageCanvas::convertImage(const Images::Decoder &image, byte *data_rgb, byte *data_alpha) {
+	const Images::Decoder::MipMap &mipMap = image.getMipMap(0);
+
+	uint32 count = mipMap.width * mipMap.height;
+	const byte *data = mipMap.data;
+	for (uint32 i = 0; i < count; i++)
+		writePixel(data, image.getFormat(), data_rgb, data_alpha);
+}
+
+void ImageCanvas::OnDraw(wxDC &dc) {
+	int vw, vh, pw, ph;
+
+	GetVirtualSize(&vw, &vh);
+	GetClientSize(&pw, &ph);
+
+	if (!_bitmap)
+		return;
+
+	dc.DrawBitmap(*_bitmap, 0, 0, true);
+}
+
+
+PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
+	wxPanel(parent, wxID_ANY) {
+
+	wxStaticBox *boxPreviewImage = new wxStaticBox(this, wxID_ANY, title);
+	boxPreviewImage->Lower();
+
+	wxStaticBoxSizer *sizerPreviewImage = new wxStaticBoxSizer(boxPreviewImage, wxVERTICAL);
+
+	_canvas = new ImageCanvas(this);
+	sizerPreviewImage->Add(_canvas, 1, wxEXPAND, 0);
+
+	SetSizer(sizerPreviewImage);
+}
+
+PanelPreviewImage::~PanelPreviewImage() {
+}
+
+void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
+	_canvas->setCurrentItem(item);
+}
+
+} // End of namespace GUI
