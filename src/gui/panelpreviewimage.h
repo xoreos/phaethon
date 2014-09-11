@@ -92,6 +92,14 @@ public:
 	void setCurrentItem(const ResourceTreeItem *item);
 
 private:
+	enum ZoomOperation {
+		kZoomOpLevel,
+		kZoomOpFit,
+		kZoomOpFitWidth,
+		kZoomOpShrinkFit,
+		kZoomOpShrinkFitWidth
+	};
+
 	ImageCanvas *_canvas;
 
 	wxSlider *_sliderColor;
@@ -107,6 +115,9 @@ private:
 	wxButton *_buttonZoomShrinkFitWidth;
 
 	wxCheckBox *_checkZoomNearest;
+
+	ZoomOperation _lastZoomOperation;
+	double _lastZoomLevel;
 
 	void onColorChange(wxScrollEvent &event);
 
@@ -127,7 +138,11 @@ private:
 
 	void zoomTo(int width, int height, double zoom);
 
-	void updateZoomText();
+	double getCurrentZoomLevel() const;
+
+	void updateZoomLevelText();
+	void updateZoomOp(ZoomOperation op);
+	void assertZoomOp();
 
 	wxDECLARE_EVENT_TABLE();
 };

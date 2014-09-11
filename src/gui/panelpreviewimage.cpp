@@ -255,7 +255,7 @@ wxBEGIN_EVENT_TABLE(PanelPreviewImage, wxPanel)
 wxEND_EVENT_TABLE()
 
 PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY) {
+	wxPanel(parent, wxID_ANY), _lastZoomOperation(kZoomOpLevel), _lastZoomLevel(1.0) {
 
 	wxStaticBox *boxPreviewImage = new wxStaticBox(this, wxID_ANY, title);
 	boxPreviewImage->Lower();
@@ -309,7 +309,11 @@ PanelPreviewImage::~PanelPreviewImage() {
 
 void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	_canvas->setCurrentItem(item);
-	updateZoomText();
+
+	if (item) {
+		assertZoomOp();
+		updateZoomLevelText();
+	}
 }
 
 void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
@@ -318,30 +322,53 @@ void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
 
 void PanelPreviewImage::onZoomIn(wxCommandEvent &event) {
 	zoomStep(0.1);
+
+	updateZoomOp(kZoomOpLevel);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomOut(wxCommandEvent &event) {
 	zoomStep(-0.1);
+
+	updateZoomOp(kZoomOpLevel);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoom100(wxCommandEvent &event) {
 	zoomTo(1.0);
+
+	updateZoomOp(kZoomOpLevel);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomFit(wxCommandEvent &event) {
 	zoomFit(false, true);
+
+	updateZoomOp(kZoomOpFit);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomFitWidth(wxCommandEvent &event) {
 	zoomFit(true, true);
+
+	updateZoomOp(kZoomOpFitWidth);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomShrinkFit(wxCommandEvent &event) {
 	zoomFit(false, false);
+
+	updateZoomOp(kZoomOpShrinkFit);
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &event) {
 	zoomFit(true, false);
+
+	_lastZoomOperation = kZoomOpShrinkFitWidth;
+	_lastZoomLevel     = getCurrentZoomLevel();
+
+	updateZoomLevelText();
 }
 
 void PanelPreviewImage::onZoomNearest(wxCommandEvent &event) {
@@ -357,7 +384,6 @@ void PanelPreviewImage::zoomTo(int width, int height, double zoom) {
 	height = MAX<int>(width / aspect, 1);
 
 	_canvas->setSize(width, height);
-	updateZoomText();
 }
 
 void PanelPreviewImage::zoomStep(double step) {
@@ -414,22 +440,56 @@ void PanelPreviewImage::zoomFit(bool onlyWidth, bool grow) {
 	}
 
 	_canvas->setSize(newWidth, newHeight);
-	updateZoomText();
 }
 
-void PanelPreviewImage::updateZoomText() {
-	int fullWidth, fullHeight, currentWidth, currentHeight;
-
-	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
-
-	double zoom = 1.0;
-	if ((fullWidth > 0) && (fullHeight > 0) && (currentWidth > 0) && (currentHeight > 0))
-		zoom = ((double) currentWidth) / ((double) fullWidth);
-
-	Common::UString percent = Common::UString::sprintf("%d%%", (int) (zoom * 100));
+void PanelPreviewImage::updateZoomLevelText() {
+	Common::UString percent = Common::UString::sprintf("%d%%", (int) (getCurrentZoomLevel() * 100));
 
 	_textZoomLevel->SetLabel(percent);
 	_textZoomLevel->Fit();
+}
+
+double PanelPreviewImage::getCurrentZoomLevel() const {
+	int fullWidth, fullHeight, currentWidth, currentHeight;
+
+	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+		return 1.0;
+
+	return ((double) currentWidth) / ((double) fullWidth);
+}
+
+void PanelPreviewImage::updateZoomOp(ZoomOperation op) {
+	_lastZoomOperation = op;
+	_lastZoomLevel     = getCurrentZoomLevel();
+}
+
+void PanelPreviewImage::assertZoomOp() {
+	switch (_lastZoomOperation) {
+		case kZoomOpLevel:
+			zoomTo(_lastZoomLevel);
+			break;
+
+		case kZoomOpFit:
+			zoomFit(false, true);
+			_lastZoomLevel = getCurrentZoomLevel();
+			break;
+
+		case kZoomOpFitWidth:
+			zoomFit(true, true);
+			_lastZoomLevel = getCurrentZoomLevel();
+			break;
+
+		case kZoomOpShrinkFit:
+			zoomFit(false, false);
+			_lastZoomLevel = getCurrentZoomLevel();
+			break;
+
+		case kZoomOpShrinkFitWidth:
+			zoomFit(true, false);
+			_lastZoomLevel = getCurrentZoomLevel();
+			break;
+	}
 }
 
 } // End of namespace GUI
