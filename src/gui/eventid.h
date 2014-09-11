@@ -48,6 +48,7 @@ enum {
 	kEventButtonStop ,
 
 	kEventSliderVolume,
+	kEventSliderColor ,
 
 	kEventResourceTree
 };

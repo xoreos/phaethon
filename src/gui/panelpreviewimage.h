@@ -37,6 +37,7 @@ namespace Common {
 class wxDC;
 class wxImage;
 class wxBitmap;
+class wxSlider;
 
 namespace GUI {
 
@@ -50,9 +51,12 @@ public:
 	void OnDraw(wxDC &dc);
 
 	void setCurrentItem(const ResourceTreeItem *item);
+	void setColor(uint8 color);
 
 private:
 	const ResourceTreeItem *_currentItem;
+
+	uint8 _color;
 
 	wxImage  *_image;
 	wxBitmap *_bitmap;
@@ -73,6 +77,12 @@ public:
 
 private:
 	ImageCanvas *_canvas;
+
+	wxSlider *_sliderColor;
+
+	void onColorChange(wxScrollEvent &event);
+
+	wxDECLARE_EVENT_TABLE();
 };
 
 } // End of namespace GUI

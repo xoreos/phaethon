@@ -26,6 +26,7 @@
 
 #include <wx/sizer.h>
 #include <wx/statbox.h>
+#include <wx/slider.h>
 #include <wx/dc.h>
 
 #include "common/util.h"
@@ -35,12 +36,13 @@
 #include "images/decoder.h"
 
 #include "gui/panelpreviewimage.h"
+#include "gui/eventid.h"
 #include "gui/resourcetree.h"
 
 namespace GUI {
 
 ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY),
-	_currentItem(0), _image(0), _bitmap(0) {
+	_currentItem(0), _color(0), _image(0), _bitmap(0) {
 }
 
 ImageCanvas::~ImageCanvas() {
@@ -54,6 +56,13 @@ void ImageCanvas::setCurrentItem(const ResourceTreeItem *item) {
 
 	_currentItem = item;
 	loadImage();
+}
+
+void ImageCanvas::setColor(uint8 color) {
+	_color = color;
+
+	Refresh();
+	Update();
 }
 
 void ImageCanvas::loadImage() {
@@ -177,9 +186,16 @@ void ImageCanvas::OnDraw(wxDC &dc) {
 	if (!_bitmap)
 		return;
 
+	// Fill the surface with the current color, then draw the image (with transparency)
+	dc.SetBackground(wxBrush(wxColor(_color, _color, _color)));
+	dc.Clear();
 	dc.DrawBitmap(*_bitmap, 0, 0, true);
 }
 
+
+wxBEGIN_EVENT_TABLE(PanelPreviewImage, wxPanel)
+	EVT_COMMAND_SCROLL(kEventSliderColor, PanelPreviewImage::onColorChange)
+wxEND_EVENT_TABLE()
 
 PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
 	wxPanel(parent, wxID_ANY) {
@@ -189,8 +205,13 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 
 	wxStaticBoxSizer *sizerPreviewImage = new wxStaticBoxSizer(boxPreviewImage, wxVERTICAL);
 
+	_sliderColor = new wxSlider(this, kEventSliderColor, 0, 0, 255,
+	                            wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+
 	_canvas = new ImageCanvas(this);
-	sizerPreviewImage->Add(_canvas, 1, wxEXPAND, 0);
+
+	sizerPreviewImage->Add(_sliderColor, 0, wxEXPAND, 0);
+	sizerPreviewImage->Add(_canvas     , 1, wxEXPAND, 0);
 
 	SetSizer(sizerPreviewImage);
 }
@@ -200,6 +221,10 @@ PanelPreviewImage::~PanelPreviewImage() {
 
 void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	_canvas->setCurrentItem(item);
+}
+
+void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
+	_canvas->setColor(_sliderColor->GetValue());
 }
 
 } // End of namespace GUI
