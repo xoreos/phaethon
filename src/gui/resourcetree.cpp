@@ -189,6 +189,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 			} catch (Common::Exception &e1) {
 
 				try {
+					res.seek(0);
 					img = new Images::TPC(res);
 
 				} catch (Common::Exception &e2) {
