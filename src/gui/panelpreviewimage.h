@@ -38,6 +38,7 @@ class wxDC;
 class wxImage;
 class wxBitmap;
 class wxSlider;
+class wxButton;
 
 namespace GUI {
 
@@ -53,6 +54,9 @@ public:
 	void setCurrentItem(const ResourceTreeItem *item);
 	void setColor(uint8 color);
 
+	void getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
+	void setSize(int width, int height);
+
 private:
 	const ResourceTreeItem *_currentItem;
 
@@ -60,6 +64,8 @@ private:
 
 	wxImage  *_image;
 	wxBitmap *_bitmap;
+
+	void forceRedraw();
 
 	void loadImage();
 
@@ -80,7 +86,30 @@ private:
 
 	wxSlider *_sliderColor;
 
+	wxButton *_buttonZoomIn;
+	wxButton *_buttonZoomOut;
+	wxButton *_buttonZoom100;
+	wxButton *_buttonZoomFit;
+	wxButton *_buttonZoomFitWidth;
+	wxButton *_buttonZoomShrinkFit;
+	wxButton *_buttonZoomShrinkFitWidth;
+
 	void onColorChange(wxScrollEvent &event);
+
+	void onZoomIn(wxCommandEvent &event);
+	void onZoomOut(wxCommandEvent &event);
+	void onZoom100(wxCommandEvent &event);
+	void onZoomFit(wxCommandEvent &event);
+	void onZoomFitWidth(wxCommandEvent &event);
+	void onZoomShrinkFit(wxCommandEvent &event);
+	void onZoomShrinkFitWidth(wxCommandEvent &event);
+
+	void zoomStep(double step);
+	void zoomTo(double zoom);
+	void zoomFit(bool onlyWidth, bool grow);
+	void zoomFitWidth(bool grow);
+
+	void zoomTo(int width, int height, double zoom);
 
 	wxDECLARE_EVENT_TABLE();
 };

@@ -47,6 +47,15 @@ enum {
 	kEventButtonPause,
 	kEventButtonStop ,
 
+	kEventButton            ,
+	kEventButtonZoomIn      ,
+	kEventButtonZoomOut     ,
+	kEventButtonZoom100     ,
+	kEventButtonZoomFit     ,
+	kEventButtonZoomFitWidth      ,
+	kEventButtonZoomShrinkFit     ,
+	kEventButtonZoomShrinkFitWidth,
+
 	kEventSliderVolume,
 	kEventSliderColor ,
 

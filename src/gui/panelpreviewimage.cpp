@@ -27,6 +27,7 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/slider.h>
+#include <wx/button.h>
 #include <wx/dc.h>
 
 #include "common/util.h"
@@ -43,11 +44,18 @@ namespace GUI {
 
 ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY),
 	_currentItem(0), _color(0), _image(0), _bitmap(0) {
+
+	ShowScrollbars(wxSHOW_SB_ALWAYS, wxSHOW_SB_ALWAYS);
 }
 
 ImageCanvas::~ImageCanvas() {
 	delete _image;
 	delete _bitmap;
+}
+
+void ImageCanvas::forceRedraw() {
+	Refresh();
+	Update();
 }
 
 void ImageCanvas::setCurrentItem(const ResourceTreeItem *item) {
@@ -60,9 +68,35 @@ void ImageCanvas::setCurrentItem(const ResourceTreeItem *item) {
 
 void ImageCanvas::setColor(uint8 color) {
 	_color = color;
+	forceRedraw();
+}
 
-	Refresh();
-	Update();
+void ImageCanvas::getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const {
+	if (!_image || !_bitmap) {
+		fullWidth = fullHeight = currentWidth = currentHeight = 0;
+		return;
+	}
+
+	fullWidth     = _image->GetWidth();
+	fullHeight    = _image->GetHeight();
+	currentWidth  = _bitmap->GetWidth();
+	currentHeight = _bitmap->GetHeight();
+}
+
+void ImageCanvas::setSize(int width, int height) {
+	assert((width > 0) && (height > 0));
+
+	if (!_image)
+		return;
+
+	delete _bitmap;
+
+	_bitmap = new wxBitmap(_image->Scale(width, height, wxIMAGE_QUALITY_HIGH ));
+
+	SetVirtualSize(width, height);
+	SetScrollRate(1, 1);
+
+	forceRedraw();
 }
 
 void ImageCanvas::loadImage() {
@@ -195,6 +229,14 @@ void ImageCanvas::OnDraw(wxDC &dc) {
 
 wxBEGIN_EVENT_TABLE(PanelPreviewImage, wxPanel)
 	EVT_COMMAND_SCROLL(kEventSliderColor, PanelPreviewImage::onColorChange)
+
+	EVT_BUTTON(kEventButtonZoomIn            , PanelPreviewImage::onZoomIn)
+	EVT_BUTTON(kEventButtonZoomOut           , PanelPreviewImage::onZoomOut)
+	EVT_BUTTON(kEventButtonZoom100           , PanelPreviewImage::onZoom100)
+	EVT_BUTTON(kEventButtonZoomFit           , PanelPreviewImage::onZoomFit)
+	EVT_BUTTON(kEventButtonZoomFitWidth      , PanelPreviewImage::onZoomFitWidth)
+	EVT_BUTTON(kEventButtonZoomShrinkFit     , PanelPreviewImage::onZoomShrinkFit)
+	EVT_BUTTON(kEventButtonZoomShrinkFitWidth, PanelPreviewImage::onZoomShrinkFitWidth)
 wxEND_EVENT_TABLE()
 
 PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
@@ -210,8 +252,31 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 
 	_canvas = new ImageCanvas(this);
 
+	_buttonZoomIn             = new wxButton(this, kEventButtonZoomIn            , wxT("Zoom in"));
+	_buttonZoomOut            = new wxButton(this, kEventButtonZoomOut           , wxT("Zoom out"));
+	_buttonZoom100            = new wxButton(this, kEventButtonZoom100           , wxT("Zoom 100%"));
+	_buttonZoomFit            = new wxButton(this, kEventButtonZoomFit           , wxT("Fit"));
+	_buttonZoomFitWidth       = new wxButton(this, kEventButtonZoomFitWidth      , wxT("Fit width"));
+	_buttonZoomShrinkFit      = new wxButton(this, kEventButtonZoomShrinkFit     , wxT("Shrink fit"));
+	_buttonZoomShrinkFitWidth = new wxButton(this, kEventButtonZoomShrinkFitWidth, wxT("Shrink fit width"));
+
+	wxBoxSizer *sizerZoom = new wxBoxSizer(wxVERTICAL);
+
+	sizerZoom->Add(_buttonZoomIn            , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoomOut           , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoom100           , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoomFit           , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoomFitWidth      , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoomShrinkFit     , 0, wxEXPAND, 0);
+	sizerZoom->Add(_buttonZoomShrinkFitWidth, 0, wxEXPAND, 0);
+
+	wxBoxSizer *sizerImage = new wxBoxSizer(wxHORIZONTAL);
+
+	sizerImage->Add(sizerZoom, 0, wxEXPAND, 0);
+	sizerImage->Add(_canvas  , 1, wxEXPAND, 0);
+
 	sizerPreviewImage->Add(_sliderColor, 0, wxEXPAND, 0);
-	sizerPreviewImage->Add(_canvas     , 1, wxEXPAND, 0);
+	sizerPreviewImage->Add(sizerImage  , 1, wxEXPAND, 0);
 
 	SetSizer(sizerPreviewImage);
 }
@@ -225,6 +290,100 @@ void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 
 void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
 	_canvas->setColor(_sliderColor->GetValue());
+}
+
+void PanelPreviewImage::onZoomIn(wxCommandEvent &event) {
+	zoomStep(0.1);
+}
+
+void PanelPreviewImage::onZoomOut(wxCommandEvent &event) {
+	zoomStep(-0.1);
+}
+
+void PanelPreviewImage::onZoom100(wxCommandEvent &event) {
+	zoomTo(1.0);
+}
+
+void PanelPreviewImage::onZoomFit(wxCommandEvent &event) {
+	zoomFit(false, true);
+}
+
+void PanelPreviewImage::onZoomFitWidth(wxCommandEvent &event) {
+	zoomFit(true, true);
+}
+
+void PanelPreviewImage::onZoomShrinkFit(wxCommandEvent &event) {
+	zoomFit(false, false);
+}
+
+void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &event) {
+	zoomFit(true, false);
+}
+
+void PanelPreviewImage::zoomTo(int width, int height, double zoom) {
+	double aspect = ((double) width) / ((double) height);
+
+	// Calculate width using the zoom level and height using the aspect ratio
+	width  = MAX<int>(width * zoom  , 1);
+	height = MAX<int>(width / aspect, 1);
+
+	_canvas->setSize(width, height);
+}
+
+void PanelPreviewImage::zoomStep(double step) {
+	int fullWidth, fullHeight, currentWidth, currentHeight;
+
+	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+		return;
+
+	double zoom = ((double) currentWidth) / ((double) fullWidth);
+
+	// Only allow zoom from 10% to 500%
+	double newZoom = CLIP<double>(zoom + step, 0.1, 5.0);
+	if (zoom == newZoom)
+		return;
+
+	zoomTo(fullWidth, fullHeight, newZoom);
+}
+
+void PanelPreviewImage::zoomTo(double zoom) {
+	int fullWidth, fullHeight, currentWidth, currentHeight;
+
+	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+		return;
+
+	zoomTo(fullWidth, fullHeight, zoom);
+}
+
+void PanelPreviewImage::zoomFit(bool onlyWidth, bool grow) {
+	int fullWidth, fullHeight, currentWidth, currentHeight;
+
+	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+		return;
+
+	double aspect = ((double) fullWidth) / ((double) fullHeight);
+
+	int canvasWidth, canvasHeight;
+	_canvas->GetClientSize(&canvasWidth, &canvasHeight);
+
+	// The size we want to scale to, depending on whether to grow the image
+	int toWidth  = grow ? canvasWidth  : MIN<int>(canvasWidth , fullWidth);
+	int toHeight = grow ? canvasHeight : MIN<int>(canvasHeight, fullHeight);
+
+	// Try to fit by width
+	int newWidth  = toWidth;
+	int newHeight = MAX<int>(newWidth / aspect, 1);
+
+	// If the height overflows, fit by height instead (if requested)
+	if (!onlyWidth && (newHeight > toHeight)) {
+		newHeight = toHeight;
+		newWidth  = MAX<int>(newHeight * aspect, 1);
+	}
+
+	_canvas->setSize(newWidth, newHeight);
 }
 
 } // End of namespace GUI
