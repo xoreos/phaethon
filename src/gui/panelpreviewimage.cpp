@@ -39,7 +39,8 @@
 
 namespace GUI {
 
-ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY), _image(0), _bitmap(0) {
+ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY),
+	_currentItem(0), _image(0), _bitmap(0) {
 }
 
 ImageCanvas::~ImageCanvas() {
