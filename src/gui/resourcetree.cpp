@@ -192,9 +192,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 					img = new Images::TPC(res);
 
 				} catch (Common::Exception &e2) {
-					e1.add("Can't load image as TCP");
 					e1.add(e2);
-					e1.add("Can't load image as TXB");
 
 					throw e1;
 				}
