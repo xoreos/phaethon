@@ -65,6 +65,21 @@ void StackException::add(const char *s, ...) {
 	_stack.push(buf);
 }
 
+void StackException::add(const StackException &e) {
+	Stack orig = e._stack;
+
+	Stack reverse;
+	while (!orig.empty()) {
+		reverse.push(orig.top());
+		orig.pop();
+	}
+
+	while (!reverse.empty()) {
+		_stack.push(reverse.top());
+		reverse.pop();
+	}
+}
+
 void StackException::add(const std::exception &e) {
 	add("%s", e.what());
 }
