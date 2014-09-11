@@ -62,6 +62,9 @@ void DDS::load(Common::SeekableReadStream &dds) {
 		e.add("Failed reading DDS file");
 		throw;
 	}
+
+	// In Phaethon, we always want decompressed images
+	decompress();
 }
 
 void DDS::readHeader(Common::SeekableReadStream &dds) {

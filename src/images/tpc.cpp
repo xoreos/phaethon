@@ -60,6 +60,9 @@ void TPC::load(Common::SeekableReadStream &tpc) {
 		e.add("Failed reading TPC file");
 		throw;
 	}
+
+	// In Phaethon, we always want decompressed images
+	decompress();
 }
 
 Common::SeekableReadStream *TPC::getTXI() const {
