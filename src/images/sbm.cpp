@@ -27,6 +27,7 @@
 #include "common/error.h"
 
 #include "images/sbm.h"
+#include "images/util.h"
 
 namespace Images {
 
@@ -51,6 +52,9 @@ void SBM::load(Common::SeekableReadStream &sbm) {
 		e.add("Failed reading SBM file");
 		throw;
 	}
+
+	// Flip SBM image data to make their origin the lower left corner too
+	flipVertically(_mipMaps[0]->data, _mipMaps[0]->width, _mipMaps[0]->height, 4);
 }
 
 void SBM::readData(Common::SeekableReadStream &sbm) {
