@@ -214,7 +214,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 			break;
 
 		default:
-			throw Common::Exception("Unsupported image type \"%s\"", type);
+			throw Common::Exception("Unsupported image type %d", type);
 	}
 
 	return img;
