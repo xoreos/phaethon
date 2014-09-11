@@ -324,12 +324,13 @@ void MainWindow::resourceSelect(const ResourceTreeItem *item) {
 
 	_panelResourceInfo->setCurrentItem(item);
 	_panelPreviewSound->setCurrentItem(item);
+	_panelPreviewImage->setCurrentItem(item);
 }
 
 void MainWindow::resourceActivate(const ResourceTreeItem &item) {
 	if (item.getResourceType() == Aurora::kResourceSound) {
 		_panelPreviewSound->setCurrentItem(&item);
-		_panelPreviewSound->play();;
+		_panelPreviewSound->play();
 	}
 }
 
