@@ -31,6 +31,8 @@
 #include <wx/checkbox.h>
 #include <wx/dc.h>
 
+#include <wx/generic/stattextg.h>
+
 #include "common/util.h"
 #include "common/error.h"
 #include "common/ustring.h"
@@ -265,6 +267,8 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 
 	_canvas = new ImageCanvas(this);
 
+	_textZoomLevel = new wxGenericStaticText(this, wxID_ANY, wxT("100%"));
+
 	_buttonZoomIn             = new wxButton(this, kEventButtonZoomIn            , wxT("Zoom in"));
 	_buttonZoomOut            = new wxButton(this, kEventButtonZoomOut           , wxT("Zoom out"));
 	_buttonZoom100            = new wxButton(this, kEventButtonZoom100           , wxT("Zoom 100%"));
@@ -277,6 +281,8 @@ PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &ti
 	_checkZoomNearest->SetValue(false);
 
 	wxBoxSizer *sizerZoom = new wxBoxSizer(wxVERTICAL);
+
+	sizerZoom->Add(_textZoomLevel, 0, wxALIGN_CENTER_HORIZONTAL, 0);
 
 	sizerZoom->Add(_buttonZoomIn            , 0, wxEXPAND, 0);
 	sizerZoom->Add(_buttonZoomOut           , 0, wxEXPAND, 0);
@@ -303,6 +309,7 @@ PanelPreviewImage::~PanelPreviewImage() {
 
 void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	_canvas->setCurrentItem(item);
+	updateZoomText();
 }
 
 void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
@@ -350,6 +357,7 @@ void PanelPreviewImage::zoomTo(int width, int height, double zoom) {
 	height = MAX<int>(width / aspect, 1);
 
 	_canvas->setSize(width, height);
+	updateZoomText();
 }
 
 void PanelPreviewImage::zoomStep(double step) {
@@ -406,6 +414,22 @@ void PanelPreviewImage::zoomFit(bool onlyWidth, bool grow) {
 	}
 
 	_canvas->setSize(newWidth, newHeight);
+	updateZoomText();
+}
+
+void PanelPreviewImage::updateZoomText() {
+	int fullWidth, fullHeight, currentWidth, currentHeight;
+
+	_canvas->getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+
+	double zoom = 1.0;
+	if ((fullWidth > 0) && (fullHeight > 0) && (currentWidth > 0) && (currentHeight > 0))
+		zoom = ((double) currentWidth) / ((double) fullWidth);
+
+	Common::UString percent = Common::UString::sprintf("%d%%", (int) (zoom * 100));
+
+	_textZoomLevel->SetLabel(percent);
+	_textZoomLevel->Fit();
 }
 
 } // End of namespace GUI

@@ -96,6 +96,8 @@ private:
 
 	wxSlider *_sliderColor;
 
+	wxGenericStaticText *_textZoomLevel;
+
 	wxButton *_buttonZoomIn;
 	wxButton *_buttonZoomOut;
 	wxButton *_buttonZoom100;
@@ -124,6 +126,8 @@ private:
 	void zoomFitWidth(bool grow);
 
 	void zoomTo(int width, int height, double zoom);
+
+	void updateZoomText();
 
 	wxDECLARE_EVENT_TABLE();
 };
