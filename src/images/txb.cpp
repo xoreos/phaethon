@@ -169,6 +169,8 @@ void TXB::readHeader(Common::SeekableReadStream &txb, bool &needDeSwizzle) {
 			break;
 	}
 
+	if ((mipMapCount != 0) && (_mipMaps.empty()))
+		throw Common::Exception("Couldn't read any mip maps");
 }
 
 void TXB::deSwizzle(byte *dst, const byte *src, uint32 width, uint32 height) {
