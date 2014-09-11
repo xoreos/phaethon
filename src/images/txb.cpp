@@ -111,7 +111,7 @@ void TXB::readHeader(Common::SeekableReadStream &txb, bool &needDeSwizzle) {
 	} else if (encoding == kEncodingDXT1) {
 		// S3TC DXT1
 
-		_format = kPixelFormatB8G8R8;
+		_format = kPixelFormatDXT1;
 
 		minDataSize = 8;
 		mipMapSize  = width * height / 2;
