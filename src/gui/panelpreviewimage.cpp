@@ -102,7 +102,11 @@ void ImageCanvas::loadImage() {
 		return;
 	}
 
-	_image  = new wxImage(mipMap.width, mipMap.height, data_rgb, data_alpha);
+	wxImage *mirror = new wxImage(mipMap.width, mipMap.height, data_rgb, data_alpha);
+	_image = new wxImage(mirror->Mirror(false));
+
+	delete mirror;
+
 	_bitmap = new wxBitmap(*_image);
 
 	SetVirtualSize(mipMap.width, mipMap.height);
