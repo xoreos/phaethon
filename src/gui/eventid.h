@@ -30,38 +30,44 @@
 namespace GUI {
 
 enum {
+	// Main window - menu bar
 	kEventMenuFileQuit        = wxID_EXIT,
 	kEventMenuHelpAbout       = wxID_ABOUT,
 	kEventMenuFileOpenDir     = 0,
 	kEventMenuFileOpenFile       ,
 	kEventMenuFileClose          ,
+	// Main window - resource tree
+	kEventResourceTree,
 
+	// About dialog
 	kEventButtonAboutClose,
 
+	// Resource info panel
 	kEventButtonExportRaw   ,
 	kEventButtonExportBMUMP3,
 	kEventButtonExportWAV   ,
 	kEventButtonExportTGA   ,
 
+	// Preview panel for sound resources - play buttons
 	kEventButtonPlay ,
 	kEventButtonPause,
 	kEventButtonStop ,
+	// Preview panel for sound resources - volume slider
+	kEventSliderVolume,
 
-	kEventButton            ,
-	kEventButtonZoomIn      ,
-	kEventButtonZoomOut     ,
-	kEventButtonZoom100     ,
-	kEventButtonZoomFit     ,
+	// Preview panel for image resource - zoom buttons
+	kEventButton                  ,
+	kEventButtonZoomIn            ,
+	kEventButtonZoomOut           ,
+	kEventButtonZoom100           ,
+	kEventButtonZoomFit           ,
 	kEventButtonZoomFitWidth      ,
 	kEventButtonZoomShrinkFit     ,
 	kEventButtonZoomShrinkFitWidth,
-
+	// Preview panel for image resource - zoom check button
 	kEventCheckZoomNearest,
-
-	kEventSliderVolume,
-	kEventSliderColor ,
-
-	kEventResourceTree
+	// Preview panel for image resource - background color slider
+	kEventSliderColor
 };
 
 } // End of namespace GUI
