@@ -66,11 +66,11 @@
 namespace GUI {
 
 wxBEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_MENU(kEventFileOpenDir , MainWindow::onOpenDir)
-	EVT_MENU(kEventFileOpenFile, MainWindow::onOpenFile)
-	EVT_MENU(kEventFileClose   , MainWindow::onClose)
-	EVT_MENU(kEventFileQuit    , MainWindow::onQuit)
-	EVT_MENU(kEventHelpAbout   , MainWindow::onAbout)
+	EVT_MENU(kEventMenuFileOpenDir , MainWindow::onOpenDir)
+	EVT_MENU(kEventMenuFileOpenFile, MainWindow::onOpenFile)
+	EVT_MENU(kEventMenuFileClose   , MainWindow::onClose)
+	EVT_MENU(kEventMenuFileQuit    , MainWindow::onQuit)
+	EVT_MENU(kEventMenuHelpAbout   , MainWindow::onAbout)
 wxEND_EVENT_TABLE()
 
 MainWindow::MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size) :
@@ -91,11 +91,11 @@ void MainWindow::createLayout() {
 	wxMenu *menuFile = new wxMenu;
 
 	wxMenuItem *menuFileOpenDir =
-		new wxMenuItem(0, kEventFileOpenDir, wxT("Open &directory\tCtrl-D"), Common::UString("Open directory"));
+		new wxMenuItem(0, kEventMenuFileOpenDir, wxT("Open &directory\tCtrl-D"), Common::UString("Open directory"));
 	wxMenuItem *menuFileOpenFile =
-		new wxMenuItem(0, kEventFileOpenFile, wxT("Open &file\tCtrl-D"), Common::UString("Open file"));
+		new wxMenuItem(0, kEventMenuFileOpenFile, wxT("Open &file\tCtrl-D"), Common::UString("Open file"));
 	wxMenuItem *menuFileClose =
-		new wxMenuItem(0, kEventFileClose, wxT("&Close\tCtrl-W"), Common::UString("Close"));
+		new wxMenuItem(0, kEventMenuFileClose, wxT("&Close\tCtrl-W"), Common::UString("Close"));
 
 	menuFileOpenDir->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
 	menuFileOpenFile->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN));
@@ -106,11 +106,11 @@ void MainWindow::createLayout() {
 	menuFile->AppendSeparator();
 	menuFile->Append(menuFileClose);
 	menuFile->AppendSeparator();
-	menuFile->Append(kEventFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
+	menuFile->Append(kEventMenuFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
 
 
 	wxMenu *menuHelp = new wxMenu;
-	menuHelp->Append(kEventHelpAbout, wxT("&About\tF1"), Common::UString("About ") + PHAETHON_NAME);
+	menuHelp->Append(kEventMenuHelpAbout, wxT("&About\tF1"), Common::UString("About ") + PHAETHON_NAME);
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, wxT("&File"));

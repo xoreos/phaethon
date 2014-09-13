@@ -30,11 +30,11 @@
 namespace GUI {
 
 enum {
-	kEventFileQuit        = wxID_EXIT,
-	kEventHelpAbout       = wxID_ABOUT,
-	kEventFileOpenDir     = 0,
-	kEventFileOpenFile       ,
-	kEventFileClose          ,
+	kEventMenuFileQuit        = wxID_EXIT,
+	kEventMenuHelpAbout       = wxID_ABOUT,
+	kEventMenuFileOpenDir     = 0,
+	kEventMenuFileOpenFile       ,
+	kEventMenuFileClose          ,
 
 	kEventButtonClose,
 
