@@ -36,7 +36,7 @@ enum {
 	kEventMenuFileOpenFile       ,
 	kEventMenuFileClose          ,
 
-	kEventButtonClose,
+	kEventButtonAboutClose,
 
 	kEventButtonExportRaw   ,
 	kEventButtonExportBMUMP3,

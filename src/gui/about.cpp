@@ -38,7 +38,7 @@
 namespace GUI {
 
 wxBEGIN_EVENT_TABLE(AboutDialog, wxDialog)
-	EVT_BUTTON(kEventButtonClose, AboutDialog::onClose)
+	EVT_BUTTON(kEventButtonAboutClose, AboutDialog::onClose)
 wxEND_EVENT_TABLE()
 
 AboutDialog::AboutDialog(wxWindow *parent) :
@@ -48,7 +48,7 @@ AboutDialog::AboutDialog(wxWindow *parent) :
 
 	msg->SetLabel(createVersionText());
 
-	wxButton *buttonClose = new wxButton(this, kEventButtonClose, "&OK");
+	wxButton *buttonClose = new wxButton(this, kEventButtonAboutClose, "&OK");
 
 	wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
 	sizer->Add(msg, 1, wxALL, 5);
