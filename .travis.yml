@@ -1,0 +1,23 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_script:
+  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu saucy main universe restricted multiverse"
+  - sudo apt-get update -qq
+  - sudo apt-get -qq install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev libwxgtk3.0-dev
+  - export CXXFLAGS="-std=c++0x"
+script: ./autogen.sh && ./configure && make
+after_script: cat config.log
+notifications:
+  email:
+    recipients:
+      - ndbrandes@gmail.com
+    on_success: change
+    on_failure: always
+  irc:
+    channels:
+      - "chat.freenode.net#xoreos"
+    on_success: change
+    on_failure: always
+    use_notice: true
