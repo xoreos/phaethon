@@ -1,6 +1,12 @@
 ACLOCAL_AMFLAGS = -I m4 --install
 
-EXTRA_DIST = README.md
+EXTRA_DIST = \
+             autogen.sh \
+             BUILDDEP \
+             Doxyfile \
+             README.dox \
+             README.md \
+             $(EMPTY)
 
 SUBDIRS = \
           gitstamp \
