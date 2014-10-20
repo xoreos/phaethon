@@ -8,6 +8,13 @@ EXTRA_DIST = \
              README.md \
              $(EMPTY)
 
+dist_doc_DATA = \
+                COPYING \
+                AUTHORS \
+                ChangeLog \
+                README.md \
+                $(EMPTY)
+
 SUBDIRS = \
           gitstamp \
           utf8cpp \
