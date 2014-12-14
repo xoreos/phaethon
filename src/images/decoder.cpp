@@ -87,7 +87,7 @@ void Decoder::decompress(MipMap &out, const MipMap &in, PixelFormat format) {
 
 	out.width  = in.width;
 	out.height = in.height;
-	out.size   = out.width * out.height * 4;
+	out.size   = MAX(out.width * out.height * 4, 64);
 	out.data   = new byte[out.size];
 
 	Common::MemoryReadStream *stream = new Common::MemoryReadStream(in.data, in.size);
