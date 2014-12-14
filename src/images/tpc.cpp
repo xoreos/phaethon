@@ -30,6 +30,7 @@
 #include "images/tpc.h"
 #include "images/util.h"
 
+static const byte kEncodingGrey         = 0x01;
 static const byte kEncodingRGB          = 0x02;
 static const byte kEncodingRGBA         = 0x04;
 static const byte kEncodingSwizzledBGRA = 0x0C;
@@ -47,10 +48,10 @@ TPC::~TPC() {
 void TPC::load(Common::SeekableReadStream &tpc) {
 	try {
 
-		bool needDeSwizzle = false;
+		byte encoding;
 
-		readHeader (tpc, needDeSwizzle);
-		readData   (tpc, needDeSwizzle);
+		readHeader (tpc, encoding);
+		readData   (tpc, encoding);
 		readTXIData(tpc);
 
 		if (tpc.err())
@@ -72,7 +73,7 @@ Common::SeekableReadStream *TPC::getTXI() const {
 	return new Common::MemoryReadStream(_txiData, _txiDataSize);
 }
 
-void TPC::readHeader(Common::SeekableReadStream &tpc, bool &needDeSwizzle) {
+void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 	// Number of bytes for the pixel data in one full image
 	uint32 dataSize = tpc.readUint32LE();
 
@@ -83,19 +84,26 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, bool &needDeSwizzle) {
 	uint32 height = tpc.readUint16LE();
 
 	// How's the pixel data encoded?
-	byte encoding    = tpc.readByte();
+	encoding = tpc.readByte();
+
 	// Number of mip maps in the image
 	byte mipMapCount = tpc.readByte();
 
 	tpc.skip(114); // Reserved
 
-	needDeSwizzle = false;
-
 	uint32 minDataSize = 0;
 	if (dataSize == 0) {
 		// Uncompressed
 
-		if        (encoding == kEncodingRGB) {
+		if        (encoding == kEncodingGrey) {
+			// 8bpp greyscale
+
+			_format = kPixelFormatR8G8B8;
+
+			minDataSize = 1;
+			dataSize    = width * height;
+
+		} else if (encoding == kEncodingRGB) {
 			// RGB, no alpha channel
 
 			_format = kPixelFormatR8G8B8;
@@ -114,15 +122,13 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, bool &needDeSwizzle) {
 		} else if (encoding == kEncodingSwizzledBGRA) {
 			// BGRA, alpha channel, texture memory layout is "swizzled"
 
-			needDeSwizzle = true;
-
 			_format = kPixelFormatB8G8R8A8;
 
 			minDataSize = 4;
 			dataSize    = width * height * 4;
 
 		} else
-			throw Common::Exception("Unknown TPC raw encoding: %d (%d)", encoding, dataSize);
+			throw Common::Exception("Unknown TPC raw encoding: %d (%d), %dx%d, %d", encoding, dataSize, width, height, mipMapCount);
 
 	} else if (encoding == kEncodingRGB) {
 		// S3TC DXT1
@@ -187,12 +193,12 @@ void TPC::deSwizzle(byte *dst, const byte *src, uint32 width, uint32 height) {
 	}
 }
 
-void TPC::readData(Common::SeekableReadStream &tpc, bool needDeSwizzle) {
+void TPC::readData(Common::SeekableReadStream &tpc, byte encoding) {
 	for (std::vector<MipMap *>::iterator mipMap = _mipMaps.begin(); mipMap != _mipMaps.end(); ++mipMap) {
 
 		// If the texture width is a power of two, the texture memory layout is "swizzled"
 		const bool widthPOT = ((*mipMap)->width & ((*mipMap)->width - 1)) == 0;
-		const bool swizzled = needDeSwizzle && widthPOT;
+		const bool swizzled = (encoding == kEncodingSwizzledBGRA) && widthPOT;
 
 		(*mipMap)->data = new byte[(*mipMap)->size];
 
@@ -207,6 +213,19 @@ void TPC::readData(Common::SeekableReadStream &tpc, bool needDeSwizzle) {
 		} else {
 			if (tpc.read((*mipMap)->data, (*mipMap)->size) != (*mipMap)->size)
 				throw Common::Exception(Common::kReadError);
+
+			// Unpacking 8bpp greyscale data into RGB
+			if (encoding == kEncodingGrey) {
+				byte *dataGrey = (*mipMap)->data;
+
+				(*mipMap)->size = (*mipMap)->width * (*mipMap)->height * 3;
+				(*mipMap)->data = new byte[(*mipMap)->size];
+
+				for (int i = 0; i < ((*mipMap)->width * (*mipMap)->height); i++)
+					memset((*mipMap)->data + i * 3, dataGrey[i], 3);
+
+				delete[] dataGrey;
+			}
 		}
 
 	}
