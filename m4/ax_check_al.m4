@@ -1,6 +1,7 @@
+#serial 1000
 dnl @synopsis AX_CHECK_AL(action-if, action-if-not)
 dnl
-dnl @summary check for OpenAL or OpenAL Soft.
+dnl @summary check for OpenAL Soft.
 dnl
 dnl Defines AL_LIBS, AL_CFLAGS.
 dnl
@@ -10,8 +11,8 @@ dnl @version 2013-12-14
 dnl @license Creative Commons CC0 1.0 Universal Public Domain Dedication
 
 AC_DEFUN([AX_CHECK_AL], [
-	AC_ARG_VAR(AL_CFLAGS, [C compiler flags for OpenAL or OpenAL Soft])
-	AC_ARG_VAR(AL_LIBS, [libraries to pass to the linker for OpenAL or OpenAL Soft])
+	AC_ARG_VAR(AL_CFLAGS, [C compiler flags for OpenAL Soft])
+	AC_ARG_VAR(AL_LIBS, [libraries to pass to the linker for OpenAL Soft])
 
 	case "$target" in
 		*darwin*)

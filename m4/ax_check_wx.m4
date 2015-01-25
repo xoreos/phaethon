@@ -1,3 +1,4 @@
+#serial 1000
 dnl @synopsis AX_CHECK_WX(major, minor, release, action-if, action-if-not)
 dnl
 dnl @summary check for wxWidgets of sufficient major, minor and release version
