@@ -39,8 +39,6 @@
 
 namespace Common {
 
-class SeekableReadStream;
-
 /** A class holding an UTF-8 string.
  *
  *  WARNING:
@@ -52,6 +50,13 @@ class UString {
 public:
 	typedef utf8::iterator<std::string::const_iterator> iterator;
 
+	// Case sensitive compare
+	struct sless : std::binary_function<UString, UString, bool> {
+		bool operator() (const UString &str1, const UString &str2) const {
+			return str1.less(str2);
+		}
+	};
+
 	// Case insensitive compare
 	struct iless : std::binary_function<UString, UString, bool> {
 		bool operator() (const UString &str1, const UString &str2) const {
@@ -59,11 +64,19 @@ public:
 		}
 	};
 
+	/** Copy constructor. */
 	UString(const UString &str);
+	/** Construct UString from a wxString. */
 	UString(const wxString &str);
+	/** Construct UString from an UTF-8 string. */
 	UString(const std::string &str);
+	/** Construct UString from an UTF-8 string. */
 	UString(const char *str = "");
+	/** Construct UString from the first n bytes of an UTF-8 string. */
 	UString(const char *str, int n);
+	/** Construct UString by creating n copies of Unicode codepoint c. */
+	explicit UString(uint32 c, int n = 1);
+	/** Construct UString by copying the characters between [sBegin,sEnd). */
 	UString(iterator sBegin, iterator sEnd);
 	~UString();
 
@@ -136,9 +149,14 @@ public:
 	void replaceAll(uint32 what, uint32 with);
 
 	/** Convert the string to lowercase. */
-	void tolower();
+	void makeLower();
 	/** Convert the string to uppercase. */
-	void toupper();
+	void makeUpper();
+
+	/** Return a lowercased copy of the string. */
+	UString toLower() const;
+	/** Return an uppercased copy of the string. */
+	UString toUpper() const;
 
 	/** Convert an iterator into a numerical position. */
 	iterator getPosition(uint32 n)    const;
@@ -147,12 +165,12 @@ public:
 
 	/** Insert character c in front of this position. */
 	void insert(iterator pos, uint32 c);
-	/** Insert character c in front of this position. */
-	void insert(iterator pos, const char* c);
+	/** Insert a string in front of this position. */
+	void insert(iterator pos, const UString &str);
 	/** Replace the character at this position with c. */
 	void replace(iterator pos, uint32 c);
-	/** Replace the character at this position with c. */
-	void replace(iterator pos, const char* c);
+	/** Replace the characters at this position with str. */
+	void replace(iterator pos, const UString &str);
 	/** Erase the character within this range. */
 	void erase(iterator from, iterator to);
 	/** Erase the character at this position. */
@@ -162,59 +180,6 @@ public:
 
 	UString substr(iterator from, iterator to) const;
 
-	/** Parse a string into different types. */
-	template<typename T> bool parse(T &v, int skip = 0) const {
-		std::stringstream ss(_string.c_str() + skip);
-
-		if ((ss >> v).fail())
-			return false;
-
-		return true;
-	}
-
-	/** Parse a string into a bool. */
-	template<bool &> bool parse(bool &v, int skip = 0) const {
-		int i;
-		if (!parse(i, skip))
-			return false;
-
-		v = (i == 1);
-		return true;
-	}
-
-	/** Read clean non-extended ASCII out of a stream. */
-	void readASCII(SeekableReadStream &stream, bool colorCodes = false);
-	/** Read clean non-extended ASCII out of a stream. */
-	void readFixedASCII(SeekableReadStream &stream, uint32 length, bool colorCodes = false);
-	/** Read a line of clean non-extended ASCII out of a stream. */
-	void readLineASCII(SeekableReadStream &stream, bool colorCodes = false);
-
-	/** Read Latin9 out of a stream. */
-	void readLatin9(SeekableReadStream &stream, bool colorCodes = false);
-	/** Read Latin9 out of a stream. */
-	void readFixedLatin9(SeekableReadStream &stream, uint32 length, bool colorCodes = false);
-	/** Read a line of Latin9 out of a stream. */
-	void readLineLatin9(SeekableReadStream &stream, bool colorCodes = false);
-
-	/** Read UTF-16LE out of a stream. */
-	void readUTF16LE(SeekableReadStream &stream);
-	/** Read UTF-16LE out of a stream. */
-	void readFixedUTF16LE(SeekableReadStream &stream, uint32 length);
-	/** Read a line of UTF-16LE out of a stream. */
-	void readLineUTF16LE(SeekableReadStream &stream);
-
-	/** Read UTF-16BE out of a stream. */
-	void readUTF16BE(SeekableReadStream &stream);
-	/** Read UTF-16BE out of a stream. */
-	void readFixedUTF16BE(SeekableReadStream &stream, uint32 length);
-	/** Read a line of UTF-16BE out of a stream. */
-	void readLineUTF16BE(SeekableReadStream &stream);
-
-	/** Read UTF8 out of a stream. */
-	void readUTF8(SeekableReadStream &stream);
-	/** Read a line of UTF8 out of a stream. */
-	void readLineUTF8(SeekableReadStream &stream);
-
 	/** Formatted printer, works like sprintf(). */
 	static UString sprintf(const char *s, ...);
 
@@ -222,8 +187,8 @@ public:
 
 	static void splitTextTokens(const UString &text, std::vector<UString> &tokens);
 
-	static uint32 tolower(uint32 c);
-	static uint32 toupper(uint32 c);
+	static uint32 toLower(uint32 c);
+	static uint32 toUpper(uint32 c);
 
 	static bool isASCII(uint32 c); ///< Is the character an ASCII character?
 
@@ -240,29 +205,11 @@ private:
 
 	uint32 _size;
 
-	/** Read single-byte data. */
-	void readSingleByte(SeekableReadStream &stream, std::vector<char> &data);
-	/** Read single-byte data. */
-	void readSingleByte(SeekableReadStream &stream, std::vector<char> &data, uint32 length);
-
-	/** Read little-endian double-byte data. */
-	void readDoubleByteLE(SeekableReadStream &stream, std::vector<uint16> &data);
-	/** Read little-endian double-byte data. */
-	void readDoubleByteLE(SeekableReadStream &stream, std::vector<uint16> &data, uint32 length);
-
-	/** Read big-endian double-byte data. */
-	void readDoubleByteBE(SeekableReadStream &stream, std::vector<uint16> &data);
-	/** Read big-endian double-byte data. */
-	void readDoubleByteBE(SeekableReadStream &stream, std::vector<uint16> &data, uint32 length);
-
-	static void parseColorColors(std::vector<char> &data);
-
 	void recalculateSize();
 };
 
 
 // Right-binding concatenation operators
-
 static inline UString operator+(const std::string &left, const UString &right) {
 	return UString(left) + right;
 }
@@ -271,15 +218,6 @@ static inline UString operator+(const char *left, const UString &right) {
 	return UString(left) + right;
 }
 
-// Static comparison functions
-
-static inline bool compareUStringCaseSensitive(const UString &str1, const UString &str2) {
-	return str1.less(str2);
-}
-
-static inline bool compareUStringCaseInsensitive(const UString &str1, const UString &str2) {
-	return str1.lessIgnoreCase(str2);
-}
 
 // Hash functions
 
@@ -299,7 +237,7 @@ struct hashUStringCaseInsensitive {
 		std::size_t seed = 0;
 
 		for (UString::iterator it = str.begin(); it != str.end(); ++it)
-			boost::hash_combine<uint32>(seed, UString::tolower(*it));
+			boost::hash_combine<uint32>(seed, UString::toLower(*it));
 
 		return seed;
 	}

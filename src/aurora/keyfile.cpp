@@ -120,8 +120,7 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 }
 
 void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
-	if (!key.seek(offset))
-		throw Common::Exception(Common::kSeekError);
+	key.seek(offset);
 
 	for (std::vector<Common::UString>::iterator d = _dataFiles.begin(); d != _dataFiles.end(); ++d) {
 		key.skip(4); // File size of the data file
@@ -138,7 +137,9 @@ void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 		}
 
 		uint32 curPos = key.seekTo(nameOffset);
-		d->readFixedASCII(key, nameSize);
+
+		*d = Common::readStringFixed(key, Common::kEncodingASCII, nameSize);
+
 		key.seekTo(curPos);
 
 		AuroraFile::cleanupPath(*d);
@@ -146,8 +147,7 @@ void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 }
 
 void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
-	if (!key.seek(offset))
-		throw Common::Exception(Common::kSeekError);
+	key.seek(offset);
 
 	uint32 index = 0;
 	ResourceList::iterator   res = _resources.begin();
@@ -155,7 +155,7 @@ void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
 		iRes->dataFile = 0;
 
-		res->name.readFixedASCII(key, 16);
+		res->name  = Common::readStringFixed(key, Common::kEncodingASCII, 16);
 		res->type  = (FileType) key.readUint16LE();
 		res->index = index;
 

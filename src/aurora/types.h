@@ -25,8 +25,7 @@
 #ifndef AURORA_TYPES_H
 #define AURORA_TYPES_H
 
-#include <string>
-#include <list>
+#include <vector>
 
 #include "src/common/types.h"
 
@@ -172,6 +171,14 @@ enum FileType {
 	kFileTypeFSM            =  3022, ///< Finite State Machine data.
 	kFileTypeART            =  3023, ///< Area enviroment settings, INI.
 	kFileTypeBIP            =  3028, ///< Lipsync data, binary LIP.
+	kFileTypeMDB2           =  4000,
+	kFileTypeMDA2           =  4001,
+	kFileTypeSPT2           =  4002,
+	kFileTypeGR2            =  4003,
+	kFileTypeFXA            =  4004,
+	kFileTypeFXE            =  4005,
+	kFileTypeJPG2           =  4007,
+	kFileTypePWC            =  4008,
 	kFileType1DA            =  9996, ///< Table data, 1-dimensional text array.
 	kFileTypeERF            =  9997, ///< Module resources.
 	kFileTypeBIF            =  9998, ///< Game resource data.
@@ -184,28 +191,34 @@ enum FileType {
 
 	// Found in NWN2's ZIP files
 	kFileTypeZIP            = 20000, ///< Face bone definitions, FaceFX Actor.
-	kFileTypeFXA            = 20001, ///< Face bone definitions, FaceFX Actor.
-	kFileTypeFXE            = 20002, ///< Facial animations, FaceFX.
-	kFileTypeFXM            = 20003, ///< Face metadata, FaceFX.
-	kFileTypeFXS            = 20004, ///< Face metadata, FaceFX.
-	kFileTypeXML            = 20005, ///< Extensible Markup Language.
-	kFileTypeWLK            = 20006, ///< Walk mesh.
-	kFileTypeUTR            = 20007, ///< Tree template (user), GFF.
-	kFileTypeSEF            = 20008, ///< Special effect file.
-	kFileTypePFX            = 20009, ///< Particle effect.
-	kFileTypeTFX            = 20010, ///< Trail effect.
-	kFileTypeIFX            = 20011,
-	kFileTypeLFX            = 20012, ///< Line effect.
-	kFileTypeBBX            = 20013, ///< Billboard effect.
-	kFileTypePFB            = 20014, ///< Prefab blueprint.
-	kFileTypeGR2            = 20015, ///< Skeleton animation, Granny 3D.
-	kFileTypeUPE            = 20016,
-	kFileTypeUSC            = 20017,
-	kFileTypeULT            = 20018, ///< Light template (user), GFF.
-	kFileTypeFX             = 20019,
-	kFileTypeMAX            = 20020,
-	kFileTypeDOC            = 20021,
-	kFileTypeSCC            = 20022,
+	kFileTypeFXM            = 20001, ///< Face metadata, FaceFX.
+	kFileTypeFXS            = 20002, ///< Face metadata, FaceFX.
+	kFileTypeXML            = 20003, ///< Extensible Markup Language.
+	kFileTypeWLK            = 20004, ///< Walk mesh.
+	kFileTypeUTR            = 20005, ///< Tree template (user), GFF.
+	kFileTypeSEF            = 20006, ///< Special effect file.
+	kFileTypePFX            = 20007, ///< Particle effect.
+	kFileTypeTFX            = 20008, ///< Trail effect.
+	kFileTypeIFX            = 20009,
+	kFileTypeLFX            = 20010, ///< Line effect.
+	kFileTypeBBX            = 20011, ///< Billboard effect.
+	kFileTypePFB            = 20012, ///< Prefab blueprint.
+	kFileTypeUPE            = 20013,
+	kFileTypeUSC            = 20014,
+	kFileTypeULT            = 20015, ///< Light template (user), GFF.
+	kFileTypeFX             = 20016,
+	kFileTypeMAX            = 20017,
+	kFileTypeDOC            = 20018,
+	kFileTypeSCC            = 20019,
+	kFileTypeWMP            = 20020, ///< World map, GFF.
+	kFileTypeOSC            = 20021,
+	kFileTypeTRN            = 20022,
+	kFileTypeUEN            = 20023,
+	kFileTypeROS            = 20024,
+	kFileTypeRST            = 20025,
+	kFileTypePTX            = 20026,
+	kFileTypeLTX            = 20027,
+	kFileTypeTRX            = 20028,
 
 	// Found in Sonic Chronicles: The Dark Brotherhood
 	kFileTypeNDS            = 21000,
@@ -269,15 +282,16 @@ enum FileType {
 	kFileTypePLIST          = 23004, ///< Mac property list (XML).
 
 	// Found Jade Empire
-	kFileTypeCRE            = 24000, ///< Creature template, GFF.
+	kFileTypeCRE            = 24000, ///< Creature, GFF.
 	kFileTypePSO            = 24001, ///< Shader.
 	kFileTypeVSO            = 24002, ///< Shader.
 	kFileTypeABC            = 24003, ///< Font, character descriptions.
 	kFileTypeSBM            = 24004, ///< Font, character bitmap data.
 	kFileTypePVD            = 24005,
 	kFileTypeAMP            = 24006,
-	kFileTypePLA            = 24007,
-	kFileTypePK             = 24008,
+	kFileTypePLA            = 24007, ///< Placeable, GFF.
+	kFileTypeTRG            = 24008, ///< Trigger, GFF.
+	kFileTypePK             = 24009,
 
 	// Found in Dragon Age II
 	kFileTypeALS            = 25000,
@@ -306,7 +320,10 @@ enum FileType {
 	kFileTypeXLS            = 25023,
 
 	// Found in the iOS version of Knights of the Old Republic
-	kFileTypeBZF            = 26000  ///< Game resource data, LZMA-compressed BIF
+	kFileTypeBZF            = 26000, ///< Game resource data, LZMA-compressed BIF
+
+	// Found in The Witcher
+	kFileTypeADV            = 27000  ///< Extra adventure modules, ERF.
 };
 
 enum GameID {
@@ -316,7 +333,7 @@ enum GameID {
 	kGameIDKotOR      = 3, ///< Star Wars: Knights of the Old Republic.
 	kGameIDKotOR2     = 4, ///< Star Wars: Knights of the Old Republic II - The Sith Lords.
 	kGameIDJade       = 5, ///< Jade Empire.
-	kGameIDTheWitcher = 6, ///< The Witcher.
+	kGameIDWitcher    = 6, ///< The Witcher.
 	kGameIDSonic      = 7, ///< Sonic Chronicles: The Dark Brotherhood.
 	kGameIDDragonAge  = 8, ///< Dragon Age: Origins.
 	kGameIDDragonAge2 = 9  ///< Dragon Age II.
@@ -350,52 +367,13 @@ enum Platform {
 	kPlatformXbox,         ///< Microsoft Xbox
 	kPlatformPS3,          ///< Sony PlayStation 3
 	kPlatformXbox360,      ///< Microsoft Xbox 360
+	kPlatformLinux,        ///< GNU/Linux
 	kPlatformUnknown       ///< Unknown (must be last)
 };
 
-enum Language {
-	kLanguageEnglishMale              =   0,
-	kLanguageEnglishFemale            =   1,
-	kLanguageFrenchMale               =   2,
-	kLanguageFrenchFemale             =   3,
-	kLanguageGermanMale               =   4,
-	kLanguageGermanFemale             =   5,
-	kLanguageItalianMale              =   6,
-	kLanguageItalianFemale            =   7,
-	kLanguageSpanishMale              =   8,
-	kLanguageSpanishFemale            =   9,
-	kLanguagePolishMale               =  10,
-	kLanguagePolishFemale             =  11,
-	kLanguageKoreanMale               = 256,
-	kLanguageKoreanFemale             = 257,
-	kLanguageChineseTraditionalMale   = 258,
-	kLanguageChineseTraditionalFemale = 259,
-	kLanguageChineseSimplifiedMale    = 260,
-	kLanguageChineseSimplifiedFemale  = 261,
-	kLanguageJapaneseMale             = 262,
-	kLanguageJapaneseFemale           = 263,
-
-	// As used by The Witcher, but +1000
-	kLanguageWitcherDefault            = 1000,
-	kLanguageWitcherEnglish            = 1001,
-	kLanguageWitcherFinalEnglish       = 1002,
-	kLanguageWitcherFinalEnglishShort  = 1003,
-	kLanguageWitcherPolish             = 1005,
-	kLanguageWitcherGerman             = 1010,
-	kLanguageWitcherFrench             = 1011,
-	kLanguageWitcherSpanish            = 1012,
-	kLanguageWitcherItalian            = 1013,
-	kLanguageWitcherRussian            = 1014,
-	kLanguageWitcherCzech              = 1015,
-	kLanguageWitcherHungarian          = 1016,
-	kLanguageWitcherKorean             = 1020, // UTF8
-	kLanguageWitcherChineseTraditional = 1021, // UTF8
-	kLanguageWitcherChineseSimplified  = 1022, // UTF8
-
-	kLanguageInvalid                   = 0xFFFFFFFF
-};
-
-static const uint32 kStrRefInvalid = 0xFFFFFFFF;
+static const uint32 kObjectIDInvalid = 0xFFFFFFFF;
+static const uint32 kFieldIDInvalid  = 0xFFFFFFFF;
+static const uint32 kStrRefInvalid   = 0xFFFFFFFF;
 
 } // End of namespace Aurora
 

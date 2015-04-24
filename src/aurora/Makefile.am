@@ -8,6 +8,7 @@ noinst_LTLIBRARIES = libaurora.la
 noinst_HEADERS = \
                  types.h \
                  util.h \
+                 language.h \
                  locstring.h \
                  aurorafile.h \
                  archive.h \
@@ -22,6 +23,7 @@ noinst_HEADERS = \
 
 libaurora_la_SOURCES = \
                        util.cpp \
+                       language.cpp \
                        locstring.cpp \
                        aurorafile.cpp \
                        archive.cpp \

@@ -31,14 +31,25 @@
 
 namespace Common {
 
-void WriteStream::writeStream(ReadStream &stream) {
+uint32 WriteStream::writeStream(ReadStream &stream, uint32 n) {
+	uint32 haveRead = 0;
+
 	byte buf[4096];
+	while (!stream.eos() && (n > 0)) {
+		uint32 toRead  = MIN<uint32>(4096, n);
+		uint32 bufRead = stream.read(buf, toRead);
 
-	while (!stream.eos()) {
-		uint32 n = stream.read(buf, 4096);
+		write(buf, bufRead);
 
-		write(buf, n);
+		n        -= bufRead;
+		haveRead += bufRead;
 	}
+
+	return haveRead;
+}
+
+uint32 WriteStream::writeStream(ReadStream &stream) {
+	return writeStream(stream, 0xFFFFFFFF);
 }
 
 void WriteStream::writeString(const UString &str) {
@@ -77,9 +88,11 @@ uint32 MemoryReadStream::read(void *dataPtr, uint32 dataSize) {
 	return dataSize;
 }
 
-bool MemoryReadStream::seek(int32 offs, int whence) {
-	// Pre-Condition
+void MemoryReadStream::seek(int32 offs, int whence) {
 	assert(_pos <= _size);
+
+	uint32 newPos = _pos;
+
 	switch (whence) {
 	case SEEK_END:
 		// SEEK_END works just like SEEK_SET, only 'reversed',
@@ -87,29 +100,29 @@ bool MemoryReadStream::seek(int32 offs, int whence) {
 		offs = _size + offs;
 		// Fall through
 	case SEEK_SET:
-		_ptr = _ptrOrig + offs;
-		_pos = offs;
+		newPos = offs;
 		break;
 
 	case SEEK_CUR:
-		_ptr += offs;
-		_pos += offs;
+		newPos += offs;
 		break;
 	}
-	// Post-Condition
-	assert(_pos <= _size);
+
+	if (newPos > _size)
+		throw Exception(kSeekError);
+
+	_pos = newPos;
+	_ptr = _ptrOrig + newPos;
 
 	// Reset end-of-stream flag on a successful seek
 	_eos = false;
-	return true; // FIXME: STREAM REWRITE
 }
 
 
 uint32 SeekableReadStream::seekTo(uint32 offset) {
 	uint32 curPos = pos();
 
-	if (!seek(offset))
-		throw Exception(kSeekError);
+	seek(offset);
 
 	return curPos;
 }
@@ -137,28 +150,30 @@ SeekableSubReadStream::SeekableSubReadStream(SeekableReadStream *parentStream, u
 	_eos = false;
 }
 
-bool SeekableSubReadStream::seek(int32 offset, int whence) {
+void SeekableSubReadStream::seek(int32 offset, int whence) {
 	assert(_pos >= _begin);
 	assert(_pos <= _end);
+
+	uint32 newPos = _pos;
 
 	switch (whence) {
 	case SEEK_END:
 		offset = size() + offset;
 		// fallthrough
 	case SEEK_SET:
-		_pos = _begin + offset;
+		newPos = _begin + offset;
 		break;
 	case SEEK_CUR:
-		_pos += offset;
+		newPos += offset;
 	}
 
-	assert(_pos >= _begin);
-	assert(_pos <= _end);
+	if ((newPos < _begin) || (newPos > _end))
+		throw Exception(kSeekError);
 
-	bool ret = _parentStream->seek(_pos);
-	if (ret) _eos = false; // reset eos on successful seek
+	_pos = newPos;
 
-	return ret;
+	_parentStream->seek(_pos);
+	_eos = false; // reset eos on successful seek
 }
 
 BufferedReadStream::BufferedReadStream(ReadStream *parentStream, uint32 bufSize, bool disposeParentStream)
@@ -223,7 +238,7 @@ BufferedSeekableReadStream::BufferedSeekableReadStream(SeekableReadStream *paren
 	_parentStream(parentStream) {
 }
 
-bool BufferedSeekableReadStream::seek(int32 offset, int whence) {
+void BufferedSeekableReadStream::seek(int32 offset, int whence) {
 	// If it is a "local" seek, we may get away with "seeking" around
 	// in the buffer only.
 	// Note: We could try to handle SEEK_END and SEEK_SET, too, but
@@ -238,8 +253,6 @@ bool BufferedSeekableReadStream::seek(int32 offset, int whence) {
 		_pos = _bufSize;
 		_parentStream->seek(offset, whence);
 	}
-
-	return true; // FIXME: STREAM REWRITE
 }
 
 } // End of namespace Common

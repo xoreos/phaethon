@@ -22,10 +22,11 @@
  *  Handling BioWare's ERFs (encapsulated resource file).
  */
 
-#include "src/common/util.h"
-#include "src/common/error.h"
 #include "src/common/stream.h"
 #include "src/common/file.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/encoding.h"
 
 #include "src/aurora/erffile.h"
 #include "src/aurora/util.h"
@@ -37,6 +38,7 @@ static const uint32 kMODID     = MKTAG('M', 'O', 'D', ' ');
 static const uint32 kHAKID     = MKTAG('H', 'A', 'K', ' ');
 static const uint32 kSAVID     = MKTAG('S', 'A', 'V', ' ');
 static const uint32 kVersion1  = MKTAG('V', '1', '.', '0');
+static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
 static const uint32 kVersion2  = MKTAG('V', '2', '.', '0');
 static const uint32 kVersion22 = MKTAG('V', '2', '.', '2');
 static const uint32 kVersion3  = MKTAG('V', '3', '.', '0');
@@ -65,17 +67,19 @@ void ERFFile::load() {
 	if ((_id != kERFID) && (_id != kMODID) && (_id != kHAKID) && (_id != kSAVID))
 		throw Common::Exception("Not an ERF file");
 
-	if ((_version != kVersion1) && (_version != kVersion2) && (_version != kVersion22) && (_version != kVersion3))
+	if ((_version != kVersion1) && (_version != kVersion11) &&
+	    (_version != kVersion2) && (_version != kVersion22) &&
+	    (_version != kVersion3))
 		throw Common::Exception("Unsupported ERF file version %08X", _version);
 
-	if ((_version != kVersion1) && !_utf16le)
+	if ((_version != kVersion1) && (_version != kVersion11) && !_utf16le)
 		throw Common::Exception("ERF file version 2.0+, but not UTF-16LE");
 
 	try {
 
 		ERFHeader erfHeader;
 
-		readERFHeader  (erf, erfHeader);
+		readERFHeader(erf, erfHeader);
 
 		try {
 			readDescription(erf, erfHeader);
@@ -102,7 +106,7 @@ void ERFFile::load() {
 void ERFFile::readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header) {
 	uint32 resCount = 0;
 
-	if        (_version == kVersion1) {
+	if        ((_version == kVersion1) || (_version == kVersion11)) {
 
 		header.langCount = erf.readUint32LE(); // Number of languages for the description
 		erf.skip(4);                           // Number of bytes in the description
@@ -118,11 +122,11 @@ void ERFFile::readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header) 
 
 		erf.skip(116); // Reserved
 
-		_flags    = 0; // No flags in ERF V1.0
-		_moduleID = 0; // No module ID in ERF V1.0
+		_flags    = 0; // No flags in ERF V1.0 / V1.1
+		_moduleID = 0; // No module ID in ERF V1.0 / V1.1
 
-		header.stringTableSize = 0; // No string table in ERF V1.0
-		header.stringTable     = 0; // No string table in ERF V1.0
+		header.stringTableSize = 0; // No string table in ERF V1.0 / V1.1
+		header.stringTable     = 0; // No string table in ERF V1.0 / V1.1
 
 	} else if (_version == kVersion2) {
 
@@ -153,7 +157,7 @@ void ERFFile::readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header) 
 		_flags    = erf.readUint32LE();
 		_moduleID = erf.readUint32LE();
 
-		_passwordDigest.readFixedASCII(erf, 16);
+		_passwordDigest = Common::readStringFixed(erf, Common::kEncodingASCII, 16);
 
 		header.descriptionID   = 0;    // No description in ERF V2.2
 		header.offDescription  = 0;    // No description in ERF V2.2
@@ -171,7 +175,7 @@ void ERFFile::readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header) 
 		_flags    = erf.readUint32LE();
 		_moduleID = erf.readUint32LE();
 
-		_passwordDigest.readFixedASCII(erf, 16);
+		_passwordDigest = Common::readStringFixed(erf, Common::kEncodingASCII, 16);
 
 		header.stringTable = new char[header.stringTableSize];
 		if (erf.read(header.stringTable, header.stringTableSize) != header.stringTableSize) {
@@ -194,8 +198,7 @@ void ERFFile::readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header) 
 
 void ERFFile::readDescription(Common::SeekableReadStream &erf, const ERFHeader &header) {
 	if (_version == kVersion1) {
-		if (!erf.seek(header.offDescription))
-			throw Common::Exception(Common::kSeekError);
+		erf.seek(header.offDescription);
 
 		_description.readLocString(erf, header.descriptionID, header.langCount);
 	}
@@ -208,6 +211,11 @@ void ERFFile::readResources(Common::SeekableReadStream &erf, const ERFHeader &he
 
 		readV1KeyList(erf, header); // Read name and type part of the resource list
 		readV1ResList(erf, header); // Read offset and size part of the resource list
+
+	} else if (_version == kVersion11) {
+
+		readV11KeyList(erf, header); // Read name and type part of the resource list
+		readV1ResList (erf, header); // Read offset and size part of the resource list
 
 	} else if (_version == kVersion2) {
 
@@ -229,12 +237,24 @@ void ERFFile::readResources(Common::SeekableReadStream &erf, const ERFHeader &he
 }
 
 void ERFFile::readV1KeyList(Common::SeekableReadStream &erf, const ERFHeader &header) {
-	if (!erf.seek(header.offKeyList))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(header.offKeyList);
 
 	uint32 index = 0;
 	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++index, ++res) {
-		res->name.readFixedASCII(erf, 16);
+		res->name = Common::readStringFixed(erf, Common::kEncodingASCII, 16);
+		erf.skip(4); // Resource ID
+		res->type = (FileType) erf.readUint16LE();
+		erf.skip(2); // Reserved
+		res->index = index;
+	}
+}
+
+void ERFFile::readV11KeyList(Common::SeekableReadStream &erf, const ERFHeader &header) {
+	erf.seek(header.offKeyList);
+
+	uint32 index = 0;
+	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++index, ++res) {
+		res->name = Common::readStringFixed(erf, Common::kEncodingASCII, 32);
 		erf.skip(4); // Resource ID
 		res->type = (FileType) erf.readUint16LE();
 		erf.skip(2); // Reserved
@@ -243,8 +263,7 @@ void ERFFile::readV1KeyList(Common::SeekableReadStream &erf, const ERFHeader &he
 }
 
 void ERFFile::readV1ResList(Common::SeekableReadStream &erf, const ERFHeader &header) {
-	if (!erf.seek(header.offResList))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(header.offResList);
 
 	for (IResourceList::iterator res = _iResources.begin(); res != _iResources.end(); ++res) {
 		res->offset                         = erf.readUint32LE();
@@ -253,16 +272,13 @@ void ERFFile::readV1ResList(Common::SeekableReadStream &erf, const ERFHeader &he
 }
 
 void ERFFile::readV2ResList(Common::SeekableReadStream &erf, const ERFHeader &header) {
-	if (!erf.seek(header.offResList))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(header.offResList);
 
 	uint32 index = 0;
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
-		Common::UString name;
-
-		name.readFixedUTF16LE(erf, 32);
+		Common::UString name = Common::readStringFixed(erf, Common::kEncodingUTF16LE, 64);
 
 		res->name  = TypeMan.setFileType(name, kFileTypeNone);
 		res->type  = TypeMan.getFileType(name);
@@ -275,16 +291,13 @@ void ERFFile::readV2ResList(Common::SeekableReadStream &erf, const ERFHeader &he
 }
 
 void ERFFile::readV22ResList(Common::SeekableReadStream &erf, const ERFHeader &header) {
-	if (!erf.seek(header.offResList))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(header.offResList);
 
 	uint32 index = 0;
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
-		Common::UString name;
-
-		name.readFixedUTF16LE(erf, 32);
+		Common::UString name = Common::readStringFixed(erf, Common::kEncodingUTF16LE, 64);
 
 		res->name  = TypeMan.setFileType(name, kFileTypeNone);
 		res->type  = TypeMan.getFileType(name);
@@ -298,8 +311,7 @@ void ERFFile::readV22ResList(Common::SeekableReadStream &erf, const ERFHeader &h
 }
 
 void ERFFile::readV3ResList(Common::SeekableReadStream &erf, const ERFHeader &header) {
-	if (!erf.seek(header.offResList))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(header.offResList);
 
 	uint32 index = 0;
 	ResourceList::iterator   res = _resources.begin();
@@ -363,8 +375,7 @@ Common::SeekableReadStream *ERFFile::getResource(uint32 index) const {
 	Common::File erf;
 	open(erf);
 
-	if (!erf.seek(res.offset))
-		throw Common::Exception(Common::kSeekError);
+	erf.seek(res.offset);
 
 	byte *compressedData = new byte[res.packedSize];
 

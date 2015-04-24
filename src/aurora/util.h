@@ -49,6 +49,7 @@ public:
 
 	/** Return the file type of a file name, detected by its extension. */
 	FileType getFileType(const Common::UString &path);
+
 	/** Return the file type of a file name, detected by its hashed extension. */
 	FileType getFileType(Common::HashAlgo algo, uint64 hashedExtension);
 

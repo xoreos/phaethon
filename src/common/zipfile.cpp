@@ -27,6 +27,7 @@
 #include "src/common/zipfile.h"
 #include "src/common/error.h"
 #include "src/common/util.h"
+#include "src/common/encoding.h"
 #include "src/common/stream.h"
 #include "src/common/file.h"
 
@@ -69,8 +70,7 @@ void ZipFile::load() {
 	zip.skip(4); // Size of central directory
 
 	uint32 centralDirPos = zip.readUint32LE();
-	if (!zip.seek(centralDirPos))
-		throw Exception(kSeekError);
+	zip.seek(centralDirPos);
 
 	uint32 tag = zip.readUint32LE();
 	if (tag != 0x02014B50)
@@ -97,8 +97,7 @@ void ZipFile::load() {
 
 		iFile.offset = zip.readUint32LE();
 
-		file.name.readFixedASCII(zip, nameLength);
-		file.name.tolower();
+		file.name = readStringFixed(zip, kEncodingASCII, nameLength).toLower();
 
 		zip.skip(extraLength);
 		zip.skip(commentLength);
@@ -140,8 +139,7 @@ const ZipFile::IFile &ZipFile::getIFile(uint32 index) const {
 void ZipFile::getFileProperties(Common::SeekableReadStream &zip, const IFile &file,
 		uint16 &compMethod, uint32 &compSize, uint32 &realSize) const {
 
-	if (!zip.seek(file.offset))
-		throw Exception(kSeekError);
+	zip.seek(file.offset);
 
 	uint32 tag = zip.readUint32LE();
 	if (tag != 0x04034B50)
@@ -280,9 +278,11 @@ uint32 ZipFile::findCentralDirectoryEnd(SeekableReadStream &zip) {
 
 		uReadSize = MIN<uint32>(BUFREADCOMMENT + 4, uSizeFile - uReadPos);
 
-		if (!zip.seek(uReadPos)) {
-			uPosFound = 0;
-			break;
+		try {
+			zip.seek(uReadPos);
+		} catch (...) {
+			delete[] buf;
+			return 0;
 		}
 
 		if (zip.read(buf, uReadSize) != uReadSize) {

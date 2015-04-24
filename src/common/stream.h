@@ -34,8 +34,12 @@
 #include "src/common/types.h"
 #include "src/common/endianness.h"
 #include "src/common/util.h"
+#include "src/common/error.h"
 
 namespace Common {
+
+/** Return value for end-of-file. See ReadStream::readChar(). */
+static const uint32 kEOF = 0xFFFFFFFF;
 
 class MemoryReadStream;
 class ReadStream;
@@ -183,8 +187,11 @@ public:
 		writeUint64BE((uint64)convertIEEEDouble(value));
 	}
 
+	/** Copy n bytes of the given stream into the stream. */
+	uint32 writeStream(ReadStream &stream, uint32 n);
+
 	/** Copy the complete contents of the given stream. */
-	void writeStream(ReadStream &stream);
+	uint32 writeStream(ReadStream &stream);
 
 	/**
 	 *  Write the given string to the stream.
@@ -222,110 +229,112 @@ public:
 
 	/**
 	 * Read an unsigned byte from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	byte readByte() {
-		byte b = 0; // FIXME: remove initialisation
-		read(&b, 1);
+		byte b;
+		if (read(&b, 1) != 1)
+			throw Exception(kReadError);
+
 		return b;
 	}
 
 	/**
 	 * Read a signed byte from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int8 readSByte() {
 		return (int8)readByte();
 	}
 
 	/**
+	 * Reads the next character from stream and returns it as an unsigned char
+	 * cast to an uint32, or kEOF on end of file or error. Similar to fgetc().
+	 */
+	uint32 readChar() {
+		byte b;
+		try {
+			b = readByte();
+		} catch (...) {
+			return kEOF;
+		}
+
+		return b;
+	}
+
+	/**
 	 * Read an unsigned 16-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint16 readUint16LE() {
 		uint16 val;
-		read(&val, 2);
+		if (read(&val, 2) != 2)
+			throw Exception(kReadError);
+
 		return FROM_LE_16(val);
 	}
 
 	/**
 	 * Read an unsigned 32-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint32 readUint32LE() {
 		uint32 val;
-		read(&val, 4);
+		if (read(&val, 4) != 4)
+			throw Exception(kReadError);
+
 		return FROM_LE_32(val);
 	}
 
 	/**
 	 * Read an unsigned 64-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint64 readUint64LE() {
 		uint64 val;
-		read(&val, 8);
+		if (read(&val, 8) != 8)
+			throw Exception(kReadError);
+
 		return FROM_LE_64(val);
 	}
 
 	/**
 	 * Read an unsigned 16-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint16 readUint16BE() {
 		uint16 val;
-		read(&val, 2);
+		if (read(&val, 2) != 2)
+			throw Exception(kReadError);
+
 		return FROM_BE_16(val);
 	}
 
 	/**
 	 * Read an unsigned 32-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint32 readUint32BE() {
 		uint32 val;
-		read(&val, 4);
+		if (read(&val, 4) != 4)
+			throw Exception(kReadError);
+
 		return FROM_BE_32(val);
 	}
 
 	/**
 	 * Read an unsigned 64-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	uint64 readUint64BE() {
 		uint64 val;
-		read(&val, 8);
+		if (read(&val, 8) != 8)
+			throw Exception(kReadError);
+
 		return FROM_BE_64(val);
 	}
 
 	/**
 	 * Read a signed 16-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int16 readSint16LE() {
 		return (int16)readUint16LE();
@@ -334,9 +343,6 @@ public:
 	/**
 	 * Read a signed 32-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int32 readSint32LE() {
 		return (int32)readUint32LE();
@@ -345,9 +351,6 @@ public:
 	/**
 	 * Read a signed 64-bit word stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int64 readSint64LE() {
 		return (int64)readUint64LE();
@@ -356,9 +359,6 @@ public:
 	/**
 	 * Read a signed 16-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int16 readSint16BE() {
 		return (int16)readUint16BE();
@@ -367,9 +367,6 @@ public:
 	/**
 	 * Read a signed 32-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int32 readSint32BE() {
 		return (int32)readUint32BE();
@@ -378,9 +375,6 @@ public:
 	/**
 	 * Read a signed 64-bit word stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE int64 readSint64BE() {
 		return (int64)readUint64BE();
@@ -389,9 +383,6 @@ public:
 	/**
 	 * Read a 32-bit IEEE float stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE float readIEEEFloatLE() {
 		return convertIEEEFloat(readUint32LE());
@@ -400,9 +391,6 @@ public:
 	/**
 	 * Read a 32-bit IEEE float stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE float readIEEEFloatBE() {
 		return convertIEEEFloat(readUint32BE());
@@ -411,9 +399,6 @@ public:
 	/**
 	 * Read a 64-bit IEEE double stored in little endian (LSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE double readIEEEDoubleLE() {
 		return convertIEEEDouble(readUint64LE());
@@ -422,9 +407,6 @@ public:
 	/**
 	 * Read a 64-bit IEEE double stored in big endian (MSB first) order
 	 * from the stream and return it.
-	 * Performs no error checking. The return value is undefined
-	 * if a read error occurred (for which client code can check by
-	 * calling err() and eos() ).
 	 */
 	FORCEINLINE double readIEEEDoubleBE() {
 		return convertIEEEDouble(readUint64BE());
@@ -475,21 +457,25 @@ public:
 	 * position indicator, or end-of-file, respectively. A successful call
 	 * to the seek() method clears the end-of-file indicator for the stream.
 	 *
-	 * @param  offset the relative offset in bytes.
-	 * @param  whence the seek reference: SEEK_SET, SEEK_CUR, or SEEK_END.
-	 * @return true on success, false in case of a failure.
+	 * On error, or when trying to seek outside the stream, a kSeekError
+	 * exception is thrown.
+	 *
+	 * @param offset the relative offset in bytes.
+	 * @param whence the seek reference: SEEK_SET, SEEK_CUR, or SEEK_END.
 	 */
-	virtual bool seek(int32 offset, int whence = SEEK_SET) = 0;
+	virtual void seek(int32 offset, int whence = SEEK_SET) = 0;
 
 	/**
 	 * Skip the specified number of bytes, adding that offset to the current
 	 * position in the stream. A successful call to the skip() method clears
 	 * the end-of-file indicator for the stream.
 	 *
-	 * @param  offset the number of bytes to skip.
-	 * @return true on success, false in case of a failure.
+	 * On error, or when trying to skip outside the stream, a kSeekError
+	 * exception is thrown.
+	 *
+	 * @param offset the number of bytes to skip.
 	 */
-	virtual bool skip(uint32 offset) { return seek(offset, SEEK_CUR); }
+	virtual void skip(uint32 offset) { return seek(offset, SEEK_CUR); }
 
 	/** Seek to the specified position, returning the previous position. */
 	virtual uint32 seekTo(uint32 offset);
@@ -549,7 +535,7 @@ public:
 	virtual int32 pos() const { return _pos - _begin; }
 	virtual int32 size() const { return _end - _begin; }
 
-	virtual bool seek(int32 offset, int whence = SEEK_SET);
+	virtual void seek(int32 offset, int whence = SEEK_SET);
 };
 
 /**
@@ -637,7 +623,7 @@ public:
 	virtual int32 pos() const { return _parentStream->pos() - (_bufSize - _pos); }
 	virtual int32 size() const { return _parentStream->size(); }
 
-	virtual bool seek(int32 offset, int whence = SEEK_SET);
+	virtual void seek(int32 offset, int whence = SEEK_SET);
 };
 
 
@@ -687,7 +673,7 @@ public:
 	int32 pos() const { return _pos; }
 	int32 size() const { return _size; }
 
-	bool seek(int32 offs, int whence = SEEK_SET);
+	void seek(int32 offs, int whence = SEEK_SET);
 };
 
 
@@ -772,13 +758,14 @@ private:
 	uint32 _pos;
 	bool _disposeMemory;
 
-	void ensureCapacity(uint32 new_len) {
-		if (new_len <= _capacity)
+public:
+	void reserve(uint32 s) {
+		if (s <= _capacity)
 			return;
 
 		byte *old_data = _data;
 
-		_capacity = new_len + 32;
+		_capacity = s + 32;
 		_data = new byte[_capacity];
 		_ptr = _data + _pos;
 
@@ -787,9 +774,18 @@ private:
 			std::memcpy(_data, old_data, _size);
 			delete[] old_data;
 		}
+	}
+
+private:
+	void ensureCapacity(uint32 new_len) {
+		if (new_len <= _capacity)
+			return;
+
+		reserve(new_len);
 
 		_size = new_len;
 	}
+
 public:
 	MemoryWriteStreamDynamic(bool disposeMemory = false) : _capacity(0), _size(0), _ptr(0), _data(0), _pos(0), _disposeMemory(disposeMemory) {}
 

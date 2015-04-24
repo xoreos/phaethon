@@ -169,12 +169,21 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeRSV,            ".rsv"},
 	{kFileTypeSIG,            ".sig"},
 	{kFileTypeMAB,            ".mab"},
-	{kFileTypeQST2,           ".qst"},
+	{kFileTypeQST2,           ".qst2"},
 	{kFileTypeSTO,            ".sto"},
-	{kFileTypeMDX2,           ".mdx"},
-	{kFileTypeTXB2,           ".txb"},
+	{kFileTypeMDX2,           ".mdx2"},
+	{kFileTypeTXB2,           ".txb2"},
+	{kFileTypeFSM,            ".fsm"},
 	{kFileTypeART,            ".art"},
 	{kFileTypeBIP,            ".bip"},
+	{kFileTypeMDB2,           ".mdb2"},
+	{kFileTypeMDA2,           ".mda2"},
+	{kFileTypeSPT2,           ".spt2"},
+	{kFileTypeGR2,            ".gr2"},
+	{kFileTypeFXA,            ".fxa"},
+	{kFileTypeFXE,            ".fxe"},
+	{kFileTypeJPG2,           ".jpg2"},
+	{kFileTypePWC,            ".pwc"},
 	{kFileType1DA,            ".1da"},
 	{kFileTypeERF,            ".erf"},
 	{kFileTypeBIF,            ".bif"},
@@ -185,8 +194,6 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeFPT,            ".fpt"},
 
 	{kFileTypeZIP,            ".zip"},
-	{kFileTypeFXA,            ".fxa"},
-	{kFileTypeFXE,            ".fxe"},
 	{kFileTypeFXM,            ".fxm"},
 	{kFileTypeFXS,            ".fxs"},
 	{kFileTypeXML,            ".xml"},
@@ -199,7 +206,6 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeLFX,            ".lfx"},
 	{kFileTypeBBX,            ".bbx"},
 	{kFileTypePFB,            ".pfb"},
-	{kFileTypeGR2,            ".gr2"},
 	{kFileTypeUPE,            ".upe"},
 	{kFileTypeUSC,            ".usc"},
 	{kFileTypeULT,            ".ult"},
@@ -207,6 +213,15 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeMAX,            ".max"},
 	{kFileTypeDOC,            ".doc"},
 	{kFileTypeSCC,            ".scc"},
+	{kFileTypeWMP,            ".wmp"},
+	{kFileTypeOSC,            ".osc"},
+	{kFileTypeTRN,            ".trn"},
+	{kFileTypeUEN,            ".uen"},
+	{kFileTypeROS,            ".ros"},
+	{kFileTypeRST,            ".rst"},
+	{kFileTypePTX,            ".ptx"},
+	{kFileTypeLTX,            ".ltx"},
+	{kFileTypeTRX,            ".trx"},
 
 	{kFileTypeNDS,            ".nds"},
 	{kFileTypePAL,            ".pal"},
@@ -274,6 +289,7 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypePVD,            ".pvd"},
 	{kFileTypeAMP,            ".amp"},
 	{kFileTypePLA,            ".pla"},
+	{kFileTypeTRG,            ".trg"},
 	{kFileTypePK,             ".pk" },
 
 	{kFileTypeALS,            ".als"},
@@ -345,8 +361,7 @@ FileTypeManager::~FileTypeManager() {
 FileType FileTypeManager::getFileType(const Common::UString &path) {
 	buildExtensionLookup();
 
-	Common::UString ext = Common::FilePath::getExtension(path);
-	ext.tolower();
+	Common::UString ext = Common::FilePath::getExtension(path).toLower();
 
 	ExtensionLookup::const_iterator t = _extensionLookup.find(ext);
 	if (t != _extensionLookup.end())
@@ -448,7 +463,7 @@ ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hash
 
 Common::UString getPlatformDescription(Platform platform) {
 	static const char *names[] = {
-		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "Unknown"
+		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "GNU/Linux", "Unknown"
 	};
 
 	return names[platform];

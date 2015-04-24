@@ -22,9 +22,10 @@
  *  Handling BioWare's RIMs (resource archives).
  */
 
+#include "src/common/stream.h"
 #include "src/common/util.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/encoding.h"
 
 #include "src/aurora/rimfile.h"
 
@@ -60,8 +61,6 @@ void RIMFile::load() {
 	uint32 resCount   = rim.readUint32LE(); // Number of resources in the RIM
 	uint32 offResList = rim.readUint32LE(); // Offset to the resource list
 
-	rim.skip(116); // Reserved
-
 	_resources.resize(resCount);
 	_iResources.resize(resCount);
 
@@ -81,14 +80,13 @@ void RIMFile::load() {
 }
 
 void RIMFile::readResList(Common::SeekableReadStream &rim, uint32 offset) {
-	if (!rim.seek(offset))
-		throw Common::Exception(Common::kSeekError);
+	rim.seek(offset);
 
 	uint32 index = 0;
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
-		res->name.readFixedASCII(rim, 16);
+		res->name    = Common::readStringFixed(rim, Common::kEncodingASCII, 16);
 		res->type    = (FileType) rim.readUint16LE();
 		res->index   = index;
 		rim.skip(4 + 2); // Resource ID + Reserved
@@ -120,8 +118,7 @@ Common::SeekableReadStream *RIMFile::getResource(uint32 index) const {
 	Common::File rim;
 	open(rim);
 
-	if (!rim.seek(res.offset))
-		throw Common::Exception(Common::kSeekError);
+	rim.seek(res.offset);
 
 	Common::SeekableReadStream *resStream = rim.readStream(res.size);
 

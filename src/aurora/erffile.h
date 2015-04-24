@@ -82,7 +82,7 @@ private:
 
 	/** Internal resource information. */
 	struct IResource {
-		uint32 offset;       ///< The offset of the resource within the BIF.
+		uint32 offset;       ///< The offset of the resource within the ERF.
 		uint32 packedSize;   ///< The resource's packed size.
 		uint32 unpackedSize; ///< The resource's unpacked size.
 	};
@@ -118,6 +118,9 @@ private:
 	// V1.0
 	void readV1ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
 	void readV1KeyList(Common::SeekableReadStream &erf, const ERFHeader &header);
+
+	// V1.1
+	void readV11KeyList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V2.0
 	void readV2ResList(Common::SeekableReadStream &erf, const ERFHeader &header);

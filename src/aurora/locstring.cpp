@@ -24,76 +24,11 @@
 
 #include "src/common/util.h"
 #include "src/common/stream.h"
+#include "src/common/encoding.h"
 
 #include "src/aurora/locstring.h"
+#include "src/aurora/language.h"
 #include "src/aurora/aurorafile.h"
-
-/** A giant array to quickly map language IDs to storage space. */
-static const int languageToStorage[] = {
- 0 , 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-20, 21, 22,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 12, 13, 14, 15,
-16, 17, 18, 19,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 0,  1,  2,  3,  5, 10, 11, 12, 13, 14, 15, 16, 20, 21, 22
-};
-
-/** Quickly map a language ID to storage space. */
-static inline int mapLanguageToStorage(Aurora::Language language) {
-	if (((int) language) >= ARRAYSIZE(languageToStorage))
-		return 0;
-
-	int n = languageToStorage[(int) language];
-	if ((n < 0) || (n >= Aurora::LocString::kStringCount))
-		return 0;
-
-	return n;
-}
 
 namespace Aurora {
 
@@ -106,8 +41,7 @@ LocString::~LocString() {
 void LocString::clear() {
 	_id = kStrRefInvalid;
 
-	for (int i = 0; i < kStringCount; i++)
-		_strings[i].clear();
+	_strings.clear();
 }
 
 uint32 LocString::getID() const {
@@ -118,38 +52,78 @@ void LocString::setID(uint32 id) {
 	_id = id;
 }
 
-bool LocString::hasString(Language language) const {
-	return !_strings[mapLanguageToStorage(language)].empty();
-}
-
-const Common::UString &LocString::getString(Language language) const {
-	return _strings[mapLanguageToStorage(language)];
-}
-
-void LocString::setString(Language language, const Common::UString &str) {
-	_strings[mapLanguageToStorage(language)] = str;
+bool LocString::hasString(uint32 languageID) const {
+	return _strings.find(languageID) != _strings.end();
 }
 
 static const Common::UString kEmpty;
-const Common::UString &LocString::getFirstString() const {
-	for (int i = 0; i < kStringCount; i++)
-		if (!_strings[i].empty())
-			return _strings[i];
+const Common::UString &LocString::getString(uint32 languageID) const {
+	StringMap::const_iterator s = _strings.find(languageID);
+	if (s == _strings.end())
+		return kEmpty;
 
+	return s->second;
+}
+
+void LocString::setString(uint32 languageID, const Common::UString &str) {
+	_strings[languageID] = str;
+}
+
+const Common::UString &LocString::getStrRefString() const {
+	if (_id == kStrRefInvalid)
+		return kEmpty;
+
+	// TODO: Return numerical ID?
 	return kEmpty;
 }
 
-void LocString::readString(Language language, Common::SeekableReadStream &stream) {
+const Common::UString &LocString::getFirstString() const {
+	if (_strings.empty())
+		return getStrRefString();
+
+	return _strings.begin()->second;
+}
+
+const Common::UString &LocString::getString() const {
+	// Try the external localized one
+	const Common::UString &refString = getStrRefString();
+	if (!refString.empty())
+		return refString;
+
+	// If all else fails, just get the first one available
+	return getFirstString();
+}
+
+void LocString::getStrings(std::vector<SubLocString> &str) const {
+	for (StringMap::const_iterator s = _strings.begin(); s != _strings.end(); ++s)
+		str.push_back(SubLocString(s->first, s->second));
+}
+
+void LocString::readString(uint32 languageID, Common::SeekableReadStream &stream) {
 	uint32 length = stream.readUint32LE();
 
-	// TODO: Different encodings for different languages, probably
-	_strings[mapLanguageToStorage(language)].readFixedLatin9(stream, length, true);
+	std::pair<StringMap::iterator, bool> s = _strings.insert(std::make_pair(languageID, ""));
+	if (length == 0)
+		return;
+
+	Common::MemoryReadStream *data   = stream.readStream(length);
+	Common::MemoryReadStream *parsed = preParseColorCodes(*data);
+
+	try {
+		s.first->second = Common::readString(*parsed, Common::kEncodingUTF8);
+	} catch (...) {
+		parsed->seek(0);
+		s.first->second = Common::readString(*parsed, Common::kEncodingCP1252);
+	}
+
+	delete parsed;
+	delete data;
 }
 
 void LocString::readLocSubString(Common::SeekableReadStream &stream) {
-	Language language = (Language) stream.readUint32LE();
+	uint32 languageID = stream.readUint32LE();
 
-	readString(language, stream);
+	readString(languageID, stream);
 }
 
 void LocString::readLocString(Common::SeekableReadStream &stream, uint32 id, uint32 count) {

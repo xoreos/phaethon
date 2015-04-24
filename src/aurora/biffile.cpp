@@ -83,8 +83,7 @@ void BIFFile::load() {
 }
 
 void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
-	if (!bif.seek(offset))
-		throw Common::Exception(Common::kSeekError);
+	bif.seek(offset);
 
 	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++res) {
 		bif.skip(4); // ID
@@ -108,8 +107,7 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 	Common::File bif;
 	open(bif);
 
-	if (!bif.seek(res.offset))
-		throw Common::Exception(Common::kSeekError);
+	bif.seek(res.offset);
 
 	Common::SeekableReadStream *resStream = bif.readStream(res.size);
 
