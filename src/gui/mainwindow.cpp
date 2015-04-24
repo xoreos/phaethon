@@ -178,17 +178,17 @@ void MainWindow::createLayout() {
 	splitterMainLog->SetSashPosition(480);
 }
 
-void MainWindow::onQuit(wxCommandEvent &event) {
+void MainWindow::onQuit(wxCommandEvent &UNUSED(event)) {
 	close();
 	Close(true);
 }
 
-void MainWindow::onAbout(wxCommandEvent &event) {
+void MainWindow::onAbout(wxCommandEvent &UNUSED(event)) {
 	AboutDialog *about = new AboutDialog(this);
 	about->show();
 }
 
-void MainWindow::onOpenDir(wxCommandEvent &event) {
+void MainWindow::onOpenDir(wxCommandEvent &UNUSED(event)) {
 	Common::UString path = dialogOpenDir("Open Aurora game directory");
 	if (path.empty())
 		return;
@@ -196,7 +196,7 @@ void MainWindow::onOpenDir(wxCommandEvent &event) {
 	open(path);
 }
 
-void MainWindow::onOpenFile(wxCommandEvent &event) {
+void MainWindow::onOpenFile(wxCommandEvent &UNUSED(event)) {
 	Common::UString path = dialogOpenFile("Open Aurora game resource file",
 	                                      "Aurora game resource (*.*)|*.*");
 	if (path.empty())
@@ -205,7 +205,7 @@ void MainWindow::onOpenFile(wxCommandEvent &event) {
 	open(path);
 }
 
-void MainWindow::onClose(wxCommandEvent &event) {
+void MainWindow::onClose(wxCommandEvent &UNUSED(event)) {
 	close();
 }
 

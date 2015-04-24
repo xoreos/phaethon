@@ -316,53 +316,53 @@ void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	}
 }
 
-void PanelPreviewImage::onColorChange(wxScrollEvent &event) {
+void PanelPreviewImage::onColorChange(wxScrollEvent &UNUSED(event)) {
 	_canvas->setColor(_sliderColor->GetValue());
 }
 
-void PanelPreviewImage::onZoomIn(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomIn(wxCommandEvent &UNUSED(event)) {
 	zoomStep(0.1);
 
 	updateZoomOp(kZoomOpLevel);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomOut(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomOut(wxCommandEvent &UNUSED(event)) {
 	zoomStep(-0.1);
 
 	updateZoomOp(kZoomOpLevel);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoom100(wxCommandEvent &event) {
+void PanelPreviewImage::onZoom100(wxCommandEvent &UNUSED(event)) {
 	zoomTo(1.0);
 
 	updateZoomOp(kZoomOpLevel);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomFit(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomFit(wxCommandEvent &UNUSED(event)) {
 	zoomFit(false, true);
 
 	updateZoomOp(kZoomOpFit);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomFitWidth(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomFitWidth(wxCommandEvent &UNUSED(event)) {
 	zoomFit(true, true);
 
 	updateZoomOp(kZoomOpFitWidth);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomShrinkFit(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomShrinkFit(wxCommandEvent &UNUSED(event)) {
 	zoomFit(false, false);
 
 	updateZoomOp(kZoomOpShrinkFit);
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &UNUSED(event)) {
 	zoomFit(true, false);
 
 	_lastZoomOperation = kZoomOpShrinkFitWidth;
@@ -371,7 +371,7 @@ void PanelPreviewImage::onZoomShrinkFitWidth(wxCommandEvent &event) {
 	updateZoomLevelText();
 }
 
-void PanelPreviewImage::onZoomNearest(wxCommandEvent &event) {
+void PanelPreviewImage::onZoomNearest(wxCommandEvent &UNUSED(event)) {
 	_canvas->setScaleQuality(_checkZoomNearest->GetValue() ?
 			ImageCanvas::kScaleQualityNearest : ImageCanvas::kScaleQualityBest);
 }

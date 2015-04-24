@@ -162,7 +162,7 @@ Common::UString PanelResourceInfo::dialogSaveFile(
 	return "";
 }
 
-void PanelResourceInfo::onExportRaw(wxCommandEvent &event) {
+void PanelResourceInfo::onExportRaw(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
@@ -173,7 +173,7 @@ void PanelResourceInfo::onExportRaw(wxCommandEvent &event) {
 	exportRaw(dialogSaveFile(title, mask, def));
 }
 
-void PanelResourceInfo::onExportBMUMP3(wxCommandEvent &event) {
+void PanelResourceInfo::onExportBMUMP3(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
@@ -186,7 +186,7 @@ void PanelResourceInfo::onExportBMUMP3(wxCommandEvent &event) {
 	exportBMUMP3(dialogSaveFile(title, mask, def));
 }
 
-void PanelResourceInfo::onExportWAV(wxCommandEvent &event) {
+void PanelResourceInfo::onExportWAV(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
@@ -199,7 +199,7 @@ void PanelResourceInfo::onExportWAV(wxCommandEvent &event) {
 	exportWAV(dialogSaveFile(title, mask, def));
 }
 
-void PanelResourceInfo::onExportTGA(wxCommandEvent &event) {
+void PanelResourceInfo::onExportTGA(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 

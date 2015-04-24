@@ -247,23 +247,23 @@ void PanelPreviewSound::stop() {
 		SoundMan.stopChannel(_sound);
 }
 
-void PanelPreviewSound::onPlay(wxCommandEvent &event) {
+void PanelPreviewSound::onPlay(wxCommandEvent &UNUSED(event)) {
 	play();
 }
 
-void PanelPreviewSound::onPause(wxCommandEvent &event) {
+void PanelPreviewSound::onPause(wxCommandEvent &UNUSED(event)) {
 	pause();
 }
 
-void PanelPreviewSound::onStop(wxCommandEvent &event) {
+void PanelPreviewSound::onStop(wxCommandEvent &UNUSED(event)) {
 	stop();
 }
 
-void PanelPreviewSound::onTimer(wxTimerEvent &event) {
+void PanelPreviewSound::onTimer(wxTimerEvent &UNUSED(event)) {
 	update();
 }
 
-void PanelPreviewSound::onVolumeChange(wxScrollEvent &event) {
+void PanelPreviewSound::onVolumeChange(wxScrollEvent &UNUSED(event)) {
 	setVolume();
 }
 

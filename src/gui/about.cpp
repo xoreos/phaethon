@@ -30,6 +30,8 @@
 #include "src/common/ustring.h"
 #include "src/common/version.h"
 
+#include "src/common/util.h"
+
 #include "src/gui/about.h"
 #include "src/gui/eventid.h"
 
@@ -64,7 +66,7 @@ void AboutDialog::show() {
 	ShowModal();
 }
 
-void AboutDialog::onClose(wxCommandEvent &event) {
+void AboutDialog::onClose(wxCommandEvent &UNUSED(event)) {
 	Close(true);
 }
 
