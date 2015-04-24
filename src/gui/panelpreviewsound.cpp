@@ -31,16 +31,16 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
 
-#include "sound/sound.h"
-#include "sound/audiostream.h"
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
 
-#include "gui/panelpreviewsound.h"
-#include "gui/eventid.h"
-#include "gui/resourcetree.h"
+#include "src/gui/panelpreviewsound.h"
+#include "src/gui/eventid.h"
+#include "src/gui/resourcetree.h"
 
 namespace GUI {
 

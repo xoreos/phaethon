@@ -27,10 +27,10 @@
 
 #include <wx/panel.h>
 
-#include "common/types.h"
-#include "common/ustring.h"
+#include "src/common/types.h"
+#include "src/common/ustring.h"
 
-#include "sound/types.h"
+#include "src/sound/types.h"
 
 class wxGenericStaticText;
 class wxSlider;

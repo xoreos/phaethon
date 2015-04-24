@@ -26,16 +26,16 @@
 
 #include <wx/app.h>
 
-#include "common/util.h"
-#include "common/version.h"
-#include "common/error.h"
-#include "common/ustring.h"
+#include "src/common/util.h"
+#include "src/common/version.h"
+#include "src/common/error.h"
+#include "src/common/ustring.h"
 
-#include "sound/sound.h"
+#include "src/sound/sound.h"
 
-#include "gui/mainwindow.h"
+#include "src/gui/mainwindow.h"
 
-#include "cline.h"
+#include "src/cline.h"
 
 void openGamePath(const Common::UString &path);
 

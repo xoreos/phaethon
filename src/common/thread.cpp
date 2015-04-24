@@ -22,7 +22,7 @@
  *  Threading helpers.
  */
 
-#include "common/thread.h"
+#include "src/common/thread.h"
 
 namespace Common {
 

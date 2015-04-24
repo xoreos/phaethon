@@ -46,7 +46,7 @@
 #include <boost/atomic.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "common/noncopyable.h"
+#include "src/common/noncopyable.h"
 
 namespace Common {
 

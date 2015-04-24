@@ -25,11 +25,11 @@
 #include <cstdio>
 #include <cstring>
 
-#include "common/error.h"
-#include "common/ustring.h"
-#include "common/file.h"
+#include "src/common/error.h"
+#include "src/common/ustring.h"
+#include "src/common/file.h"
 
-#include "images/decoder.h"
+#include "src/images/decoder.h"
 
 namespace Images {
 

@@ -22,13 +22,13 @@
  *  Generic image decoder interface.
  */
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
 
-#include "images/decoder.h"
-#include "images/s3tc.h"
-#include "images/dumptga.h"
+#include "src/images/decoder.h"
+#include "src/images/s3tc.h"
+#include "src/images/dumptga.h"
 
 namespace Images {
 

@@ -22,13 +22,13 @@
  *  Handling BioWare's ERFs (encapsulated resource file).
  */
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
-#include "common/file.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
+#include "src/common/file.h"
 
-#include "aurora/erffile.h"
-#include "aurora/util.h"
+#include "src/aurora/erffile.h"
+#include "src/aurora/util.h"
 
 #include <zlib.h>
 

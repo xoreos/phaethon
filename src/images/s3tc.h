@@ -25,7 +25,7 @@
 #ifndef IMAGES_S3TC_H
 #define IMAGES_S3TC_H
 
-#include "common/types.h"
+#include "src/common/types.h"
 
 namespace Common {
 	class SeekableReadStream;

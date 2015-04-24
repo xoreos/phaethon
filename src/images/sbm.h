@@ -25,7 +25,7 @@
 #ifndef IMAGES_SBM_H
 #define IMAGES_SBM_H
 
-#include "images/decoder.h"
+#include "src/images/decoder.h"
 
 namespace Common {
 	class SeekableReadStream;

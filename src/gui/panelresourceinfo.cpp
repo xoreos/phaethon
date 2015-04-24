@@ -29,23 +29,23 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
-#include "common/file.h"
-#include "common/filepath.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
+#include "src/common/file.h"
+#include "src/common/filepath.h"
 
-#include "sound/sound.h"
-#include "sound/audiostream.h"
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
 
-#include "images/decoder.h"
+#include "src/images/decoder.h"
 
-#include "aurora/util.h"
+#include "src/aurora/util.h"
 
-#include "gui/panelresourceinfo.h"
-#include "gui/eventid.h"
-#include "gui/mainwindow.h"
-#include "gui/resourcetree.h"
+#include "src/gui/panelresourceinfo.h"
+#include "src/gui/eventid.h"
+#include "src/gui/mainwindow.h"
+#include "src/gui/resourcetree.h"
 
 namespace GUI {
 

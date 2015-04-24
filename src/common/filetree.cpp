@@ -22,9 +22,9 @@
  *  A tree structure of files in directories.
  */
 
-#include "common/filetree.h"
-#include "common/filepath.h"
-#include "common/error.h"
+#include "src/common/filetree.h"
+#include "src/common/filepath.h"
+#include "src/common/error.h"
 
 namespace Common {
 

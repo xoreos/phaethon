@@ -21,7 +21,7 @@ LIBSL       = $(PHAETHON_LIBS) $(LTLIBICONV) $(ZLIB_LIBS) $(LZMA_LIBS) \
               $(AL_LIBS) $(MAD_LIBS) $(OGG_LIBS) $(VORBIS_LIBS) \
               $(LIBSL_BOOST)
 
-FLAGS_C_CXX = -I$(top_srcdir) -I$(top_srcdir)/src/ -ggdb -Wall -Wno-multichar \
+FLAGS_C_CXX = -I$(top_srcdir) -ggdb -Wall -Wno-multichar \
               -Wpointer-arith -Wshadow $(WERROR)
 FLAGS_C     =
 FLAGS_CXX   = -Wnon-virtual-dtor -Wno-overloaded-virtual

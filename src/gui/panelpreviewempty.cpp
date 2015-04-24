@@ -25,9 +25,9 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 
-#include "common/ustring.h"
+#include "src/common/ustring.h"
 
-#include "gui/panelpreviewempty.h"
+#include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
 

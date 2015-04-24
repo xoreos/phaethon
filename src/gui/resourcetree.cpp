@@ -25,26 +25,26 @@
 #include <wx/artprov.h>
 #include <wx/imaglist.h>
 
-#include "common/error.h"
-#include "common/stream.h"
-#include "common/file.h"
-#include "common/filepath.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
+#include "src/common/file.h"
+#include "src/common/filepath.h"
 
-#include "sound/sound.h"
-#include "sound/audiostream.h"
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
 
-#include "images/winiconimage.h"
-#include "images/tga.h"
-#include "images/dds.h"
-#include "images/tpc.h"
-#include "images/txb.h"
-#include "images/sbm.h"
+#include "src/images/winiconimage.h"
+#include "src/images/tga.h"
+#include "src/images/dds.h"
+#include "src/images/tpc.h"
+#include "src/images/txb.h"
+#include "src/images/sbm.h"
 
-#include "aurora/util.h"
+#include "src/aurora/util.h"
 
-#include "gui/resourcetree.h"
-#include "gui/eventid.h"
-#include "gui/mainwindow.h"
+#include "src/gui/resourcetree.h"
+#include "src/gui/eventid.h"
+#include "src/gui/mainwindow.h"
 
 namespace GUI {
 

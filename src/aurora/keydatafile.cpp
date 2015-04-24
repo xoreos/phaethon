@@ -22,9 +22,9 @@
  *  Data files containing resources indexed in BioWare's KEY files.
  */
 
-#include "common/error.h"
+#include "src/common/error.h"
 
-#include "aurora/keydatafile.h"
+#include "src/aurora/keydatafile.h"
 
 namespace Aurora {
 

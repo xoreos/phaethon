@@ -24,7 +24,7 @@
  *  Streaming audio.
  */
 
-#include "sound/audiostream.h"
+#include "src/sound/audiostream.h"
 
 namespace Sound {
 

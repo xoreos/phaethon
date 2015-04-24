@@ -26,7 +26,7 @@
 #include <boost/thread/lock_types.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-#include "common/mutex.h"
+#include "src/common/mutex.h"
 
 namespace Common {
 

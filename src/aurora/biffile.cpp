@@ -22,12 +22,12 @@
  *  Handling BioWare's BIFs (resource data files).
  */
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
-#include "common/file.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
+#include "src/common/file.h"
 
-#include "aurora/biffile.h"
+#include "src/aurora/biffile.h"
 
 static const uint32 kBIFID     = MKTAG('B', 'I', 'F', 'F');
 static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');

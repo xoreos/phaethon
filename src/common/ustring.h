@@ -33,7 +33,7 @@
 
 #include <wx/string.h>
 
-#include "common/types.h"
+#include "src/common/types.h"
 
 #include "utf8cpp/utf8.h"
 

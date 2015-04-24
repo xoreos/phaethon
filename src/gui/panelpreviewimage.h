@@ -28,7 +28,7 @@
 #include <wx/scrolwin.h>
 #include <wx/panel.h>
 
-#include "images/types.h"
+#include "src/images/types.h"
 
 namespace Common {
 	class UString;

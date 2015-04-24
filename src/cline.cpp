@@ -22,9 +22,9 @@
  *  Command line handling.
  */
 
-#include "common/version.h"
+#include "src/common/version.h"
 
-#include "cline.h"
+#include "src/cline.h"
 
 Job parseCommandLine(int argc, char **argv) {
 	Job job;

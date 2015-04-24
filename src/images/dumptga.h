@@ -25,9 +25,9 @@
 #ifndef IMAGES_DUMPTGA_H
 #define IMAGES_DUMPTGA_H
 
-#include "common/types.h"
+#include "src/common/types.h"
 
-#include "images/types.h"
+#include "src/images/types.h"
 
 namespace Common {
 	class UString;

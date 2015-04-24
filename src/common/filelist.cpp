@@ -26,9 +26,9 @@
 #include <boost/regex.hpp>
 #include <boost/version.hpp>
 
-#include "common/filelist.h"
-#include "common/file.h"
-#include "common/stream.h"
+#include "src/common/filelist.h"
+#include "src/common/file.h"
+#include "src/common/stream.h"
 
 // boost-filesystem stuff
 using boost::filesystem::path;

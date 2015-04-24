@@ -28,7 +28,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-#include "common/types.h"
+#include "src/common/types.h"
 
 namespace Common {
 

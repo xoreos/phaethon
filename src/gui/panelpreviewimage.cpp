@@ -33,15 +33,15 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/ustring.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/ustring.h"
 
-#include "images/decoder.h"
+#include "src/images/decoder.h"
 
-#include "gui/panelpreviewimage.h"
-#include "gui/eventid.h"
-#include "gui/resourcetree.h"
+#include "src/gui/panelpreviewimage.h"
+#include "src/gui/eventid.h"
+#include "src/gui/resourcetree.h"
 
 namespace GUI {
 

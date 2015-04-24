@@ -27,11 +27,11 @@
 
 #include <wx/treectrl.h>
 
-#include "common/ustring.h"
-#include "common/filetree.h"
+#include "src/common/ustring.h"
+#include "src/common/filetree.h"
 
-#include "aurora/types.h"
-#include "aurora/archive.h"
+#include "src/aurora/types.h"
+#include "src/aurora/archive.h"
 
 namespace Common {
 	class SeekableReadStream;

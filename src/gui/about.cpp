@@ -27,13 +27,13 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "common/ustring.h"
-#include "common/version.h"
+#include "src/common/ustring.h"
+#include "src/common/version.h"
 
-#include "gui/about.h"
-#include "gui/eventid.h"
+#include "src/gui/about.h"
+#include "src/gui/eventid.h"
 
-#include "cline.h"
+#include "src/cline.h"
 
 namespace GUI {
 

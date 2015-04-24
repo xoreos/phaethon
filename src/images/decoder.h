@@ -27,9 +27,9 @@
 
 #include <vector>
 
-#include "common/types.h"
+#include "src/common/types.h"
 
-#include "images/types.h"
+#include "src/images/types.h"
 
 namespace Common {
 	class SeekableReadStream;

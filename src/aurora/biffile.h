@@ -25,11 +25,11 @@
 #ifndef AURORA_BIFFILE_H
 #define AURORA_BIFFILE_H
 
-#include "common/ustring.h"
+#include "src/common/ustring.h"
 
-#include "aurora/types.h"
-#include "aurora/aurorafile.h"
-#include "aurora/keydatafile.h"
+#include "src/aurora/types.h"
+#include "src/aurora/aurorafile.h"
+#include "src/aurora/keydatafile.h"
 
 namespace Common {
 	class File;

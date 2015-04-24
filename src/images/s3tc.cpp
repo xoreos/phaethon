@@ -22,10 +22,10 @@
  *  Manual S3TC DXTn decompression methods.
  */
 
-#include "common/util.h"
-#include "common/stream.h"
+#include "src/common/util.h"
+#include "src/common/stream.h"
 
-#include "images/s3tc.h"
+#include "src/images/s3tc.h"
 
 namespace Images {
 

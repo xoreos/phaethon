@@ -22,12 +22,12 @@
  *  TXB (another one of BioWare's own texture formats) loading.
  */
 
-#include "common/util.h"
-#include "common/error.h"
-#include "common/stream.h"
+#include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/stream.h"
 
-#include "images/txb.h"
-#include "images/util.h"
+#include "src/images/txb.h"
+#include "src/images/util.h"
 
 static const byte kEncodingBGRA = 0x04;
 static const byte kEncodingDXT1 = 0x0A;

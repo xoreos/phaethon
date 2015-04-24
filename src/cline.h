@@ -25,7 +25,7 @@
 #ifndef CLINE_H
 #define CLINE_H
 
-#include "common/ustring.h"
+#include "src/common/ustring.h"
 
 /** Type for all operations this tool can do. */
 enum Operation {

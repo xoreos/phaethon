@@ -24,11 +24,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "common/zipfile.h"
-#include "common/error.h"
-#include "common/util.h"
-#include "common/stream.h"
-#include "common/file.h"
+#include "src/common/zipfile.h"
+#include "src/common/error.h"
+#include "src/common/util.h"
+#include "src/common/stream.h"
+#include "src/common/file.h"
 
 #include <zlib.h>
 

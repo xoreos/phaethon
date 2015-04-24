@@ -27,7 +27,7 @@
 #ifndef SOUND_AUDIOSTREAM_H
 #define SOUND_AUDIOSTREAM_H
 
-#include "common/types.h"
+#include "src/common/types.h"
 
 namespace Sound {
 

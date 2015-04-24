@@ -28,11 +28,11 @@
 #ifndef AURORA_BZFFILE_H
 #define AURORA_BZFFILE_H
 
-#include "common/types.h"
+#include "src/common/types.h"
 
-#include "aurora/types.h"
-#include "aurora/aurorafile.h"
-#include "aurora/keydatafile.h"
+#include "src/aurora/types.h"
+#include "src/aurora/aurorafile.h"
+#include "src/aurora/keydatafile.h"
 
 namespace Common {
 	class File;

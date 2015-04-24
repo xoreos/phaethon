@@ -22,12 +22,12 @@
  *  Decoding SBM (font bitmap data).
  */
 
-#include "common/util.h"
-#include "common/stream.h"
-#include "common/error.h"
+#include "src/common/util.h"
+#include "src/common/stream.h"
+#include "src/common/error.h"
 
-#include "images/sbm.h"
-#include "images/util.h"
+#include "src/images/sbm.h"
+#include "src/images/util.h"
 
 namespace Images {
 
