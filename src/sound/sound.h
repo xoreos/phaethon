@@ -267,8 +267,7 @@ private:
 	void threadMethod();
 
 	/** Fill the buffer with data from the audio stream. */
-	bool fillBuffer(ALuint source, ALuint alBuffer,
-	                AudioStream *stream, uint32 &bufferedSize) const;
+	bool fillBuffer(ALuint alBuffer, AudioStream *stream, uint32 &bufferedSize) const;
 };
 
 } // End of namespace Sound
