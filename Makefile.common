@@ -22,7 +22,9 @@ LIBSL       = $(PHAETHON_LIBS) $(LTLIBICONV) $(ZLIB_LIBS) $(LZMA_LIBS) \
               $(LIBSL_BOOST)
 
 FLAGS_C_CXX = -I$(top_srcdir) -ggdb -Wall -Wno-multichar \
-              -Wpointer-arith -Wshadow $(WERROR)
+              -Wignored-qualifiers \
+              -Wpointer-arith -Wshadow -Wsign-compare -Wtype-limits \
+              -Wuninitialized -Wunused-parameter $(WERROR)
 FLAGS_C     =
 FLAGS_CXX   = -Wnon-virtual-dtor -Wno-overloaded-virtual
 
