@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file aurora/zipfile.h
+/** @file
  *  A ZIP archive.
  */
 

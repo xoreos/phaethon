@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/types.h
+/** @file
  *  Basic type definitions for working with images.
  */
 

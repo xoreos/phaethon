@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file common/file.h
+/** @file
  *  File classes implementing the stream interfaces.
  */
 

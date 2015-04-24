@@ -20,7 +20,7 @@
 
 // Mostly copied verbatim from ScummVM's
 
-/** @file common/util.cpp
+/** @file
  *  Utility templates and functions.
  */
 

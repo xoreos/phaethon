@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file gui/panelpreviewempty.cpp
+/** @file
  *  Preview panel for resources we can't do anything with.
  */
 

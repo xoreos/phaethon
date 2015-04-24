@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file gui/about.cpp
+/** @file
  *  About dialog.
  */
 

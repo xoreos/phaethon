@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/sbm.h
+/** @file
  *  Decoding SBM (font bitmap data).
  */
 

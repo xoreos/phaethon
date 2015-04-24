@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file gui/panelpreviewsound.cpp
+/** @file
  *  Preview panel for sound resources.
  */
 

@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/winiconimage.cpp
+/** @file
  *  Decoding Windows icon and cursor files (.ICO and .CUR).
  */
 

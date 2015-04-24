@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sound/sound.cpp
+/** @file
  *  The global sound manager, handling all sound output.
  */
 

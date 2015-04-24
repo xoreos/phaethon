@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sound/types.h
+/** @file
  *  Basic sound types.
  */
 

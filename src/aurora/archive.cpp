@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file aurora/archive.cpp
+/** @file
  *  Handling various archive files.
  */
 

@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file common/types.h
+/** @file
  *  Low-level type definitions to handle fixed width types portably.
  */
 

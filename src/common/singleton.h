@@ -20,7 +20,7 @@
 
 // Copied verbatim from ScummVM
 
-/** @file common/singleton.h
+/** @file
  *  Class and macro for implementing singletons.
  */
 

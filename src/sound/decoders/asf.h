@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file sound/decoders/asf.h
+/** @file
  *  Decoding Microsoft's Advanced Streaming Format.
  */
 

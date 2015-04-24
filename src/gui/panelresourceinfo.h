@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file gui/panelresourceinfo.h
+/** @file
  *  Panel showing general information and actions on resources.
  */
 

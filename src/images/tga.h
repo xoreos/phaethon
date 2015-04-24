@@ -20,7 +20,7 @@
 
 // Partially based on the TGA implementation found in ScummVM.
 
-/** @file images/tga.h
+/** @file
  *  Decoding TGA (TarGa) images.
  */
 

@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/txb.cpp
+/** @file
  *  TXB (another one of BioWare's own texture formats) loading.
  */
 

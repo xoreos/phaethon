@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file aurora/biffile.h
+/** @file
  *  Handling BioWare's BIFs (resource data files).
  */
 

@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file common/bitstream.h
+/** @file
  *  A bit stream.
  */
 

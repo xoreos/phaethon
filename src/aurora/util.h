@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file src/aurora/util.h
+/** @file
  *  Utility functions to handle files used in BioWare's Aurora engine.
  */
 

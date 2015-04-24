@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file gui/resourcetree.cpp
+/** @file
  *  Phaethon's tree of game resource files.
  */
 

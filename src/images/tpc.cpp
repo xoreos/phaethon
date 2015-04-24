@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/tpc.cpp
+/** @file
  *  TPC (BioWare's own texture format) loading.
  */
 

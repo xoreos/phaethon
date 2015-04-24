@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/s3tc.cpp
+/** @file
  *  Manual S3TC DXTn decompression methods.
  */
 

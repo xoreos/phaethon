@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file images/decoder.h
+/** @file
  *  Generic image decoder interface.
  */
 

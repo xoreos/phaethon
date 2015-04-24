@@ -18,7 +18,7 @@
  * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file aurora/keydatafile.h
+/** @file
  *  Data files containing resources indexed in BioWare's KEY files.
  */
 
