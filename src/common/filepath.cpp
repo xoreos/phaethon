@@ -94,7 +94,7 @@ path FilePath::normalize(const boost::filesystem::path &p) {
 	if (!exists(p.c_str()))
 		return path("");
 
-	Common::UString norm = canonical(p).c_str();
+	UString norm = canonical(p).c_str();
 
 	norm.replaceAll('\\', '/');
 

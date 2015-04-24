@@ -59,7 +59,7 @@ const FileTree::Entry &FileTree::getRoot() const {
 	return _root;
 }
 
-void FileTree::readPath(const Common::UString &path, int recurseDepth) {
+void FileTree::readPath(const UString &path, int recurseDepth) {
 	return readPath(boost::filesystem::path(path.c_str()), recurseDepth);
 }
 
@@ -68,7 +68,7 @@ void FileTree::readPath(boost::filesystem::path path, int recurseDepth) {
 
 	// The path needs to exist
 	if (!boost::filesystem::exists(path))
-		throw Common::Exception("Path \"%s\" does not exist", path.c_str());
+		throw Exception("Path \"%s\" does not exist", path.c_str());
 
 	path = FilePath::normalize(path);
 
