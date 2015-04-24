@@ -14,7 +14,7 @@ env:
 before_script:
   - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse"
   - sudo apt-get update -y
-  - sudo apt-get -y install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev libwxgtk3.0-0 libwxgtk3.0-dev
+  - sudo apt-get -y install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev libwxgtk3.0-0 libwxgtk3.0-dev libpango-1.0-0 libpangocairo-1.0-0
   - export CXXFLAGS="-std=c++0x"
 
 script:
