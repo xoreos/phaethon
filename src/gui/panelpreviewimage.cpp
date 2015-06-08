@@ -443,7 +443,7 @@ void PanelPreviewImage::zoomFit(bool onlyWidth, bool grow) {
 }
 
 void PanelPreviewImage::updateZoomLevelText() {
-	Common::UString percent = Common::UString::sprintf("%d%%", (int) (getCurrentZoomLevel() * 100));
+	Common::UString percent = Common::UString::format("%d%%", (int) (getCurrentZoomLevel() * 100));
 
 	_textZoomLevel->SetLabel(percent);
 	_textZoomLevel->Fit();

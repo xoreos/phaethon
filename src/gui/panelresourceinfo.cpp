@@ -129,25 +129,25 @@ Common::UString PanelResourceInfo::getSizeLabel(uint32 size) {
 		return "-";
 
 	if (size < 1024)
-		return Common::UString::sprintf("%u", size);
+		return Common::UString::format("%u", size);
 
 	Common::UString humanRead = Common::FilePath::getHumanReadableSize(size);
 
-	return Common::UString::sprintf("%s (%u)", humanRead.c_str(), size);
+	return Common::UString::format("%s (%u)", humanRead.c_str(), size);
 }
 
 Common::UString PanelResourceInfo::getFileTypeLabel(Aurora::FileType type) {
-	Common::UString label = Common::UString::sprintf("%d", type);
+	Common::UString label = Common::UString::format("%d", type);
 	if (type != Aurora::kFileTypeNone)
-		label += Common::UString::sprintf(" (%s)", TypeMan.getExtension(type).c_str());
+		label += Common::UString::format(" (%s)", TypeMan.getExtension(type).c_str());
 
 	return label;
 }
 
 Common::UString PanelResourceInfo::getResTypeLabel(Aurora::ResourceType type) {
-	Common::UString label = Common::UString::sprintf("%d", type);
+	Common::UString label = Common::UString::format("%d", type);
 	if (type != Aurora::kResourceNone)
-		label += Common::UString::sprintf(" (%s)", getResourceTypeDescription(type).c_str());
+		label += Common::UString::format(" (%s)", getResourceTypeDescription(type).c_str());
 
 	return label;
 }

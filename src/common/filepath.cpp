@@ -231,7 +231,7 @@ UString FilePath::getHumanReadableSize(uint32 size) {
 		s /= 1024;
 	}
 
-	return UString::sprintf("%.2lf%s", s, sizes[n]);
+	return UString::format("%.2lf%s", s, sizes[n]);
 }
 
 } // End of namespace Common

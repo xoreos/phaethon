@@ -154,7 +154,7 @@ Common::UString PanelPreviewSound::formatTime(uint64 t) {
 
 	uint32 h = t;
 
-	return Common::UString::sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
+	return Common::UString::format("%02u:%02u:%02u.%03u", h, m, s, ms);
 }
 
 Common::UString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
@@ -167,7 +167,7 @@ Common::UString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
 
 	uint percent = CLIP<uint>((t * 100) / total, 0, 100);
 
-	return Common::UString::sprintf("%3u%%", percent);
+	return Common::UString::format("%3u%%", percent);
 }
 
 int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) {
@@ -188,9 +188,9 @@ void PanelPreviewSound::update() {
 	Common::UString total   = formatTime(_duration);
 	Common::UString percent = formatPercent(_duration, t);
 
-	_textPosition->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", played.c_str()));
-	_textPercent->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", percent.c_str()));
-	_textDuration->SetLabelMarkup(Common::UString::sprintf("<tt>%s</tt>", total.c_str()));
+	_textPosition->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", played.c_str()));
+	_textPercent->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", percent.c_str()));
+	_textDuration->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", total.c_str()));
 
 	_sliderPosition->SetValue(getSliderPos(_duration, t));
 
@@ -203,7 +203,7 @@ void PanelPreviewSound::update() {
 void PanelPreviewSound::setVolume() {
 	double volume = _sliderVolume->GetValue() / (double)_sliderVolume->GetMax();
 
-	Common::UString label = Common::UString::sprintf("<tt>%3d%%</tt>", (int) (volume * 100));
+	Common::UString label = Common::UString::format("<tt>%3d%%</tt>", (int) (volume * 100));
 	_textVolume->SetLabelMarkup(label);
 
 	SoundMan.setListenerGain(volume);
