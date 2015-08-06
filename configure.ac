@@ -9,7 +9,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.11 -Wall -Wno-portability no-dist-gzip dist-xz subdir-objects])
+AM_INIT_AUTOMAKE([1.11 foreign -Wall -Wno-portability no-dist-gzip dist-xz subdir-objects])
 # Support silent build rules. Disable
 # by either passing --disable-silent-rules to configure or passing V=1
 # to make
@@ -38,6 +38,52 @@ dnl Standard C, C++
 AC_C_CONST
 AC_HEADER_STDC
 
+dnl Compiler warning flags
+AC_ARG_WITH([warnings], [AS_HELP_STRING([--without-warnings], [Compile without extra warnings @<:@default=no@:>@])], [], [with_warnings=yes])
+
+if test "x$with_warnings" = "xno"; then
+	WARN_C_CXX=""
+	WARN_CXX=""
+else
+	WARN_C_CXX="-Wall"
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wignored-qualifiers])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wpointer-arith])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wshadow])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wsign-compare])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wtype-limits])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wuninitialized])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wunused-parameter])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wunused-but-set-parameter])
+
+	WARN_CXX=""
+	AX_CHECK_COMPILER_FLAGS_VAR([C++], [WARN_CXX], [-Wnon-virtual-dtor])
+	AX_CHECK_COMPILER_FLAGS_VAR([C++], [WARN_CXX], [-Wno-overloaded-virtual])
+fi
+
+AC_SUBST(WARN_C_CXX)
+AC_SUBST(WARN_CXX)
+
+dnl Link-time optimization
+AC_ARG_WITH([lto], [AS_HELP_STRING([--with-lto], [Compile with link-time optimization @<:@default=no@:>@])], [], [with_lto=no])
+
+LTO=""
+if test "x$with_lto" = "xyes"; then
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [LTO], [-flto])
+fi
+
+AC_SUBST(LTO)
+
+dnl Release version number
+AC_ARG_WITH([release], [AS_HELP_STRING([--with-release=VER], [Set the version suffix to VER instead of the git revision. If no VER is given, do not add a version suffix at all])], [], [with_release=no])
+
+if test "x$with_release" != "xno"; then
+	AC_DEFINE([PHAETHON_RELEASE], 1, [Define to 1 if we are in release version mode])
+
+	if test "x$with_release" != "xyes"; then
+		AC_DEFINE_UNQUOTED([PHAETHON_DISTRO], ["+$with_release"], [Release version suffix])
+	fi
+fi
+
 dnl Endianness
 AC_C_BIGENDIAN()
 
@@ -54,6 +100,11 @@ AC_CHECK_FUNCS([fabsf])
 AC_CHECK_FUNCS([fminf])
 AC_CHECK_FUNCS([fmaxf])
 
+dnl String to integer/float conversion functions
+AC_CHECK_FUNCS([strtoll])
+AC_CHECK_FUNCS([strtoull])
+AC_CHECK_FUNCS([strtof])
+
 dnl General purpose libraries
 AX_CHECK_ICONV( , AC_MSG_ERROR([No useable iconv() function found!]))
 AX_CHECK_ZLIB(1, 2, 3, 4, , AC_MSG_ERROR([zlib(>= 1.2.3.4) is required and could not be found!]))
@@ -69,16 +120,21 @@ AX_CHECK_OGG(, AC_MSG_ERROR([libOgg (>= 1.2.0) is required and could not be foun
 AX_CHECK_VORBIS(, AC_MSG_ERROR([libVorbisFile (>= 1.3.1) is required and could not be found!]))
 
 dnl Boost
-BOOST_REQUIRE(1.48.0)
+BOOST_REQUIRE(1.53.0)
+BOOST_STRING_ALGO
 BOOST_SYSTEM
 BOOST_FILESYSTEM
-BOOST_STRING_ALGO
 BOOST_REGEX
 BOOST_UNORDERED
 BOOST_HASH
 BOOST_DATE_TIME
 BOOST_CHRONO
+BOOST_FUNCTION
+BOOST_BIND
+BOOST_UUID
+BOOST_SMART_PTR
 BOOST_ATOMIC
+BOOST_LOCALE
 BOOST_THREAD
 
 dnl Extra flags
@@ -88,8 +144,8 @@ case "$target" in
 		PHAETHON_LIBS=""
 		;;
 	*mingw*)
-		PHAETHON_CFLAGS=""
-		PHAETHON_LIBS="-static-libgcc -static-libstdc++"
+		PHAETHON_CFLAGS="-mconsole"
+		PHAETHON_LIBS=""
 		;;
 	*)
 		PHAETHON_CFLAGS="-DUNIX"

@@ -5,16 +5,21 @@ Build-time library dependencies
 - zlib (>= 1.2.3.4)
 - liblzma (>= 5.0.5)
 
-- Boost (>= 1.48.0)
+- Boost (>= 1.53.0)
+  - Boost.StringAlgo
   - Boost.System
   - Boost.Filesystem
-  - Boost.StringAlgo
   - Boost.Regex
   - Boost.Unordered
   - Boost.Hash
   - Boost.Date_Time
   - Boost.Chrono
+  - Boost.Function
+  - Boost.Bind
+  - Boost.Uuid
+  - Boost.Smart_Ptr
   - Boost.Atomic
+  - Boost.Locale
   - Boost.Thread
 
 - wxWidgets (>= 3.0.0)

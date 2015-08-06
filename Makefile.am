@@ -5,7 +5,6 @@ EXTRA_DIST = \
              BUILDDEP \
              Doxyfile \
              README.dox \
-             README.md \
              $(EMPTY)
 
 dist_doc_DATA = \
