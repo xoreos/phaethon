@@ -22,8 +22,10 @@
  *  Decoding SBM (font bitmap data).
  */
 
+#include <cstring>
+
 #include "src/common/util.h"
-#include "src/common/stream.h"
+#include "src/common/readstream.h"
 #include "src/common/error.h"
 
 #include "src/images/sbm.h"
@@ -45,23 +47,20 @@ void SBM::load(Common::SeekableReadStream &sbm) {
 
 		readData(sbm);
 
-		if (sbm.err())
-			throw Common::Exception(Common::kReadError);
-
 	} catch (Common::Exception &e) {
 		e.add("Failed reading SBM file");
 		throw;
 	}
 
 	// Flip SBM image data to make their origin the lower left corner too
-	flipVertically(_mipMaps[0]->data, _mipMaps[0]->width, _mipMaps[0]->height, 4);
+	::Images::flipVertically(_mipMaps[0]->data, _mipMaps[0]->width, _mipMaps[0]->height, 4);
 }
 
 void SBM::readData(Common::SeekableReadStream &sbm) {
 	if ((sbm.size() % 1024) != 0)
-		throw Common::Exception("Invalid SBM (%d)", sbm.size());
+		throw Common::Exception("Invalid SBM (%u)", (uint)sbm.size());
 
-	uint32 rowCount = (sbm.size() / 1024);
+	size_t rowCount = (sbm.size() / 1024);
 
 	_mipMaps.push_back(new MipMap);
 
@@ -81,7 +80,7 @@ void SBM::readData(Common::SeekableReadStream &sbm) {
 
 	byte *data = _mipMaps[0]->data;
 	byte buffer[1024];
-	for (uint32 c = 0; c < rowCount; c++) {
+	for (size_t c = 0; c < rowCount; c++) {
 
 		if (sbm.read(buffer, 1024) != 1024)
 			throw Common::Exception(Common::kReadError);

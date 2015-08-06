@@ -24,11 +24,16 @@
  *  Streaming audio.
  */
 
+#include <queue>
+
+#include "src/common/error.h"
+#include "src/common/mutex.h"
+
 #include "src/sound/audiostream.h"
 
 namespace Sound {
 
-LoopingAudioStream::LoopingAudioStream(RewindableAudioStream *stream, uint loops, bool disposeAfterUse)
+LoopingAudioStream::LoopingAudioStream(RewindableAudioStream *stream, size_t loops, bool disposeAfterUse)
     : _parent(stream), _disposeAfterUse(disposeAfterUse), _loops(loops), _completeIterations(0) {
 }
 
@@ -37,18 +42,20 @@ LoopingAudioStream::~LoopingAudioStream() {
 		delete _parent;
 }
 
-int LoopingAudioStream::readBuffer(int16 *buffer, const int numSamples) {
+size_t LoopingAudioStream::readBuffer(int16 *buffer, const size_t numSamples) {
 	if ((_loops && _completeIterations == _loops) || !numSamples)
 		return 0;
 
-	int samplesRead = _parent->readBuffer(buffer, numSamples);
+	const size_t samplesRead = _parent->readBuffer(buffer, numSamples);
+	if (samplesRead == kSizeInvalid)
+		return kSizeInvalid;
 
 	if (_parent->endOfStream()) {
 		++_completeIterations;
 		if (_completeIterations == _loops)
 			return samplesRead;
 
-		const int remainingSamples = numSamples - samplesRead;
+		const size_t remainingSamples = numSamples - samplesRead;
 
 		if (!_parent->rewind()) {
 			// TODO: Properly indicate error
@@ -56,7 +63,11 @@ int LoopingAudioStream::readBuffer(int16 *buffer, const int numSamples) {
 			return samplesRead;
 		}
 
-		return samplesRead + readBuffer(buffer + samplesRead, remainingSamples);
+		const size_t samplesReadNext = readBuffer(buffer + samplesRead, remainingSamples);
+		if (samplesReadNext == kSizeInvalid)
+			return kSizeInvalid;
+
+		return samplesRead + samplesReadNext;
 	}
 
 	return samplesRead;
@@ -64,6 +75,13 @@ int LoopingAudioStream::readBuffer(int16 *buffer, const int numSamples) {
 
 bool LoopingAudioStream::endOfData() const {
 	return (_loops != 0 && (_completeIterations == _loops));
+}
+
+AudioStream *makeLoopingAudioStream(RewindableAudioStream *stream, size_t loops) {
+	if (loops != 1)
+		return new LoopingAudioStream(stream, loops);
+	else
+		return stream;
 }
 
 bool LoopingAudioStream::rewind() {
@@ -76,22 +94,22 @@ bool LoopingAudioStream::rewind() {
 
 uint64 LoopingAudioStream::getLength() const {
 	if (!_loops)
-		return kInvalidLength;
+		return RewindableAudioStream::kInvalidLength;
 
 	uint64 length = _parent->getLength();
-	if (length == kInvalidLength)
-		return kInvalidLength;
+	if (length == RewindableAudioStream::kInvalidLength)
+		return RewindableAudioStream::kInvalidLength;
 
 	return _loops * length;
 }
 
 uint64 LoopingAudioStream::getDuration() const {
 	if (!_loops)
-		return kInvalidLength;
+		return RewindableAudioStream::kInvalidLength;
 
 	uint64 duration = _parent->getDuration();
-	if (duration == kInvalidLength)
-		return kInvalidLength;
+	if (duration == RewindableAudioStream::kInvalidLength)
+		return RewindableAudioStream::kInvalidLength;
 
 	return _loops * duration;
 }

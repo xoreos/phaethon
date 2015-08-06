@@ -89,12 +89,12 @@ public:
 	 *  This only allocate a channel for the sound, to actually start playing it,
 	 *  call startChannel().
 	 *
-	 *  @param  stream The data stream to play. Will be taken over.
+	 *  @param  wavStream The stream to play. Will be taken over.
 	 *  @param  type The type of the sound.
 	 *  @param  loop Should the sound loop?
 	 *  @return The channel the sound has been assigned to, or -1 on error.
 	 */
-	ChannelHandle playSoundFile(Common::SeekableReadStream *stream,
+	ChannelHandle playSoundFile(Common::SeekableReadStream *wavStream,
 	                            SoundType type, bool loop = false);
 
 	/** Play an audio stream.
@@ -177,7 +177,7 @@ public:
 
 
 private:
-	static const int kChannelCount = 65535; ///< Maximal number of channels.
+	static const size_t kChannelCount = 65535; ///< Maximal number of channels.
 
 	struct Channel;
 	typedef std::list<Channel *> TypeList;
@@ -223,8 +223,7 @@ private:
 	Channel *_channels[kChannelCount]; ///< The sound channels.
 	Type     _types   [kSoundTypeMAX]; ///< The sound types.
 
-	uint16 _curChannel; ///< Position to start looking for a free channel.
-	uint32 _curID;      ///< The ID the next sound will get.
+	uint32 _curID; ///< The ID the next sound will get.
 
 	Common::Mutex _mutex;
 
@@ -246,10 +245,10 @@ private:
 	/** Buffer more sound from the channel to the OpenAL buffers. */
 	void bufferData(Channel &channel);
 	/** Buffer more sound from the channel to the OpenAL buffers. */
-	void bufferData(uint16 channel);
+	void bufferData(size_t channel);
 
 	/** Is that channel currently playing a sound? */
-	bool isPlaying(uint16 channel) const;
+	bool isPlaying(size_t channel) const;
 
 	/** Pause/Unpause a channel. */
 	void pauseChannel(Channel *channel, bool pause);
@@ -259,7 +258,7 @@ private:
 	/** Stop and free a channel. */
 	void freeChannel(ChannelHandle &handle);
 	/** Stop and free a channel. */
-	void freeChannel(uint16 channel);
+	void freeChannel(size_t channel);
 
 	/** Return the channel the handle refers to. */
 	Channel *getChannel(const ChannelHandle &handle);

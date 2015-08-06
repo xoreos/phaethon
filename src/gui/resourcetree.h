@@ -110,7 +110,7 @@ private:
 	};
 
 	Common::UString _name;
-	uint32 _size;
+	size_t _size;
 	Source _source;
 	Data _data;
 

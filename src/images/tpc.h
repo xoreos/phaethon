@@ -25,8 +25,6 @@
 #ifndef IMAGES_TPC_H
 #define IMAGES_TPC_H
 
-#include <vector>
-
 #include "src/images/decoder.h"
 
 namespace Common {
@@ -46,7 +44,7 @@ public:
 
 private:
 	byte  *_txiData;
-	uint32 _txiDataSize;
+	size_t _txiDataSize;
 
 	// Loading helpers
 	void load(Common::SeekableReadStream &tpc);

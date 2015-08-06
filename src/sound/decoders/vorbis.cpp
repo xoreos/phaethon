@@ -24,9 +24,12 @@
  *  Decoding Ogg Vorbis.
  */
 
+#include <cassert>
+#include <cstring>
+
 #include "src/sound/decoders/vorbis.h"
 
-#include "src/common/stream.h"
+#include "src/common/readstream.h"
 #include "src/common/util.h"
 
 #include "src/sound/audiostream.h"
@@ -41,14 +44,30 @@ namespace Sound {
 static size_t read_stream_wrap(void *ptr, size_t size, size_t nmemb, void *datasource) {
 	Common::SeekableReadStream *stream = (Common::SeekableReadStream *)datasource;
 
-	uint32 result = stream->read(ptr, size * nmemb);
+	size_t result = stream->read(ptr, size * nmemb);
 
 	return result / size;
 }
 
 static int seek_stream_wrap(void *datasource, ogg_int64_t offset, int whence) {
+	Common::SeekableReadStream::Origin seekOrigin;
+	switch (whence) {
+		case SEEK_SET:
+			seekOrigin = Common::SeekableReadStream::kOriginBegin;
+			break;
+		case SEEK_CUR:
+			seekOrigin = Common::SeekableReadStream::kOriginCurrent;
+			break;
+		case SEEK_END:
+			seekOrigin = Common::SeekableReadStream::kOriginEnd;
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
 	Common::SeekableReadStream *stream = (Common::SeekableReadStream *)datasource;
-	stream->seek((int32)offset, whence);
+	stream->seek((ptrdiff_t)offset, seekOrigin);
 	return stream->pos();
 }
 
@@ -80,19 +99,16 @@ protected:
 	const int16 *_bufferEnd;
 	const int16 *_pos;
 
-	uint64 _length;
-
 public:
 	// startTime / duration are in milliseconds
 	VorbisStream(Common::SeekableReadStream *inStream, bool dispose);
 	~VorbisStream();
 
-	int readBuffer(int16 *buffer, const int numSamples);
+	size_t readBuffer(int16 *buffer, const size_t numSamples);
 
 	bool endOfData() const		{ return _pos >= _bufferEnd; }
 	int getChannels() const		{ return _isStereo ? 2 : 1; }
 	int getRate() const			{ return _rate; }
-	uint64 getLength() const	{ return _length; }
 	bool rewind();
 
 protected:
@@ -102,8 +118,7 @@ protected:
 VorbisStream::VorbisStream(Common::SeekableReadStream *inStream, bool dispose) :
 	_inStream(inStream),
 	_disposeAfterUse(dispose),
-	_bufferEnd(_buffer + ARRAYSIZE(_buffer)),
-	_length(kInvalidLength) {
+	_bufferEnd(_buffer + ARRAYSIZE(_buffer)) {
 
 	int res = ov_open_callbacks(inStream, &_ovFile, 0, 0, g_stream_wrap);
 	if (res < 0) {
@@ -111,10 +126,6 @@ VorbisStream::VorbisStream(Common::SeekableReadStream *inStream, bool dispose) :
 		_pos = _bufferEnd;
 		return;
 	}
-
-	ogg_int64_t total = ov_pcm_total(&_ovFile, -1);
-	if (total >= 0)
-		_length = (uint64) total;
 
 	// Read in initial data
 	if (!refill())
@@ -131,10 +142,10 @@ VorbisStream::~VorbisStream() {
 		delete _inStream;
 }
 
-int VorbisStream::readBuffer(int16 *buffer, const int numSamples) {
-	int samples = 0;
+size_t VorbisStream::readBuffer(int16 *buffer, const size_t numSamples) {
+	size_t samples = 0;
 	while (samples < numSamples && _pos < _bufferEnd) {
-		const int len = MIN(numSamples - samples, (int)(_bufferEnd - _pos));
+		const size_t len = MIN<size_t>(numSamples - samples, _bufferEnd - _pos);
 		memcpy(buffer, _pos, len * 2);
 		buffer += len;
 		_pos += len;
@@ -148,13 +159,15 @@ int VorbisStream::readBuffer(int16 *buffer, const int numSamples) {
 }
 
 bool VorbisStream::rewind() {
-	ov_pcm_seek(&_ovFile, 0);
-	return true;
+	if (ov_pcm_seek(&_ovFile, 0) != 0)
+		return false;
+
+	return refill();
 }
 
 bool VorbisStream::refill() {
 	// Read the samples
-	uint len_left = sizeof(_buffer);
+	size_t len_left = sizeof(_buffer);
 	char *read_pos = (char *)_buffer;
 
 	while (len_left > 0) {

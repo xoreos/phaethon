@@ -26,6 +26,7 @@
 #define AURORA_UTIL_H
 
 #include <map>
+#include <list>
 
 #include "src/common/singleton.h"
 #include "src/common/hash.h"
@@ -68,6 +69,7 @@ public:
 	/** Return the resource type of a file name, detected by its hashed extension. */
 	ResourceType getResourceType(Common::HashAlgo algo, uint64 hashedExtension);
 
+
 private:
 	/** File type <-> extension mapping. */
 	struct Type {
@@ -76,7 +78,6 @@ private:
 	};
 
 	static const Type types[];
-
 
 	typedef std::map<Common::UString, const Type *> ExtensionLookup;
 	typedef std::map<FileType       , const Type *> TypeLookup;

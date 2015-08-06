@@ -25,32 +25,27 @@
 #ifndef AURORA_BIFFILE_H
 #define AURORA_BIFFILE_H
 
-#include "src/common/ustring.h"
+#include "src/common/types.h"
 
 #include "src/aurora/types.h"
 #include "src/aurora/aurorafile.h"
 #include "src/aurora/keydatafile.h"
-
-namespace Common {
-	class File;
-}
 
 namespace Aurora {
 
 /** Class to hold resource data information of a bif file. */
 class BIFFile : public AuroraBase, public KEYDataFile {
 public:
-	BIFFile(const Common::UString &fileName);
+	BIFFile(Common::SeekableReadStream *bif);
 	~BIFFile();
 
 	/** Return a stream of the resource's contents. */
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
-	Common::UString _fileName;
+	Common::SeekableReadStream *_bif;
 
-	void open(Common::File &file) const;
-	void load();
+	void load(Common::SeekableReadStream &bif);
 
 	void readVarResTable(Common::SeekableReadStream &bif, uint32 offset);
 };

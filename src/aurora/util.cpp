@@ -22,16 +22,13 @@
  *  Utility functions to handle files used in BioWare's Aurora engine.
  */
 
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
 
 #include "src/common/util.h"
 #include "src/common/ustring.h"
 #include "src/common/filepath.h"
 
 #include "src/aurora/util.h"
-
-// boost-string_algo
-using boost::iequals;
 
 DECLARE_SINGLETON(Aurora::FileTypeManager)
 
@@ -189,6 +186,7 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeBIF,            ".bif"},
 	{kFileTypeKEY,            ".key"},
 
+	{kFileTypeEXE,            ".exe"},
 	{kFileTypeDBF,            ".dbf"},
 	{kFileTypeCDX,            ".cdx"},
 	{kFileTypeFPT,            ".fpt"},
@@ -280,6 +278,15 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeFEV,            ".fev"},
 	{kFileTypeFSB,            ".fsb"},
 	{kFileTypeOPF,            ".opf"},
+	{kFileTypeCRF,            ".crf"},
+	{kFileTypeRIMP,           ".rimp"},
+	{kFileTypeMET,            ".met"},
+	{kFileTypeMETA,           ".meta"},
+	{kFileTypeFXR,            ".fxr"},
+	{kFileTypeFXT,            ".fxt"},
+	{kFileTypeCIF,            ".cif"},
+	{kFileTypeCUB,            ".cub"},
+	{kFileTypeDLB,            ".dlb"},
 
 	{kFileTypeMOV,            ".mov"},
 	{kFileTypeCURS,           ".curs"},
@@ -321,7 +328,13 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeVLM,            ".vlm"},
 	{kFileTypeWBD,            ".wbd"},
 	{kFileTypeXBX,            ".xbx"},
-	{kFileTypeXLS,            ".xls"}
+	{kFileTypeXLS,            ".xls"},
+
+	{kFileTypeBZF,            ".bzf"},
+
+	{kFileTypeADV,            ".adv"},
+
+	{kFileTypeXEOSITEX,       ".xoreositex"}
 };
 
 
@@ -408,7 +421,7 @@ void FileTypeManager::buildExtensionLookup() {
 	if (!_extensionLookup.empty())
 		return;
 
-	for (int i = 0; i < ARRAYSIZE(types); i++)
+	for (size_t i = 0; i < ARRAYSIZE(types); i++)
 		_extensionLookup.insert(std::make_pair(Common::UString(types[i].extension), &types[i]));
 }
 
@@ -416,7 +429,7 @@ void FileTypeManager::buildTypeLookup() {
 	if (!_typeLookup.empty())
 		return;
 
-	for (int i = 0; i < ARRAYSIZE(types); i++)
+	for (size_t i = 0; i < ARRAYSIZE(types); i++)
 		_typeLookup.insert(std::make_pair(types[i].type, &types[i]));
 }
 
@@ -424,7 +437,7 @@ void FileTypeManager::buildHashLookup(Common::HashAlgo algo) {
 	if (!_hashLookup[algo].empty())
 		return;
 
-	for (int i = 0; i < ARRAYSIZE(types); i++) {
+	for (size_t i = 0; i < ARRAYSIZE(types); i++) {
 		const char *ext = types[i].extension;
 		if (ext[0] == '.')
 			ext++;
@@ -466,7 +479,6 @@ ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hash
 	return getResourceType(getFileType(algo, hashedExtension));
 }
 
-
 Common::UString getPlatformDescription(Platform platform) {
 	static const char *names[] = {
 		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "GNU/Linux", "Unknown"
@@ -479,7 +491,7 @@ Common::UString getResourceTypeDescription(ResourceType type) {
 	static const char *names[kResourceMAX] = { "Image", "Video", "Sound", "Archive" };
 
 	if ((type < 0) || (type >= kResourceMAX))
-		return "";
+			return "";
 
 	return names[type];
 }

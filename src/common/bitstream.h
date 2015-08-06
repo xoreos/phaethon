@@ -25,9 +25,11 @@
 #ifndef COMMON_BITSTREAM_H
 #define COMMON_BITSTREAM_H
 
+#include <cassert>
+
 #include "src/common/types.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/readstream.h"
 
 namespace Common {
 
@@ -38,10 +40,10 @@ public:
 	}
 
 	/** Return the stream position in bits. */
-	virtual uint32 pos() const = 0;
+	virtual size_t pos() const = 0;
 
 	/** Return the stream size in bits. */
-	virtual uint32 size() const = 0;
+	virtual size_t size() const = 0;
 
 	/** Has the end of the stream been reached? */
 	virtual bool eos() const = 0;
@@ -50,16 +52,16 @@ public:
 	virtual void rewind() = 0;
 
 	/** Skip the specified amount of bits. */
-	virtual void skip(uint32 n) = 0;
+	virtual void skip(size_t n) = 0;
 
 	/** Read a bit from the bit stream. */
 	virtual uint32 getBit() = 0;
 
 	/** Read a multi-bit value from the bit stream. */
-	virtual uint32 getBits(uint8 n) = 0;
+	virtual uint32 getBits(size_t n) = 0;
 
 	/** Add a bit to the value x, making it an n-bit value. */
-	virtual void addBit(uint32 &x, uint32 n) = 0;
+	virtual void addBit(uint32 &x, size_t n) = 0;
 
 protected:
 	BitStream() {
@@ -117,8 +119,6 @@ private:
 			throw Exception("BitStream::readValue(): End of bit stream reached");
 
 		_value = readData();
-		if (_stream->err() || _stream->eos())
-			throw Exception(kReadError);
 
 		// If we're reading the bits MSB first, we need to shift the value to that position
 		if (isMSB2LSB)
@@ -173,7 +173,7 @@ public:
 	}
 
 	/** Read a multi-bit value from the bit stream. */
-	uint32 getBits(uint8 n) {
+	uint32 getBits(size_t n) {
 		if (n > 32)
 			throw Exception("Too many bits requested to be read");
 
@@ -194,7 +194,10 @@ public:
 	}
 
 	/** Add a bit to the value x, making it an n-bit value. */
-	void addBit(uint32 &x, uint32 n) {
+	void addBit(uint32 &x, size_t n) {
+		if (n > 32)
+			throw Exception("Too many bits requested to be read");
+
 		if (isMSB2LSB)
 			x = (x << 1) | getBit();
 		else
@@ -210,23 +213,23 @@ public:
 	}
 
 	/** Skip the specified amount of bits. */
-	void skip(uint32 n) {
+	void skip(size_t n) {
 		while (n-- > 0)
 			getBit();
 	}
 
 	/** Return the stream position in bits. */
-	uint32 pos() const {
+	size_t pos() const {
 		if (_stream->pos() == 0)
 			return 0;
 
-		uint32 p = (_inValue == 0) ? _stream->pos() : ((_stream->pos() - 1) & ~((uint32) ((valueBits >> 3) - 1)));
+		size_t p = (_inValue == 0) ? _stream->pos() : ((_stream->pos() - 1) & ~((size_t) ((valueBits >> 3) - 1)));
 		return p * 8 + _inValue;
 	}
 
 	/** Return the stream size in bits. */
-	uint32 size() const {
-		return (_stream->size() & ~((uint32) ((valueBits >> 3) - 1))) * 8;
+	size_t size() const {
+		return (_stream->size() & ~((size_t) ((valueBits >> 3) - 1))) * 8;
 	}
 
 	bool eos() const {

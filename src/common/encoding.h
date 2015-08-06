@@ -31,8 +31,11 @@ namespace Common {
 
 class UString;
 class SeekableReadStream;
+class MemoryReadStream;
 
 enum Encoding {
+	kEncodingInvalid = -1,
+
 	kEncodingASCII,   ///< Plain, unextended ASCII (7bit clean).
 
 	kEncodingUTF8,    ///< UTF-8.
@@ -43,6 +46,7 @@ enum Encoding {
 	kEncodingLatin9,  ///< ISO-8859-15 (Latin-9).
 
 	kEncodingCP1250,  ///< Windows codepage 1250 (Eastern European, Latin alphabet).
+	kEncodingCP1251,  ///< Windows codepage 1251 (Eastern European, Cyrillic alphabet).
 	kEncodingCP1252,  ///< Windows codepage 1252 (Western European, Latin alphabet).
 
 	kEncodingCP932,   ///< Windows codepage 932 (Japanese, extended Shift-JIS).
@@ -57,22 +61,22 @@ enum Encoding {
 UString readString(SeekableReadStream &stream, Encoding encoding);
 
 /** Read length bytes as a string with the given encoding out of a stream. */
-UString readStringFixed(SeekableReadStream &stream, Encoding encoding, uint32 length);
+UString readStringFixed(SeekableReadStream &stream, Encoding encoding, size_t length);
 
 /** Read a line with the given encoding out of a stream. */
 UString readStringLine(SeekableReadStream &stream, Encoding encoding);
 
 /** Read a string with the given encoding from the raw buffer. */
-UString readString(const byte *data, uint32 size, Encoding encoding);
+UString readString(const byte *data, size_t size, Encoding encoding);
 
 /** Convert a string into the given encoding. */
-SeekableReadStream *convertString(const UString &str, Encoding encoding);
+MemoryReadStream *convertString(const UString &str, Encoding encoding, bool terminateString = true);
 
 /** Return the number of bytes per codepoint in this encoding.
  *
  *  Note: This will throw on encodings with a variable number of bytes per codepoint.
  */
-uint32 getBytesPerCodepoint(Encoding encoding);
+size_t getBytesPerCodepoint(Encoding encoding);
 
 } // End of namespace Common
 

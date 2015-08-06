@@ -27,16 +27,24 @@ noinst_HEADERS = \
                  system.h \
                  types.h \
                  util.h \
+                 strutil.h \
                  encoding.h \
+                 platform.h \
+                 readstream.h \
+                 memreadstream.h \
+                 writestream.h \
+                 memwritestream.h \
                  maths.h \
                  noncopyable.h \
                  singleton.h \
                  error.h \
                  ustring.h \
-                 stream.h \
-                 file.h \
                  version.h \
                  hash.h \
+                 md5.h \
+                 blowfish.h \
+                 readfile.h \
+                 writefile.h \
                  filepath.h \
                  filelist.h \
                  filetree.h \
@@ -53,13 +61,21 @@ noinst_HEADERS = \
 
 libcommon_la_SOURCES = \
                        util.cpp \
+                       strutil.cpp \
                        encoding.cpp \
+                       platform.cpp \
+                       readstream.cpp \
+                       memreadstream.cpp \
+                       writestream.cpp \
+                       memwritestream.cpp \
                        maths.cpp \
+                       md5.cpp \
+                       blowfish.cpp \
                        error.cpp \
                        ustring.cpp \
-                       stream.cpp \
-                       file.cpp \
                        version.cpp \
+                       readfile.cpp \
+                       writefile.cpp \
                        filepath.cpp \
                        filelist.cpp \
                        filetree.cpp \

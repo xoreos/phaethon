@@ -61,16 +61,21 @@ public:
 	PixelFormat getFormat() const;
 
 	/** Return the number of mip maps contained in the image. */
-	uint32 getMipMapCount() const;
+	size_t getMipMapCount() const;
 
 	/** Return a mip map. */
-	const MipMap &getMipMap(uint32 mipMap) const;
+	const MipMap &getMipMap(size_t mipMap) const;
 
 	/** Return TXI data, if embedded in the image. */
 	virtual Common::SeekableReadStream *getTXI() const;
 
 	/** Dump the image into a TGA. */
 	bool dumpTGA(const Common::UString &fileName) const;
+
+	/** Flip the whole image horizontally. */
+	void flipHorizontally();
+	/** Flip the whole image vertically. */
+	void flipVertically();
 
 protected:
 	PixelFormat _format;

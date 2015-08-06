@@ -22,35 +22,35 @@
  *  ZIP file decompresssion.
  */
 
-#include <boost/algorithm/string.hpp>
+#include <cassert>
 
 #include "src/common/zipfile.h"
 #include "src/common/error.h"
 #include "src/common/util.h"
 #include "src/common/encoding.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/memreadstream.h"
 
 #include <zlib.h>
 
 namespace Common {
 
-ZipFile::ZipFile(const UString &fileName) : _fileName(fileName) {
-	load();
+ZipFile::ZipFile(SeekableReadStream *zip) : _zip(zip) {
+	assert(_zip);
+
+	try {
+		load(*_zip);
+	} catch (...) {
+		delete _zip;
+		throw;
+	}
 }
 
 ZipFile::~ZipFile() {
+	delete _zip;
 }
 
-void ZipFile::clear() {
-	_files.clear();
-}
-
-void ZipFile::load() {
-	Common::File zip;
-	open(zip);
-
-	uint32 endPos = findCentralDirectoryEnd(zip);
+void ZipFile::load(SeekableReadStream &zip) {
+	size_t endPos = findCentralDirectoryEnd(zip);
 	if (endPos == 0)
 		throw Exception("End of central directory record not found");
 
@@ -120,9 +120,6 @@ void ZipFile::load() {
 			}
 		}
 	}
-
-	if (zip.err())
-		throw Exception(kReadError);
 }
 
 const ZipFile::FileList &ZipFile::getFiles() const {
@@ -131,12 +128,12 @@ const ZipFile::FileList &ZipFile::getFiles() const {
 
 const ZipFile::IFile &ZipFile::getIFile(uint32 index) const {
 	if (index >= _iFiles.size())
-		throw Exception("File index out of range (%d/%d)", index, _iFiles.size());
+		throw Exception("File index out of range (%u/%u)", index, (uint)_iFiles.size());
 
 	return _iFiles[index];
 }
 
-void ZipFile::getFileProperties(Common::SeekableReadStream &zip, const IFile &file,
+void ZipFile::getFileProperties(SeekableReadStream &zip, const IFile &file,
 		uint16 &compMethod, uint32 &compSize, uint32 &realSize) const {
 
 	zip.seek(file.offset);
@@ -159,44 +156,25 @@ void ZipFile::getFileProperties(Common::SeekableReadStream &zip, const IFile &fi
 
 	zip.skip(nameLength);
 	zip.skip(extraLength);
-
-	if (zip.err())
-		throw Exception(kReadError);
 }
 
-uint32 ZipFile::getFileSize(uint32 index) const {
-	const IFile &file = getIFile(index);
+size_t ZipFile::getFileSize(uint32 index) const {
+	return getIFile(index).size;
+}
 
-	Common::File zip;
-	open(zip);
+SeekableReadStream *ZipFile::getFile(uint32 index, bool tryNoCopy) const {
+	const IFile &file = getIFile(index);
 
 	uint16 compMethod;
 	uint32 compSize;
 	uint32 realSize;
 
-	getFileProperties(zip, file, compMethod, compSize, realSize);
+	getFileProperties(*_zip, file, compMethod, compSize, realSize);
 
-	return realSize;
-}
+	if (tryNoCopy && (compMethod == 0))
+		return new SeekableSubReadStream(_zip, _zip->pos(), _zip->pos() + compSize);
 
-SeekableReadStream *ZipFile::getFile(uint32 index) const {
-	const IFile &file = getIFile(index);
-
-	Common::File zip;
-	open(zip);
-
-	uint16 compMethod;
-	uint32 compSize;
-	uint32 realSize;
-
-	getFileProperties(zip, file, compMethod, compSize, realSize);
-
-	return decompressFile(zip, compMethod, compSize, realSize);
-}
-
-void ZipFile::open(Common::File &file) const {
-	if (!file.open(_fileName))
-		throw Exception(kOpenError);
+	return decompressFile(*_zip, compMethod, compSize, realSize);
 }
 
 SeekableReadStream *ZipFile::decompressFile(SeekableReadStream &zip, uint32 method,
@@ -258,25 +236,23 @@ SeekableReadStream *ZipFile::decompressFile(SeekableReadStream &zip, uint32 meth
 }
 
 #define BUFREADCOMMENT (0x400)
-uint32 ZipFile::findCentralDirectoryEnd(SeekableReadStream &zip) {
-	uint32 uSizeFile = zip.size();
-	if (zip.err())
-		return 0;
+size_t ZipFile::findCentralDirectoryEnd(SeekableReadStream &zip) {
+	size_t uSizeFile = zip.size();
 
-	uint32 uMaxBack = MIN<uint32>(0xFFFF, uSizeFile); // Maximum size of global comment
+	size_t uMaxBack = MIN<size_t>(0xFFFF, uSizeFile); // Maximum size of global comment
 
 	byte *buf = new byte[BUFREADCOMMENT + 4];
 
-	uint32 uPosFound = 0;
-	uint32 uBackRead = 4;
+	size_t uPosFound = 0;
+	size_t uBackRead = 4;
 	while ((uPosFound == 0) && (uBackRead < uMaxBack)) {
-		uint32 uReadSize, uReadPos;
+		size_t uReadSize, uReadPos;
 
-		uBackRead = MIN<uint32>(uMaxBack, uBackRead + BUFREADCOMMENT);
+		uBackRead = MIN<size_t>(uMaxBack, uBackRead + BUFREADCOMMENT);
 
 		uReadPos  = uSizeFile - uBackRead;
 
-		uReadSize = MIN<uint32>(BUFREADCOMMENT + 4, uSizeFile - uReadPos);
+		uReadSize = MIN<size_t>(BUFREADCOMMENT + 4, uSizeFile - uReadPos);
 
 		try {
 			zip.seek(uReadPos);
@@ -290,7 +266,7 @@ uint32 ZipFile::findCentralDirectoryEnd(SeekableReadStream &zip) {
 			break;
 		}
 
-		for (int i = (uReadSize - 3); (i--) > 0;)
+		for (size_t i = (uReadSize - 3); i-- > 0; )
 			if (READ_LE_UINT32(buf + i) == 0x06054B50) {
 				uPosFound = uReadPos + i;
 				break;

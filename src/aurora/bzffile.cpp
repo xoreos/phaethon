@@ -25,12 +25,15 @@
  *  Essentially, they are BIF files with LZMA-compressed data.
  */
 
+#include <cassert>
+
+#include "src/common/types.h" /* need to include before lzma.h stop it redefining macros */
 #include <lzma.h>
 
 #include "src/common/util.h"
+#include "src/common/strutil.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/memreadstream.h"
 
 #include "src/aurora/bzffile.h"
 
@@ -39,22 +42,22 @@ static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
 
 namespace Aurora {
 
-BZFFile::BZFFile(const Common::UString &fileName) : _fileName(fileName) {
-	load();
+BZFFile::BZFFile(Common::SeekableReadStream *bzf) : _bzf(bzf) {
+	assert(_bzf);
+
+	try {
+		load(*_bzf);
+	} catch (...) {
+		delete _bzf;
+		throw;
+	}
 }
 
 BZFFile::~BZFFile() {
+	delete _bzf;
 }
 
-void BZFFile::open(Common::File &file) const {
-	if (!file.open(_fileName))
-		throw Common::Exception(Common::kOpenError);
-}
-
-void BZFFile::load() {
-	Common::File bzf;
-	open(bzf);
-
+void BZFFile::load(Common::SeekableReadStream &bzf) {
 	readHeader(bzf);
 
 	if (_id != kBZFID)
@@ -75,9 +78,6 @@ void BZFFile::load() {
 
 		_resources.resize(varResCount);
 		readVarResTable(bzf, offVarResTable);
-
-		if (bzf.err())
-			throw Common::Exception(Common::kReadError);
 
 	} catch (Common::Exception &e) {
 		e.add("Failed reading BZF file");
@@ -109,16 +109,13 @@ Common::SeekableReadStream *BZFFile::getResource(uint32 index) const {
 	if ((res.packedSize == 0) || (res.size == 0))
 		return new Common::MemoryReadStream(0, 0);
 
-	Common::File bzf;
-	open(bzf);
-
-	bzf.seek(res.offset);
+	_bzf->seek(res.offset);
 
 	byte *compressedData = new byte[res.packedSize];
 
 	Common::SeekableReadStream *resStream = 0;
 	try {
-		if (bzf.read(compressedData, res.packedSize) != res.packedSize)
+		if (_bzf->read(compressedData, res.packedSize) != res.packedSize)
 			throw Common::Exception(Common::kReadError);
 
 		resStream = decompress(compressedData, res.packedSize, res.size);
@@ -143,7 +140,7 @@ Common::SeekableReadStream *BZFFile::decompress(byte *compressedData, uint32 pac
 	if (!lzma_filter_decoder_is_supported(filters[0].id))
 		throw Common::Exception("LZMA1 compression not supported");
 
-	uint32_t propsSize;
+	uint32 propsSize;
 	if (lzma_properties_size(&propsSize, &filters[0]) != LZMA_OK)
 		throw Common::Exception("Can't get LZMA1 properties size");
 

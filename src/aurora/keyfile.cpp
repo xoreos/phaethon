@@ -22,10 +22,15 @@
  *  Handling BioWare's KEYs (resource index files).
  */
 
+/* See BioWare's own specs released for Neverwinter Nights modding
+ * (<https://github.com/xoreos/xoreos-docs/tree/master/specs/bioware>)
+ */
+
 #include "src/common/util.h"
+#include "src/common/strutil.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/readstream.h"
+#include "src/common/encoding.h"
 
 #include "src/aurora/keyfile.h"
 #include "src/aurora/keydatafile.h"
@@ -36,21 +41,18 @@ static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
 
 namespace Aurora {
 
-KEYFile::KEYFile(const Common::UString &fileName) {
-	Common::File key;
-	if (!key.open(fileName))
-		throw Common::Exception(Common::kOpenError);
+KEYFile::KEYFile(Common::SeekableReadStream *key) {
+	try {
+		load(*key);
+	} catch (...) {
+		delete key;
+		throw;
+	}
 
-	load(key);
+	delete key;
 }
 
 KEYFile::~KEYFile() {
-}
-
-void KEYFile::clear() {
-	_resources.clear();
-	_iResources.clear();
-	_dataFiles.clear();
 }
 
 bool KEYFile::haveDataFile(uint32 index) const {
@@ -82,10 +84,10 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 	readHeader(key);
 
 	if (_id != kKEYID)
-		throw Common::Exception("Not a KEY file");
+		throw Common::Exception("Not a KEY file (%s)", Common::debugTag(_id).c_str());
 
 	if ((_version != kVersion1) && (_version != kVersion11))
-		throw Common::Exception("Unsupported KEY file version %08X", _version);
+		throw Common::Exception("Unsupported KEY file version %s", Common::debugTag(_version).c_str());
 
 	uint32 dataFileCount = key.readUint32LE();
 	uint32 resCount      = key.readUint32LE();
@@ -94,8 +96,8 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 	if (_version == kVersion11)
 		key.skip(4);
 
-	uint32 offFileTable = key.readUint32LE();
-	uint32 offResTable  = key.readUint32LE();
+	uint32 offFileTable     = key.readUint32LE();
+	uint32 offResTable      = key.readUint32LE();
 
 	key.skip( 8); // Build year and day
 	key.skip(32); // Reserved
@@ -108,9 +110,6 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 		_resources.resize(resCount);
 		_iResources.resize(resCount);
 		readResList(key, offResTable);
-
-		if (key.err())
-			throw Common::Exception(Common::kReadError);
 
 	} catch (Common::Exception &e) {
 		e.add("Failed reading KEY file");
@@ -125,8 +124,8 @@ void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 	for (std::vector<Common::UString>::iterator d = _dataFiles.begin(); d != _dataFiles.end(); ++d) {
 		key.skip(4); // File size of the data file
 
-		uint32 nameOffset = key.readUint32LE();
-		uint32 nameSize   = 0;
+		ptrdiff_t nameOffset = key.readUint32LE();
+		size_t    nameSize   = 0;
 
 		// nameSize is expanded to 4 bytes in 1.1 and the location is dropped
 		if (_version == kVersion11) {
@@ -136,13 +135,15 @@ void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 			key.skip(2); // Location of the data file (HD, CD, ...)
 		}
 
-		uint32 curPos = key.seekTo(nameOffset);
+		size_t curPos = key.seek(nameOffset);
 
 		*d = Common::readStringFixed(key, Common::kEncodingASCII, nameSize);
 
-		key.seekTo(curPos);
+		key.seek(curPos);
 
-		AuroraFile::cleanupPath(*d);
+		d->replaceAll('\\', '/');
+		if (d->beginsWith("/"))
+			d->erase(d->begin());
 	}
 }
 
@@ -180,7 +181,7 @@ const Archive::ResourceList &KEYFile::getResources() const {
 
 const KEYFile::IResource &KEYFile::getIResource(uint32 index) const {
 	if (index >= _iResources.size())
-		throw Common::Exception("Resource index out of range (%d/%d)", index, _iResources.size());
+		throw Common::Exception("Resource index out of range (%u/%u)", index, (uint)_iResources.size());
 
 	return _iResources[index];
 }
@@ -193,7 +194,7 @@ uint32 KEYFile::getResourceSize(uint32 index) const {
 	return iRes.dataFile->getResourceSize(iRes.resIndex);
 }
 
-Common::SeekableReadStream *KEYFile::getResource(uint32 index) const {
+Common::SeekableReadStream *KEYFile::getResource(uint32 index, bool UNUSED(tryNoCopy)) const {
 	const IResource &iRes = getIResource(index);
 	if (!iRes.dataFile)
 		throw Common::Exception("Data files for resource %d (\"%s\") missing", index,

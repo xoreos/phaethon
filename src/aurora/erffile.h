@@ -37,7 +37,6 @@
 
 namespace Common {
 	class SeekableReadStream;
-	class File;
 }
 
 namespace Aurora {
@@ -45,11 +44,8 @@ namespace Aurora {
 /** Class to hold resource data of an ERF file. */
 class ERFFile : public Archive, public AuroraBase {
 public:
-	ERFFile(const Common::UString &fileName, bool noResources = false);
+	ERFFile(Common::SeekableReadStream *erf, const std::vector<byte> &password = std::vector<byte>());
 	~ERFFile();
-
-	/** Clear the resource list. */
-	void clear();
 
 	/** Return the list of resources. */
 	const ResourceList &getResources() const;
@@ -58,7 +54,12 @@ public:
 	uint32 getResourceSize(uint32 index) const;
 
 	/** Return a stream of the resource's contents. */
-	Common::SeekableReadStream *getResource(uint32 index) const;
+	Common::SeekableReadStream *getResource(uint32 index, bool tryNoCopy = false) const;
+
+	/** Return the year the ERF was built. */
+	uint32 getBuildYear() const;
+	/** Return the day of year the ERF was built. */
+	uint32 getBuildDay() const;
 
 	/** Return the description. */
 	const LocString &getDescription() const;
@@ -66,18 +67,47 @@ public:
 	/** Return with which algorithm the name is hashed. */
 	Common::HashAlgo getNameHashAlgo() const;
 
+	static LocString getDescription(Common::SeekableReadStream &erf);
+	static LocString getDescription(const Common::UString &fileName);
+
 private:
+	enum Encryption {
+		kEncryptionNone        = 0,
+		kEncryptionXOR         = 1,
+		kEncryptionBlowfishDAO = 2,
+		kEncryptionBlowfishDA2 = 3
+	};
+
+	enum Compression {
+		kCompressionNone           = 0,
+		kCompressionBioWareZlib    = 1,
+		kCompressionHeaderlessZlib = 7
+	};
+
 	/** The header of an ERF file. */
 	struct ERFHeader {
-		uint32 langCount;      ///< Number of language strings in the description.
-		uint32 descriptionID;  ///< ID of the description.
+		uint32 resCount;         ///< Number of resources in this ERF.
 
-		uint32 offDescription; ///< Offset to the description.
-		uint32 offKeyList;     ///< Offset to the key list.
-		uint32 offResList;     ///< Offset to the resource list.
+		uint32 langCount;        ///< Number of language strings in the description.
+		uint32 descriptionID;    ///< ID of the description.
 
-		char      *stringTable; ///< String table used for hashed ERFs.
-		uint32 stringTableSize; ///< Size of the string table.
+		uint32 offDescription;   ///< Offset to the description.
+		uint32 offKeyList;       ///< Offset to the key list.
+		uint32 offResList;       ///< Offset to the resource list.
+
+		uint32 buildYear;        ///< The year the ERF was built.
+		uint32 buildDay;         ///< The day of year the ERF was built.
+
+		char  *stringTable;      ///< String table used for hashed ERFs.
+		uint32 stringTableSize;  ///< Size of the string table.
+
+		uint32 moduleID;         ///< ID of the module this ERF belongs to.
+
+		Encryption  encryption;  ///< The encryption algorithm in use.
+		Compression compression; ///< The compression algorithm in use.
+
+		/** Digest of the encryption password, if any. */
+		std::vector<byte> passwordDigest;
 	};
 
 	/** Internal resource information. */
@@ -89,7 +119,9 @@ private:
 
 	typedef std::vector<IResource> IResourceList;
 
-	bool _noResources;
+	Common::SeekableReadStream *_erf;
+
+	ERFHeader _header;
 
 	/** The ERF's description. */
 	LocString _description;
@@ -100,20 +132,18 @@ private:
 	/** Internal list of resource offsets and sizes. */
 	IResourceList _iResources;
 
-	/** The name of the ERF file. */
-	Common::UString _fileName;
+	/** The password we were given, if any. */
+	std::vector<byte> _password;
 
-	uint32 _flags;
-	uint32 _moduleID;
-	Common::UString _passwordDigest;
+	void load(Common::SeekableReadStream &erf);
 
-	void open(Common::File &file) const;
+	static void verifyVersion(uint32 id, uint32 version, bool utf16le);
 
-	void load();
+	static void readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header, uint32 version);
+	static void readDescription(LocString &description, Common::SeekableReadStream &erf,
+                              const ERFHeader &header, uint32 version);
 
-	void readERFHeader  (Common::SeekableReadStream &erf,       ERFHeader &header);
-	void readDescription(Common::SeekableReadStream &erf, const ERFHeader &header);
-	void readResources  (Common::SeekableReadStream &erf, const ERFHeader &header);
+	void readResources(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V1.0
 	void readV1ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
@@ -131,11 +161,14 @@ private:
 	// V3.0
 	void readV3ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
+	// Encryption
+	void verifyPasswordDigest();
+	Common::MemoryReadStream *decrypt(Common::MemoryReadStream *cryptStream) const;
+
 	// Compression
-	uint32 getCompressionType() const;
-	Common::SeekableReadStream *decompress(byte *compressedData, uint32 packedSize, uint32 unpackedSize) const;
-	Common::SeekableReadStream *decompressBiowareZlib(byte *compressedData, uint32 packedSize, uint32 unpackedSize) const;
-	Common::SeekableReadStream *decompressHeaderlessZlib(byte *compressedData, uint32 packedSize, uint32 unpackedSize) const;
+	Common::SeekableReadStream *decompress(Common::MemoryReadStream *packedStream, uint32 unpackedSize) const;
+	Common::SeekableReadStream *decompressBiowareZlib(Common::MemoryReadStream *packedStream, uint32 unpackedSize) const;
+	Common::SeekableReadStream *decompressHeaderlessZlib(Common::MemoryReadStream *packedStream, uint32 unpackedSize) const;
 	Common::SeekableReadStream *decompressZlib(byte *compressedData, uint32 packedSize, uint32 unpackedSize, int windowBits) const;
 
 	const IResource &getIResource(uint32 index) const;

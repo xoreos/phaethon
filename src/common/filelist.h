@@ -25,24 +25,21 @@
 #ifndef COMMON_FILELIST_H
 #define COMMON_FILELIST_H
 
-#include <string>
 #include <list>
-#include <map>
 
-#include <boost/filesystem.hpp>
-
-#include "src/common/types.h"
 #include "src/common/ustring.h"
 
 namespace Common {
 
-class SeekableReadStream;
-
 /** A list of files. */
 class FileList {
 public:
+	typedef std::list<UString>::const_iterator const_iterator;
+
 	FileList();
 	FileList(const FileList &list);
+	/** Construct a list with the contents of this directory. See addDirectory(). */
+	FileList(const UString &directory, int recurseDepth = 0);
 	~FileList();
 
 	FileList &operator=(const FileList &list);
@@ -52,17 +49,25 @@ public:
 	void clear();
 
 	/** Is the list empty? */
-	bool isEmpty() const;
+	bool empty() const;
 	/** Return the number of files in the list. */
-	uint32 size() const;
+	size_t size() const;
 
-	/** Copy the names of the files in the FileList into a list.
-	 *
-	 *  @param list The list into which to copy the file names.
+	/** Sort this list alphabetically. */
+	void sort(bool caseInsensitive);
+
+	/** Express all files in this archive as relative to the given base path.
+	 *  Files that do not match the base path will be removed from the list.
+	 *  See also FilePath::relativize().
 	 */
-	uint getFileNames(std::list<UString> &list) const;
+	void relativize(const Common::UString &basePath);
 
-	/** Add a directory to the list.
+	/** Return a const_iterator pointing to the beginning of the list. */
+	const_iterator begin() const;
+	/** Return a const_iterator pointing past the end of the list. */
+	const_iterator end() const;
+
+	/** Add a directory to the list
 	 *
 	 *  @param  directory The directory to add.
 	 *  @param  recurseDepth The number of levels to recurse into subdirectories. 0
@@ -72,38 +77,31 @@ public:
 	 */
 	bool addDirectory(const UString &directory, int recurseDepth = 0);
 
-	/** Add a file to the list.
+	/** Add files ending with the given string into another FileList.
 	 *
-	 *  @param  file The file to add.
-	 *  @return true if the file was successfully added to the list,
-	 *          false otherwise.
-	 */
-	bool addFile(const UString &file);
-
-	/** Add the files matching the given regex into another FileList.
-	 *
-	 *  @param  glob A perl regular expression to match the file names against.
+	 *  @param  str A file ending to match file names against.
+	 *  @param  caseInsensitive Should the case of the file name be ignored?
 	 *  @param  subList The FileList to where to add the matching files.
-	 *  @param  caseInsensitive Should the case of the file name be ignored?
 	 *  @return true if at least one matching file was found.
 	 */
-	bool getSubList(const UString &glob, FileList &subList, bool caseInsensitive = false) const;
+	bool getSubList(const UString &str, bool caseInsensitive, FileList &subList) const;
 
-	/** Add the files matching the given regex into a list of file names.
+	/** Add files matching the given regex into another FileList.
 	 *
 	 *  @param  glob A perl regular expression to match the file names against.
-	 *  @param  list The list to where to add the matching file names.
 	 *  @param  caseInsensitive Should the case of the file name be ignored?
+	 *  @param  subList The FileList to where to add the matching files.
 	 *  @return true if at least one matching file was found.
 	 */
-	bool getSubList(const UString &glob, std::list<UString> &list, bool caseInsensitive = false) const;
+	bool getSubListGlob(const UString &glob, bool caseInsensitive, FileList &subList) const;
 
-	/** Does the list contain the specified file?
+	/** Does the list contain at least one file ending with the given string?
 	 *
-	 *  @param  fileName The file to look for.
-	 *  @return true if the file is in the list, false if not.
+	 *  @param  str A file ending to match file names against.
+	 *  @param  caseInsensitive Should the case of the file name be ignored?
+	 *  @return true if at least one matching file is found, false otherwise.
 	 */
-	bool contains(const UString &fileName) const;
+	bool contains(const UString &str, bool caseInsensitive) const;
 
 	/** Does the list contain at least one file matching the given regex?
 	 *
@@ -111,7 +109,16 @@ public:
 	 *  @param  caseInsensitive Should the case of the file name be ignored?
 	 *  @return true if at least one matching file is found, false otherwise.
 	 */
-	bool contains(const UString &glob, bool caseInsensitive) const;
+	bool containsGlob(const UString &glob, bool caseInsensitive) const;
+
+	/** Find the first file ending with the given string.
+	 *
+	 *  @param  str A file ending to match file names against.
+	 *  @param  caseInsensitive Should the case of the file name be ignored?
+	 *  @return The path of the first matching file, or "" if such a file is not
+	 *          in the list.
+	 */
+	UString findFirst(const UString &str, bool caseInsensitive) const;
 
 	/** Find the first file matching the given regex.
 	 *
@@ -120,73 +127,12 @@ public:
 	 *  @return The path of the first matching file, or "" if such a file is not
 	 *          in the list.
 	 */
-	UString findFirst(const UString &glob, bool caseInsensitive) const;
-
-	/** Open the specified file.
-	 *
-	 *  @param  fileName The file to open.
-	 *  @return A SeekableReadStream of the file, or 0 if the file not
-	 *          in the list.
-	 */
-	SeekableReadStream *openFile(const UString &fileName) const;
-
-	/** Open the first file matching the given regex.
-	 *
-	 *  @param  glob A perl regular expression to match the file names against.
-	 *  @param  caseInsensitive Should the case of the file name be ignored?
-	 *  @return A SeekableReadStream of the file, or 0 if such a file is not
-	 *          in the list.
-	 */
-	SeekableReadStream *openFile(const UString &glob, bool caseInsensitive) const;
+	UString findFirstGlob(const UString &glob, bool caseInsensitive) const;
 
 private:
-	/** A file path. */
-	struct FilePath {
-		UString baseDir;          ///< The base directory from which the path was added.
-		UString pathString;       ///< The complete path string form.
-		boost::filesystem::path filePath; ///< The complete real path.
+	typedef std::list<UString> Files;
 
-		FilePath(UString b, boost::filesystem::path p);
-		FilePath(const FilePath &p);
-	};
-
-	typedef std::multimap<UString, std::list<FilePath>::const_iterator> FileMap;
-
-	std::list<FilePath> _files; ///< The files.
-
-	/** The files mapped by extensionless, lowercase filename. */
-	FileMap _fileMap;
-
-	bool addDirectory(const UString &base, const boost::filesystem::path &directory, int recurseDepth);
-
-	void addPath(const UString &base, const boost::filesystem::path &p);
-	void addPath(const FilePath &p);
-
-	const FilePath *getPath(const UString &fileName) const;
-	const FilePath *getPath(const UString &glob, bool caseInsensitive) const;
-
-public:
-	/** Iterator over all files in a FileList. */
-	class const_iterator {
-	public:
-		const_iterator(const const_iterator &i);
-		const_iterator(const std::list<FilePath>::const_iterator &i);
-
-		const_iterator &operator++();
-		const_iterator operator++(int);
-		const_iterator &operator--();
-		const_iterator operator--(int);
-		const UString &operator*() const;
-		const UString *operator->() const;
-		bool operator==(const const_iterator &x) const;
-		bool operator!=(const const_iterator &x) const;
-
-	private:
-		std::list<FilePath>::const_iterator it;
-	};
-
-	const_iterator begin() const;
-	const_iterator end() const;
+	Files _files;
 };
 
 } // End of namespace Common

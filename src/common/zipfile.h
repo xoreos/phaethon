@@ -34,7 +34,6 @@
 namespace Common {
 
 class SeekableReadStream;
-class File;
 
 /** A class encapsulating ZIP file access. */
 class ZipFile {
@@ -47,20 +46,17 @@ public:
 
 	typedef std::list<File> FileList;
 
-	ZipFile(const UString &fileName);
+	ZipFile(SeekableReadStream *zip);
 	~ZipFile();
-
-	/** Clear the file list. */
-	void clear();
 
 	/** Return the list of files. */
 	const FileList &getFiles() const;
 
 	/** Return the size of a file. */
-	uint32 getFileSize(uint32 index) const;
+	size_t getFileSize(uint32 index) const;
 
 	/** Return a stream of the files's contents. */
-	SeekableReadStream *getFile(uint32 index) const;
+	SeekableReadStream *getFile(uint32 index, bool tryNoCopy = false) const;
 
 private:
 	/** Internal file information. */
@@ -71,25 +67,22 @@ private:
 
 	typedef std::vector<IFile> IFileList;
 
+	SeekableReadStream *_zip;
+
 	/** External list of file names and types. */
 	FileList _files;
 
 	/** Internal list of file offsets and sizes. */
 	IFileList _iFiles;
 
-	/** The name of the ZIP file. */
-	UString _fileName;
-
-	void open(Common::File &file) const;
-
-	void load();
-	uint32 findCentralDirectoryEnd(SeekableReadStream &zip);
+	void load(SeekableReadStream &zip);
+	size_t findCentralDirectoryEnd(SeekableReadStream &zip);
 
 	static SeekableReadStream *decompressFile(SeekableReadStream &zip, uint32 method,
 			uint32 compSize, uint32 realSize);
 
 	const IFile &getIFile(uint32 index) const;
-	void getFileProperties(Common::SeekableReadStream &zip, const IFile &file,
+	void getFileProperties(SeekableReadStream &zip, const IFile &file,
 			uint16 &compMethod, uint32 &compSize, uint32 &realSize) const;
 };
 

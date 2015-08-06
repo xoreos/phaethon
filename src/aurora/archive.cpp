@@ -22,7 +22,7 @@
  *  Handling various archive files.
  */
 
-#include "src/common/util.h"
+#include "src/common/system.h"
 
 #include "src/aurora/archive.h"
 

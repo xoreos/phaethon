@@ -25,11 +25,14 @@
 #include <list>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/system/config.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
 #include "src/common/filepath.h"
 #include "src/common/util.h"
+#include "src/common/error.h"
+#include "src/common/encoding.h"
+#include "src/common/platform.h"
 
 // boost-filesystem stuff
 using boost::filesystem::path;
@@ -38,8 +41,7 @@ using boost::filesystem::is_regular_file;
 using boost::filesystem::is_directory;
 using boost::filesystem::file_size;
 using boost::filesystem::directory_iterator;
-using boost::filesystem::absolute;
-using boost::filesystem::canonical;
+using boost::filesystem::create_directories;
 
 // boost-string_algo
 using boost::equals;
@@ -55,10 +57,10 @@ bool FilePath::isDirectory(const UString &p) {
 	return (exists(p.c_str()) && is_directory(p.c_str()));
 }
 
-uint32 FilePath::getFileSize(const UString &p) {
+size_t FilePath::getFileSize(const UString &p) {
 	uintmax_t size = file_size(p.c_str());
 
-	if (size == ((uintmax_t) -1))
+	if ((size == ((uintmax_t) -1)) || (size > 0x7FFFFFFF))
 		return kFileInvalid;
 
 	return size;
@@ -67,19 +69,19 @@ uint32 FilePath::getFileSize(const UString &p) {
 UString FilePath::getFile(const UString &p) {
 	path file(p.c_str());
 
-	return file.filename().c_str();
+	return file.filename().string();
 }
 
 UString FilePath::getStem(const UString &p) {
 	path file(p.c_str());
 
-	return file.stem().c_str();
+	return file.stem().string();
 }
 
 UString FilePath::getExtension(const UString &p) {
 	path file(p.c_str());
 
-	return file.extension().c_str();
+	return file.extension().string();
 }
 
 UString FilePath::changeExtension(const UString &p, const UString &ext) {
@@ -90,49 +92,147 @@ UString FilePath::changeExtension(const UString &p, const UString &ext) {
 	return file.string();
 }
 
-path FilePath::normalize(const boost::filesystem::path &p) {
-	if (!exists(p.c_str()))
-		return path("");
+UString FilePath::getDirectory(const UString &p) {
+	path file(p.c_str());
 
-	UString norm = canonical(p).c_str();
-
-	norm.replaceAll('\\', '/');
-
-	return path(norm.c_str());
-}
-
-UString FilePath::normalize(const UString &p) {
-	return normalize(path(p.c_str())).c_str();
+	return file.parent_path().string();
 }
 
 bool FilePath::isAbsolute(const UString &p) {
-	return path(p.c_str()).has_root_directory();
+	return boost::filesystem::path(p.c_str()).is_absolute();
 }
 
-UString FilePath::makeRelative(UString basePath, const UString &path) {
-	if (basePath.empty())
-		return path;
+static path convertToSlash(const path &p) {
+	const boost::regex bSlash("\\\\");
+	const std::string fSlash("/");
+	const boost::match_flag_type flags(boost::match_default | boost::format_sed);
 
-	if (!basePath.endsWith("/"))
-		basePath += '/';
-
-	if (!path.beginsWith(basePath))
-		return "";
-
-	return path.substr(path.getPosition(basePath.size()), path.end());
+	return path(boost::regex_replace(p.string(), bSlash, fSlash, flags));
 }
 
-void FilePath::getSubDirectories(const UString &directory, std::list<UString> &subDirectories) {
+UString FilePath::absolutize(const UString &p) {
+	path source = convertToSlash(p.c_str()).native();
 
-	path dirPath(directory.c_str());
+	// Resolve ~ as the user's home directory
+	path::iterator itr = source.begin();
+	if ((itr != source.end()) && (itr->string() == "~")) {
+		path newSource = getHomeDirectory().c_str();
 
-	// Iterator over the directory's contents
-	directory_iterator itEnd;
-	for (directory_iterator itDir(dirPath); itDir != itEnd; ++itDir) {
-		if (is_directory(itDir->status())) {
-			subDirectories.push_back(itDir->path().generic_string());
+		for (++itr; itr != source.end(); ++itr)
+			newSource /= *itr;
+
+		source = newSource;
+	}
+
+	return convertToSlash(boost::filesystem::absolute(source)).string().c_str();
+}
+
+UString FilePath::relativize(const UString &basePath, const UString &path) {
+	UString relative = "";
+
+	if (path.beginsWith(basePath)) {
+		relative = path.substr(path.getPosition(basePath.size() + 1), path.end());
+	}
+
+	return relative;
+}
+
+UString FilePath::normalize(const UString &p, bool resolveSymLinks) {
+	boost::filesystem::path source = convertToSlash(p.c_str()).native();
+	boost::filesystem::path result;
+
+	// Resolve ~ as the user's home directory
+	boost::filesystem::path::iterator itr = source.begin();
+	if ((itr != source.end()) && (itr->string() == "~")) {
+		boost::filesystem::path newSource = getHomeDirectory().c_str();
+
+		for (++itr; itr != source.end(); ++itr)
+			newSource /= *itr;
+
+		source = newSource;
+	}
+
+	bool scan = true;
+	while (scan) {
+		scan = false;
+		result.clear();
+
+		for (itr = source.begin(); itr != source.end(); ++itr) {
+			// Resolve .
+			if (itr->string() == ".")
+				continue;
+
+			// Resolve .., but only if symbolic links are also resolved
+			if (resolveSymLinks && (itr->string() == "..")) {
+				if (result != source.root_path())
+					result.remove_filename();
+				continue;
+			}
+
+			result /= *itr;
+
+			/* If the resolving of symbolic links was requested, check if the current path
+			 * is one. If it is, resolve it and restart normalization.
+			 */
+
+			if (!resolveSymLinks)
+				continue;
+
+			boost::system::error_code ec;
+			boost::filesystem::path link = boost::filesystem::read_symlink(result, ec);
+
+			if (!link.empty()) {
+				result.remove_filename();
+
+				if (link.is_absolute()) {
+					for (++itr; itr != source.end(); ++itr)
+						link /= *itr;
+
+					source = link;
+
+				} else {
+					boost::filesystem::path newSource = result;
+
+					newSource /= link;
+
+					for (++itr; itr != source.end(); ++itr)
+						newSource /= *itr;
+
+					source = newSource;
+				}
+
+				scan = true;
+				break;
+			}
 		}
 	}
+
+	if (!result.has_root_directory())
+		result = boost::filesystem::absolute(result);
+
+	return convertToSlash(result).string().c_str();
+}
+
+UString FilePath::canonicalize(const UString &p, bool resolveSymLinks) {
+	return normalize(absolutize(p), resolveSymLinks);
+}
+
+bool FilePath::getSubDirectories(const UString &directory, std::list<UString> &subDirectories) {
+	path dirPath(directory.c_str());
+
+	try {
+		// Iterate over the directory's contents
+		directory_iterator itEnd;
+		for (directory_iterator itDir(dirPath); itDir != itEnd; ++itDir) {
+			if (is_directory(itDir->status())) {
+				subDirectories.push_back(itDir->path().generic_string());
+			}
+		}
+	} catch (...) {
+		return false;
+	}
+
+	return true;
 }
 
 static void splitDirectories(const UString &directory, std::list<UString> &dirs) {
@@ -165,8 +265,22 @@ static UString findSubDirectory_internal(const UString &directory, const UString
 		bool caseInsensitive) {
 
 	try {
-		path dirPath(directory.c_str());
-		path subDirPath(subDirectory.c_str());
+		// Special case: . is the same, current directory
+		if (subDirectory == UString("."))
+			return directory;
+
+		const path dirPath(directory.c_str());
+
+		// Special case: .. is the parent directory
+		if (subDirectory == UString("..")) {
+			path parent = dirPath.parent_path();
+			if (parent == dirPath)
+				return "";
+
+			return parent.generic_string();
+		}
+
+		const path subDirPath(subDirectory.c_str());
 
 		// Iterator over the directory's contents
 		directory_iterator itEnd;
@@ -175,10 +289,10 @@ static UString findSubDirectory_internal(const UString &directory, const UString
 				// It's a directory. Check if it's the one we're looking for
 
 				if (caseInsensitive) {
-					if (iequals(itDir->path().filename().c_str(), subDirectory.c_str()))
+					if (iequals(itDir->path().filename().string(), subDirectory.c_str()))
 						return itDir->path().generic_string();
 				} else {
-					if (equals(itDir->path().filename().c_str(), subDirectory.c_str()))
+					if (equals(itDir->path().filename().string(), subDirectory.c_str()))
 						return itDir->path().generic_string();
 				}
 			}
@@ -213,6 +327,14 @@ UString FilePath::findSubDirectory(const UString &directory, const UString &subD
 	return curDir;
 }
 
+bool FilePath::createDirectories(const UString &path) {
+	try {
+		return create_directories(path.c_str());
+	} catch (std::exception &se) {
+		throw Exception(se);
+	}
+}
+
 UString FilePath::escapeStringLiteral(const UString &str) {
 	const boost::regex esc("[\\^\\.\\$\\|\\(\\)\\[\\]\\*\\+\\?\\/\\\\]");
 	const std::string  rep("\\\\\\1&");
@@ -220,7 +342,7 @@ UString FilePath::escapeStringLiteral(const UString &str) {
 	return boost::regex_replace(std::string(str.c_str()), esc, rep, boost::match_default | boost::format_sed);
 }
 
-UString FilePath::getHumanReadableSize(uint32 size) {
+UString FilePath::getHumanReadableSize(size_t size) {
 	static const char *sizes[] = {"B", "K", "M", "G"};
 
 	double s = size;
@@ -232,6 +354,10 @@ UString FilePath::getHumanReadableSize(uint32 size) {
 	}
 
 	return UString::format("%.2lf%s", s, sizes[n]);
+}
+
+UString FilePath::getHomeDirectory() {
+	return Platform::getHomeDirectory();
 }
 
 } // End of namespace Common

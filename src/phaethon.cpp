@@ -30,6 +30,7 @@
 #include "src/common/version.h"
 #include "src/common/error.h"
 #include "src/common/ustring.h"
+#include "src/common/platform.h"
 
 #include "src/sound/sound.h"
 
@@ -37,17 +38,24 @@
 
 #include "src/cline.h"
 
+void initPlatform();
+
 void openGamePath(const Common::UString &path);
 
 int main(int argc, char **argv) {
+	initPlatform();
+
+	std::vector<Common::UString> args;
+	Common::Platform::getParameters(argc, argv, args);
+
 	// Find out what we're supposed to do
-	Job job = parseCommandLine(argc, argv);
+	Job job = parseCommandLine(args);
 
 	try {
 		// Handle the job
 		switch (job.operation) {
 			case kOperationHelp:
-				std::printf("%s\n", createHelpText(argv[0]).c_str());
+				std::printf("%s\n", createHelpText(args[0]).c_str());
 				break;
 
 			case kOperationVersion:
@@ -60,7 +68,7 @@ int main(int argc, char **argv) {
 
 			case kOperationInvalid:
 			default:
-				std::printf("%s\n", createHelpText(argv[0]).c_str());
+				std::printf("%s\n", createHelpText(args[0]).c_str());
 				return -1;
 		}
 	} catch (Common::Exception &e) {
@@ -74,6 +82,17 @@ int main(int argc, char **argv) {
 	}
 
 	return 0;
+}
+
+void initPlatform() {
+	try {
+		Common::Platform::init();
+	} catch (Common::Exception &e) {
+		e.add("Failed to initialize the low-level platform-specific subsytem");
+
+		Common::printException(e);
+		std::exit(1);
+	}
 }
 
 

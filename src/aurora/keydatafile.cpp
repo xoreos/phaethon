@@ -44,7 +44,7 @@ uint32 KEYDataFile::getResourceSize(uint32 index) const {
 
 const KEYDataFile::Resource &KEYDataFile::getRes(uint32 index) const {
 	if (index >= _resources.size())
-		throw Common::Exception("Resource index out of range (%d/%d)", index, _resources.size());
+		throw Common::Exception("Resource index out of range (%u/%u)", index, (uint)_resources.size());
 
 	return _resources[index];
 }

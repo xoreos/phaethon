@@ -185,9 +185,10 @@ enum FileType {
 	kFileTypeKEY            =  9999, ///< Game resource index.
 
 	// Found in NWN
-	kFileTypeDBF            = 19000, ///< xBase database.
-	kFileTypeCDX            = 19001, ///< FoxPro database index.
-	kFileTypeFPT            = 19002, ///< FoxPro database memo file.
+	kFileTypeEXE            = 19000, ///< Windows PE EXE file.
+	kFileTypeDBF            = 19001, ///< xBase database.
+	kFileTypeCDX            = 19002, ///< FoxPro database index.
+	kFileTypeFPT            = 19003, ///< FoxPro database memo file.
 
 	// Found in NWN2's ZIP files
 	kFileTypeZIP            = 20000, ///< Face bone definitions, FaceFX Actor.
@@ -234,7 +235,7 @@ enum FileType {
 	kFileTypeNBFS           = 21010, ///< Image, Map, Nitro Basic File Screen.
 	kFileTypeNCER           = 21011, ///< Image, Nitro CEll Resource.
 	kFileTypeNCGR           = 21012, ///< Image, Nitro Character Graphic Resource.
-	kFileTypeNCLR           = 21013, ///< Palette, Nitro CoLouR.
+	kFileTypeNCLR           = 21013, ///< Palette, Nitro CoLoR.
 	kFileTypeNFTR           = 21014, ///< Font.
 	kFileTypeNSBCA          = 21015, ///< Model Animation.
 	kFileTypeNSBMD          = 21016, ///< Model.
@@ -279,6 +280,15 @@ enum FileType {
 	kFileTypeFEV            = 22026, ///< FMOD Event.
 	kFileTypeFSB            = 22027, ///< Audio, FMOD sound bank.
 	kFileTypeOPF            = 22028,
+	kFileTypeCRF            = 22029,
+	kFileTypeRIMP           = 22030,
+	kFileTypeMET            = 22031, ///< Resource meta information.
+	kFileTypeMETA           = 22032, ///< Resource meta information.
+	kFileTypeFXR            = 22033, ///< Face metadata, FaceFX.
+	kFileTypeFXT            = 22033, ///< Face metadata, FaceFX.
+	kFileTypeCIF            = 22034, ///< Campaign Information File, GFF4.
+	kFileTypeCUB            = 22035,
+	kFileTypeDLB            = 22036,
 
 	// Found in KotOR Mac
 	kFileTypeMOV            = 23000, ///< Video, QuickTime/MPEG-4.
@@ -329,7 +339,10 @@ enum FileType {
 	kFileTypeBZF            = 26000, ///< Game resource data, LZMA-compressed BIF
 
 	// Found in The Witcher
-	kFileTypeADV            = 27000  ///< Extra adventure modules, ERF.
+	kFileTypeADV            = 27000, ///< Extra adventure modules, ERF.
+
+	// Our own types
+	kFileTypeXEOSITEX       = 40000  ///< Intermediate texture.
 };
 
 enum GameID {
@@ -361,9 +374,10 @@ enum ArchiveType {
 	kArchiveRIM,     ///< RIM archive.
 	kArchiveZIP,     ///< ZIP archive.
 	kArchiveEXE,     ///< EXE archive.
-	kArchiveMAX,
 	kArchiveNDS,     ///< Nintendo DS ROM.
-	kArchiveHERF     ///< HERF archive.
+	kArchiveHERF,    ///< HERF archive.
+	kArchiveNSBTX,   ///< NSBTX texture archives.
+	kArchiveMAX
 };
 
 enum Platform {

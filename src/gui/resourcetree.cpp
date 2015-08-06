@@ -26,8 +26,8 @@
 #include <wx/imaglist.h>
 
 #include "src/common/error.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/readstream.h"
+#include "src/common/readfile.h"
 #include "src/common/filepath.h"
 
 #include "src/sound/sound.h"
@@ -118,7 +118,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 				throw Common::Exception("Can't get file data of a directory");
 
 			case kSourceFile:
-				return new Common::File(_data.path.c_str());
+				return new Common::ReadFile(_data.path.generic_string().c_str());
 
 			case kSourceArchiveFile:
 				if (!_data.archive)

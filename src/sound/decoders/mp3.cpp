@@ -24,9 +24,12 @@
  *  Decoding MP3 (MPEG-1 Audio Layer 3).
  */
 
+#include <cassert>
+#include <cstring>
+
 #include "src/sound/decoders/mp3.h"
 
-#include "src/common/stream.h"
+#include "src/common/readstream.h"
 #include "src/common/util.h"
 
 #include "src/sound/audiostream.h"
@@ -47,7 +50,7 @@ protected:
 	Common::SeekableReadStream *_inStream;
 	bool _disposeAfterUse;
 
-	uint _posInFrame;
+	size_t _posInFrame;
 	State _state;
 
 	mad_timer_t _totalTime;
@@ -55,9 +58,6 @@ protected:
 	mad_stream _stream;
 	mad_frame _frame;
 	mad_synth _synth;
-
-	uint64 _length;
-	uint64 _samples;
 
 	enum {
 		BUFFER_SIZE = 5 * 8192
@@ -71,12 +71,11 @@ public:
 	               bool dispose);
 	~MP3Stream();
 
-	int readBuffer(int16 *buffer, const int numSamples);
+	size_t readBuffer(int16 *buffer, const size_t numSamples);
 
 	bool endOfData() const		{ return _state == MP3_STATE_EOS; }
 	int getChannels() const		{ return MAD_NCHANNELS(&_frame.header); }
 	int getRate() const			{ return _frame.header.samplerate; }
-	uint64 getLength() const	{ return _length; }
 	bool rewind();
 
 protected:
@@ -93,9 +92,7 @@ MP3Stream::MP3Stream(Common::SeekableReadStream *inStream, bool dispose) :
 	_disposeAfterUse(dispose),
 	_posInFrame(0),
 	_state(MP3_STATE_INIT),
-	_totalTime(mad_timer_zero),
-	_length(kInvalidLength),
-	_samples(0) {
+	_totalTime(mad_timer_zero) {
 
 	// The MAD_BUFFER_GUARD must always contain zeros (the reason
 	// for this is that the Layer III Huffman decoder of libMAD
@@ -107,8 +104,6 @@ MP3Stream::MP3Stream(Common::SeekableReadStream *inStream, bool dispose) :
 
 	while (_state != MP3_STATE_EOS)
 		readHeader();
-
-	_length = _samples;
 
 	deinitStream();
 
@@ -170,7 +165,7 @@ void MP3Stream::decodeMP3Data() {
 }
 
 void MP3Stream::readMP3Data() {
-	uint32 remaining = 0;
+	size_t remaining = 0;
 
 	// Give up immediately if we already used up all data in the stream
 	if (_inStream->eos()) {
@@ -188,7 +183,7 @@ void MP3Stream::readMP3Data() {
 	}
 
 	// Try to read the next block
-	uint32 size = _inStream->read(_buf + remaining, BUFFER_SIZE - remaining);
+	size_t size = _inStream->read(_buf + remaining, BUFFER_SIZE - remaining);
 	if (size <= 0) {
 		_state = MP3_STATE_EOS;
 		return;
@@ -222,9 +217,8 @@ void MP3Stream::initStream() {
 	mad_synth_init(&_synth);
 
 	// Reset the stream data
-	_inStream->seek(0, SEEK_SET);
+	_inStream->seek(0);
 	_totalTime = mad_timer_zero;
-	_samples = 0;
 	_posInFrame = 0;
 
 	// Update state
@@ -263,7 +257,6 @@ void MP3Stream::readHeader() {
 
 		// Sum up the total playback time so far
 		mad_timer_add(&_totalTime, _frame.header.duration);
-		_samples += 32 * MAD_NSBSAMPLES(&_frame.header);
 		break;
 	}
 
@@ -297,11 +290,11 @@ static inline int scale_sample(mad_fixed_t sample) {
 	return sample >> (MAD_F_FRACBITS + 1 - 16);
 }
 
-int MP3Stream::readBuffer(int16 *buffer, const int numSamples) {
-	int samples = 0;
+size_t MP3Stream::readBuffer(int16 *buffer, const size_t numSamples) {
+	size_t samples = 0;
 	// Keep going as long as we have input available
 	while (samples < numSamples && _state != MP3_STATE_EOS) {
-		const int len = MIN(numSamples, samples + (int)(_synth.pcm.length - _posInFrame) * MAD_NCHANNELS(&_frame.header));
+		const size_t len = MIN<size_t>(numSamples, samples + (int)(_synth.pcm.length - _posInFrame) * MAD_NCHANNELS(&_frame.header));
 		while (samples < len) {
 			*buffer++ = (int16)scale_sample(_synth.pcm.samples[0][_posInFrame]);
 			samples++;

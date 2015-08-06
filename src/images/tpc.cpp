@@ -22,15 +22,17 @@
  *  TPC (BioWare's own texture format) loading.
  */
 
+#include <cstring>
+
 #include "src/common/util.h"
 #include "src/common/maths.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/memreadstream.h"
 
 #include "src/images/tpc.h"
 #include "src/images/util.h"
 
-static const byte kEncodingGrey         = 0x01;
+static const byte kEncodingGray         = 0x01;
 static const byte kEncodingRGB          = 0x02;
 static const byte kEncodingRGBA         = 0x04;
 static const byte kEncodingSwizzledBGRA = 0x0C;
@@ -53,9 +55,6 @@ void TPC::load(Common::SeekableReadStream &tpc) {
 		readHeader (tpc, encoding);
 		readData   (tpc, encoding);
 		readTXIData(tpc);
-
-		if (tpc.err())
-			throw Common::Exception(Common::kReadError);
 
 	} catch (Common::Exception &e) {
 		e.add("Failed reading TPC file");
@@ -95,8 +94,8 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 	if (dataSize == 0) {
 		// Uncompressed
 
-		if        (encoding == kEncodingGrey) {
-			// 8bpp greyscale
+		if        (encoding == kEncodingGray) {
+			// 8bpp grayscale
 
 			_format = kPixelFormatR8G8B8;
 
@@ -147,7 +146,7 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 	} else
 		throw Common::Exception("Unknown TPC encoding: %d (%d)", encoding, dataSize);
 
-	uint32 fullDataSize = tpc.size() - 128;
+	size_t fullDataSize = tpc.size() - 128;
 
 	_mipMaps.reserve(mipMapCount);
 	for (uint32 i = 0; i < mipMapCount; i++) {
@@ -214,17 +213,17 @@ void TPC::readData(Common::SeekableReadStream &tpc, byte encoding) {
 			if (tpc.read((*mipMap)->data, (*mipMap)->size) != (*mipMap)->size)
 				throw Common::Exception(Common::kReadError);
 
-			// Unpacking 8bpp greyscale data into RGB
-			if (encoding == kEncodingGrey) {
-				byte *dataGrey = (*mipMap)->data;
+			// Unpacking 8bpp grayscale data into RGB
+			if (encoding == kEncodingGray) {
+				byte *dataGray = (*mipMap)->data;
 
 				(*mipMap)->size = (*mipMap)->width * (*mipMap)->height * 3;
 				(*mipMap)->data = new byte[(*mipMap)->size];
 
 				for (int i = 0; i < ((*mipMap)->width * (*mipMap)->height); i++)
-					memset((*mipMap)->data + i * 3, dataGrey[i], 3);
+					memset((*mipMap)->data + i * 3, dataGray[i], 3);
 
-				delete[] dataGrey;
+				delete[] dataGray;
 			}
 		}
 

@@ -44,11 +44,8 @@ class KEYDataFile;
 
 class KEYFile : public Archive, public AuroraBase {
 public:
-	KEYFile(const Common::UString &fileName);
+	KEYFile(Common::SeekableReadStream *key);
 	~KEYFile();
-
-	/** Clear the resource list. */
-	void clear();
 
 	/** Add a data file that's managed by this KEY file. */
 	void addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile);
@@ -77,7 +74,7 @@ public:
 	 *        this method will throw an error if the respective
 	 *        data file was not added first with addDataFile().
 	 */
-	Common::SeekableReadStream *getResource(uint32 index) const;
+	Common::SeekableReadStream *getResource(uint32 index, bool tryNoCopy = false) const;
 
 private:
 	/** Internal resource information. */

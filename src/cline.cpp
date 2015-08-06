@@ -26,19 +26,19 @@
 
 #include "src/cline.h"
 
-Job parseCommandLine(int argc, char **argv) {
+Job parseCommandLine(const std::vector<Common::UString> &argv) {
 	Job job;
 
 	// No options at all means we operate on an empty path
 	job.operation = kOperationPath;
 
 	// Go through all arguments
-	for (int i = 1; i < argc; i++) {
+	for (size_t i = 1; i < argv.size(); i++) {
 		// Find --help and --version
-		if        (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+		if        ((argv[i] == Common::UString("-h")) || (argv[i] == Common::UString("--help"))) {
 			job.operation = kOperationHelp;
 			break;
-		} else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--version")) {
+		} else if ((argv[i] == Common::UString("-v")) || (argv[i] == Common::UString("--version"))) {
 			job.operation = kOperationVersion;
 			break;
 		}
@@ -94,11 +94,11 @@ Common::UString createVersionText() {
 	return text;
 }
 
-Common::UString createHelpText(const char *name) {
+Common::UString createHelpText(const Common::UString &name) {
 	Common::UString text;
 
 	text += Common::UString::format("%s - A FLOSS resource explorer for BioWare's Aurora engine games\n", PHAETHON_NAME);
-	text += Common::UString::format("Usage: %s [options] [<path>]\n", name);
+	text += Common::UString::format("Usage: %s [options] [<path>]\n", name.c_str());
 	text += Common::UString::format("  -h      --help              Display this text and exit.\n");
 	text += Common::UString::format("  -v      --version           Display version information and exit.");
 

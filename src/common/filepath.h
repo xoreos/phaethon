@@ -25,14 +25,14 @@
 #ifndef COMMON_FILEPATH_H
 #define COMMON_FILEPATH_H
 
-#include <boost/filesystem.hpp>
+#include <list>
 
 #include "src/common/types.h"
 #include "src/common/ustring.h"
 
 namespace Common {
 
-static const uint32 kFileInvalid = 0xFFFFFFFF;
+static const size_t kFileInvalid = SIZE_MAX;
 
 /** Utility class for manipulating file paths. */
 class FilePath {
@@ -56,7 +56,7 @@ public:
 	 *  @param  p The file to look up.
 	 *  @return The size of the file or kFileInvalid if not a valid file.
 	 */
-	static uint32 getFileSize(const UString &p);
+	static size_t getFileSize(const UString &p);
 
 	/** Return a file name without its path.
 	 *
@@ -95,25 +95,14 @@ public:
 	 */
 	static UString changeExtension(const UString &p, const UString &ext = "");
 
-	/** Normalize a path.
+	/** Return a path's directory.
 	 *
-	 *  A normalized path is absolute, contains no consecutive '/', uses '/'
-	 *  as a directory separator and must exist.
+	 *  Example: "/path/to/file.ext" -> "/path/to/"
 	 *
-	 *  @param  p The path to normalize.
-	 *  @return The normalized path.
+	 *  @param  p The path to manipulate.
+	 *  @return The path's directory.
 	 */
-	static boost::filesystem::path normalize(const boost::filesystem::path &p);
-
-	/** Normalize a path.
-	 *
-	 *  A normalized path is absolute, contains no consecutive '/', uses '/'
-	 *  as a directory separator, don't end with an '/' and must exist.
-	 *
-	 *  @param  p The path to normalize.
-	 *  @return The normalized path.
-	 */
-	static UString normalize(const UString &p);
+	static UString getDirectory(const UString &p);
 
 	/** Is the given string an absolute path?
 	 *
@@ -122,6 +111,19 @@ public:
 	 */
 	static bool isAbsolute(const UString &p);
 
+	/** Return the absolute path.
+	 *
+	 *  If the path is already absolute, just return that path. If not, interpret it
+	 *  as relative to the program starting path and then return an absolute path of that.
+	 *
+	 *  In addition, a path starting with a ~ directory will be changed to point to
+	 *  the user's home directory.
+	 *
+	 *  @param  p The path to absolutize.
+	 *  @return The absolutized path.
+	 */
+	static UString absolutize(const UString &p);
+
 	/** Return the path relative to the base path.
 	 *
 	 *  If the path does not start with the base path, an empty path will be returned;
@@ -129,7 +131,43 @@ public:
 	 *  @param  path The path to make relative.
 	 *  @return The relative path.
 	 */
-	static UString makeRelative(UString basePath, const UString &path);
+	static UString relativize(const UString &basePath, const UString &path);
+
+	/** Normalize a path.
+	 *
+	 *  A normalized path contains no consecutive '/', uses '/' as a directory path separator,
+	 *  starts with either "/", "[A-Za-z]:/" or "./" and does not end with a '/'.
+	 *
+	 *  In addition, "." and "..", symbolic links and ~ are resolved.
+	 *
+	 *  NOTE: If the resolving of symbolic links is disabled, ".." will not be resolved
+	 *        either, as ".." following a symbolic links should modify the destination
+	 *        of that symbolic link and not remove it.
+	 *
+	 *  The effect is very similar to boost::filesystem::canonical(), except:
+	 *  - boost::filesystem::canonical() does not resolve ~ to the user's home directory
+	 *  - boost::filesystem::canonical() absolutizes a path, normalize() does not
+	 *  - boost::filesystem::canonical() fails on paths that don't exist, normalize() does not
+	 *
+	 *  @param  p The path to normalize.
+	 *  @param  resolveSymLinks Should symbolic links be resolved?
+	 *  @return The normalized path.
+	 */
+	static UString normalize(const UString &p, bool resolveSymLinks = true);
+
+	/** Return the canonical, absolutized and normalized path.
+	 *
+	 *  Calls absolutize() and normalize() on the path.
+	 *
+	 *  The effect is very similar to boost::filesystem::canonical(), except:
+	 *  - boost::filesystem::canonical() does not resolve ~ to the user's home directory
+	 *  - boost::filesystem::canonical() fails on paths that don't exist, normalize() does not
+	 *
+	 *  @param  p The path to canonicalize.
+	 *  @param  resolveSymLinks Should symbolic links be resolved?
+	 *  @return The canonicalized path.
+	 */
+	static UString canonicalize(const UString &p, bool resolveSymLinks = true);
 
 	/** Find a directory's subdirectory.
 	 *
@@ -141,13 +179,39 @@ public:
 	static UString findSubDirectory(const UString &directory, const UString &subDirectory,
 	                                bool caseInsensitive = false);
 
-	static void getSubDirectories(const UString &directory, std::list<UString> &subDirectories);
+	/** Collect all direct subdirectories of a directory in a list.
+	 *
+	 *  For example, if the specified directory contains the directories "foo" and "bar", and
+	 *  the file "quux", the list will contain the directories "foo" and "bar".
+	 *
+	 *  @param  directory The directory in which to look.
+	 *  @param  subDirectories The list to add the directories to.
+	 *  @return false if the specified path was not a directory or could not be searched;
+	 *          true otherwise.
+	 */
+	static bool getSubDirectories(const UString &directory, std::list<UString> &subDirectories);
+
+	/** Create all directories in this path.
+	 *
+	 *  For example, if called on the path "/foo/bar/quux/", this will create
+	 *  the directories "/foo/", "/foo/bar/" and "/foo/bar/quux/" if necessary.
+	 *
+	 *  @param  path The path to create.
+	 *  @return true if at least one directory was created.
+	 */
+	static bool createDirectories(const UString &path);
 
 	/** Escape a string literal for use in a regexp. */
 	static UString escapeStringLiteral(const UString &str);
 
 	/** Format this file size into a human readable string. */
-	static UString getHumanReadableSize(uint32 size);
+	static UString getHumanReadableSize(size_t size);
+
+	/** Return the OS-specific path of the user's home directory.
+	 *
+	 *  If no home directory was accessible, an empty string is returned.
+	 */
+	static UString getHomeDirectory();
 };
 
 } // End of namespace Common

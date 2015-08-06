@@ -48,11 +48,11 @@ UString::UString(const char *str) {
 	*this = str;
 }
 
-UString::UString(const char *str, int n) {
+UString::UString(const char *str, size_t n) {
 	*this = std::string(str, n);
 }
 
-UString::UString(uint32 c, int n) : _size(0) {
+UString::UString(uint32 c, size_t n) : _size(0) {
 	while (n-- > 0)
 		*this += c;
 }
@@ -183,7 +183,7 @@ UString &UString::operator+=(uint32 c) {
 	try {
 		utf8::append(c, std::back_inserter(_string));
 	} catch (const std::exception &se) {
-		Exception e(se.what());
+		Exception e(se);
 		throw e;
 	}
 
@@ -263,7 +263,7 @@ void UString::clear() {
 	_size = 0;
 }
 
-uint32 UString::size() const {
+size_t UString::size() const {
 	return _size;
 }
 
@@ -287,6 +287,22 @@ UString::iterator UString::findFirst(uint32 c) const {
 	for (iterator it = begin(); it != end(); ++it)
 		if (*it == c)
 			return it;
+
+	return end();
+}
+
+UString::iterator UString::findLast(uint32 c) const {
+	if (empty())
+		return end();
+
+	iterator it = end();
+	do {
+		--it;
+
+		if (*it == c)
+			return it;
+
+	} while (it != begin());
 
 	return end();
 }
@@ -335,6 +351,10 @@ bool UString::contains(const UString &what) const {
 	return _string.find(what._string) != std::string::npos;
 }
 
+bool UString::contains(uint32 c) const {
+	return findFirst(c) != end();
+}
+
 void UString::truncate(const iterator &it) {
 	UString temp;
 
@@ -344,7 +364,7 @@ void UString::truncate(const iterator &it) {
 	swap(temp);
 }
 
-void UString::truncate(uint32 n) {
+void UString::truncate(size_t n) {
 	if (n >= _size)
 		return;
 
@@ -456,7 +476,7 @@ void UString::replaceAll(uint32 what, uint32 with) {
 		_string.swap(newString);
 
 	} catch (const std::exception &se) {
-		Exception e(se.what());
+		Exception e(se);
 		throw e;
 	}
 }
@@ -489,14 +509,14 @@ UString UString::toUpper() const {
 	return str;
 }
 
-UString::iterator UString::getPosition(uint32 n) const {
+UString::iterator UString::getPosition(size_t n) const {
 	iterator it = begin();
-	for (uint32 i = 0; (i < n) && (it != end()); i++, ++it);
+	for (size_t i = 0; (i < n) && (it != end()); i++, ++it);
 	return it;
 }
 
-uint32 UString::getPosition(iterator it) const {
-	uint32 n = 0;
+size_t UString::getPosition(iterator it) const {
+	size_t n = 0;
 	for (iterator i = begin(); i != it; ++i, n++);
 	return n;
 }
@@ -717,8 +737,8 @@ UString UString::format(const char *s, ...) {
 	return UString(buf);
 }
 
-uint32 UString::split(const UString &text, uint32 delim, std::vector<UString> &texts) {
-	uint32 length = 0;
+size_t UString::split(const UString &text, uint32 delim, std::vector<UString> &texts) {
+	size_t length = 0;
 
 	UString t = text;
 
@@ -749,7 +769,7 @@ void UString::recalculateSize() {
 		// Calculate the "distance" in characters from the beginning and end
 		_size = utf8::distance(_string.begin(), _string.end());
 	} catch (const std::exception &se) {
-		Exception e(se.what());
+		Exception e(se);
 		throw e;
 	}
 }
@@ -803,7 +823,7 @@ uint32 UString::fromUTF16(uint16 c) {
 	try {
 		utf8::utf16to8(&c, &c + 1, std::back_inserter(utf8result));
 	} catch (const std::exception &se) {
-		Exception e(se.what());
+		Exception e(se);
 		throw e;
 	}
 

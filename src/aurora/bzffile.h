@@ -34,26 +34,21 @@
 #include "src/aurora/aurorafile.h"
 #include "src/aurora/keydatafile.h"
 
-namespace Common {
-	class File;
-}
-
 namespace Aurora {
 
 /** Class to hold resource data information of a bzf file. */
 class BZFFile : public AuroraBase, public KEYDataFile {
 public:
-	BZFFile(const Common::UString &fileName);
+	BZFFile(Common::SeekableReadStream *bzf);
 	~BZFFile();
 
 	/** Return a stream of the resource's contents. */
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
-	Common::UString _fileName;
+	Common::SeekableReadStream *_bzf;
 
-	void open(Common::File &file) const;
-	void load();
+	void load(Common::SeekableReadStream &bzf);
 
 	void readVarResTable(Common::SeekableReadStream &bzf, uint32 offset);
 

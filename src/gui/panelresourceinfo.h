@@ -105,7 +105,7 @@ private:
 	static Common::UString constructStatus(const Common::UString &action,
 			const Common::UString &name, const Common::UString &destination);
 
-	static Common::UString getSizeLabel(uint32 size);
+	static Common::UString getSizeLabel(size_t size);
 	static Common::UString getFileTypeLabel(Aurora::FileType type);
 	static Common::UString getResTypeLabel(Aurora::ResourceType type);
 

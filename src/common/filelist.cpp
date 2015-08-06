@@ -22,91 +22,22 @@
  *  A list of files.
  */
 
-#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
-#include <boost/version.hpp>
 
 #include "src/common/filelist.h"
-#include "src/common/file.h"
-#include "src/common/stream.h"
+#include "src/common/filepath.h"
 
 // boost-filesystem stuff
-using boost::filesystem::path;
-using boost::filesystem::exists;
-using boost::filesystem::is_directory;
-using boost::filesystem::is_regular_file;
 using boost::filesystem::directory_iterator;
-
-// boost-string_algo
-using boost::to_lower_copy;
-using boost::equals;
-using boost::iequals;
-
-#if ((((BOOST_VERSION / 100000) == 1) && (((BOOST_VERSION / 100) % 1000) < 44)) || BOOST_FILESYSTEM_VERSION == 2)
-#define generic_string() string()
-#elif BOOST_FILESYSTEM_VERSION == 3
-#define stem() stem().string()
-#endif
 
 namespace Common {
 
-FileList::FilePath::FilePath(UString b, boost::filesystem::path p) :
-	baseDir(b), pathString(p.string()), filePath(p) {
-}
-
-FileList::FilePath::FilePath(const FilePath &p) :
-	baseDir(p.baseDir), pathString(p.pathString), filePath(p.filePath) {
-}
-
-
-FileList::const_iterator::const_iterator(const const_iterator &i) : it(i.it) {
-}
-
-FileList::const_iterator::const_iterator(const std::list<FilePath>::const_iterator &i) : it(i) {
-}
-
-FileList::const_iterator &FileList::const_iterator::operator++() {
-	++it;
-
-	return *this;
-}
-
-FileList::const_iterator FileList::const_iterator::operator++(int) {
-	const_iterator tmp(*this);
-	++(*this);
-	return tmp;
-}
-
-FileList::const_iterator &FileList::const_iterator::operator--() {
-	--it;
-
-	return *this;
-}
-
-FileList::const_iterator FileList::const_iterator::operator--(int) {
-	const_iterator tmp(*this);
-	--(*this);
-	return tmp;
-}
-
-const UString &FileList::const_iterator::operator*() const {
-	return it->pathString;
-}
-
-const UString *FileList::const_iterator::operator->() const {
-	return &it->pathString;
-}
-
-bool FileList::const_iterator::operator==(const const_iterator &x) const {
-	return it == x.it;
-}
-
-bool FileList::const_iterator::operator!=(const const_iterator &x) const {
-	return it != x.it;
-}
-
-
 FileList::FileList() {
+}
+
+FileList::FileList(const UString &directory, int recurseDepth) {
+	addDirectory(directory, recurseDepth);
 }
 
 FileList::FileList(const FileList &list) {
@@ -118,66 +49,77 @@ FileList::~FileList() {
 
 FileList &FileList::operator=(const FileList &list) {
 	_files = list._files;
-	_fileMap = list._fileMap;
 
 	return *this;
 }
 
 FileList &FileList::operator+=(const FileList &list) {
 	_files.insert(_files.end(), list._files.begin(), list._files.end());
-	_fileMap.insert(list._fileMap.begin(), list._fileMap.end());
 
 	return *this;
 }
 
 void FileList::clear() {
 	_files.clear();
-	_fileMap.clear();
 }
 
-bool FileList::isEmpty() const {
+bool FileList::empty() const {
 	return _files.empty();
 }
 
-uint32 FileList::size() const {
+size_t FileList::size() const {
 	return _files.size();
 }
 
-uint FileList::getFileNames(std::list<UString> &list) const {
-	uint n = 0;
-	for (std::list<FilePath>::const_iterator it = _files.begin(); it != _files.end(); ++it) {
-		list.push_back(it->pathString);
-		n++;
-	}
+void FileList::sort(bool caseInsensitive) {
+	if (caseInsensitive)
+		_files.sort(Common::UString::iless());
+	else
+		_files.sort(Common::UString::sless());
+}
 
-	return n;
+void FileList::relativize(const Common::UString &basePath) {
+	std::list<UString>::iterator file = _files.begin();
+
+	while (file != _files.end()) {
+		*file = FilePath::relativize(basePath, *file);
+
+		if (file->empty())
+			file = _files.erase(file);
+		else
+			++file;
+	}
+}
+
+FileList::const_iterator FileList::begin() const {
+	return _files.begin();
+}
+
+FileList::const_iterator FileList::end() const {
+	return _files.end();
 }
 
 bool FileList::addDirectory(const UString &directory, int recurseDepth) {
-	return addDirectory(directory, path(directory.c_str()), recurseDepth);
-}
-
-bool FileList::addDirectory(const UString &base,
-		const boost::filesystem::path &directory, int recurseDepth) {
-
-	if (!exists(directory) || !is_directory(directory))
-		// Path is either no directory or doesn't exist
+	// Not a directory? Fail.
+	if (!FilePath::isDirectory(directory))
 		return false;
 
 	try {
 		// Iterator over the directory's contents
-		directory_iterator itEnd;
-		for (directory_iterator itDir(directory); itDir != itEnd; ++itDir) {
-			if (is_directory(itDir->status())) {
+		for (directory_iterator itEnd, itDir(directory.c_str()); itDir != itEnd; ++itDir) {
+			const UString path = itDir->path().generic_string();
+
+			if (FilePath::isDirectory(path)) {
 				// It's a directory. Recurse into it if the depth limit wasn't yet reached
 
 				if (recurseDepth != 0)
-					if (!addDirectory(base, itDir->path(), (recurseDepth == -1) ? -1 : (recurseDepth - 1)))
+					if (!addDirectory(path, (recurseDepth == -1) ? -1 : (recurseDepth - 1)))
 						return false;
 
 			} else
 				// It's a path, add it to the list
-				addPath(base, itDir->path());
+				_files.push_back(FilePath::canonicalize(path, false));
+
 		}
 	} catch (...) {
 		return false;
@@ -186,25 +128,25 @@ bool FileList::addDirectory(const UString &base,
 	return true;
 }
 
-bool FileList::addFile(const UString &file) {
-	if (!exists(file.c_str()) || !is_regular_file(file.c_str()))
-		// File is either no regular file or doesn't exist
-		return false;
+bool FileList::getSubList(const UString &str, bool caseInsensitive, FileList &subList) const {
+	UString match = caseInsensitive ? str.toLower() : str;
 
-	addPath(file, path(file.c_str()));
-	return true;
+	bool foundMatch = false;
+
+	// Iterate through the whole list, adding the matches to the sub list
+	for (Files::const_iterator it = _files.begin(); it != _files.end(); ++it) {
+		bool matching = caseInsensitive ? it->toLower().endsWith(match) : it->endsWith(match);
+
+		if (matching) {
+			subList._files.push_back(*it);
+			foundMatch = true;
+		}
+	}
+
+	return foundMatch;
 }
 
-void FileList::addPath(const FilePath &p) {
-	_files.push_back(p);
-	_fileMap.insert(std::make_pair(to_lower_copy(p.filePath.stem()), --_files.end()));
-}
-
-void FileList::addPath(const UString &base, const boost::filesystem::path &p) {
-	addPath(FilePath(base, p));
-}
-
-bool FileList::getSubList(const UString &glob, FileList &subList, bool caseInsensitive) const {
+bool FileList::getSubListGlob(const UString &glob, bool caseInsensitive, FileList &subList) const {
 	boost::regex::flag_type type = boost::regex::perl;
 	if (caseInsensitive)
 		type |= boost::regex::icase;
@@ -213,112 +155,49 @@ bool FileList::getSubList(const UString &glob, FileList &subList, bool caseInsen
 	bool foundMatch = false;
 
 	// Iterate through the whole list, adding the matches to the sub list
-	for (std::list<FilePath>::const_iterator it = _files.begin(); it != _files.end(); ++it)
-		if (boost::regex_match(it->filePath.generic_string(), expression)) {
-			subList.addPath(*it);
+	for (Files::const_iterator it = _files.begin(); it != _files.end(); ++it)
+		if (boost::regex_match(it->c_str(), expression)) {
+			subList._files.push_back(*it);
 			foundMatch = true;
 		}
 
 	return foundMatch;
 }
 
-bool FileList::getSubList(const UString &glob, std::list<UString> &list, bool caseInsensitive) const {
-	boost::regex::flag_type type = boost::regex::perl;
-	if (caseInsensitive)
-		type |= boost::regex::icase;
-	boost::regex expression(glob.c_str(), type);
+bool FileList::contains(const UString &str, bool caseInsensitive) const {
+	return !findFirst(str, caseInsensitive).empty();
+}
 
-	bool foundMatch = false;
+bool FileList::containsGlob(const UString &glob, bool caseInsensitive) const {
+	return !findFirstGlob(glob, caseInsensitive).empty();
+}
+
+UString FileList::findFirst(const UString &str, bool caseInsensitive) const {
+	UString match = caseInsensitive ? str.toLower() : str;
 
 	// Iterate through the whole list, adding the matches to the sub list
-	for (std::list<FilePath>::const_iterator it = _files.begin(); it != _files.end(); ++it)
-		if (boost::regex_match(it->filePath.generic_string(), expression)) {
-			list.push_back(it->filePath.generic_string());
-			foundMatch = true;
-		}
+	for (Files::const_iterator it = _files.begin(); it != _files.end(); ++it) {
+		bool matching = caseInsensitive ? it->toLower().endsWith(match) : it->endsWith(match);
 
-	return foundMatch;
-}
-
-bool FileList::contains(const UString &fileName) const {
-	if (getPath(fileName))
-		return true;
-
-	return false;
-}
-
-bool FileList::contains(const UString &glob, bool caseInsensitive) const {
-	if (getPath(glob, caseInsensitive))
-		return true;
-
-	return false;
-}
-
-UString FileList::findFirst(const UString &glob, bool caseInsensitive) const {
-	const FilePath *p = getPath(glob, caseInsensitive);
-	if (!p)
-		return "";
-
-	return p->filePath.generic_string();
-}
-
-SeekableReadStream *FileList::openFile(const UString &fileName) const {
-	const FilePath *p = getPath(fileName);
-	if (!p)
-		return 0;
-
-	File *file = new File;
-	if (!file->open(p->filePath.generic_string())) {
-		delete file;
-		return 0;
+		if (matching)
+			return *it;
 	}
 
-	return file;
+	return "";
 }
 
-SeekableReadStream *FileList::openFile(const UString &glob, bool caseInsensitive) const {
-	const FilePath *p = getPath(glob, caseInsensitive);
-	if (!p)
-		return 0;
-
-	File *file = new File;
-	if (!file->open(p->filePath.generic_string())) {
-		delete file;
-		return 0;
-	}
-
-	return file;
-}
-
-const FileList::FilePath *FileList::getPath(const UString &fileName) const {
-	// Iterate through the whole list, looking for a match
-	for (std::list<FilePath>::const_iterator it = _files.begin(); it != _files.end(); ++it)
-		if (it->pathString == fileName)
-			return &*it;
-
-	return 0;
-}
-
-const FileList::FilePath *FileList::getPath(const UString &glob, bool caseInsensitive) const {
+UString FileList::findFirstGlob(const UString &glob, bool caseInsensitive) const {
 	boost::regex::flag_type type = boost::regex::perl;
 	if (caseInsensitive)
 		type |= boost::regex::icase;
 	boost::regex expression(glob.c_str(), type);
 
-	// Iterate through the whole list, looking for a match
-	for (std::list<FilePath>::const_iterator it = _files.begin(); it != _files.end(); ++it)
-		if (boost::regex_match(it->filePath.generic_string(), expression))
-			return &*it;
+	// Iterate through the whole list, adding the matches to the sub list
+	for (Files::const_iterator it = _files.begin(); it != _files.end(); ++it)
+		if (boost::regex_match(it->c_str(), expression))
+			return *it;
 
-	return 0;
-}
-
-FileList::const_iterator FileList::begin() const {
-	return const_iterator(_files.begin());
-}
-
-FileList::const_iterator FileList::end() const {
-	return const_iterator(_files.end());
+	return "";
 }
 
 } // End of namespace Common

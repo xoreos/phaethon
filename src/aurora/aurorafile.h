@@ -25,7 +25,7 @@
 #ifndef AURORA_AURORAFILE_H
 #define AURORA_AURORAFILE_H
 
-#include <string>
+#include "src/common/types.h"
 
 namespace Common {
 	class SeekableReadStream;
@@ -33,13 +33,6 @@ namespace Common {
 }
 
 namespace Aurora {
-
-/** Utility class for handling data found in Aurora files. */
-class AuroraFile {
-public:
-	/** Clean up a path string for portable use. */
-	static void cleanupPath(Common::UString &path);
-};
 
 /** Base class for most files found in games using BioWare's Aurora engine. */
 class AuroraBase {
@@ -57,6 +50,16 @@ public:
 	/** Were the ID and version encoded in little-endian UTF-16 in the file? */
 	bool isUTF16LE() const;
 
+
+	/** Read the header out of a stream. */
+	static void readHeader(Common::SeekableReadStream &stream,
+	                       uint32 &id, uint32 &version, bool &utf16le);
+	/** Read the ID and version out of a stream. */
+	static void readHeader(Common::SeekableReadStream &stream, uint32 &id, uint32 &version);
+	/** Read the ID out of a stream. */
+	static uint32 readHeaderID(Common::SeekableReadStream &stream);
+
+
 protected:
 	uint32 _id;      ///< The file's ID.
 	uint32 _version; ///< The file's version.
@@ -64,7 +67,7 @@ protected:
 
 	void readHeader(Common::SeekableReadStream &stream);
 
-	uint32 convertUTF16LE(uint32 x1, uint32 x2);
+	static uint32 convertUTF16LE(uint32 x1, uint32 x2);
 };
 
 } // End of namespace Aurora

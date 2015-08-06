@@ -25,7 +25,7 @@
  */
 
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/memreadstream.h"
 #include "src/common/util.h"
 
 #include "src/sound/audiostream.h"
@@ -82,13 +82,11 @@ public:
 	ASFStream(Common::SeekableReadStream *stream, bool dispose);
 	~ASFStream();
 
-	int readBuffer(int16 *buffer, const int numSamples);
+	size_t readBuffer(int16 *buffer, const size_t numSamples);
 
 	bool endOfData() const;
 	int getChannels() const { return _channels; }
 	int getRate() const { return _sampleRate; }
-	uint64 getLength() const;
-	uint64 getDuration() const;
 	bool rewind();
 
 private:
@@ -116,13 +114,16 @@ private:
 	Common::SeekableReadStream *_stream;
 	bool _disposeAfterUse;
 
+	void load();
+	void clear();
+
 	void parseStreamHeader();
 	void parseFileHeader();
 	Packet *readPacket();
 	Codec *createCodec();
 	AudioStream *createAudioStream();
 
-	uint32 _rewindPos;
+	size_t _rewindPos;
 	uint64 _curPacket;
 	Packet *_lastPacket;
 	Codec *_codec;
@@ -149,8 +150,8 @@ ASFStream::Packet::Packet() {
 }
 
 ASFStream::Packet::~Packet() {
-	for (uint32 i = 0; i < segments.size(); i++)
-		for (uint32 j = 0; j < segments[i].data.size(); j++)
+	for (size_t i = 0; i < segments.size(); i++)
+		for (size_t j = 0; j < segments[i].data.size(); j++)
 				delete segments[i].data[j];
 }
 
@@ -162,6 +163,35 @@ ASFStream::ASFStream(Common::SeekableReadStream *stream, bool dispose) : _stream
 	_curAudioStream = 0;
 	_curSequenceNumber = 1; // They always start at one
 
+	try {
+		load();
+	} catch (...) {
+		clear();
+		throw;
+	}
+}
+
+ASFStream::~ASFStream() {
+	clear();
+}
+
+void ASFStream::clear() {
+	if (_disposeAfterUse)
+		delete _stream;
+
+	_stream = 0;
+
+	delete _lastPacket;
+	_lastPacket = 0;
+
+	delete _curAudioStream;
+	_curAudioStream = 0;
+
+	delete _codec;
+	_codec = 0;
+}
+
+void ASFStream::load() {
 	ASFGUID guid = ASFGUID(*_stream);
 	if (guid != s_asfHeader)
 		throw Common::Exception("ASFStream: Missing asf header");
@@ -172,7 +202,7 @@ ASFStream::ASFStream(Common::SeekableReadStream *stream, bool dispose) : _stream
 	_stream->readByte();
 
 	for (;;) {
-		uint64 startPos = _stream->pos();
+		size_t startPos = _stream->pos();
 		guid = ASFGUID(*_stream);
 		uint64 size = _stream->readUint64LE();
 
@@ -206,15 +236,6 @@ ASFStream::ASFStream(Common::SeekableReadStream *stream, bool dispose) : _stream
 	// Skip to the beginning of the packets
 	_stream->skip(26);
 	_rewindPos = _stream->pos();
-}
-
-ASFStream::~ASFStream() {
-	if (_disposeAfterUse)
-		delete _stream;
-
-	delete _lastPacket;
-	delete _curAudioStream;
-	delete _codec;
 }
 
 void ASFStream::parseFileHeader() {
@@ -266,14 +287,6 @@ void ASFStream::parseStreamHeader() {
 	_codec = createCodec();
 }
 
-uint64 ASFStream::getLength() const {
-	return (_duration * getRate()) / 10000000;
-}
-
-uint64 ASFStream::getDuration() const {
-	return _duration / 10000;
-}
-
 bool ASFStream::rewind() {
 	// Seek back to the start of the packets
 	_stream->seek(_rewindPos);
@@ -295,7 +308,7 @@ ASFStream::Packet *ASFStream::readPacket() {
 	if (_curPacket == _packetCount)
 		throw Common::Exception("ASFStream::readPacket(): Reading too many packets");
 
-	uint32 packetStartPos = _stream->pos();
+	size_t packetStartPos = _stream->pos();
 
 	// Read a single ASF packet
 	if (_stream->readByte() != 0x82)
@@ -344,16 +357,16 @@ ASFStream::Packet *ASFStream::readPacket() {
 			//uint32 objectStartTime = fragmentOffset; // reused purpose
 			_stream->readByte(); // unknown
 
-			uint32 dataLength = (packet->segments.size() == 1) ? (_maxPacketSize - (_stream->pos() - packetStartPos) - paddingSize) : _stream->readUint16LE();
-			uint32 startObjectPos = _stream->pos();
+			size_t dataLength = (packet->segments.size() == 1) ? (_maxPacketSize - (_stream->pos() - packetStartPos) - paddingSize) : _stream->readUint16LE();
+			size_t startObjectPos = _stream->pos();
 
-			while ((uint32)_stream->pos() < dataLength + startObjectPos)
+			while (_stream->pos() < dataLength + startObjectPos)
 				segment.data.push_back(_stream->readStream(_stream->readByte()));
 		} else if (flags == 8) {
 			/* uint32 objectLength = */ _stream->readUint32LE();
 			/* uint32 objectStartTime = */ _stream->readUint32LE();
 
-			uint32 dataLength = 0;
+			size_t dataLength = 0;
 			if (packet->segments.size() == 1)
 				dataLength = _maxPacketSize - (_stream->pos() - packetStartPos) - fragmentOffset - paddingSize;
 			else if (segmentCount & 0x40)
@@ -373,8 +386,8 @@ ASFStream::Packet *ASFStream::readPacket() {
 	// We just read a packet
 	_curPacket++;
 
-	if ((uint32)_stream->pos() != packetStartPos + _maxPacketSize)
-		throw Common::Exception("ASFStream::readPacket(): Mismatching packet pos: %d (should be %d)", _stream->pos(), _maxPacketSize + packetStartPos);
+	if (_stream->pos() != packetStartPos + _maxPacketSize)
+		throw Common::Exception("ASFStream::readPacket(): Mismatching packet pos: %u (should be %u)", (uint)_stream->pos(), (uint)(_maxPacketSize + packetStartPos));
 
 	return packet;
 }
@@ -422,12 +435,16 @@ AudioStream *ASFStream::createAudioStream() {
 	return 0;
 }
 
-int ASFStream::readBuffer(int16 *buffer, const int numSamples) {
-	int samplesDecoded = 0;
+size_t ASFStream::readBuffer(int16 *buffer, const size_t numSamples) {
+	size_t samplesDecoded = 0;
 
 	for (;;) {
 		if (_curAudioStream) {
-			samplesDecoded += _curAudioStream->readBuffer(buffer + samplesDecoded, numSamples - samplesDecoded);
+			const size_t n = _curAudioStream->readBuffer(buffer + samplesDecoded, numSamples - samplesDecoded);
+			if (n == kSizeInvalid)
+				return kSizeInvalid;
+
+			samplesDecoded += n;
 
 			if (_curAudioStream->endOfData()) {
 				delete _curAudioStream;

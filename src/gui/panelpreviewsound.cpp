@@ -33,7 +33,7 @@
 
 #include "src/common/util.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/readstream.h"
 
 #include "src/sound/sound.h"
 #include "src/sound/audiostream.h"

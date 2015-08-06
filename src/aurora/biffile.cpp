@@ -22,10 +22,16 @@
  *  Handling BioWare's BIFs (resource data files).
  */
 
+/* See BioWare's own specs released for Neverwinter Nights modding
+ * (<https://github.com/xoreos/xoreos-docs/tree/master/specs/bioware>)
+ */
+
+#include <cassert>
+
 #include "src/common/util.h"
+#include "src/common/strutil.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/memreadstream.h"
 
 #include "src/aurora/biffile.h"
 
@@ -35,29 +41,29 @@ static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
 
 namespace Aurora {
 
-BIFFile::BIFFile(const Common::UString &fileName) : _fileName(fileName) {
-	load();
+BIFFile::BIFFile(Common::SeekableReadStream *bif) : _bif(bif) {
+	assert(_bif);
+
+	try {
+		load(*_bif);
+	} catch (...) {
+		delete _bif;
+		throw;
+	}
 }
 
 BIFFile::~BIFFile() {
+	delete _bif;
 }
 
-void BIFFile::open(Common::File &file) const {
-	if (!file.open(_fileName))
-		throw Common::Exception(Common::kOpenError);
-}
-
-void BIFFile::load() {
-	Common::File bif;
-	open(bif);
-
+void BIFFile::load(Common::SeekableReadStream &bif) {
 	readHeader(bif);
 
 	if (_id != kBIFID)
-		throw Common::Exception("Not a BIF file");
+		throw Common::Exception("Not a BIF file (%s)", Common::debugTag(_id).c_str());
 
 	if ((_version != kVersion1) && (_version != kVersion11))
-		throw Common::Exception("Unsupported BIF file version %08X", _version);
+		throw Common::Exception("Unsupported BIF file version %s", Common::debugTag(_version).c_str());
 
 	uint32 varResCount = bif.readUint32LE();
 	uint32 fixResCount = bif.readUint32LE();
@@ -71,9 +77,6 @@ void BIFFile::load() {
 
 		_resources.resize(varResCount);
 		readVarResTable(bif, offVarResTable);
-
-		if (bif.err())
-			throw Common::Exception(Common::kReadError);
 
 	} catch (Common::Exception &e) {
 		e.add("Failed reading BIF file");
@@ -104,12 +107,9 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 	if (res.size == 0)
 		return new Common::MemoryReadStream(0, 0);
 
-	Common::File bif;
-	open(bif);
+	_bif->seek(res.offset);
 
-	bif.seek(res.offset);
-
-	Common::SeekableReadStream *resStream = bif.readStream(res.size);
+	Common::SeekableReadStream *resStream = _bif->readStream(res.size);
 
 	if (!resStream || (((uint32) resStream->size()) != res.size)) {
 		delete resStream;

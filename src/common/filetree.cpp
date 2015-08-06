@@ -31,7 +31,7 @@ namespace Common {
 FileTree::Entry::Entry() {
 }
 
-FileTree::Entry::Entry(const boost::filesystem::path &p) : name(p.filename().c_str()), path(p) {
+FileTree::Entry::Entry(const boost::filesystem::path &p) : name(p.filename().generic_string()), path(p) {
 }
 
 bool FileTree::Entry::isDirectory() const {
@@ -68,11 +68,11 @@ void FileTree::readPath(boost::filesystem::path path, int recurseDepth) {
 
 	// The path needs to exist
 	if (!boost::filesystem::exists(path))
-		throw Exception("Path \"%s\" does not exist", path.c_str());
+		throw Exception("Path \"%s\" does not exist", path.generic_string().c_str());
 
-	path = FilePath::normalize(path);
+	path = FilePath::normalize(path.generic_string().c_str()).c_str();
 
-	_root.name = path.filename().c_str();
+	_root.name = path.filename().generic_string();
 	_root.path = path;
 
 	// If we can't or shouldn't recurse, we're done
@@ -96,13 +96,13 @@ void FileTree::addPath(Entry &entry, const boost::filesystem::path &path, int re
 					addPath(entry.children.back(), itDir->path(), (recurseDepth == -1) ? -1 : (recurseDepth - 1));
 		}
 	} catch (Exception &e) {
-		e.add("Failed to read path \"%s\"", path.c_str());
+		e.add("Failed to read path \"%s\"", path.generic_string().c_str());
 
 		throw;
 	} catch (std::exception &e) {
 		Exception se(e);
 
-		se.add("Failed to read path \"%s\"", path.c_str());
+		se.add("Failed to read path \"%s\"", path.generic_string().c_str());
 		throw se;
 	}
 }

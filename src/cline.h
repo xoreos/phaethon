@@ -25,6 +25,8 @@
 #ifndef CLINE_H
 #define CLINE_H
 
+#include <vector>
+
 #include "src/common/ustring.h"
 
 /** Type for all operations this tool can do. */
@@ -44,9 +46,9 @@ struct Job {
 	}
 };
 
-Job parseCommandLine(int argc, char **argv);
+Job parseCommandLine(const std::vector<Common::UString> &argv);
 
 Common::UString createVersionText();
-Common::UString createHelpText(const char *name);
+Common::UString createHelpText(const Common::UString &name);
 
 #endif // CLINE_H

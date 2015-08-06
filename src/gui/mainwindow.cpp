@@ -41,6 +41,7 @@
 #include "src/common/version.h"
 #include "src/common/util.h"
 #include "src/common/error.h"
+#include "src/common/readfile.h"
 #include "src/common/filepath.h"
 
 #include "src/aurora/util.h"
@@ -342,14 +343,14 @@ void MainWindow::resourceActivate(const ResourceTreeItem &item) {
 }
 
 Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
-	ArchiveMap::iterator a = _archives.find(path.c_str());
+	ArchiveMap::iterator a = _archives.find(path.generic_string().c_str());
 	if (a != _archives.end())
 		return a->second;
 
 	Aurora::Archive *arch = 0;
-	switch (TypeMan.getFileType(path.c_str())) {
+	switch (TypeMan.getFileType(path.generic_string().c_str())) {
 		case Aurora::kFileTypeZIP:
-			arch = new Aurora::ZIPFile(path.c_str());
+			arch = new Aurora::ZIPFile(new Common::ReadFile(path.generic_string().c_str()));
 			break;
 
 		case Aurora::kFileTypeERF:
@@ -357,15 +358,15 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 		case Aurora::kFileTypeNWM:
 		case Aurora::kFileTypeSAV:
 		case Aurora::kFileTypeHAK:
-			arch = new Aurora::ERFFile(path.c_str());
+			arch = new Aurora::ERFFile(new Common::ReadFile(path.generic_string().c_str()));
 			break;
 
 		case Aurora::kFileTypeRIM:
-			arch = new Aurora::RIMFile(path.c_str());
+			arch = new Aurora::RIMFile(new Common::ReadFile(path.generic_string().c_str()));
 			break;
 
 		case Aurora::kFileTypeKEY: {
-				Aurora::KEYFile *key = new Aurora::KEYFile(path.c_str());
+				Aurora::KEYFile *key = new Aurora::KEYFile(new Common::ReadFile(path.generic_string().c_str()));
 				loadKEYDataFiles(*key);
 
 				arch = key;
@@ -373,10 +374,10 @@ Aurora::Archive *MainWindow::getArchive(const boost::filesystem::path &path) {
 			}
 
 		default:
-			throw Common::Exception("Invalid archive file \"%s\"", path.c_str());
+			throw Common::Exception("Invalid archive file \"%s\"", path.generic_string().c_str());
 	}
 
-	_archives.insert(std::make_pair(path.c_str(), arch));
+	_archives.insert(std::make_pair(path.generic_string().c_str(), arch));
 	return arch;
 }
 
@@ -394,11 +395,11 @@ Aurora::KEYDataFile *MainWindow::getKEYDataFile(const Common::UString &file) {
 	Aurora::KEYDataFile *dataFile = 0;
 	switch (type) {
 		case Aurora::kFileTypeBIF:
-			dataFile = new Aurora::BIFFile(path);
+			dataFile = new Aurora::BIFFile(new Common::ReadFile(path));
 			break;
 
 		case Aurora::kFileTypeBZF:
-			dataFile = new Aurora::BZFFile(path);
+			dataFile = new Aurora::BZFFile(new Common::ReadFile(path));
 			break;
 
 		default:

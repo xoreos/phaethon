@@ -29,6 +29,9 @@
 	#include "config.h"
 #endif
 
+#include <stddef.h>
+#include <limits.h>
+
 #ifdef HAVE_STDINT_H
 	#include <stdint.h>
 #endif // HAVE_STDINT_H
@@ -71,15 +74,11 @@
 	#error No way to derive fixed-width variable types
 #endif
 
+#ifndef SIZE_MAX
+	#define SIZE_MAX ((size_t) -1)
+#endif
+
 typedef uint8 byte;
 typedef unsigned int uint;
-
-#ifndef INT64_C
-	#define INT64_C(c) (c ## LL)
-#endif
-
-#ifndef UINT64_C
-	#define UINT64_C(c) (c ## ULL)
-#endif
 
 #endif // COMMON_TYPES_H

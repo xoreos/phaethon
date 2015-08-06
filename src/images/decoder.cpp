@@ -22,11 +22,14 @@
  *  Generic image decoder interface.
  */
 
+#include <cassert>
+
 #include "src/common/util.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
+#include "src/common/memreadstream.h"
 
 #include "src/images/decoder.h"
+#include "src/images/util.h"
 #include "src/images/s3tc.h"
 #include "src/images/dumptga.h"
 
@@ -69,11 +72,11 @@ PixelFormat Decoder::getFormat() const {
 	return _format;
 }
 
-uint32 Decoder::getMipMapCount() const {
+size_t Decoder::getMipMapCount() const {
 	return _mipMaps.size();
 }
 
-const Decoder::MipMap &Decoder::getMipMap(uint32 mipMap) const {
+const Decoder::MipMap &Decoder::getMipMap(size_t mipMap) const {
 	assert(mipMap < _mipMaps.size());
 
 	return *_mipMaps[mipMap];
@@ -122,7 +125,7 @@ bool Decoder::dumpTGA(const Common::UString &fileName) const {
 		return false;
 
 	if (!isCompressed()) {
-		Images::dumpTGA(fileName, this);
+		Images::dumpTGA(fileName, *this);
 		return true;
 	}
 
@@ -131,6 +134,20 @@ bool Decoder::dumpTGA(const Common::UString &fileName) const {
 	Images::dumpTGA(fileName, mipMap.data, mipMap.width, mipMap.height, kPixelFormatR8G8B8A8);
 
 	return true;
+}
+
+void Decoder::flipHorizontally() {
+	decompress();
+
+	for (std::vector<MipMap *>::iterator m = _mipMaps.begin(); m != _mipMaps.end(); ++m)
+		::Images::flipHorizontally((*m)->data, (*m)->width, (*m)->height, getBPP(_format));
+}
+
+void Decoder::flipVertically() {
+	decompress();
+
+	for (std::vector<MipMap *>::iterator m = _mipMaps.begin(); m != _mipMaps.end(); ++m)
+		::Images::flipVertically((*m)->data, (*m)->width, (*m)->height, getBPP(_format));
 }
 
 } // End of namespace Images

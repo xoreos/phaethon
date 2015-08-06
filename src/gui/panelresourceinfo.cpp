@@ -30,9 +30,10 @@
 #include <wx/generic/stattextg.h>
 
 #include "src/common/util.h"
+#include "src/common/strutil.h"
 #include "src/common/error.h"
-#include "src/common/stream.h"
-#include "src/common/file.h"
+#include "src/common/readstream.h"
+#include "src/common/writefile.h"
 #include "src/common/filepath.h"
 
 #include "src/sound/sound.h"
@@ -124,16 +125,16 @@ Common::UString PanelResourceInfo::constructStatus(const Common::UString &action
 	return action + " \"" + name + "\" to \"" + destination + "\"...";
 }
 
-Common::UString PanelResourceInfo::getSizeLabel(uint32 size) {
+Common::UString PanelResourceInfo::getSizeLabel(size_t size) {
 	if (size == Common::kFileInvalid)
 		return "-";
 
 	if (size < 1024)
-		return Common::UString::format("%u", size);
+		return Common::composeString(size);
 
-	Common::UString humanRead = Common::FilePath::getHumanReadableSize(size);
+	const Common::UString humanRead = Common::FilePath::getHumanReadableSize(size);
 
-	return Common::UString::format("%s (%u)", humanRead.c_str(), size);
+	return humanRead + Common::UString(" (") + Common::composeString(size) + Common::UString(")");
 }
 
 Common::UString PanelResourceInfo::getFileTypeLabel(Aurora::FileType type) {
@@ -222,12 +223,10 @@ bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 	try {
 		res = _currentItem->getResourceData();
 
-		Common::DumpFile file(path);
+		Common::WriteFile file(path);
 
 		file.writeStream(*res);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
+		file.flush();
 
 		delete res;
 
@@ -253,12 +252,10 @@ bool PanelResourceInfo::exportBMUMP3(const Common::UString &path) {
 	try {
 		res = _currentItem->getResourceData();
 
-		Common::DumpFile file(path);
+		Common::WriteFile file(path);
 
 		exportBMUMP3(*res, file);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
+		file.flush();
 
 		delete res;
 
@@ -284,12 +281,10 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 	try {
 		sound = _currentItem->getAudioStream();
 
-		Common::DumpFile file(path);
+		Common::WriteFile file(path);
 
 		exportWAV(sound, file);
-
-		if (!file.flush() || file.err())
-			throw Common::Exception(Common::kWriteError);
+		file.flush();
 
 	} catch (Common::Exception &e) {
 		delete sound;

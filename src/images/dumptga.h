@@ -40,7 +40,7 @@ class Decoder;
 /** Dump raw image data into a TGA file. */
 void dumpTGA(const Common::UString &fileName, const byte *data, int width, int height, PixelFormat format);
 /** Dump image into a TGA file. */
-void dumpTGA(const Common::UString &fileName, const Decoder *image);
+void dumpTGA(const Common::UString &fileName, const Decoder &image);
 
 } // End of namespace Images
 

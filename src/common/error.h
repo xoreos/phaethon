@@ -38,18 +38,18 @@ public:
 	typedef std::stack<UString> Stack;
 
 	StackException();
-	StackException(const char *s, ...);
+	StackException(const char *s, ...) GCC_PRINTF(2, 3);
 	StackException(const StackException &e);
 	StackException(const std::exception &e);
 	~StackException() throw();
 
-	void add(const char *s, ...);
 	void add(const StackException &e);
+	void add(const char *s, ...) GCC_PRINTF(2, 3);
 	void add(const std::exception &e);
 
 	const char *what() const throw();
 
-	bool isEmpty() const;
+	bool empty() const;
 
 	Stack &getStack();
 

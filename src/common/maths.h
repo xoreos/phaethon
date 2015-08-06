@@ -91,17 +91,11 @@ static inline int intLog2(uint32 v) {
 #endif
 
 static inline float rad2deg(float rad) {
-	return rad * 180.0 / M_PI;
+	return rad * 180.0f / M_PI;
 }
 
 static inline float deg2rad(float deg) {
-	return deg * M_PI / 180.0;
-}
-
-static inline void vector2orientation(float vX, float vY, float &x, float &y, float &z) {
-	x = 0.0;
-	y = rad2deg(atan2(vY, vX)) - 90.0;
-	z = 0.0;
+	return deg * M_PI / 180.0f;
 }
 
 } // End of namespace Common

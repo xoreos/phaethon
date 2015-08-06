@@ -27,20 +27,26 @@
 #ifndef SOUND_AUDIOSTREAM_H
 #define SOUND_AUDIOSTREAM_H
 
+#include "src/common/util.h"
 #include "src/common/types.h"
 
 namespace Sound {
 
-/** Generic audio input stream. */
+/**
+ * Generic audio input stream. Subclasses of this are used to feed arbitrary
+ * sampled audio data into xoreos' SoundManager.
+ */
 class AudioStream {
 public:
+	static const size_t kSizeInvalid = SIZE_MAX;
+
 	virtual ~AudioStream() {}
 
 	/**
 	 * Fill the given buffer with up to numSamples samples. Returns the actual
-	 * number of samples read, or -1 if a critical error occurred (note: you
-	 * *must* check if this value is less than what you requested, this can
-	 * happen when the stream is fully used up).
+	 * number of samples read, or kSizeInvalid if a critical error occurred
+	 * (note: you *must* check if this value is less than what you requested,
+	 * this can happen when the stream is fully used up).
 	 *
 	 * Data has to be in native endianess, 16 bit per sample, signed. For stereo
 	 * stream, buffer will be filled with interleaved left and right channel
@@ -52,7 +58,7 @@ public:
 	 * The same holds true for more channels. Channel configurations recognized:
 	 * - 5.1: front left, front right, front center, low frequency rear left, rear right
 	 */
-	virtual int readBuffer(int16 *buffer, const int numSamples) = 0;
+	virtual size_t readBuffer(int16 *buffer, size_t numSamples) = 0;
 
 	/** Return the number channels in this stream. */
 	virtual int getChannels() const = 0;
@@ -118,7 +124,7 @@ public:
  * A looping audio stream. This object does nothing besides using
  * a RewindableAudioStream to play a stream in a loop.
  */
-class LoopingAudioStream : public RewindableAudioStream {
+class LoopingAudioStream : public AudioStream {
 public:
 	/**
 	 * Creates a looping audio stream object.
@@ -129,17 +135,17 @@ public:
 	 * @param loops How often to loop (0 = infinite)
 	 * @param disposeAfterUse Destroy the stream after the LoopingAudioStream has finished playback.
 	 */
-	LoopingAudioStream(RewindableAudioStream *stream, uint loops, bool disposeAfterUse = true);
+	LoopingAudioStream(RewindableAudioStream *stream, size_t loops, bool disposeAfterUse = true);
 	~LoopingAudioStream();
 
-	int readBuffer(int16 *buffer, const int numSamples);
+	size_t readBuffer(int16 *buffer, const size_t numSamples);
 	bool endOfData() const;
 
 	int getChannels() const { return _parent->getChannels(); }
 	int getRate() const { return _parent->getRate(); }
 
 	/** Returns number of loops the stream has played. */
-	uint getCompleteIterations() const { return _completeIterations; }
+	size_t getCompleteIterations() const { return _completeIterations; }
 
 	bool rewind();
 
@@ -155,10 +161,24 @@ private:
 	RewindableAudioStream *_parent;
 	bool _disposeAfterUse;
 
-	uint _loops;
-	uint _completeIterations;
+	size_t _loops;
+	size_t _completeIterations;
 };
+
+/**
+ * Wrapper functionality to efficiently create a stream, which might be looped.
+ *
+ * Note that this function does not return a LoopingAudioStream, because it does
+ * not create one when the loop count is "1". This allows to keep the runtime
+ * overhead down, when the code does not require any functionality only offered
+ * by LoopingAudioStream.
+ *
+ * @param stream Stream to loop (will be automatically destroyed, when the looping is done)
+ * @param loops How often to loop (0 = infinite)
+ * @return A new AudioStream, which offers the desired functionality.
+ */
+AudioStream *makeLoopingAudioStream(RewindableAudioStream *stream, size_t loops);
 
 } // End of namespace Sound
 
-#endif
+#endif // SOUND_AUDIOSTREAM_H
