@@ -13,6 +13,7 @@ dist_doc_DATA = \
                 ChangeLog \
                 TODO \
                 README.md \
+                CONTRIBUTING.md \
                 CODE_OF_CONDUCT.md \
                 $(EMPTY)
 
