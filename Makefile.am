@@ -13,6 +13,7 @@ dist_doc_DATA = \
                 ChangeLog \
                 TODO \
                 README.md \
+                CODE_OF_CONDUCT.md \
                 $(EMPTY)
 
 SUBDIRS = \
