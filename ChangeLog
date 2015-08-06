@@ -1,2 +1,9 @@
+Thursday, 2015-08-06 (Version 0.0.2)
+	- Added basic wxWidgets layout
+	- Added exploring of archives
+	- Added viewing of textures
+	- Added playing audio files
+	- Bump version number to be in sync with xoreos
+
 Saturday, 2014-08-16 (Version 0.0.0)
 	- Started work on Phaethon
