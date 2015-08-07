@@ -40,10 +40,10 @@ extern const char *PHAETHON_NAMEVERSIONFULL;
 // "2014"
 extern const char *PHAETHON_COPYRIGHTYEAR;
 
-// "Sven Hesse (DrMcCoy) <drmccoy@drmccoy.de>"
-extern const char *PHAETHON_COPYRIGHTAUTHOR;
-
 // "https://..."
 extern const char *PHAETHON_URL;
+
+// Very shortened authors/copyright message
+extern const char *PHAETHON_AUTHORS;
 
 #endif // COMMON_VERSION_H
