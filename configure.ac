@@ -144,7 +144,7 @@ case "$target" in
 		PHAETHON_LIBS=""
 		;;
 	*mingw*)
-		PHAETHON_CFLAGS="-mconsole"
+		PHAETHON_CFLAGS="-mconsole -municode"
 		PHAETHON_LIBS=""
 		;;
 	*)

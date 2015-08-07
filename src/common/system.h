@@ -33,6 +33,10 @@
 
 #if defined(_MSC_VER)
 
+	#define UNICODE
+	#define _UNICODE
+	#include <tchar.h>
+
 	#include <cstdarg>
 	#include <cstdio>
 	#include <cstdlib>

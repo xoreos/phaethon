@@ -84,6 +84,12 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+#ifdef WIN32
+extern "C" int wmain(int UNUSED(argc), wchar_t **UNUSED(argv)) {
+	return main(0, 0);
+}
+#endif
+
 void initPlatform() {
 	try {
 		Common::Platform::init();
