@@ -44,6 +44,8 @@ AC_ARG_WITH([warnings], [AS_HELP_STRING([--without-warnings], [Compile without e
 if test "x$with_warnings" = "xno"; then
 	WARN_C_CXX=""
 	WARN_CXX=""
+
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wno-deprecated-declarations])
 else
 	WARN_C_CXX="-Wall"
 	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wignored-qualifiers])
@@ -54,6 +56,7 @@ else
 	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wuninitialized])
 	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wunused-parameter])
 	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wunused-but-set-parameter])
+	AX_CHECK_COMPILER_FLAGS_VAR([C], [WARN_C_CXX], [-Wno-deprecated-declarations])
 
 	WARN_CXX=""
 	AX_CHECK_COMPILER_FLAGS_VAR([C++], [WARN_CXX], [-Wnon-virtual-dtor])
