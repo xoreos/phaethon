@@ -59,7 +59,7 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 
 	_size = Common::kFileInvalid;
 	if (_source == kSourceFile)
-		_size = Common::FilePath::getFileSize(entry.path.c_str());
+		_size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
 
 	_triedDuration = getResourceType() != Aurora::kResourceSound;
 	_duration = Sound::RewindableAudioStream::kInvalidLength;
