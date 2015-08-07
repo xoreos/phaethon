@@ -5,6 +5,7 @@ EXTRA_DIST = \
              BUILDDEP.md \
              Doxyfile \
              README.dox \
+             .uncrustifyrc \
              $(EMPTY)
 
 dist_doc_DATA = \
