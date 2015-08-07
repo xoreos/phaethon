@@ -69,7 +69,7 @@ const char *PHAETHON_NAME            = PACKAGE_NAME;
 const char *PHAETHON_VERSION         = PACKAGE_VERSION;
 const char *PHAETHON_NAMEVERSION     = PACKAGE_NAME " " PACKAGE_VERSION PHAETHON_REVSEP PHAETHON_REV;
 const char *PHAETHON_NAMEVERSIONFULL = PACKAGE_NAME " " PACKAGE_VERSION PHAETHON_REVSEP PHAETHON_REV " [" PHAETHON_REVDESC "] (" PHAETHON_BUILDDATE ")";
-const char *PHAETHON_COPYRIGHTYEAR   = "2014";
+const char *PHAETHON_COPYRIGHTYEAR   = "2014-2015";
 const char *PHAETHON_COPYRIGHTAUTHOR = "Sven Hesse (DrMcCoy) <drmccoy@drmccoy.de>\n"
                                        "Matthew Hoops (clone2727) <clone2727@gmail.com>";
 const char *PHAETHON_URL             = "https://xoreos.org/";
