@@ -336,7 +336,9 @@ void PanelResourceInfo::exportBMUMP3(Common::SeekableReadStream &bmu, Common::Wr
 }
 
 struct SoundBuffer {
-	int16 buffer[4096];
+	static const size_t kBufferSize = 4096;
+
+	int16 buffer[kBufferSize];
 	int samples;
 
 	SoundBuffer() : samples(0) {
@@ -353,7 +355,7 @@ void PanelResourceInfo::exportWAV(Sound::AudioStream *sound, Common::WriteStream
 
 	uint64 length = getLength(sound);
 	if (length != Sound::RewindableAudioStream::kInvalidLength)
-		buffers.resize((length / (ARRAYSIZE(SoundBuffer::buffer) / channels)) + 1);
+		buffers.resize((length / (SoundBuffer::kBufferSize / channels)) + 1);
 
 	uint32 samples = 0;
 	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
@@ -363,7 +365,7 @@ void PanelResourceInfo::exportWAV(Sound::AudioStream *sound, Common::WriteStream
 			buffer = --buffers.end();
 		}
 
-		buffer->samples = sound->readBuffer(buffer->buffer, 4096);
+		buffer->samples = sound->readBuffer(buffer->buffer, SoundBuffer::kBufferSize);
 
 		if (buffer->samples > 0)
 			samples += buffer->samples;
