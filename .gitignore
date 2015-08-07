@@ -1,3 +1,16 @@
+# Editor temp files
+.sw[po]
+.*.sw[po]
+*~
+
+# MSVC files
+Debug/
+Release/
+ipch/
+*.suo
+*.sdf
+*.opensdf
+
 # Build files
 *.[oa]
 *.l[oa]
@@ -5,17 +18,6 @@
 .dirstamp
 .libs/
 .deps/
-
-# Editor temp files
-.sw[po]
-.*.sw[po]
-*~
-
-# Doxygen files
-Doxyerror
-/doc/doxygen/html/
-/doc/doxygen/latex/
-/doc/doxygen/man/
 
 # autotools temp files
 Makefile
@@ -42,7 +44,21 @@ Makefile.in
 /m4/pkg.m4
 /stamp-h1
 
-# gitstamp
+# CMake temp file
+/CMakeCache.txt
+/CMakeFiles/
+/cmake_install.cmake
+Makefile.am.cmake
+
+# Doxygen files
+/Doxyerror
+/doc/doxygen/html/
+/doc/doxygen/latex/
+/doc/doxygen/man/
+/doc/doxygen/*.tmp
+/doc/doxygen/*.db
+
+# git versioning stamp
 /gitstamp/gitstamp
 
 # Unix binary
