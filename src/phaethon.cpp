@@ -48,10 +48,10 @@ int main(int argc, char **argv) {
 	std::vector<Common::UString> args;
 	Common::Platform::getParameters(argc, argv, args);
 
-	// Find out what we're supposed to do
-	Job job = parseCommandLine(args);
-
 	try {
+		// Find out what we're supposed to do
+		Job job = parseCommandLine(args);
+
 		// Handle the job
 		switch (job.operation) {
 			case kOperationHelp:
