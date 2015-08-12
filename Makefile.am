@@ -6,6 +6,7 @@ EXTRA_DIST = \
              Doxyfile \
              README.dox \
              doc/doxygen/README \
+             dists/arch/PKGBUILD \
              dists/debian/changelog \
              dists/debian/compat \
              dists/debian/control \
