@@ -9,6 +9,7 @@ noinst_HEADERS = \
                  types.h \
                  util.h \
                  language.h \
+                 language_strings.h \
                  locstring.h \
                  aurorafile.h \
                  archive.h \
