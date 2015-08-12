@@ -6,6 +6,13 @@ EXTRA_DIST = \
              Doxyfile \
              README.dox \
              doc/doxygen/README \
+             dists/debian/changelog \
+             dists/debian/compat \
+             dists/debian/control \
+             dists/debian/copyright \
+             dists/debian/phaethon.lintian-overrides \
+             dists/debian/rules \
+             dists/debian/source/format \
              .uncrustifyrc \
              CMakeLists.txt \
              cmake/CMakeAM.cmake \
