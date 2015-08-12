@@ -7,6 +7,16 @@ EXTRA_DIST = \
              README.dox \
              doc/doxygen/README \
              .uncrustifyrc \
+             CMakeLists.txt \
+             cmake/CMakeAM.cmake \
+             cmake/FindFaad.cmake \
+             cmake/FindLibLZMA.cmake \
+             cmake/FindMad.cmake \
+             cmake/FindOgg.cmake \
+             cmake/FindVorbis.cmake \
+             cmake/Findiconv.cmake \
+             cmake/toolchain/i686-windows-mingw.cmake \
+             cmake/toolchain/x86_64-windows-mingw.cmake \
              $(EMPTY)
 
 dist_doc_DATA = \
