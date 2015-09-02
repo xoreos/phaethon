@@ -18,7 +18,7 @@ if(CMAKE_HOST_APPLE)
   add_definitions(-DUNIX -DMACOSX)
 
 elseif(CMAKE_HOST_UNIX)
-  add_definitions(-DUNIX -DICONV_CONST=)
+  add_definitions(-DUNIX)
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter -fdata-sections -ffunction-sections -fno-show-column -std=c++11")
 
@@ -30,7 +30,6 @@ elseif(CMAKE_HOST_UNIX)
   string(REPLACE "<LINK_LIBRARIES>" "-Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group" CMAKE_C_CREATE_SHARED_MODULE "${CMAKE_C_CREATE_SHARED_MODULE}")
   string(REPLACE "<LINK_LIBRARIES>" "-Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group" CMAKE_CXX_CREATE_SHARED_MODULE "${CMAKE_CXX_CREATE_SHARED_MODULE}")
 elseif(CMAKE_HOST_WIN32)
-  add_definitions(-DICONV_CONST=)
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -162,6 +161,10 @@ find_package(Faad REQUIRED)
 include_directories(${FAAD_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${FAAD_LIBRARIES})
 
+find_package(Ogg REQUIRED)
+include_directories(${OGG_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES ${OGG_LIBRARIES})
+
 find_package(Vorbis REQUIRED)
 include_directories(${VORBIS_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${VORBIS_LIBRARIES})
@@ -179,15 +182,15 @@ find_package(wxWidgets REQUIRED core base)
 include(${wxWidgets_USE_FILE})
 list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
 
-if(CMAKE_HOST_WIN32)
-find_package(Ogg REQUIRED)
-include_directories(${OGG_INCLUDE_DIRS})
-list(APPEND PHAETHON_LIBRARIES ${OGG_LIBRARIES})
-
 find_package(Iconv REQUIRED)
 include_directories(${ICONV_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ICONV_LIBRARIES})
-endif()
+
+if(ICONV_SECOND_ARGUMENT_IS_CONST)
+  add_definitions(-DICONV_CONST=const)
+else(ICONV_SECOND_ARGUMENT_IS_CONST)
+  add_definitions(-DICONV_CONST=)
+endif(ICONV_SECOND_ARGUMENT_IS_CONST)
 
 
 # -------------------------------------------------------------------------
