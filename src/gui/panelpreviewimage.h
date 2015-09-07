@@ -79,6 +79,7 @@ private:
 
 	void loadImage();
 
+	static void getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
 	static void convertImage(const Images::Decoder &image, byte *data_rgb, byte *data_alpha);
 	static void writePixel(const byte *&data, Images::PixelFormat format,
 			byte *&data_rgb, byte *&data_alpha);

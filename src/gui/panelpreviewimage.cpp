@@ -112,6 +112,20 @@ void ImageCanvas::setSize(int width, int height) {
 	forceRedraw();
 }
 
+void ImageCanvas::getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height) {
+	width  = image.getMipMap(0, 0).width;
+	height = 0;
+
+	for (size_t i = 0; i < image.getLayerCount(); i++) {
+		const Images::Decoder::MipMap &mipMap = image.getMipMap(0, i);
+
+		if (mipMap.width != width)
+			throw Common::Exception("Unsupported image with variable layer width");
+
+		height += mipMap.height;
+	}
+}
+
 void ImageCanvas::loadImage() {
 	delete _image;
 	delete _bitmap;
@@ -133,7 +147,7 @@ void ImageCanvas::loadImage() {
 		return;
 	}
 
-	if (image->getMipMapCount() == 0) {
+	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0)) {
 		delete image;
 
 		SetVirtualSize(0, 0);
@@ -141,15 +155,18 @@ void ImageCanvas::loadImage() {
 		return;
 	}
 
-	const Images::Decoder::MipMap &mipMap = image->getMipMap(0);
-
-	byte *data_rgb   = (byte *) malloc(mipMap.width * mipMap.height * 3);
-	byte *data_alpha = (byte *) malloc(mipMap.width * mipMap.height);
-
-	memset(data_rgb  , 0, mipMap.width * mipMap.height * 3);
-	memset(data_alpha, 0, mipMap.width * mipMap.height);
+	byte *data_rgb = 0, *data_alpha = 0;
+	int32 width = 0, height = 0;
 
 	try {
+		getImageDimensions(*image, width, height);
+
+		data_rgb   = (byte *) malloc(width * height * 3);
+		data_alpha = (byte *) malloc(width * height);
+
+		memset(data_rgb  , 0, width * height * 3);
+		memset(data_alpha, 0, width * height);
+
 		convertImage(*image, data_rgb, data_alpha);
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
@@ -159,14 +176,15 @@ void ImageCanvas::loadImage() {
 		return;
 	}
 
-	wxImage *mirror = new wxImage(mipMap.width, mipMap.height, data_rgb, data_alpha);
+	wxImage *mirror = new wxImage(width, height, data_rgb, data_alpha);
 	_image = new wxImage(mirror->Mirror(false));
 
 	delete mirror;
 
 	_bitmap = new wxBitmap(*_image);
 
-	SetVirtualSize(mipMap.width, mipMap.height);
+	warning("SIZE %ux%u", width, height);
+	SetVirtualSize(width, height);
 	SetScrollRate(1, 1);
 }
 
@@ -216,12 +234,17 @@ void ImageCanvas::writePixel(const byte *&data, Images::PixelFormat format,
 }
 
 void ImageCanvas::convertImage(const Images::Decoder &image, byte *data_rgb, byte *data_alpha) {
-	const Images::Decoder::MipMap &mipMap = image.getMipMap(0);
+	int32 width, height;
+	getImageDimensions(image, width, height);
 
-	uint32 count = mipMap.width * mipMap.height;
-	const byte *data = mipMap.data;
-	for (uint32 i = 0; i < count; i++)
-		writePixel(data, image.getFormat(), data_rgb, data_alpha);
+	for (size_t i = 0; i < image.getLayerCount(); i++) {
+		const Images::Decoder::MipMap &mipMap = image.getMipMap(0, i);
+		const byte *data = mipMap.data;
+
+		uint32 count = mipMap.width * mipMap.height;
+		while (count-- > 0)
+			writePixel(data, image.getFormat(), data_rgb, data_alpha);
+	}
 }
 
 void ImageCanvas::OnDraw(wxDC &dc) {
