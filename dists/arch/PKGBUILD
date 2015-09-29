@@ -2,7 +2,7 @@
 
 pkgname=phaethon-git
 _gitname=phaethon
-pkgver=0.0.2.r14.g5020409
+pkgver=0.0.3.r0.g5020409
 pkgrel=1
 pkgdesc="A resource explorer for BioWare's Aurora engine games"
 arch=('i686' 'x86_64')
