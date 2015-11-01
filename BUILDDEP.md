@@ -25,6 +25,6 @@ Build-time library dependencies
 - wxWidgets (>= 3.0.0)
 
 - OpenAL Soft (>= 1.12)
-- MAD (>= 1.15.1b)
+- MAD (>= 0.15.1b)
 - libogg (>= 1.2.0)
 - libvorbisfile (>= 1.3.1)
