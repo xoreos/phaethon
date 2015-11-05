@@ -25,6 +25,7 @@ src_common_libcommon_la_SOURCES =
 src_common_libcommon_la_SOURCES += \
     src/common/endianness.h \
     src/common/system.h \
+    src/common/noreturn.h \
     src/common/types.h \
     src/common/util.h \
     src/common/strutil.h \
