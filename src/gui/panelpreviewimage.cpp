@@ -183,7 +183,6 @@ void ImageCanvas::loadImage() {
 
 	_bitmap = new wxBitmap(*_image);
 
-	warning("SIZE %ux%u", width, height);
 	SetVirtualSize(width, height);
 	SetScrollRate(1, 1);
 }
