@@ -54,7 +54,7 @@
 		#define HAVE_STRTOULL 1
 	#endif
 
-	#ifndef PHAETHON_LITTLE_ENDIAN
+	#if !defined(PHAETHON_LITTLE_ENDIAN) && !defined(PHAETHON_BIG_ENDIAN)
 		#define PHAETHON_LITTLE_ENDIAN 1
 	#endif
 
@@ -92,7 +92,9 @@
 
 #elif defined(__MINGW32__)
 
-	#define PHAETHON_LITTLE_ENDIAN
+	#if !defined(PHAETHON_LITTLE_ENDIAN) && !defined(PHAETHON_BIG_ENDIAN)
+		#define PHAETHON_LITTLE_ENDIAN 1
+	#endif
 
 	#define PLUGIN_EXPORT __declspec(dllexport)
 
@@ -102,11 +104,13 @@
 
 #elif defined(UNIX)
 
-	#if defined(HAVE_CONFIG_H)
-		#if defined(WORDS_BIGENDIAN)
-			#define PHAETHON_BIG_ENDIAN
-		#else
-			#define PHAETHON_LITTLE_ENDIAN
+	#if !defined(PHAETHON_LITTLE_ENDIAN) && !defined(PHAETHON_BIG_ENDIAN)
+		#if defined(HAVE_CONFIG_H)
+			#if defined(WORDS_BIGENDIAN)
+				#define PHAETHON_BIG_ENDIAN 1
+			#else
+				#define PHAETHON_LITTLE_ENDIAN 1
+			#endif
 		#endif
 	#endif
 
