@@ -44,6 +44,19 @@ namespace Aurora {
 /** Class to hold resource data of an ERF file. */
 class ERFFile : public Archive, public AuroraBase {
 public:
+	/** Take over this stream and read an ERF file out of it.
+	 *
+	 *  When the ERF is encrypted, use this password to decrypt it.
+	 *
+	 *  In Dragon Age: Origins and Dragon Age II, each DLC can have a unique
+	 *  password with which many of the DLC's ERF archive are encrypted. This
+	 *  password is used to directly decrypt the archive.
+	 *
+	 *  In Neverwinter Nights, each premium module consists of an uncrypted
+	 *  .nwm file and an encrypted .hak file, both of which are ERF archives.
+	 *  In this case, the password is the MD5 of the .nwm file. It is then used
+	 *  to calculate the key to decrypt the .hak file.
+	 */
 	ERFFile(Common::SeekableReadStream *erf, const std::vector<byte> &password = std::vector<byte>());
 	~ERFFile();
 
@@ -72,10 +85,11 @@ public:
 
 private:
 	enum Encryption {
-		kEncryptionNone        = 0,
-		kEncryptionXOR         = 1,
-		kEncryptionBlowfishDAO = 2,
-		kEncryptionBlowfishDA2 = 3
+		kEncryptionNone        =  0,
+		kEncryptionXOR         =  1,
+		kEncryptionBlowfishDAO =  2,
+		kEncryptionBlowfishDA2 =  3,
+		kEncryptionBlowfishNWN = 16
 	};
 
 	enum Compression {
@@ -95,8 +109,12 @@ private:
 		uint32 offKeyList;       ///< Offset to the key list.
 		uint32 offResList;       ///< Offset to the resource list.
 
+		uint32 descriptionSize;  ///< Number of bytes in the description structure.
+
 		uint32 buildYear;        ///< The year the ERF was built.
 		uint32 buildDay;         ///< The day of year the ERF was built.
+
+		bool   isNWNPremium;     ///< Is this a Neverwinter Nights premium module?
 
 		char  *stringTable;      ///< String table used for hashed ERFs.
 		uint32 stringTableSize;  ///< Size of the string table.
@@ -108,6 +126,14 @@ private:
 
 		/** Digest of the encryption password, if any. */
 		std::vector<byte> passwordDigest;
+
+		ERFHeader();
+		~ERFHeader();
+
+		void clear();
+		void clearStringTable();
+
+		bool isSensible(size_t fileSize = SIZE_MAX);
 	};
 
 	/** Internal resource information. */
@@ -135,35 +161,59 @@ private:
 	/** The password we were given, if any. */
 	std::vector<byte> _password;
 
-	void load(Common::SeekableReadStream &erf);
+	void load();
 
 	static void verifyVersion(uint32 id, uint32 version, bool utf16le);
 
-	static void readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header, uint32 version);
+	static void readERFHeader(Common::SeekableReadStream &erf, ERFHeader &header, uint32 version,
+	                          std::vector<byte> &password);
 	static void readDescription(LocString &description, Common::SeekableReadStream &erf,
-                              const ERFHeader &header, uint32 version);
+                              const ERFHeader &header);
 
 	void readResources(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V1.0
-	void readV1ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
-	void readV1KeyList(Common::SeekableReadStream &erf, const ERFHeader &header);
+	static void readV10Header(Common::SeekableReadStream &erf, ERFHeader &header);
+	void readV10ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
+	void readV10KeyList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V1.1
+	static void readV11Header(Common::SeekableReadStream &erf, ERFHeader &header);
 	void readV11KeyList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V2.0
-	void readV2ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
+	static void readV20Header(Common::SeekableReadStream &erf, ERFHeader &header);
+	void readV20ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V2.2
+	static void readV22Header(Common::SeekableReadStream &erf, ERFHeader &header, uint32 &flags);
 	void readV22ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// V3.0
-	void readV3ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
+	static void readV30Header(Common::SeekableReadStream &erf, ERFHeader &header, uint32 &flags);
+	void readV30ResList(Common::SeekableReadStream &erf, const ERFHeader &header);
 
 	// Encryption
 	void verifyPasswordDigest();
-	Common::MemoryReadStream *decrypt(Common::MemoryReadStream *cryptStream) const;
+
+	static Common::MemoryReadStream *decrypt(Common::SeekableReadStream &cryptStream,
+	                                         Encryption encryption, const std::vector<byte> &password);
+	static Common::MemoryReadStream *decrypt(Common::SeekableReadStream *cryptStream,
+	                                         Encryption encryption, const std::vector<byte> &password);
+
+	static Common::SeekableReadStream *decrypt(Common::SeekableReadStream &erf, size_t pos, size_t size,
+	                                           Encryption encryption, const std::vector<byte> &password);
+	static Common::SeekableReadStream *decrypt(Common::SeekableReadStream &erf, size_t size,
+	                                           Encryption encryption, const std::vector<byte> &password);
+
+	static bool decryptNWNPremiumHeader(Common::SeekableReadStream &erf, ERFHeader &header,
+	                                    const std::vector<byte> &password);
+	static bool findNWNPremiumKey      (Common::SeekableReadStream &erf, ERFHeader &header,
+	                                    const std::vector<byte> &md5, std::vector<byte> &password);
+	static void readNWNPremiumHeader   (Common::SeekableReadStream &erf, ERFHeader &header,
+	                                    std::vector<byte> &password);
+
+	void decryptNWNPremium();
 
 	// Compression
 	Common::SeekableReadStream *decompress(Common::MemoryReadStream *packedStream, uint32 unpackedSize) const;

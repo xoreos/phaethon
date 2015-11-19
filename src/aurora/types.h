@@ -31,7 +31,29 @@
 
 namespace Aurora {
 
-/** Various file types used by the Aurora engine and found in archives. */
+/** Various file types used by the Aurora engine and found in archives.
+ *
+ *  Many archive formats used by the Aurora engine games do not contain
+ *  full filenames for the files contained within. Instead, they only
+ *  provide the stem of the filename, i.e. the file name without the file
+ *  extension. Additionally, they contain a type ID, which maps to the
+ *  enum values below.
+ *
+ *  Please note, however, that all IDs >= 19000 aren't found in such
+ *  archives. These are arbitrary numbers for files that are only found
+ *  as plain files in the file system, or inside archives that do not
+ *  use numerical type IDs. Should such a file ever be found in an archive
+ *  with a type ID, this dummy entry in the block of IDs >= 19000 needs to
+ *  be deleted, and a real entry with the correct ID should be added
+ *  instead.
+ *
+ *  If there's a collision between types, if one game re-uses a type ID
+ *  for a different file type, the new ID needs to be added to the block
+ *  of IDs >= 19000. Then, during initializing of this game, the method
+ *
+ *  TODO: There's currently no type aliasing system to disambiguate re-
+ *  used type IDs available in Phaethon.
+ */
 enum FileType {
 	kFileTypeNone           = -   1,
 	kFileTypeRES            =     0, ///< Generic GFF.
@@ -166,10 +188,13 @@ enum FileType {
 	kFileTypeMAB            =  3011, ///< Material, binary.
 	kFileTypeQST2           =  3012, ///< Quest, GFF.
 	kFileTypeSTO            =  3013, ///< GFF.
+	kFileTypeHEX            =  3015, ///< Hex grid file.
 	kFileTypeMDX2           =  3016, ///< Geometry, model mesh data.
 	kFileTypeTXB2           =  3017, ///< Texture.
 	kFileTypeFSM            =  3022, ///< Finite State Machine data.
 	kFileTypeART            =  3023, ///< Area enviroment settings, INI.
+	kFileTypeAMP            =  3024, ///< Brightening control.
+	kFileTypeCWA            =  3025, ///< Crowd attributes, GFF.
 	kFileTypeBIP            =  3028, ///< Lipsync data, binary LIP.
 	kFileTypeMDB2           =  4000,
 	kFileTypeMDA2           =  4001,
@@ -183,6 +208,8 @@ enum FileType {
 	kFileTypeERF            =  9997, ///< Module resources.
 	kFileTypeBIF            =  9998, ///< Game resource data.
 	kFileTypeKEY            =  9999, ///< Game resource index.
+
+	/* --- Entries for files not found in archives with numerical type IDs --- */
 
 	// Found in NWN
 	kFileTypeEXE            = 19000, ///< Windows PE EXE file.
@@ -225,7 +252,7 @@ enum FileType {
 	kFileTypeNDS            = 21000, ///< Archive, Nintendo DS ROM file.
 	kFileTypeHERF           = 21001, ///< Archive, hashed ERF.
 	kFileTypeDICT           = 21002, ///< HERF file name -> hashes dictionary.
-	kFileTypeSMALL          = 21023, ///< Compressed file, Nintendo LZSS.
+	kFileTypeSMALL          = 21003, ///< Compressed file, Nintendo LZSS.
 	kFileTypeCBGT           = 21004,
 	kFileTypeCDPTH          = 21005,
 	kFileTypeEMIT           = 21006,
@@ -304,10 +331,9 @@ enum FileType {
 	kFileTypeABC            = 24003, ///< Font, character descriptions.
 	kFileTypeSBM            = 24004, ///< Font, character bitmap data.
 	kFileTypePVD            = 24005,
-	kFileTypeAMP            = 24006,
-	kFileTypePLA            = 24007, ///< Placeable, GFF.
-	kFileTypeTRG            = 24008, ///< Trigger, GFF.
-	kFileTypePK             = 24009,
+	kFileTypePLA            = 24006, ///< Placeable, GFF.
+	kFileTypeTRG            = 24007, ///< Trigger, GFF.
+	kFileTypePK             = 24008,
 
 	// Found in Dragon Age II
 	kFileTypeALS            = 25000,
