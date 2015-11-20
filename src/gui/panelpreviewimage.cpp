@@ -25,7 +25,6 @@
 #include <cstdlib>
 
 #include <wx/sizer.h>
-#include <wx/statbox.h>
 #include <wx/slider.h>
 #include <wx/button.h>
 #include <wx/checkbox.h>
@@ -36,6 +35,7 @@
 #include "src/common/util.h"
 #include "src/common/error.h"
 #include "src/common/ustring.h"
+#include "src/common/strutil.h"
 
 #include "src/images/decoder.h"
 
@@ -277,12 +277,12 @@ wxBEGIN_EVENT_TABLE(PanelPreviewImage, wxPanel)
 wxEND_EVENT_TABLE()
 
 PanelPreviewImage::PanelPreviewImage(wxWindow *parent, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY), _lastZoomOperation(kZoomOpLevel), _lastZoomLevel(1.0) {
+	wxPanel(parent, wxID_ANY), _title(title), _lastZoomOperation(kZoomOpLevel), _lastZoomLevel(1.0) {
 
-	wxStaticBox *boxPreviewImage = new wxStaticBox(this, wxID_ANY, title);
-	boxPreviewImage->Lower();
+	_boxPreviewImage = new wxStaticBox(this, wxID_ANY, _title);
+	_boxPreviewImage->Lower();
 
-	wxStaticBoxSizer *sizerPreviewImage = new wxStaticBoxSizer(boxPreviewImage, wxVERTICAL);
+	wxStaticBoxSizer *sizerPreviewImage = new wxStaticBoxSizer(_boxPreviewImage, wxVERTICAL);
 
 	_sliderColor = new wxSlider(this, kEventSliderColor, 0, 0, 255,
 	                            wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
@@ -332,11 +332,22 @@ PanelPreviewImage::~PanelPreviewImage() {
 void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	_canvas->setCurrentItem(item);
 
+	Common::UString title = _title;
+
 	if (item) {
 		assertZoomOp();
 		updateZoomLevelText();
+
+		int width, height;
+		getImageSize(width, height);
+
+		if ((width > 0) && (height > 0))
+			title += " (" + Common::composeString(width) + "x" + Common::composeString(height) + ")";
 	}
+
+	_boxPreviewImage->SetLabel(title);
 }
+
 
 void PanelPreviewImage::getImageSize(int &width, int &height) {
 	int currentWidth, currentHeight;

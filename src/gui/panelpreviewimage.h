@@ -26,6 +26,7 @@
 #define PANELPREVIEWIMAGE_H
 
 #include <wx/scrolwin.h>
+#include <wx/statbox.h>
 #include <wx/panel.h>
 
 #include "src/images/types.h"
@@ -104,7 +105,11 @@ private:
 		kZoomOpShrinkFitWidth
 	};
 
+	Common::UString _title;
+
 	ImageCanvas *_canvas;
+
+	wxStaticBox *_boxPreviewImage;
 
 	wxSlider *_sliderColor;
 
