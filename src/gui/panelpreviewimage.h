@@ -92,6 +92,9 @@ public:
 
 	void setCurrentItem(const ResourceTreeItem *item);
 
+	void getImageSize(int &width, int &height);
+
+
 private:
 	enum ZoomOperation {
 		kZoomOpLevel,

@@ -338,6 +338,12 @@ void PanelPreviewImage::setCurrentItem(const ResourceTreeItem *item) {
 	}
 }
 
+void PanelPreviewImage::getImageSize(int &width, int &height) {
+	int currentWidth, currentHeight;
+
+	_canvas->getSize(width, height, currentWidth, currentHeight);
+}
+
 void PanelPreviewImage::onColorChange(wxScrollEvent &UNUSED(event)) {
 	_canvas->setColor(_sliderColor->GetValue());
 }
