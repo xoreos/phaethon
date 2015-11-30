@@ -11,7 +11,7 @@ if(WIN32)
 
 else(WIN32)
   find_path(LIBLZMA_INCLUDE_DIR lzma/version.h DOC "The directory where lzma/version.h resides")
-  find_library(LIBLZMA_LIBRARY NAMES lzma liblzma DOC "The liblzma library")
+  find_library(LIBLZMA_LIBRARY NAMES lzma DOC "The liblzma library")
 
 endif(WIN32)
 
@@ -38,4 +38,6 @@ if(NOT LIBLZMA_FOUND)
       message(FATAL_ERROR "${LIBLZMA_DIR_MESSAGE}")
     endif(LIBLZMA_FIND_REQUIRED)
   endif(NOT LIBLZMA_FIND_QUIETLY)
+else(NOT LIBLZMA_FOUND)
+  message(STATUS "Found liblzma: ${LIBLZMA_LIBRARY}")
 endif(NOT LIBLZMA_FOUND)
