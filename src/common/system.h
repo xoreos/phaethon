@@ -193,7 +193,7 @@
 	 *  Ignores 'locale' stuff.  Assumes that the upper and lower case
 	 *  alphabets and digits are each contiguous.
 	 */
-	long long c99_strtoll(const char *nptr, char **endptr, int base) {
+	static long long c99_strtoll(const char *nptr, char **endptr, int base) {
 		const char *s;
 		long long acc, cutoff;
 		int c;
@@ -313,7 +313,7 @@
 	 *  Ignores 'locale' stuff.  Assumes that the upper and lower case
 	 *  alphabets and digits are each contiguous.
 	 */
-	unsigned long long c99_strtoull(const char *nptr, char **endptr, int base) {
+	static unsigned long long c99_strtoull(const char *nptr, char **endptr, int base) {
 		const char *s;
 		unsigned long long acc, cutoff;
 		int c;
