@@ -18,11 +18,12 @@ EXTRA_DIST = \
              CMakeLists.txt \
              cmake/CMakeAM.cmake \
              cmake/FindFaad.cmake \
+             cmake/FindIconv.cmake \
              cmake/FindLibLZMA.cmake \
              cmake/FindMad.cmake \
              cmake/FindOgg.cmake \
              cmake/FindVorbis.cmake \
-             cmake/Findiconv.cmake \
+             cmake/SetCheckCompilerFlag.cmake \
              cmake/toolchain/i686-windows-mingw.cmake \
              cmake/toolchain/x86_64-windows-mingw.cmake \
              $(EMPTY)
