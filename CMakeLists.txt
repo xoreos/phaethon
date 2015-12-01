@@ -161,7 +161,7 @@ find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ZLIB_LIBRARIES})
 
-option(Boost_USE_STATIC_LIBS "Use Boost static libraries" ON)
+option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
 
 find_package(Boost COMPONENTS system filesystem regex date_time atomic locale chrono thread REQUIRED)
 
