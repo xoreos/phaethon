@@ -1,3 +1,9 @@
+Someday, ????-??-?? (Version 0.0.4)
+	- BUILD:
+		- Fixed small bug preventing the CMake build system to be used with
+		  non-MSVC compilers
+		- Added dynamic supported warning flag detected to CMake
+
 Wednesday, 2015-09-30 (Version 0.0.3)
 	- IMAGES:
 		- Added viewing of TPC cubemaps
