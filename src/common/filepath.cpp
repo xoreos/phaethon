@@ -343,7 +343,7 @@ UString FilePath::escapeStringLiteral(const UString &str) {
 }
 
 UString FilePath::getHumanReadableSize(size_t size) {
-	static const char *sizes[] = {"B", "K", "M", "G"};
+	static const char * const sizes[] = {"B", "K", "M", "G"};
 
 	double s = size;
 	int n = 0;
