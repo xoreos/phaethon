@@ -482,7 +482,7 @@ ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hash
 }
 
 Common::UString getPlatformDescription(Platform platform) {
-	static const char *names[] = {
+	static const char * const names[] = {
 		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "GNU/Linux", "Unknown"
 	};
 
@@ -490,7 +490,7 @@ Common::UString getPlatformDescription(Platform platform) {
 }
 
 Common::UString getResourceTypeDescription(ResourceType type) {
-	static const char *names[kResourceMAX] = { "Image", "Video", "Sound", "Archive" };
+	static const char * const names[kResourceMAX] = { "Image", "Video", "Sound", "Archive" };
 
 	if ((type < 0) || (type >= kResourceMAX))
 			return "";
