@@ -4,7 +4,6 @@ EXTRA_DIST = \
              autogen.sh \
              BUILDDEP.md \
              Doxyfile \
-             README.dox \
              doc/doxygen/README \
              dists/arch/PKGBUILD \
              dists/debian/changelog \
