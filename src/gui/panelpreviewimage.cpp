@@ -160,6 +160,8 @@ void ImageCanvas::loadImage() {
 
 	try {
 		getImageDimensions(*image, width, height);
+		if ((width <= 0) || (height <= 0))
+			throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
 
 		data_rgb   = (byte *) malloc(width * height * 3);
 		data_alpha = (byte *) malloc(width * height);
