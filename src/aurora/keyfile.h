@@ -42,7 +42,7 @@ namespace Aurora {
 
 class KEYDataFile;
 
-class KEYFile : public Archive, public AuroraBase {
+class KEYFile : public Archive, public AuroraFile {
 public:
 	KEYFile(Common::SeekableReadStream *key);
 	~KEYFile();
