@@ -69,11 +69,11 @@ const char *PHAETHON_NAME            = PACKAGE_NAME;
 const char *PHAETHON_VERSION         = PACKAGE_VERSION;
 const char *PHAETHON_NAMEVERSION     = PACKAGE_NAME " " PACKAGE_VERSION PHAETHON_REVSEP PHAETHON_REV;
 const char *PHAETHON_NAMEVERSIONFULL = PACKAGE_NAME " " PACKAGE_VERSION PHAETHON_REVSEP PHAETHON_REV " [" PHAETHON_REVDESC "] (" PHAETHON_BUILDDATE ")";
-const char *PHAETHON_COPYRIGHTYEAR   = "2014-2015";
+const char *PHAETHON_COPYRIGHTYEAR   = "2014-2016";
 const char *PHAETHON_URL             = "https://xoreos.org/";
 
 const char *PHAETHON_AUTHORS =
-	"Copyright (c) 2010-2015 by the xoreos team.\n"
+	"Copyright (c) 2010-2016 by the xoreos team.\n"
 	"Please see the AUTHORS file for details.\n"
 	"\n"
 	"This is free software; see the source for copying conditions.  There is NO\n"
