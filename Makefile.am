@@ -53,6 +53,7 @@ EXTRA_DIST = \
 dist_doc_DATA = \
                 COPYING \
                 COPYING.GPLv2 \
+                COPYING.LGPLv2.1 \
                 AUTHORS \
                 ChangeLog \
                 TODO \

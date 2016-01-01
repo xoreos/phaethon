@@ -62,3 +62,10 @@ ScummVM code
    endian, singleton, stream and audio stream code. ScummVM is licensed under
    version 2 or later of the GNU General Public License. For the full license
    text, see COPYING.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
+
+WMA
+***
+   The WMA decoder used in Phaethon is based (heavily) on the WMA decoder in
+   FFmpeg (<http://ffmpeg.org/>), licensed under the GNU Lesser General Public
+   License (LGPL) version 2.1 or later. For the full license text, see
+   COPYING.LGPLv2.1 or <https://gnu.org/licenses/lgpl-2.1.html>.
