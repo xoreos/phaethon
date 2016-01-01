@@ -60,4 +60,5 @@ ScummVM code
 ************
    Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
    endian, singleton, stream and audio stream code. ScummVM is licensed under
-   version 2 or later of the GNU General Public License.
+   version 2 or later of the GNU General Public License. For the full license
+   text, see COPYING.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
