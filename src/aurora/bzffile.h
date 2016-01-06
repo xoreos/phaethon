@@ -39,6 +39,7 @@ namespace Aurora {
 /** Class to hold resource data information of a bzf file. */
 class BZFFile : public AuroraFile, public KEYDataFile {
 public:
+	/** Take over this stream and read a BZF file out of it. */
 	BZFFile(Common::SeekableReadStream *bzf);
 	~BZFFile();
 
