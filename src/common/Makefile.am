@@ -76,6 +76,7 @@ noinst_HEADERS = \
                  cosinetables.h \
                  fft.h \
                  mdct.h \
+                 atomic.h \
                  mutex.h \
                  thread.h \
                  $(EMPTY)
