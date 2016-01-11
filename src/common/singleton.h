@@ -107,10 +107,10 @@ public:
 		T::destroyInstance();
 	}
 protected:
-	Singleton<T>()		{ }
-	virtual ~Singleton<T>()	{ }
+	Singleton<T>() { }
+	virtual ~Singleton<T>() { }
 
-	typedef T	SingletonBaseType;
+	typedef T SingletonBaseType;
 };
 
 /**
