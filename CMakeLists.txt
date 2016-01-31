@@ -20,7 +20,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 project(phaethon C CXX)
-set(phaethon_VERSION 0.0.3)
+set(phaethon_VERSION 0.0.4)
 
 
 # -------------------------------------------------------------------------

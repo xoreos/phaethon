@@ -1,4 +1,4 @@
-Someday, ????-??-?? (Version 0.0.4)
+Someday, 2016-02-01 (Version 0.0.4)
 	- BUILD:
 		- Fixed small bug preventing the CMake build system to be used with
 		  non-MSVC compilers
