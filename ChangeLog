@@ -1,3 +1,7 @@
+Someday, ????-??-?? (Version 0.0.5)
+	- GRAPHICS:
+		- Loosened restrictions on textures, allowing NPOT textures
+
 Someday, 2016-02-01 (Version 0.0.4)
 	- BUILD:
 		- Fixed small bug preventing the CMake build system to be used with
