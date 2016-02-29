@@ -1,13 +1,15 @@
-#serial 1000
+#serial 1001
 dnl @synopsis AX_CHECK_WX(major, minor, release, action-if, action-if-not)
 dnl
 dnl @summary check for wxWidgets of sufficient major, minor and release version
 dnl
 dnl Defines WX_LIBS, WX_CXXFLAGS.
 dnl
+dnl Copyright (c) 2013, 2016 Sven Hesse <drmccoy@drmccoy.de>
+dnl
 dnl @category InstalledPackages
 dnl @author Sven Hesse <drmccoy@drmccoy.de>
-dnl @version 2013-12-14
+dnl @version 2016-02-29
 dnl @license Creative Commons CC0 1.0 Universal Public Domain Dedication
 
 AC_DEFUN([AX_CHECK_WX], [
@@ -16,7 +18,7 @@ AC_DEFUN([AX_CHECK_WX], [
 	AC_ARG_VAR(WX_CXXFLAGS, [C++ compiler flags for wxWidgets])
 	AC_ARG_VAR(WX_LIBS, [libraries to pass to the linker for wxWidgets])
 
-	AC_CHECK_PROG([WX_CONFIG], [wx-config], [wx-config])
+	AC_CHECK_PROGS([WX_CONFIG], [WX_CONFIG] [wx-config-3.0] [wx-config], )
 
 	if test -n "$WX_CONFIG"; then
 		if test -z "$WX_CPPFLAGS"; then
