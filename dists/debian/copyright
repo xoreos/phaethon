@@ -75,11 +75,15 @@ License: CC0-1.0
 
 Files: m4/ax_check_iconv.m4
        m4/ax_check_zlib.m4
-       m4/ax_check_wx.m4
        m4/ax_check_mad.m4
        m4/ax_check_ogg.m4
        m4/ax_check_vorbis.m4
 Copyright: 2013 Sven Hesse <drmccoy@drmccoy.de>
+License: CC0-1.0
+
+Files: m4/ax_check_wx.m4
+Copyright: 2013, 2016 Sven Hesse <drmccoy@drmccoy.de>
+Sven Hesse <drmccoy@drmccoy.de>
 License: CC0-1.0
 
 Files: m4/ax_check_lzma.m4
