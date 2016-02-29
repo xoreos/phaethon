@@ -36,6 +36,8 @@ EXTRA_DIST = \
              dists/debian/phaethon.lintian-overrides \
              dists/debian/rules \
              dists/debian/source/format \
+             dists/fedora/build-from-git.sh \
+             dists/fedora/phaethon.spec \
              .uncrustifyrc \
              CMakeLists.txt \
              cmake/CMakeAM.cmake \
