@@ -1,6 +1,8 @@
 Someday, ????-??-?? (Version 0.0.5)
 	- GRAPHICS:
 		- Loosened restrictions on textures, allowing NPOT textures
+	- DIST:
+		- Added Fedora package build files
 
 Someday, 2016-02-01 (Version 0.0.4)
 	- BUILD:
