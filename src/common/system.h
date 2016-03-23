@@ -196,9 +196,9 @@
 #ifndef HAVE_STRTOLL
 	#define strtoll c99_strtoll
 
-	#include <ctype.h>
-	#include <errno.h>
-	#include <limits.h>
+	#include <cctype>
+	#include <cerrno>
+	#include <climits>
 
 	#ifndef LLONG_MAX
 		#define LLONG_MAX   0x7FFFFFFFFFFFFFFFlL
@@ -320,9 +320,9 @@
 #ifndef HAVE_STRTOULL
 	#define strtoull c99_strtoull
 
-	#include <ctype.h>
-	#include <errno.h>
-	#include <limits.h>
+	#include <cctype>
+	#include <cerrno>
+	#include <climits>
 
 	#ifndef ULLONG_MAX
 		#define ULLONG_MAX 0xFFFFFFFFFFFFFFFFULL
