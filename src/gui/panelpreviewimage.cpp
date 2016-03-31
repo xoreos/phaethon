@@ -166,8 +166,8 @@ void ImageCanvas::loadImage() {
 		data_rgb   = (byte *) malloc(width * height * 3);
 		data_alpha = (byte *) malloc(width * height);
 
-		memset(data_rgb  , 0, width * height * 3);
-		memset(data_alpha, 0, width * height);
+		std::memset(data_rgb  , 0, width * height * 3);
+		std::memset(data_alpha, 0, width * height);
 
 		convertImage(*image, data_rgb, data_alpha);
 	} catch (Common::Exception &e) {
