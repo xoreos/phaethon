@@ -554,7 +554,7 @@ void SoundManager::setTypeGain(SoundType type, float gain) {
 	}
 }
 
-bool SoundManager::fillBuffer(ALuint alBuffer, AudioStream *stream, uint32 &bufferedSize) const {
+bool SoundManager::fillBuffer(ALuint alBuffer, AudioStream *stream, ALsizei &bufferedSize) const {
 	bufferedSize = 0;
 
 	if (!stream)
@@ -601,7 +601,7 @@ bool SoundManager::fillBuffer(ALuint alBuffer, AudioStream *stream, uint32 &buff
 	}
 
 	bufferedSize = numSamples * 2;
-	alBufferData(alBuffer, format, buffer, (ALsizei) bufferedSize, stream->getRate());
+	alBufferData(alBuffer, format, buffer, bufferedSize, stream->getRate());
 
 	delete[] buffer;
 

@@ -202,7 +202,7 @@ private:
 		std::list<ALuint> buffers;     ///< List of buffers for that channel.
 		std::list<ALuint> freeBuffers; ///< List of free buffers not filled with data.
 
-		std::map<ALuint, uint32> bufferSize; ///< Size of a buffer in bytes.
+		std::map<ALuint, ALsizei> bufferSize; ///< Size of a buffer in bytes.
 
 		SoundType type;            ///< The channel's sound type.
 		TypeList::iterator typeIt; ///< Iterator into the type list.
@@ -266,7 +266,7 @@ private:
 	void threadMethod();
 
 	/** Fill the buffer with data from the audio stream. */
-	bool fillBuffer(ALuint alBuffer, AudioStream *stream, uint32 &bufferedSize) const;
+	bool fillBuffer(ALuint alBuffer, AudioStream *stream, ALsizei &bufferedSize) const;
 };
 
 } // End of namespace Sound
