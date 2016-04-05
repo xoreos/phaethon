@@ -714,7 +714,7 @@ ChannelHandle SoundManager::newChannel() {
 }
 
 void SoundManager::pauseChannel(Channel *channel, bool pause) {
-	if (!channel)
+	if (!channel || channel->id == 0)
 		return;
 
 	ALenum error = AL_NO_ERROR;
