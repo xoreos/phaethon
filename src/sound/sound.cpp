@@ -25,17 +25,17 @@
 #include <cassert>
 #include <cstring>
 
+#include "src/common/readstream.h"
+#include "src/common/util.h"
+#include "src/common/strutil.h"
+#include "src/common/error.h"
+
 #include "src/sound/sound.h"
 #include "src/sound/audiostream.h"
 #include "src/sound/decoders/asf.h"
 #include "src/sound/decoders/mp3.h"
 #include "src/sound/decoders/vorbis.h"
 #include "src/sound/decoders/wave.h"
-
-#include "src/common/readstream.h"
-#include "src/common/util.h"
-#include "src/common/strutil.h"
-#include "src/common/error.h"
 
 DECLARE_SINGLETON(Sound::SoundManager)
 
