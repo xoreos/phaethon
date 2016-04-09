@@ -1,6 +1,8 @@
 Someday, ????-??-?? (Version 0.0.5)
 	- GRAPHICS:
 		- Loosened restrictions on textures, allowing NPOT textures
+	- SOUND:
+		- Unified sound code between xoreos and Phaethon
 	- DIST:
 		- Added Fedora package build files
 	- MISC:
