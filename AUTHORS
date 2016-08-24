@@ -71,3 +71,10 @@ WMA
    FFmpeg (<http://ffmpeg.org/>), licensed under the GNU Lesser General Public
    License (LGPL) version 2.1 or later. For the full license text, see
    COPYING.LGPLv2.1 or <https://gnu.org/licenses/lgpl-2.1.html>.
+
+Google Test
+***********
+   Phaethon uses Google Test (<https://github.com/google/googletest>), Google's
+   C++ test framework. Google Test is licensed under the terms of the 3-clause
+   BSD license. For the full license text, see tests/googletest/LICENSE or
+   <https://github.com/google/googletest/blob/master/googletest/LICENSE>.

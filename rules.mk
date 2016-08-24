@@ -90,3 +90,5 @@ include dists/rules.mk
 include utf8cpp/rules.mk
 
 include src/rules.mk
+
+include tests/rules.mk

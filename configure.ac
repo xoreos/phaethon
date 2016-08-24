@@ -206,19 +206,26 @@ BOOST_ATOMIC
 BOOST_LOCALE
 BOOST_THREAD
 
+dnl pthread
+AX_PTHREAD()
+AM_CONDITIONAL([HAVE_PTHREAD], [test x"$ax_pthread_ok" = xyes])
+
 dnl Extra flags
 case "$target" in
 	*darwin*)
 		PHAETHON_CFLAGS="-DUNIX -DMACOSX"
 		PHAETHON_LIBS=""
+		AM_CONDITIONAL(WIN32, false)
 		;;
 	*mingw*)
 		PHAETHON_CFLAGS="-mconsole -municode"
 		PHAETHON_LIBS=""
+		AM_CONDITIONAL(WIN32, true)
 		;;
 	*)
 		PHAETHON_CFLAGS="-DUNIX"
 		PHAETHON_LIBS=""
+		AM_CONDITIONAL(WIN32, false)
 		;;
 esac;
 
