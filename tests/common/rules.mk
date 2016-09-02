@@ -64,3 +64,8 @@ check_PROGRAMS                    += tests/common/test_strutil
 tests_common_test_strutil_SOURCES  = tests/common/strutil.cpp
 tests_common_test_strutil_LDADD    = $(common_LIBS)
 tests_common_test_strutil_CXXFLAGS = $(test_CXXFLAGS)
+
+check_PROGRAMS                          += tests/common/test_memreadstream
+tests_common_test_memreadstream_SOURCES  = tests/common/memreadstream.cpp
+tests_common_test_memreadstream_LDADD    = $(common_LIBS)
+tests_common_test_memreadstream_CXXFLAGS = $(test_CXXFLAGS)
