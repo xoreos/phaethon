@@ -33,7 +33,6 @@ VER_DATE = $(shell date -u '+%Y-%m-%dT%H:%M:%S')
 VERSION_FLAGS += $(shell if test x$(VER_DATE) != "x"; then echo "-DPHAETHON_BUILDDATE=\\\"$(VER_DATE)\\\""; fi)
 
 AM_CXXFLAGS += $(VERSION_FLAGS)
-AM_CFLAGS   += $(VERSION_FLAGS)
 
 # Rebuild the version.lo when the git version changed
 version.lo: $(top_builddir)/gitstamp/gitstamp
