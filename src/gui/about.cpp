@@ -44,7 +44,7 @@ wxBEGIN_EVENT_TABLE(AboutDialog, wxDialog)
 wxEND_EVENT_TABLE()
 
 AboutDialog::AboutDialog(wxWindow *parent) :
-	wxDialog(parent, wxID_ANY, Common::UString("About ") + PHAETHON_NAME) {
+	wxDialog(parent, wxID_ANY, Common::UString("About ") + Version::getProjectName()) {
 
 	wxGenericStaticText *msg = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
 

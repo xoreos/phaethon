@@ -151,7 +151,7 @@ bool Phaethon::OnInit() {
 	initSubsystems();
 
 	GUI::MainWindow *mainWindow =
-		new GUI::MainWindow(PHAETHON_NAMEVERSION, wxDefaultPosition, wxSize(800, 600));
+		new GUI::MainWindow(Version::getProjectNameVersion(), wxDefaultPosition, wxSize(800, 600));
 
 	mainWindow->Show(true);
 	if (!_path.empty())

@@ -108,11 +108,13 @@ void MainWindow::createLayout() {
 	menuFile->AppendSeparator();
 	menuFile->Append(menuFileClose);
 	menuFile->AppendSeparator();
-	menuFile->Append(kEventMenuFileQuit, wxT("&Quit\tCtrl-Q"), Common::UString("Quit ") + PHAETHON_NAME);
+	menuFile->Append(kEventMenuFileQuit, wxT("&Quit\tCtrl-Q"),
+	                 Common::UString("Quit ") + Version::getProjectName());
 
 
 	wxMenu *menuHelp = new wxMenu;
-	menuHelp->Append(kEventMenuHelpAbout, wxT("&About\tF1"), Common::UString("About ") + PHAETHON_NAME);
+	menuHelp->Append(kEventMenuHelpAbout, wxT("&About\tF1"),
+	                 Common::UString("About ") + Version::getProjectName());
 
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, wxT("&File"));

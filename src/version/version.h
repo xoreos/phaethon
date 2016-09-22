@@ -25,25 +25,26 @@
 #ifndef VERSION_VERSION_H
 #define VERSION_VERSION_H
 
+namespace Version {
+
 // "Phaethon"
-extern const char *PHAETHON_NAME;
+const char *getProjectName();
 
 // "0.0.0+2197.g19f9c1b"
-extern const char *PHAETHON_VERSION;
+const char *getProjectVersion();
 
 // "Phaethon 0.0.0+2197.g19f9c1b"
-extern const char *PHAETHON_NAMEVERSION;
+const char *getProjectNameVersion();
 
 // "Phaethon 0.0.0+2197.g19f9c1b [0.0.0+2197.g19f9c1b] (2014-06-28T00:35:43)"
-extern const char *PHAETHON_NAMEVERSIONFULL;
-
-// "2014"
-extern const char *PHAETHON_COPYRIGHTYEAR;
+const char *getProjectNameVersionFull();
 
 // "https://..."
-extern const char *PHAETHON_URL;
+const char *getProjectURL();
 
 // Very shortened authors/copyright message
-extern const char *PHAETHON_AUTHORS;
+const char *getProjectAuthors();
+
+} // End of namespace Version
 
 #endif // VERSION_VERSION_H

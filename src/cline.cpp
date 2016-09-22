@@ -58,10 +58,10 @@ Job parseCommandLine(const std::vector<Common::UString> &argv) {
 Common::UString createVersionText() {
 	Common::UString text;
 
-	text += Common::UString::format("%s\n", PHAETHON_NAMEVERSIONFULL);
-	text += Common::UString::format("%s\n", PHAETHON_URL);
+	text += Common::UString::format("%s\n", Version::getProjectNameVersionFull());
+	text += Common::UString::format("%s\n", Version::getProjectURL());
 	text += Common::UString::format("\n");
-	text += Common::UString::format("%s", PHAETHON_AUTHORS);
+	text += Common::UString::format("%s", Version::getProjectAuthors());
 
 	return text;
 }
@@ -69,7 +69,8 @@ Common::UString createVersionText() {
 Common::UString createHelpText(const Common::UString &name) {
 	Common::UString text;
 
-	text += Common::UString::format("%s - A FLOSS resource explorer for BioWare's Aurora engine games\n", PHAETHON_NAME);
+	text += Common::UString::format("%s - A FLOSS resource explorer for BioWare's Aurora engine games\n",
+	                                Version::getProjectName());
 	text += Common::UString::format("Usage: %s [options] [<path>]\n", name.c_str());
 	text += Common::UString::format("  -h      --help              Display this text and exit.\n");
 	text += Common::UString::format("  -v      --version           Display version information and exit.");
