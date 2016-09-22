@@ -279,10 +279,10 @@ endif(ICONV_SECOND_ARGUMENT_IS_CONST)
 
 
 # -------------------------------------------------------------------------
-# phaethon main targets, parsed from configure.ac and */Makefile.am
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
+# phaethon main targets, parsed from the Automake rules.mk files
+include_directories(${PROJECT_SOURCE_DIR})
 add_definitions(-DPACKAGE_STRING="phaethon ${phaethon_VERSION}")
-parse_configure(configure.ac src)
+parse_automake(src/rules.mk)
 target_link_libraries(phaethon ${PHAETHON_LIBRARIES})
 
 
