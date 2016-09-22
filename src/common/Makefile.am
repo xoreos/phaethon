@@ -21,25 +21,6 @@
 
 include $(top_srcdir)/Makefile.common
 
-# Pass the git version information to the compiler
-
-VER_REVDESC = $(shell cat $(top_builddir)/gitstamp/gitstamp)
-VERSION_FLAGS = $(shell if test x$(VER_REVDESC) != "x"; then echo "-DPHAETHON_REVDESC=\\\"$(VER_REVDESC)\\\""; fi)
-
-VER_REV = $(shell cat $(top_builddir)/gitstamp/gitstamp | cut -d '+' -f 2-)
-VERSION_FLAGS += $(shell if test x$(VER_REV) != "x"; then echo "-DPHAETHON_REV=\\\"$(VER_REV)\\\""; fi)
-
-VER_DATE = $(shell date -u '+%Y-%m-%dT%H:%M:%S')
-VERSION_FLAGS += $(shell if test x$(VER_DATE) != "x"; then echo "-DPHAETHON_BUILDDATE=\\\"$(VER_DATE)\\\""; fi)
-
-AM_CXXFLAGS += $(VERSION_FLAGS)
-
-# Rebuild the version.lo when the git version changed
-version.lo: $(top_builddir)/gitstamp/gitstamp
-
-SUBDIRS = \
-          $(EMPTY)
-
 noinst_LTLIBRARIES = libcommon.la
 
 noinst_HEADERS = \
@@ -59,7 +40,6 @@ noinst_HEADERS = \
                  singleton.h \
                  error.h \
                  ustring.h \
-                 version.h \
                  hash.h \
                  md5.h \
                  blowfish.h \
@@ -96,7 +76,6 @@ libcommon_la_SOURCES = \
                        deflate.cpp \
                        error.cpp \
                        ustring.cpp \
-                       version.cpp \
                        readfile.cpp \
                        writefile.cpp \
                        filepath.cpp \
@@ -111,6 +90,3 @@ libcommon_la_SOURCES = \
                        mutex.cpp \
                        thread.cpp \
                        $(EMPTY)
-
-libcommon_la_LIBADD = \
-                      $(EMPTY)

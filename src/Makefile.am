@@ -22,6 +22,7 @@
 include $(top_srcdir)/Makefile.common
 
 SUBDIRS = \
+          version \
           common \
           aurora \
           images \
@@ -46,5 +47,6 @@ phaethon_LDADD = \
                  images/libimages.la \
                  aurora/libaurora.la \
                  common/libcommon.la \
+                 version/libversion.la \
                  $(LDADD) \
                  $(EMPTY)

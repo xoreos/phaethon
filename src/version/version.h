@@ -19,11 +19,11 @@
  */
 
 /** @file
- *  Basic Phaethon version information
+ *  Basic Phaethon version information.
  */
 
-#ifndef COMMON_VERSION_H
-#define COMMON_VERSION_H
+#ifndef VERSION_VERSION_H
+#define VERSION_VERSION_H
 
 // "Phaethon"
 extern const char *PHAETHON_NAME;
@@ -46,4 +46,4 @@ extern const char *PHAETHON_URL;
 // Very shortened authors/copyright message
 extern const char *PHAETHON_AUTHORS;
 
-#endif // COMMON_VERSION_H
+#endif // VERSION_VERSION_H

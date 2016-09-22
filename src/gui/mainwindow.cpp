@@ -37,9 +37,10 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "src/common/ustring.h"
-#include "src/common/version.h"
+#include "src/version/version.h"
+
 #include "src/common/util.h"
+#include "src/common/ustring.h"
 #include "src/common/error.h"
 #include "src/common/readfile.h"
 #include "src/common/filepath.h"

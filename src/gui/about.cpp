@@ -27,10 +27,10 @@
 
 #include <wx/generic/stattextg.h>
 
-#include "src/common/ustring.h"
-#include "src/common/version.h"
+#include "src/version/version.h"
 
 #include "src/common/util.h"
+#include "src/common/ustring.h"
 
 #include "src/gui/about.h"
 #include "src/gui/eventid.h"

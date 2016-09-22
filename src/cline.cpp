@@ -22,7 +22,7 @@
  *  Command line handling.
  */
 
-#include "src/common/version.h"
+#include "src/version/version.h"
 
 #include "src/cline.h"
 
