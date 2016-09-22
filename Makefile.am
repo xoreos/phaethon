@@ -17,65 +17,76 @@
 # You should have received a copy of the GNU General Public License
 # along with xoreos. If not, see <http://www.gnu.org/licenses/>.
 
-# Top-level automake build recipe.
+# The main "controller" automake recipe. We're setting up all our
+# global build variables here, then recursively include all other
+# build recipe, creating a flat non-recursive automake setup.
 
-include $(top_srcdir)/Makefile.common
-
+# Use the m4 directory for extra m4 autoconf scripts.
 ACLOCAL_AMFLAGS = -I m4 --install
+# Build objects in the same directory as their source files.
+AUTOMAKE_OPTIONS = subdir-objects
 
-EXTRA_DIST = \
-             autogen.sh \
-             BUILDDEP.md \
-             Doxyfile \
-             doc/doxygen/README \
-             dists/arch/PKGBUILD \
-             dists/debian/changelog \
-             dists/debian/compat \
-             dists/debian/control \
-             dists/debian/copyright \
-             dists/debian/phaethon.lintian-overrides \
-             dists/debian/rules \
-             dists/debian/source/format \
-             dists/fedora/build-from-git.sh \
-             dists/fedora/phaethon.spec \
-             .uncrustifyrc \
-             CMakeLists.txt \
-             cmake/CMakeAM.cmake \
-             cmake/FindFaad.cmake \
-             cmake/FindIconv.cmake \
-             cmake/FindLibLZMA.cmake \
-             cmake/FindMad.cmake \
-             cmake/FindOgg.cmake \
-             cmake/FindVorbis.cmake \
-             cmake/SetCheckCompilerFlag.cmake \
-             cmake/toolchain/i686-windows-mingw.cmake \
-             cmake/toolchain/x86_64-windows-mingw.cmake \
-             $(EMPTY)
+# Empty element to make the source lists easier editable.
+EMPTY =
 
-dist_doc_DATA = \
-                COPYING \
-                COPYING.GPLv2 \
-                COPYING.LGPLv2.1 \
-                AUTHORS \
-                ChangeLog \
-                TODO \
-                README.md \
-                CONTRIBUTING.md \
-                CODE_OF_CONDUCT.md \
-                $(EMPTY)
+# Initialize the global lists.
 
-SUBDIRS = \
-          gitstamp \
-          utf8cpp \
-          src \
-          $(EMPTY)
+noinst_HEADERS     =
+noinst_LTLIBRARIES =
 
-doxygen:
-	doxygen
+bin_PROGRAMS =
 
-doxygen-clean:
-	rm -rf doc/doxygen/html/
-	rm -rf doc/doxygen/latex/
-	rm -rf doc/doxygen/man/
-	rm -rf doc/doxygen/*.tmp
-	rm -rf doc/doxygen/*.db
+CLEANFILES =
+
+EXTRA_DIST    =
+dist_doc_DATA =
+
+# Library compile flags
+
+LIBSF_PHAETHON = $(PHAETHON_CFLAGS)
+LIBSF_GENERAL  = $(ZLIB_CFLAGS) $(LZMA_FLAGS)
+LIBSF_GRAPHIC  = $(WX_CXXFLAGS)
+LIBSF_SOUND    = $(AL_CFLAGS) $(MAD_CFLAGS) $(OGG_CFLAGS) $(VORBIS_CFLAGS)
+LIBSF_BOOST    = $(BOOST_CPPFLAGS)
+
+LIBSF          = $(LIBSF_PHAETHON) $(LIBSF_GENERAL) $(LIBSF_GRAPHIC) \
+                 $(LIBSF_SOUND) $(LIBSF_BOOST)
+
+# Library linking flags
+
+LIBSL_PHAETHON = $(PHAETHON_LIBS)
+LIBSL_GENERAL  = $(LTLIBICONV) $(ZLIB_LIBS) $(LZMA_LIBS)
+LIBSL_GRAPHIC  = $(WX_LIBS)
+LIBSL_SOUND    = $(AL_LIBS) $(MAD_LIBS) $(OGG_LIBS) $(VORBIS_LIBS)
+LIBSL_BOOST    = $(BOOST_SYSTEM_LDFLAGS) $(BOOST_SYSTEM_LIBS) \
+                 $(BOOST_FILESYSTEM_LDFLAGS) $(BOOST_FILESYSTEM_LIBS) \
+                 $(BOOST_REGEX_LDFLAGS) $(BOOST_REGEX_LIBS) \
+                 $(BOOST_CHRONO_LDFLAGS) $(BOOST_CHRONO_LIBS) \
+                 $(BOOST_ATOMIC_LDFLAGS) $(BOOST_ATOMIC_LIBS) \
+                 $(BOOST_LOCALE_LDFLAGS) $(BOOST_LOCALE_LIBS) \
+                 $(BOOST_THREAD_LDFLAGS) $(BOOST_THREAD_LIBS)
+LIBSL          = $(LIBSL_XOREOS) $(LIBSL_GENERAL) $(LIBSL_GRAPHIC) \
+                 $(LIBSL_SOUND) $(LIBSL_BOOST)
+
+# Other compiler flags
+
+FLAGS_DIR      = -I$(srcdir)
+FLAGS_DEBUG    = $(GGDB)
+FLAGS_STD      = $(STD)
+FLAGS_OPT      = $(LTO) $(NATIVE)
+FLAGS_WARN     = $(WARN) $(WERROR)
+
+FLAGS          = $(FLAGS_DIR) $(FLAGS_DEBUG) $(FLAGS_STD) \
+                 $(FLAGS_OPT) $(FLAGS_WARN)
+
+# Putting it all together...
+
+AM_CXXFLAGS   = $(FLAGS) $(LIBSF)
+AM_LDFLAGS    = $(FLAGS_OPT)
+LDADD         = $(LIBSL)
+LIBS          =
+
+# Now include the top-level recipe file and through it, all the
+# other build recipes.
+
+include rules.mk

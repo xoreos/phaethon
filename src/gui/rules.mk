@@ -19,33 +19,26 @@
 
 # GUI code, using wxWidgets.
 
-include $(top_srcdir)/Makefile.common
+noinst_LTLIBRARIES += src/gui/libgui.la
+src_gui_libgui_la_SOURCES =
 
-SUBDIRS = \
-          $(EMPTY)
+src_gui_libgui_la_SOURCES += \
+    src/gui/eventid.h \
+    src/gui/mainwindow.h \
+    src/gui/about.h \
+    src/gui/resourcetree.h \
+    src/gui/panelresourceinfo.h \
+    src/gui/panelpreviewempty.h \
+    src/gui/panelpreviewsound.h \
+    src/gui/panelpreviewimage.h \
+    $(EMPTY)
 
-noinst_LTLIBRARIES = libgui.la
-
-noinst_HEADERS = \
-                 eventid.h \
-                 mainwindow.h \
-                 about.h \
-                 resourcetree.h \
-                 panelresourceinfo.h \
-                 panelpreviewempty.h \
-                 panelpreviewsound.h \
-                 panelpreviewimage.h \
-                 $(EMPTY)
-
-libgui_la_SOURCES = \
-                    mainwindow.cpp \
-                    about.cpp \
-                    resourcetree.cpp \
-                    panelresourceinfo.cpp \
-                    panelpreviewempty.cpp \
-                    panelpreviewsound.cpp \
-                    panelpreviewimage.cpp \
-                    $(EMPTY)
-
-libgui_la_LIBADD = \
-                   $(EMPTY)
+src_gui_libgui_la_SOURCES += \
+    src/gui/mainwindow.cpp \
+    src/gui/about.cpp \
+    src/gui/resourcetree.cpp \
+    src/gui/panelresourceinfo.cpp \
+    src/gui/panelpreviewempty.cpp \
+    src/gui/panelpreviewsound.cpp \
+    src/gui/panelpreviewimage.cpp \
+    $(EMPTY)

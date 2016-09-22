@@ -17,27 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with xoreos. If not, see <http://www.gnu.org/licenses/>.
 
-# Sound (music, sound effects) subsystem.
+# Our distribution files.
 
-include $(top_srcdir)/Makefile.common
+# Arch Linux
+EXTRA_DIST += \
+    dists/arch/PKGBUILD \
+    $(EMPTY)
 
-SUBDIRS = \
-          decoders \
-          $(EMPTY)
+# Debian
+EXTRA_DIST += \
+    dists/debian/changelog \
+    dists/debian/compat \
+    dists/debian/control \
+    dists/debian/copyright \
+    dists/debian/phaethon.lintian-overrides \
+    dists/debian/rules \
+    dists/debian/source/format \
+    $(EMPTY)
 
-noinst_LTLIBRARIES = libsound.la
-
-noinst_HEADERS = \
-                 types.h \
-                 audiostream.h \
-                 sound.h \
-                 $(EMPTY)
-
-libsound_la_SOURCES = \
-                      audiostream.cpp \
-                      sound.cpp \
-                      $(EMPTY)
-
-libsound_la_LIBADD = \
-                     decoders/libdecoders.la \
-                     $(EMPTY)
+# Fedora
+EXTRA_DIST += \
+    dists/fedora/build-from-git.sh \
+    dists/fedora/phaethon.spec \
+    $(EMPTY)

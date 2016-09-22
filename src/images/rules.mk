@@ -17,33 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with xoreos. If not, see <http://www.gnu.org/licenses/>.
 
-# Sound format decoders.
+# Image loaders.
 
-include $(top_srcdir)/Makefile.common
+noinst_LTLIBRARIES += src/images/libimages.la
+src_images_libimages_la_SOURCES =
 
-noinst_LTLIBRARIES = libdecoders.la
+src_images_libimages_la_SOURCES += \
+    src/images/types.h \
+    src/images/util.h \
+    src/images/s3tc.h \
+    src/images/decoder.h \
+    src/images/dumptga.h \
+    src/images/winiconimage.h \
+    src/images/tga.h \
+    src/images/dds.h \
+    src/images/tpc.h \
+    src/images/txb.h \
+    src/images/sbm.h \
+    $(EMPTY)
 
-noinst_HEADERS = \
-                 util.h \
-                 codec.h \
-                 mp3.h \
-                 vorbis.h \
-                 adpcm.h \
-                 wave_types.h \
-                 wave.h \
-                 pcm.h \
-                 asf.h \
-                 wma.h \
-                 wmadata.h \
-                 $(EMPTY)
-
-libdecoders_la_SOURCES = \
-                         codec.cpp \
-                         mp3.cpp \
-                         vorbis.cpp \
-                         adpcm.cpp \
-                         wave.cpp \
-                         pcm.cpp \
-                         asf.cpp \
-                         wma.cpp \
-                         $(EMPTY)
+src_images_libimages_la_SOURCES += \
+    src/images/s3tc.cpp \
+    src/images/decoder.cpp \
+    src/images/dumptga.cpp \
+    src/images/winiconimage.cpp \
+    src/images/tga.cpp \
+    src/images/dds.cpp \
+    src/images/tpc.cpp \
+    src/images/txb.cpp \
+    src/images/sbm.cpp \
+    $(EMPTY)

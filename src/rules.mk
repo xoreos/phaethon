@@ -19,34 +19,33 @@
 
 # Main Phaethon entry point.
 
-include $(top_srcdir)/Makefile.common
+bin_PROGRAMS += src/phaethon
+src_phaethon_SOURCES =
 
-SUBDIRS = \
-          version \
-          common \
-          aurora \
-          images \
-          sound \
-          gui \
-          $(EMPTY)
+src_phaethon_SOURCES += \
+    src/cline.h \
+    $(EMPTY)
 
-bin_PROGRAMS = phaethon
+src_phaethon_SOURCES += \
+    src/cline.cpp \
+    src/phaethon.cpp \
+    $(EMPTY)
 
-noinst_HEADERS = \
-                 cline.h \
-                 $(EMPTY)
+src_phaethon_LDADD = \
+    src/gui/libgui.la \
+    src/sound/libsound.la \
+    src/images/libimages.la \
+    src/aurora/libaurora.la \
+    src/common/libcommon.la \
+    src/version/libversion.la \
+    $(LDADD) \
+    $(EMPTY)
 
-phaethon_SOURCES = \
-                   cline.cpp \
-                   phaethon.cpp \
-                   $(EMPTY)
+# Subdirectories
 
-phaethon_LDADD = \
-                 gui/libgui.la \
-                 sound/libsound.la \
-                 images/libimages.la \
-                 aurora/libaurora.la \
-                 common/libcommon.la \
-                 version/libversion.la \
-                 $(LDADD) \
-                 $(EMPTY)
+include src/version/rules.mk
+include src/common/rules.mk
+include src/aurora/rules.mk
+include src/images/rules.mk
+include src/sound/rules.mk
+include src/gui/rules.mk

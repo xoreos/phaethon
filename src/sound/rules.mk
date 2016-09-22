@@ -17,18 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with xoreos. If not, see <http://www.gnu.org/licenses/>.
 
-# UTF8-CPP (<http://utfcpp.sourceforge.net/>).
+# Sound (music, sound effects) subsystem.
 
-include $(top_srcdir)/Makefile.common
+noinst_LTLIBRARIES += src/sound/libsound.la
+src_sound_libsound_la_SOURCES =
 
-noinst_HEADERS = \
-                 utf8.h \
-                 utf8/checked.h \
-                 utf8/core.h \
-                 utf8/unchecked.h \
-                 $(EMPTY)
+src_sound_libsound_la_SOURCES += \
+    src/sound/types.h \
+    src/sound/audiostream.h \
+    src/sound/sound.h \
+    $(EMPTY)
 
-EXTRA_DIST = \
-             README.xoreos \
-             utf8cpp.patch \
-             $(EMPTY)
+src_sound_libsound_la_SOURCES += \
+    src/sound/audiostream.cpp \
+    src/sound/sound.cpp \
+    $(EMPTY)
+
+src_sound_libsound_la_LIBADD = \
+    src/sound/decoders/libdecoders.la \
+    $(EMPTY)
+
+# Subdirectories
+
+include src/sound/decoders/rules.mk
