@@ -1,21 +1,21 @@
-dnl xoreos - A reimplementation of BioWare's Aurora engine
+dnl Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
 dnl
-dnl xoreos is the legal property of its developers, whose names
+dnl Phaethon is the legal property of its developers, whose names
 dnl can be found in the AUTHORS file distributed with this source
 dnl distribution.
 dnl
-dnl xoreos is free software; you can redistribute it and/or
+dnl Phaethon is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU General Public License
 dnl as published by the Free Software Foundation; either version 3
 dnl of the License, or (at your option) any later version.
 dnl
-dnl xoreos is distributed in the hope that it will be useful,
+dnl Phaethon is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 dnl GNU General Public License for more details.
 dnl
 dnl You should have received a copy of the GNU General Public License
-dnl along with xoreos. If not, see <http://www.gnu.org/licenses/>.
+dnl along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.65])
 
