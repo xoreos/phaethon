@@ -17,7 +17,7 @@ Release:        1%{?dist}
 Release:        1.%{snapshot}%{?dist}
 %endif
 
-Summary:        A reimplementation of BioWare's Aurora engine (and derivatives)
+Summary:        A FLOSS resource explorer for BioWare's Aurora engine games
 
 License:        GPLv3
 URL:            https://xoreos.org/
