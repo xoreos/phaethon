@@ -14,11 +14,11 @@ env:
     - coverity_scan_run_condition='\( "$CC" = gcc \) -a \( $USECMAKE -eq 0 \)'
     - coverity_scan_script_test_mode=false
   matrix:
-    # Let's test both our autoconf and CMake build systems
+    # Let's test both our autoconf and CMake build system
     - USECMAKE=0
     - USECMAKE=1
 
-# Only test clang with gcc, not CMake.
+# Only test clang with autotools, not CMake.
 # We now have three builds: autoconf+gcc, autoconf+clang, CMake+gcc
 matrix:
   exclude:
