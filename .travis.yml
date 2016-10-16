@@ -1,3 +1,6 @@
+sudo: required
+dist: trusty
+
 language: cpp
 compiler:
   - gcc
@@ -12,9 +15,6 @@ env:
    - coverity_scan_script_test_mode=false
 
 before_script:
-  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse"
-  - sudo apt-get update -qq
-  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev libwxgtk3.0-0 libwxgtk3.0-dev libpango-1.0-0 libpangocairo-1.0-0
   - export CXXFLAGS="-std=c++0x"
 
 script:
@@ -23,6 +23,17 @@ script:
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then make -j4; fi
 
 addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - libopenal-dev
+      - libmad0-dev
+      - libvorbis-dev
+      - zlib1g-dev
+      - liblzma-dev
+      - libwxgtk3.0-dev
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
   coverity_scan:
     build_script_url: https://raw.githubusercontent.com/$TRAVIS_REPO_SLUG/$TRAVIS_BRANCH/.travis_coverity.sh
     project:
