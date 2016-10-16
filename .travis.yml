@@ -8,18 +8,31 @@ compiler:
 
 env:
   global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "dn5Irr/svB2d/iouvSxxoe2SEAWlPUlkNlGWScngWhqSp+kEJ8p3ubQG0ogCK0vGGHPwUYXfIQvHQ8oSc2Z4na8rIwZqvkJnxYYKvPLZpweKhb+xQbpjPwDwEycFDxT+y7mPnRLKRDtdmcuRqMQh8gnxb6TMY9xqlCCvnTfwTmI="
-   - coverity_scan_run_condition='"$CC" = gcc'
-   - coverity_scan_script_test_mode=false
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "dn5Irr/svB2d/iouvSxxoe2SEAWlPUlkNlGWScngWhqSp+kEJ8p3ubQG0ogCK0vGGHPwUYXfIQvHQ8oSc2Z4na8rIwZqvkJnxYYKvPLZpweKhb+xQbpjPwDwEycFDxT+y7mPnRLKRDtdmcuRqMQh8gnxb6TMY9xqlCCvnTfwTmI="
+    - coverity_scan_run_condition='\( "$CC" = gcc \) -a \( $USECMAKE -eq 0 \)'
+    - coverity_scan_script_test_mode=false
+  matrix:
+    # Let's test both our autoconf and CMake build systems
+    - USECMAKE=0
+    - USECMAKE=1
+
+# Only test clang with gcc, not CMake.
+# We now have three builds: autoconf+gcc, autoconf+clang, CMake+gcc
+matrix:
+  exclude:
+    - compiler: clang
+      env: USECMAKE=1
 
 before_script:
+  # The wxWidget version in Trusty won't compile without
   - export CXXFLAGS="-std=c++0x"
 
 script:
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then ./autogen.sh; fi
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then ./configure || cat config.log; fi
+  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 0 \) ]; then ./autogen.sh; fi
+  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 0 \) ]; then ./configure || cat config.log; fi
+  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 1 \) ]; then cmake .; fi
   - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then make -j4; fi
 
 addons:
