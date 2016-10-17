@@ -374,4 +374,8 @@ UString FilePath::getConfigDirectory() {
 	return Platform::getConfigDirectory();
 }
 
+UString FilePath::getUserDataDirectory() {
+	return Platform::getUserDataDirectory();
+}
+
 } // End of namespace Common
