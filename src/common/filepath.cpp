@@ -378,4 +378,11 @@ UString FilePath::getUserDataDirectory() {
 	return Platform::getUserDataDirectory();
 }
 
+UString FilePath::getUserDataFile(UString file) {
+	if (!isAbsolute(file))
+		file = getUserDataDirectory() + "/" + file;
+
+	return canonicalize(file);
+}
+
 } // End of namespace Common
