@@ -26,8 +26,11 @@ Source0:        https://github.com/xoreos/phaethon/archive/v%{version}.tar.gz
 
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
 BuildRequires:  libxml2-devel, lzma-devel, wxGTK3-devel, libtool, gettext-devel
-BuildRequires:  boost-devel, boost-system, boost-filesystem, boost-atomic,
-BuildRequires:  boost-regex, boost-locale
+
+# Boost dependencies.
+BuildRequires:  boost-devel, boost-system, boost-filesystem, boost-atomic
+BuildRequires:  boost-regex, boost-locale, boost-date-time boost-chrono
+BuildRequires:  boost-thread
 
 # rpmfusion-free dependencies.
 BuildRequires:  libmad-devel
