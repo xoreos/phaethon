@@ -356,7 +356,7 @@ UString FilePath::getHumanReadableSize(size_t size) {
 	static const char * const sizes[] = {"B", "K", "M", "G"};
 
 	double s = size;
-	int n = 0;
+	size_t n = 0;
 
 	while ((s >= 1024) && ((n + 1) < ARRAYSIZE(sizes))) {
 		n++;
