@@ -25,6 +25,8 @@
 #ifndef COMMON_MUTEX_H
 #define COMMON_MUTEX_H
 
+#include <boost/noncopyable.hpp>
+
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
@@ -33,7 +35,7 @@
 namespace Common {
 
 /** A mutex. */
-class Mutex {
+class Mutex : boost::noncopyable {
 public:
 	Mutex();
 	~Mutex();
@@ -48,7 +50,7 @@ private:
 };
 
 /** Convenience class that locks a mutex on creation and unlocks it on destruction. */
-class StackLock {
+class StackLock : boost::noncopyable {
 public:
 	StackLock(Mutex &mutex);
 	~StackLock();
@@ -58,7 +60,7 @@ private:
 };
 
 /** A condition. */
-class Condition {
+class Condition : boost::noncopyable {
 public:
 	Condition();
 	Condition(Mutex &mutex);
