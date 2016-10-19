@@ -27,14 +27,14 @@
 
 #include "src/common/atomic.h"
 
-#include <boost/thread/thread.hpp>
+#include <boost/noncopyable.hpp>
 
-#include "src/common/noncopyable.h"
+#include <boost/thread/thread.hpp>
 
 namespace Common {
 
 /** A class that creates its own thread. */
-class Thread : NonCopyable {
+class Thread : boost::noncopyable {
 public:
 	Thread();
 	virtual ~Thread();

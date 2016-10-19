@@ -36,7 +36,6 @@ src_common_libcommon_la_SOURCES += \
     src/common/writestream.h \
     src/common/memwritestream.h \
     src/common/maths.h \
-    src/common/noncopyable.h \
     src/common/singleton.h \
     src/common/error.h \
     src/common/ustring.h \
