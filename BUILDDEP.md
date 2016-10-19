@@ -6,6 +6,7 @@ Build-time library dependencies
 - liblzma (>= 5.0.3)
 
 - Boost (>= 1.53.0)
+  - Boost.Utility
   - Boost.StringAlgo
   - Boost.System
   - Boost.Filesystem
