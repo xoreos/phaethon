@@ -240,7 +240,7 @@ void ImageCanvas::convertImage(const Images::Decoder &image, byte *data_rgb, byt
 
 	for (size_t i = 0; i < image.getLayerCount(); i++) {
 		const Images::Decoder::MipMap &mipMap = image.getMipMap(0, i);
-		const byte *data = mipMap.data;
+		const byte *data = mipMap.data.get();
 
 		uint32 count = mipMap.width * mipMap.height;
 		while (count-- > 0)
