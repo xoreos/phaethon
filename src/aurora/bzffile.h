@@ -29,6 +29,7 @@
 #define AURORA_BZFFILE_H
 
 #include "src/common/types.h"
+#include "src/common/scopedptr.h"
 
 #include "src/aurora/types.h"
 #include "src/aurora/aurorafile.h"
@@ -53,7 +54,7 @@ public:
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
-	Common::SeekableReadStream *_bzf;
+	Common::ScopedPtr<Common::SeekableReadStream> _bzf;
 
 	void load(Common::SeekableReadStream &bzf);
 

@@ -26,6 +26,7 @@
 #define AURORA_BIFFILE_H
 
 #include "src/common/types.h"
+#include "src/common/scopedptr.h"
 
 #include "src/aurora/types.h"
 #include "src/aurora/aurorafile.h"
@@ -69,7 +70,7 @@ public:
 	Common::SeekableReadStream *getResource(uint32 index) const;
 
 private:
-	Common::SeekableReadStream *_bif;
+	Common::ScopedPtr<Common::SeekableReadStream> _bif;
 
 	void load(Common::SeekableReadStream &bif);
 

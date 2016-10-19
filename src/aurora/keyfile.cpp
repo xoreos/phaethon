@@ -26,6 +26,7 @@
  * (<https://github.com/xoreos/xoreos-docs/tree/master/specs/bioware>)
  */
 
+#include "src/common/scopedptr.h"
 #include "src/common/util.h"
 #include "src/common/strutil.h"
 #include "src/common/error.h"
@@ -42,14 +43,9 @@ static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
 namespace Aurora {
 
 KEYFile::KEYFile(Common::SeekableReadStream *key) {
-	try {
-		load(*key);
-	} catch (...) {
-		delete key;
-		throw;
-	}
+	Common::ScopedPtr<Common::SeekableReadStream> keyStream(key);
 
-	delete key;
+	load(*keyStream);
 }
 
 KEYFile::~KEYFile() {

@@ -44,16 +44,10 @@ namespace Aurora {
 BIFFile::BIFFile(Common::SeekableReadStream *bif) : _bif(bif) {
 	assert(_bif);
 
-	try {
-		load(*_bif);
-	} catch (...) {
-		delete _bif;
-		throw;
-	}
+	load(*_bif);
 }
 
 BIFFile::~BIFFile() {
-	delete _bif;
 }
 
 void BIFFile::load(Common::SeekableReadStream &bif) {
@@ -109,14 +103,12 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 
 	_bif->seek(res.offset);
 
-	Common::SeekableReadStream *resStream = _bif->readStream(res.size);
+	Common::ScopedPtr<Common::SeekableReadStream> resStream(_bif->readStream(res.size));
 
-	if (!resStream || (((uint32) resStream->size()) != res.size)) {
-		delete resStream;
+	if (!resStream || (((uint32) resStream->size()) != res.size))
 		throw Common::Exception(Common::kReadError);
-	}
 
-	return resStream;
+	return resStream.release();
 }
 
 } // End of namespace Aurora
