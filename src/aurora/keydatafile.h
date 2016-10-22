@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include <boost/noncopyable.hpp>
+
 #include "src/common/types.h"
 
 #include "src/aurora/types.h"
@@ -38,7 +40,7 @@ namespace Common {
 namespace Aurora {
 
 /** Class holding resource data indexed in BioWare KEY files. */
-class KEYDataFile {
+class KEYDataFile : boost::noncopyable {
 public:
 	KEYDataFile();
 	virtual ~KEYDataFile();
