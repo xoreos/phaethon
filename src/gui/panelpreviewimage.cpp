@@ -46,14 +46,12 @@
 namespace GUI {
 
 ImageCanvas::ImageCanvas(wxWindow *parent) : wxScrolledCanvas(parent, wxID_ANY),
-	_currentItem(0), _color(0), _scaleQuality(kScaleQualityBest), _image(0), _bitmap(0) {
+	_currentItem(0), _color(0), _scaleQuality(kScaleQualityBest) {
 
 	ShowScrollbars(wxSHOW_SB_ALWAYS, wxSHOW_SB_ALWAYS);
 }
 
 ImageCanvas::~ImageCanvas() {
-	delete _image;
-	delete _bitmap;
 }
 
 void ImageCanvas::forceRedraw() {
@@ -66,7 +64,12 @@ void ImageCanvas::setCurrentItem(const ResourceTreeItem *item) {
 		return;
 
 	_currentItem = item;
-	loadImage();
+
+	try {
+		loadImage();
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+	}
 }
 
 void ImageCanvas::setColor(uint8 color) {
@@ -98,13 +101,11 @@ void ImageCanvas::setSize(int width, int height) {
 	if (!_image)
 		return;
 
-	delete _bitmap;
-
 	wxImageResizeQuality quality = wxIMAGE_QUALITY_NEAREST;
 	if (_scaleQuality == kScaleQualityBest)
 		quality = wxIMAGE_QUALITY_HIGH;
 
-	_bitmap = new wxBitmap(_image->Scale(width, height, quality));
+	_bitmap.reset(new wxBitmap(_image->Scale(width, height, quality)));
 
 	SetVirtualSize(width, height);
 	SetScrollRate(1, 1);
@@ -127,11 +128,8 @@ void ImageCanvas::getImageDimensions(const Images::Decoder &image, int32 &width,
 }
 
 void ImageCanvas::loadImage() {
-	delete _image;
-	delete _bitmap;
-
-	_image  = 0;
-	_bitmap = 0;
+	_image.reset();
+	_bitmap.reset();
 
 	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceImage)) {
 		SetVirtualSize(0, 0);
@@ -139,51 +137,33 @@ void ImageCanvas::loadImage() {
 		return;
 	}
 
-	Images::Decoder *image = 0;
-	try {
-		image = _currentItem->getImage();
-	} catch (Common::Exception &e) {
-		Common::printException(e, "WARNING: ");
-		return;
-	}
+	Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());
 
 	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0)) {
-		delete image;
-
 		SetVirtualSize(0, 0);
 		SetScrollRate(0, 0);
 		return;
 	}
 
-	byte *data_rgb = 0, *data_alpha = 0;
 	int32 width = 0, height = 0;
+	getImageDimensions(*image, width, height);
+	if ((width <= 0) || (height <= 0))
+		throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
 
-	try {
-		getImageDimensions(*image, width, height);
-		if ((width <= 0) || (height <= 0))
-			throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
+	Common::ScopedArray<byte, Common::DeallocatorFree> data_rgb  ((byte *) malloc(width * height * 3));
+	Common::ScopedArray<byte, Common::DeallocatorFree> data_alpha((byte *) malloc(width * height));
 
-		data_rgb   = (byte *) malloc(width * height * 3);
-		data_alpha = (byte *) malloc(width * height);
+	std::memset(data_rgb.get()  , 0, width * height * 3);
+	std::memset(data_alpha.get(), 0, width * height);
 
-		std::memset(data_rgb  , 0, width * height * 3);
-		std::memset(data_alpha, 0, width * height);
+	convertImage(*image, data_rgb.get(), data_alpha.get());
 
-		convertImage(*image, data_rgb, data_alpha);
-	} catch (Common::Exception &e) {
-		Common::printException(e, "WARNING: ");
+	Common::ScopedPtr<wxImage> mirror(new wxImage(width, height, data_rgb.get(), data_alpha.get()));
+	data_rgb.release();
+	data_alpha.release();
 
-		free(data_rgb);
-		free(data_alpha);
-		return;
-	}
-
-	wxImage *mirror = new wxImage(width, height, data_rgb, data_alpha);
-	_image = new wxImage(mirror->Mirror(false));
-
-	delete mirror;
-
-	_bitmap = new wxBitmap(*_image);
+	_image.reset(new wxImage(mirror->Mirror(false)));
+	_bitmap.reset(new wxBitmap(*_image));
 
 	SetVirtualSize(width, height);
 	SetScrollRate(1, 1);

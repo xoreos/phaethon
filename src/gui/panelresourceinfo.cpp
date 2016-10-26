@@ -29,6 +29,9 @@
 
 #include <wx/generic/stattextg.h>
 
+#include <boost/scope_exit.hpp>
+
+#include "src/common/scopedptr.h"
 #include "src/common/util.h"
 #include "src/common/strutil.h"
 #include "src/common/error.h"
@@ -218,27 +221,23 @@ bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 		return false;
 
 	_mainWindow->pushStatus(constructStatus("Saving", _currentItem->getName(), path));
+	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
+		_mainWindow->popStatus();
+	} BOOST_SCOPE_EXIT_END
 
-	Common::SeekableReadStream *res = 0;
 	try {
-		res = _currentItem->getResourceData();
+		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
 		Common::WriteFile file(path);
 
 		file.writeStream(*res);
 		file.flush();
 
-		delete res;
-
 	} catch (Common::Exception &e) {
-		delete res;
-
-		_mainWindow->popStatus();
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
 
-	_mainWindow->popStatus();
 	return true;
 }
 
@@ -247,27 +246,23 @@ bool PanelResourceInfo::exportBMUMP3(const Common::UString &path) {
 		return false;
 
 	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
+		_mainWindow->popStatus();
+	} BOOST_SCOPE_EXIT_END
 
-	Common::SeekableReadStream *res = 0;
 	try {
-		res = _currentItem->getResourceData();
+		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
 		Common::WriteFile file(path);
 
 		exportBMUMP3(*res, file);
 		file.flush();
 
-		delete res;
-
 	} catch (Common::Exception &e) {
-		delete res;
-
-		_mainWindow->popStatus();
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
 
-	_mainWindow->popStatus();
 	return true;
 }
 
@@ -276,27 +271,23 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 		return false;
 
 	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
+		_mainWindow->popStatus();
+	} BOOST_SCOPE_EXIT_END
 
-	Sound::AudioStream *sound = 0;
 	try {
-		sound = _currentItem->getAudioStream();
+		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
 		Common::WriteFile file(path);
 
-		exportWAV(sound, file);
+		exportWAV(sound.get(), file);
 		file.flush();
 
 	} catch (Common::Exception &e) {
-		delete sound;
-
-		_mainWindow->popStatus();
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
 
-	delete sound;
-
-	_mainWindow->popStatus();
 	return true;
 }
 
@@ -305,24 +296,20 @@ bool PanelResourceInfo::exportTGA(const Common::UString &path) {
 		return false;
 
 	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
+		_mainWindow->popStatus();
+	} BOOST_SCOPE_EXIT_END
 
-	Images::Decoder *image = 0;
 	try {
-		image = _currentItem->getImage();
+		Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());
 
 		image->dumpTGA(path);
 
 	} catch (Common::Exception &e) {
-		delete image;
-
-		_mainWindow->popStatus();
 		Common::printException(e, "WARNING: ");
 		return false;
 	}
 
-	delete image;
-
-	_mainWindow->popStatus();
 	return true;
 }
 

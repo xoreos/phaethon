@@ -56,16 +56,15 @@ wxEND_EVENT_TABLE()
 
 PanelPreviewSound::PanelPreviewSound(wxWindow *parent, const Common::UString &title) :
 	wxPanel(parent, wxID_ANY), _currentItem(0),
-	_duration(Sound::RewindableAudioStream::kInvalidLength), _timer(0) {
+	_duration(Sound::RewindableAudioStream::kInvalidLength) {
 
 	createLayout(title);
 
-	_timer = new wxTimer(this, wxID_ANY);
+	_timer.reset(new wxTimer(this, wxID_ANY));
 	_timer->Start(10);
 }
 
 PanelPreviewSound::~PanelPreviewSound() {
-	delete _timer;
 }
 
 void PanelPreviewSound::createLayout(const Common::UString &title) {
@@ -222,13 +221,13 @@ bool PanelPreviewSound::play() {
 		SoundMan.stopChannel(_sound);
 	}
 
-	Sound::AudioStream *sound = _currentItem->getAudioStream();
-
 	try {
-		_sound = SoundMan.playAudioStream(sound, Sound::kSoundTypeUnknown);
-	} catch (Common::Exception &e) {
-		delete sound;
+		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
+		_sound = SoundMan.playAudioStream(sound.get(), Sound::kSoundTypeUnknown);
+		sound.release();
+
+	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return false;
 	}

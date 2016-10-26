@@ -139,16 +139,17 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
 	if (getResourceType() != Aurora::kResourceSound)
 		throw Common::Exception("\"%s\" is not a sound resource", getName().c_str());
 
-	Common::SeekableReadStream *res = getResourceData();
+	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+
 	Sound::AudioStream *sound = 0;
 	try {
-		sound = SoundMan.makeAudioStream(res);
+		sound = SoundMan.makeAudioStream(res.get());
 	} catch (Common::Exception &e) {
 		e.add("Failed to get audio stream from \"%s\"", getName().c_str());
-		delete res;
 		throw;
 	}
 
+	res.release();
 	return sound;
 }
 
@@ -156,18 +157,16 @@ Images::Decoder *ResourceTreeItem::getImage() const {
 	if (getResourceType() != Aurora::kResourceImage)
 		throw Common::Exception("\"%s\" is not an image resource", getName().c_str());
 
-	Common::SeekableReadStream *res = getResourceData();
-	Images::Decoder            *img = 0;
+	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
+	Images::Decoder *img = 0;
 	try {
 		img = getImage(*res, getFileType());
 	} catch (Common::Exception &e) {
 		e.add("Failed to get image from \"%s\"", getName().c_str());
-		delete res;
 		throw;
 	}
 
-	delete res;
 	return img;
 }
 
@@ -226,18 +225,15 @@ uint64 ResourceTreeItem::getSoundDuration() const {
 
 	_triedDuration = true;
 
-	Sound::AudioStream *sound = 0;
 	try {
-		sound = getAudioStream();
+		Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
+
+		Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
+		_duration = rewSound.getDuration();
+
 	} catch (...) {
-		return _duration;
 	}
 
-	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
-	if (rewSound)
-		_duration = rewSound->getDuration();
-
-	delete sound;
 	return _duration;
 }
 

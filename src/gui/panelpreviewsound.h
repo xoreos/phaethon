@@ -28,6 +28,7 @@
 #include <wx/panel.h>
 
 #include "src/common/types.h"
+#include "src/common/scopedptr.h"
 #include "src/common/ustring.h"
 
 #include "src/sound/types.h"
@@ -74,7 +75,7 @@ private:
 	wxButton *_buttonPause;
 	wxButton *_buttonStop;
 
-	wxTimer *_timer;
+	Common::ScopedPtr<wxTimer> _timer;
 
 
 	void onPlay(wxCommandEvent &event);

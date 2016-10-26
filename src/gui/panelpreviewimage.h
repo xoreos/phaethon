@@ -29,6 +29,8 @@
 #include <wx/statbox.h>
 #include <wx/panel.h>
 
+#include "src/common/scopedptr.h"
+
 #include "src/images/types.h"
 
 namespace Common {
@@ -73,8 +75,8 @@ private:
 
 	ScaleQuality _scaleQuality;
 
-	wxImage  *_image;
-	wxBitmap *_bitmap;
+	Common::ScopedPtr<wxImage>  _image;
+	Common::ScopedPtr<wxBitmap> _bitmap;
 
 	void forceRedraw();
 
