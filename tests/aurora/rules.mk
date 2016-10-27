@@ -45,3 +45,8 @@ check_PROGRAMS                    += tests/aurora/test_zipfile
 tests_aurora_test_zipfile_SOURCES  = tests/aurora/zipfile.cpp
 tests_aurora_test_zipfile_LDADD    = $(aurora_LIBS)
 tests_aurora_test_zipfile_CXXFLAGS = $(test_CXXFLAGS)
+
+check_PROGRAMS                    += tests/aurora/test_rimfile
+tests_aurora_test_rimfile_SOURCES  = tests/aurora/rimfile.cpp
+tests_aurora_test_rimfile_LDADD    = $(aurora_LIBS)
+tests_aurora_test_rimfile_CXXFLAGS = $(test_CXXFLAGS)
