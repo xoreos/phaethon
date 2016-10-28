@@ -29,6 +29,7 @@ src_common_libcommon_la_SOURCES += \
     src/common/disposableptr.h \
     src/common/ptrlist.h \
     src/common/ptrvector.h \
+    src/common/ptrmap.h \
     src/common/system.h \
     src/common/noreturn.h \
     src/common/types.h \
