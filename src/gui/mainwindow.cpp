@@ -287,14 +287,7 @@ void MainWindow::close() {
 	_files.clear();
 	_path.clear();
 
-	for (ArchiveMap::iterator a = _archives.begin(); a != _archives.end(); ++a)
-		delete a->second;
-
 	_archives.clear();
-
-	for (KEYDataFileMap::iterator d = _keyDataFiles.begin(); d != _keyDataFiles.end(); ++d)
-		delete d->second;
-
 	_keyDataFiles.clear();
 
 	resourceSelect(0);

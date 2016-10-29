@@ -29,6 +29,7 @@
 
 #include <wx/frame.h>
 
+#include "src/common/ptrmap.h"
 #include "src/common/ustring.h"
 #include "src/common/filetree.h"
 
@@ -74,8 +75,8 @@ public:
 	Aurora::Archive *getArchive(const boost::filesystem::path &path);
 
 private:
-	typedef std::map<Common::UString, Aurora::Archive *> ArchiveMap;
-	typedef std::map<Common::UString, Aurora::KEYDataFile *> KEYDataFileMap;
+	typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
+	typedef Common::PtrMap<Common::UString, Aurora::KEYDataFile> KEYDataFileMap;
 
 	Common::UString _path;
 	Common::FileTree _files;
