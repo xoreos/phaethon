@@ -70,16 +70,16 @@ int main(int argc, char **argv) {
 			case kOperationInvalid:
 			default:
 				std::printf("%s\n", createHelpText(args[0]).c_str());
-				return -1;
+				return 1;
 		}
 	} catch (Common::Exception &e) {
 		Common::printException(e);
-		return -2;
+		return 2;
 	} catch (std::exception &e) {
 		Common::Exception se(e);
 
 		Common::printException(se);
-		return -2;
+		return 2;
 	}
 
 	return 0;
