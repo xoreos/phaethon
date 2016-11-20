@@ -282,8 +282,11 @@ endif(ICONV_SECOND_ARGUMENT_IS_CONST)
 # phaethon main targets, parsed from the Automake rules.mk files
 include_directories(${PROJECT_SOURCE_DIR})
 add_definitions(-DPACKAGE_STRING="phaethon ${phaethon_VERSION}")
+
 parse_automake(src/rules.mk)
-target_link_libraries(phaethon ${PHAETHON_LIBRARIES})
+foreach(AM_PROGRAM ${AM_PROGRAMS})
+  target_link_libraries(${AM_PROGRAM} ${PHAETHON_LIBRARIES})
+endforeach()
 
 
 # -------------------------------------------------------------------------
