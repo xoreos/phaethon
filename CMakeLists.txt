@@ -316,8 +316,8 @@ if(GIT_FOUND)
   string(REGEX REPLACE "desc/(.*)-([^-]*)-([^-]*)" "\\1+\\2.\\3" PHAETHON_REVDESC "${PHAETHON_REVDESC}")
 
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} update-index --refresh --unmerged
-    COMMAND ${GIT_EXECUTABLE} diff-index --quiet HEAD
+    COMMAND ${GIT_EXECUTABLE} -C ${CMAKE_CURRENT_SOURCE_DIR} update-index --refresh --unmerged
+    COMMAND ${GIT_EXECUTABLE} -C ${CMAKE_CURRENT_SOURCE_DIR} diff-index --quiet HEAD
     OUTPUT_QUIET ERROR_QUIET
     RESULT_VARIABLE PHAETHON_REVDIRT
   )
