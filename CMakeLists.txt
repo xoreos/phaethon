@@ -24,6 +24,12 @@ set(phaethon_VERSION 0.0.4)
 
 
 # -------------------------------------------------------------------------
+# options!
+option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
+option(PHAETHON_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
+
+
+# -------------------------------------------------------------------------
 # load some cmake modules from cmake/ subfolder
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(GNUInstallDirs)
@@ -227,8 +233,6 @@ find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ZLIB_LIBRARIES})
 
-option(Boost_USE_STATIC_LIBS "Use Boost static libraries" OFF)
-
 find_package(Boost COMPONENTS system filesystem regex date_time atomic locale chrono thread REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -340,7 +344,6 @@ endif()
 
 # -------------------------------------------------------------------------
 # documentation
-option(PHAETHON_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 if(PHAETHON_BUILD_DOCUMENTATION)
   find_package(Doxygen)
   if (NOT DOXYGEN_FOUND)
