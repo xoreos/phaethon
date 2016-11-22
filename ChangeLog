@@ -1,12 +1,31 @@
 Someday, ????-??-?? (Version 0.0.5)
+	- DOCS:
+		- Improved documentation in various files
+	- BUILD:
+		- Simplified compilation to only use a C++ compiler
+		- Added more optional compilation warning flags
+		- Sped up boost.m4 by caching the library suffix
+		- Changed our autotools setup to be non-recursive
+	- COMMON:
+		- Added missing kEncodingCP1251 handling in several functions
+		- Moved DEFLATE and LZMA decompression into their own files
+		- Added checks for nullptr in stream and encoding methods
+		- Fixed composeString() for the INT*_MIN cases
+	- AURORA:
+		- Fixed reading of 2DA with indented rows
 	- GRAPHICS:
 		- Loosened restrictions on textures, allowing NPOT textures
 	- SOUND:
 		- Unified sound code between xoreos and Phaethon
+		- Fixed an undefined shift in the WMA decoder
+		- Corrected the signature of AudioStream::readBuffer()
 	- DIST:
 		- Added Fedora package build files
 	- MISC:
 		- Improved code consistency in some places
+		- Marked several classes correctly as noncopyable
+		- Introduced various smart pointer templates into the codebase,
+		  making it cleaner and more leak-free
 
 Someday, 2016-02-01 (Version 0.0.4)
 	- BUILD:
