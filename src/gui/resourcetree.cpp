@@ -183,6 +183,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 
 		// TXB may be actually TPC
 		case Aurora::kFileTypeTXB:
+		case Aurora::kFileTypeTXB2:
 			try {
 				img = new Images::TXB(res);
 			} catch (Common::Exception &e1) {

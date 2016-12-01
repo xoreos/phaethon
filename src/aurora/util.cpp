@@ -344,6 +344,7 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceImage].push_back(kFileTypeDDS);
 	_resourceTypes[kResourceImage].push_back(kFileTypeTPC);
 	_resourceTypes[kResourceImage].push_back(kFileTypeTXB);
+	_resourceTypes[kResourceImage].push_back(kFileTypeTXB2);
 	_resourceTypes[kResourceImage].push_back(kFileTypeTGA);
 	_resourceTypes[kResourceImage].push_back(kFileTypePNG);
 	_resourceTypes[kResourceImage].push_back(kFileTypeBMP);
