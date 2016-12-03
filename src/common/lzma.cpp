@@ -74,10 +74,17 @@ byte *decompressLZMA1(const byte *data, size_t inputSize, size_t outputSize) {
 	strm.next_out  = outputData.get();
 	strm.avail_out = outputSize;
 
-	if ((lzmaRet = lzma_code(&strm, LZMA_FINISH)) != LZMA_STREAM_END)
-		if ((strm.avail_in != 0) || (strm.avail_out != 0))
-			throw Exception("Failed to uncompress LZMA1 data: %d (%u, %u, %u, %u)", (int) lzmaRet,
-			                (uint)inputSize, (uint)outputSize, (uint)strm.avail_in, (uint)strm.avail_out);
+	lzmaRet = lzma_code(&strm, LZMA_FINISH);
+
+	if ((lzmaRet != LZMA_STREAM_END) || (strm.avail_out != 0)) {
+		if (lzmaRet == LZMA_OK)
+			throw Exception("Failed to uncompress LZMA1 data: premature end of output buffer");
+
+		if (strm.avail_out != 0)
+			throw Exception("Failed to uncompress LZMA1 data: output buffer not completely filled");
+
+		throw Exception("Failed to uncompress LZMA1 data: %d", (int) lzmaRet);
+	}
 
 	return outputData.release();
 }
