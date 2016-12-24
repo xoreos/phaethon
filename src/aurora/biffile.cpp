@@ -99,7 +99,7 @@ void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
 Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 	const Resource &res = getRes(index);
 	if (res.size == 0)
-		return new Common::MemoryReadStream(0, 0);
+		return new Common::MemoryReadStream(static_cast<const byte *>(0), 0);
 
 	_bif->seek(res.offset);
 

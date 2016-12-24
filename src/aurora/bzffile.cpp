@@ -99,7 +99,7 @@ void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32 offset) {
 Common::SeekableReadStream *BZFFile::getResource(uint32 index) const {
 	const Resource &res = getRes(index);
 	if ((res.packedSize == 0) || (res.size == 0))
-		return new Common::MemoryReadStream(0, 0);
+		return new Common::MemoryReadStream(static_cast<const byte *>(0), 0);
 
 	_bzf->seek(res.offset);
 
