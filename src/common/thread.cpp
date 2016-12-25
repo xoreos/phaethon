@@ -30,7 +30,10 @@ Thread::Thread() : _shouldQuit(false) {
 }
 
 Thread::~Thread() {
-	destroyThread();
+	try {
+		destroyThread();
+	} catch (...) {
+	}
 }
 
 void Thread::createThread() {
