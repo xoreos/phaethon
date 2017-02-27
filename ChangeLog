@@ -13,8 +13,9 @@ Someday, ????-??-?? (Version 0.0.5)
 		- Fixed composeString() for the INT*_MIN cases
 	- AURORA:
 		- Fixed reading of 2DA with indented rows
-	- GRAPHICS:
-		- Loosened restrictions on textures, allowing NPOT textures
+	- IMAGES:
+		- Loosened restrictions on images, allowing NPOT images
+		- Implemented loading of Jade Empire lightmap textures
 	- SOUND:
 		- Unified sound code between xoreos and Phaethon
 		- Fixed an undefined shift in the WMA decoder
