@@ -6,6 +6,8 @@ Someday, ????-??-?? (Version 0.0.5)
 		- Added more optional compilation warning flags
 		- Sped up boost.m4 by caching the library suffix
 		- Changed our autotools setup to be non-recursive
+		- Added support for SOURCE_DATE_EPOCH when building, which
+		  is necessary for reproducible builds
 	- COMMON:
 		- Added missing kEncodingCP1251 handling in several functions
 		- Moved DEFLATE and LZMA decompression into their own files
