@@ -271,6 +271,15 @@ find_package(wxWidgets REQUIRED core base)
 include(${wxWidgets_USE_FILE})
 list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
 
+find_package(Qt5Core REQUIRED)
+find_package(Qt5MultimediaWidgets REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Gui REQUIRED)
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5MultimediaWidgets_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES Qt5::Core Qt5::Widgets Qt5::MultimediaWidgets Qt5::Gui)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 find_package(Iconv REQUIRED)
 include_directories(${ICONV_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ICONV_LIBRARIES})
@@ -314,7 +323,8 @@ foreach(AM_TARGET ${AM_TARGETS})
 endforeach()
 
 foreach(AM_PROGRAM ${AM_PROGRAMS})
-  target_link_libraries(${AM_PROGRAM} ${PHAETHON_LIBRARIES})
+  target_compile_features(${AM_PROGRAM} PRIVATE cxx_relaxed_constexpr) # for verdigris
+  target_link_libraries(${AM_PROGRAM} Qt5::Gui Qt5::Widgets ${PHAETHON_LIBRARIES})
 endforeach()
 
 
