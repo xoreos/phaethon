@@ -33,6 +33,8 @@
 
 #include "verdigris/wobjectdefs.h"
 
+#include "src/gui/selection.h"
+
 namespace Ui {
     class MainWindow;
 }
@@ -43,12 +45,12 @@ class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0, const char *version = "", QSize size = QSize(), QString path = QString());
     ~MainWindow();
 
 // signals:
-    void open(const QString &path)
-    W_SIGNAL(open, path)
+    void openDir(const QString &path)
+    W_SIGNAL(openDir, path)
 
 // public slots:
     void setTreeViewModel(const QString &path);
@@ -65,12 +67,16 @@ public:
 
     void selection(const QItemSelection &selected);
 
+    void setLabels();
+    void clearLabels();
+
 private:
     Ui::MainWindow *ui;
     QFileSystemModel fsModel;
     QLabel *statusLabel;
     QProgressBar *statusProgressBar;
     QList<QLabel*> resLabels;
+    Selection _currentSelection;
 };
 
 } // End of namespace GUI

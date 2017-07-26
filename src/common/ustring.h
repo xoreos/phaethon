@@ -25,6 +25,8 @@
 #ifndef COMMON_USTRING_H
 #define COMMON_USTRING_H
 
+#include <QString>
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -130,6 +132,8 @@ public:
 
 	/** Return the (utf8 encoded) string data. */
 	const char *c_str() const;
+
+	QString toQString() const;
 
 	iterator begin() const;
 	iterator end() const;

@@ -11,7 +11,7 @@
  *
  * Phaethon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILIT	Y or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -31,17 +31,22 @@
 #include "mainwindow.h"
 #include "ui/ui_mainwindow.h"
 
+#include "src/common/filepath.h"
+#include "src/common/strutil.h"
+#include "src/gui/mainwindow.h"
+#include "src/aurora/util.h"
+
 namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, const char *version, QSize size, QString path) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    connect(this, &MainWindow::open, this, &MainWindow::setTreeViewModel);
+    connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
     connect(ui->actionOpen_directory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
     connect(ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
@@ -49,6 +54,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
     connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
+
+	if (size != QSize())
+		resize(size);
+
+	connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
 
     statusLabel = new QLabel(this);
     statusLabel->setText("None");
@@ -68,10 +78,13 @@ MainWindow::MainWindow(QWidget *parent) :
     resLabels << ui->resLabel2;
     resLabels << ui->resLabel3;
     resLabels << ui->resLabel4;
-    resLabels[0]->setText("Resource name: -");
-    resLabels[1]->setText("Size: -");
-    resLabels[2]->setText("File type: -");
-    resLabels[3]->setText("Resource type: -");
+    resLabels[0]->setText("Resource name:");
+	resLabels[1]->setText("Size:");
+	resLabels[2]->setText("File type:");
+	resLabels[3]->setText("Resource type:");
+
+	if (!path.isEmpty())
+        emit openDir(path);
 }
 
 MainWindow::~MainWindow() {
@@ -79,17 +92,12 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
-    QString cPath;
-
-    cPath = QDir(path).canonicalPath();
+    QString cPath = QDir(path).canonicalPath();
     fsModel.setRootPath(cPath);
 
     ui->treeView->setModel(&fsModel);
 
-    connect(ui->treeView->selectionModel(),
-    		&QItemSelectionModel::selectionChanged,
-    		this,
-    		&MainWindow::selection);
+    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::selection);
 
     for (int i = 1; i < fsModel.columnCount(); i++)
         ui->treeView->hideColumn(i);
@@ -110,18 +118,20 @@ void MainWindow::on_actionOpen_directory_triggered() {
                                                     QString(QStandardPaths::HomeLocation),
                                                     QFileDialog::ShowDirsOnly);
     if (!dir.isEmpty())
-        emit open(dir);
+        emit openDir(dir);
 }
 
 void MainWindow::on_actionClose_triggered() {
     ui->treeView->setModel(nullptr);
 
-	resLabels[0]->setText("Resource name: -");
-	resLabels[1]->setText("Size: -");
-	resLabels[2]->setText("File type: -");
-	resLabels[3]->setText("Resource type: -");
+	resLabels[0]->setText("Resource name:");
+	resLabels[1]->setText("Size:");
+	resLabels[2]->setText("File type:");
+	resLabels[3]->setText("Resource type:");
 
     statusLabel->setText("None");
+
+    clearLabels();
 }
 
 void MainWindow::on_actionQuit_triggered() {
@@ -133,7 +143,7 @@ void MainWindow::on_pushButton_1_clicked() {
 	QString myKotorPath("/home/mike/kotor");
 	QDir dir(myKotorPath);
 	if (dir.exists())
-		emit open(myKotorPath);
+		emit openDir(myKotorPath);
 }
 
 void MainWindow::on_pushButton_2_clicked() {
@@ -146,39 +156,83 @@ void MainWindow::on_pushButton_3_clicked() {
 void MainWindow::on_pushButton_4_clicked() {
 }
 
-// ty stackoverflow
-QString size_human(qint64 size)
-{
-    float num = size;
-    QStringList list;
-    list << "KB" << "MB" << "GB" << "TB";
+QString getSizeLabel(size_t size) {
+    if (size == Common::kFileInvalid)
+        return "-";
 
-    QStringListIterator i(list);
-    QString unit("bytes");
+    if (size < 1024)
+        return QString("%1").arg(size);
 
-    while(num >= 1024.0 && i.hasNext())
-     {
-        unit = i.next();
-        num /= 1024.0;
+    QString humanRead = Common::FilePath::getHumanReadableSize(size).toQString();
+
+    return QString("%1 (%2)").arg(humanRead).arg(size);
+}
+
+QString getFileTypeLabel(Aurora::FileType type) {
+    QString label = QString("%1").arg(type);
+
+    if (type != Aurora::kFileTypeNone) {
+        QString temp = TypeMan.getExtension(type).toQString();
+        label += QString(" (%1)").arg(temp);
     }
-    return QString().setNum(num,'f',2)+" "+unit;
+
+    return label;
+}
+
+QString getResTypeLabel(Aurora::ResourceType type) {
+    QString label = QString("%1").arg(type);
+
+    if (type != Aurora::kResourceNone) {
+        QString temp = getResourceTypeDescription(type).toQString();
+        label += QString(" (%1)").arg(temp);
+    }
+
+    return label;
+}
+
+void MainWindow::setLabels() {
+    QString labelName     = "Resource name: ";
+    QString labelSize     = "Size: ";
+    QString labelFileType = "File type: ";
+    QString labelResType  = "Resource type: ";
+
+    labelName += _currentSelection.fileName();
+
+    if (_currentSelection.getSource() == Source::kSourceDirectory) {
+
+        labelSize     += "-";
+        labelFileType += "Directory";
+        labelResType  += "Directory";
+
+    } else if ((_currentSelection.getSource() == Source::kSourceFile) ||
+               (_currentSelection.getSource() == Source::kSourceArchiveFile)) {
+
+        Aurora::FileType     fileType = _currentSelection.getFileType();
+        Aurora::ResourceType resType  = _currentSelection.getResourceType();
+
+        labelSize     += getSizeLabel(_currentSelection.size());
+        labelFileType += getFileTypeLabel(fileType);
+        labelResType  += getResTypeLabel(resType);
+    }
+
+    resLabels[0]->setText(labelName);
+    resLabels[1]->setText(labelSize);
+    resLabels[2]->setText(labelFileType);
+    resLabels[3]->setText(labelResType);
+}
+
+
+void MainWindow::clearLabels() {
+    resLabels[0]->setText("Resource name:");
+    resLabels[1]->setText("Size:");
+    resLabels[2]->setText("File type:");
+    resLabels[3]->setText("Resource type:");
 }
 
 void MainWindow::selection(const QItemSelection &selected) {
-    QModelIndex index = selected.indexes().at(0);
-
-    resLabels[0]->setText(tr("Resource name: %1").arg(fsModel.fileName(index)));
-
-    if (fsModel.isDir(index)) {
-        resLabels[1]->setText("Size: -");
-        resLabels[2]->setText("File type: Directory");
-        resLabels[3]->setText("Resource type: Directory");
-    }
-    else {
-        resLabels[1]->setText(tr("Size: %1").arg(size_human(fsModel.size(index))));
-        resLabels[2]->setText("File type: -"); // TODO
-        resLabels[3]->setText("Resource type: -"); // TODO
-    }
+    const QModelIndex index = selected.indexes().at(0);
+    _currentSelection = Selection(fsModel.fileInfo(index));
+    setLabels();
 }
 
 } // End of namespace GUI

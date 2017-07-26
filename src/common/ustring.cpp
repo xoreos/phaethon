@@ -278,6 +278,10 @@ const char *UString::c_str() const {
 	return _string.c_str();
 }
 
+QString UString::toQString() const {
+    return QString::fromStdString(_string);
+}
+
 UString::iterator UString::begin() const {
 	return iterator(_string.begin(), _string.begin(), _string.end());
 }
