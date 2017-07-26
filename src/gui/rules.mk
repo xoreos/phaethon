@@ -20,25 +20,39 @@
 # GUI code, using wxWidgets.
 
 noinst_LTLIBRARIES += src/gui/libgui.la
+
+QT_UI_FORMS_BUILT = \
+    $(EMPTY)
+
+BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
+
 src_gui_libgui_la_SOURCES =
 
-src_gui_libgui_la_SOURCES += \
-    src/gui/eventid.h \
+src_gui_libgui_la_SOURCES += \	
+	src/gui/about.h \
+	src/gui/eventid.h \
     src/gui/mainwindow.h \
-    src/gui/about.h \
     src/gui/resourcetree.h \
     src/gui/panelresourceinfo.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
+    $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
+	src/gui/about.cpp \
     src/gui/mainwindow.cpp \
-    src/gui/about.cpp \
     src/gui/resourcetree.cpp \
     src/gui/panelresourceinfo.cpp \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
     $(EMPTY)
+
+EXTRA_src_gui_libgui_la_DEPENDENCIES = \
+	$(QT_UI_FORMS_BUILT) \
+    $(EMPTY)
+
+ui_%.h: ui/%.ui
+	@UIC@ -o $@ $<
