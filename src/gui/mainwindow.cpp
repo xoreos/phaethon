@@ -35,6 +35,8 @@
 #include "src/common/strutil.h"
 #include "src/gui/mainwindow.h"
 #include "src/aurora/util.h"
+#include "src/gui/resourcetree.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
@@ -42,74 +44,61 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *version, QSize size, QString path) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    _ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    _ui->setupUi(this);
 
     connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
-    connect(ui->actionOpen_directory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
-    connect(ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
-    connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
-    connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
-    connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
-    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
-    connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
+    connect(_ui->actionOpen_directory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
+    connect(_ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
+    connect(_ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
+    connect(_ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
+    connect(_ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
+    connect(_ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
+    connect(_ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
 
 	if (size != QSize())
 		resize(size);
 
 	connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
 
-    statusLabel = new QLabel(this);
-    statusLabel->setText("None");
-    statusLabel->setAlignment(Qt::AlignLeft);
-    statusProgressBar = new QProgressBar(this);
-    statusProgressBar->setVisible(false);
+    _statusLabel = new QLabel(this);
+    _statusLabel->setText("None");
+    _statusLabel->setAlignment(Qt::AlignLeft);
 
-    ui->statusBar->addWidget(statusLabel, 2);
-    ui->statusBar->addWidget(statusProgressBar, 1);
+    _ui->statusBar->addWidget(_statusLabel, 2);
 
-    ui->treeView->setHeaderHidden(true);
+    _ui->treeView->setHeaderHidden(true);
 
-    // remove close button from Files tab
-    ui->filesTabWidget->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0,0);
-
-    resLabels << ui->resLabel1;
-    resLabels << ui->resLabel2;
-    resLabels << ui->resLabel3;
-    resLabels << ui->resLabel4;
-    resLabels[0]->setText("Resource name:");
-	resLabels[1]->setText("Size:");
-	resLabels[2]->setText("File type:");
-	resLabels[3]->setText("Resource type:");
+    _resLabels << _ui->resLabel1;
+    _resLabels << _ui->resLabel2;
+    _resLabels << _ui->resLabel3;
+    _resLabels << _ui->resLabel4;
+    _resLabels[0]->setText("Resource name:");
+	_resLabels[1]->setText("Size:");
+	_resLabels[2]->setText("File type:");
+	_resLabels[3]->setText("Resource type:");
 
 	if (!path.isEmpty())
         emit openDir(path);
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    delete _ui;
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
     QString cPath = QDir(path).canonicalPath();
-    fsModel.setRootPath(cPath);
 
-    ui->treeView->setModel(&fsModel);
+    _treeModel = new ResourceTree(path, _ui->treeView);
+    _ui->treeView->setModel(_treeModel);
 
-    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::selection);
+    connect(_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::selection);
 
-    for (int i = 1; i < fsModel.columnCount(); i++)
-        ui->treeView->hideColumn(i);
+    _statusLabel->setText(tr("Root: %1").arg(cPath));
+    _ui->treeView->show();
 
-    if (!path.isEmpty()) {
-        const QModelIndex rootIndex = fsModel.index(QDir::cleanPath(cPath));
-        if (rootIndex.isValid())
-            ui->treeView->setRootIndex(rootIndex);
-    }
-
-    statusLabel->setText(tr("Root: %1").arg(cPath));
-    ui->treeView->show();
+    _ui->actionClose->setEnabled(true);
 }
 
 void MainWindow::on_actionOpen_directory_triggered() {
@@ -122,14 +111,14 @@ void MainWindow::on_actionOpen_directory_triggered() {
 }
 
 void MainWindow::on_actionClose_triggered() {
-    ui->treeView->setModel(nullptr);
+    _ui->treeView->setModel(nullptr);
 
-	resLabels[0]->setText("Resource name:");
-	resLabels[1]->setText("Size:");
-	resLabels[2]->setText("File type:");
-	resLabels[3]->setText("Resource type:");
+	_resLabels[0]->setText("Resource name:");
+	_resLabels[1]->setText("Size:");
+	_resLabels[2]->setText("File type:");
+	_resLabels[3]->setText("Resource type:");
 
-    statusLabel->setText("None");
+    _statusLabel->setText("None");
 
     clearLabels();
 }
@@ -215,23 +204,23 @@ void MainWindow::setLabels() {
         labelResType  += getResTypeLabel(resType);
     }
 
-    resLabels[0]->setText(labelName);
-    resLabels[1]->setText(labelSize);
-    resLabels[2]->setText(labelFileType);
-    resLabels[3]->setText(labelResType);
+    _resLabels[0]->setText(labelName);
+    _resLabels[1]->setText(labelSize);
+    _resLabels[2]->setText(labelFileType);
+    _resLabels[3]->setText(labelResType);
 }
 
 
 void MainWindow::clearLabels() {
-    resLabels[0]->setText("Resource name:");
-    resLabels[1]->setText("Size:");
-    resLabels[2]->setText("File type:");
-    resLabels[3]->setText("Resource type:");
+    _resLabels[0]->setText("Resource name:");
+    _resLabels[1]->setText("Size:");
+    _resLabels[2]->setText("File type:");
+    _resLabels[3]->setText("Resource type:");
 }
 
 void MainWindow::selection(const QItemSelection &selected) {
     const QModelIndex index = selected.indexes().at(0);
-    _currentSelection = Selection(fsModel.fileInfo(index));
+    _currentSelection = Selection(_treeModel->getNode(index)->getFileInfo());
     setLabels();
 }
 

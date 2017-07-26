@@ -25,146 +25,45 @@
 #ifndef RESOURCETREE_H
 #define RESOURCETREE_H
 
-#include <wx/treectrl.h>
+#include "verdigris/wobjectdefs.h"
 
-#include "src/common/ustring.h"
-#include "src/common/filetree.h"
+#include <QAbstractItemModel>
+#include <QFileInfo>
+#include <QModelIndex>
+#include <QVariant>
 
-#include "src/aurora/types.h"
-#include "src/aurora/archive.h"
-
-namespace Common {
-	class SeekableReadStream;
-}
-
-namespace Sound {
-	class AudioStream;
-}
-
-namespace Images {
-	class Decoder;
-}
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
-// class MainWindow;
+class ResourceTreeItem;
 
-class ResourceTreeItem : public wxTreeItemData {
+class ResourceTree : public QAbstractItemModel {
+    W_OBJECT(ResourceTree)
 public:
-	/** Where does the resource come from? */
-	enum Source {
-		kSourceDirectory   = 0, ///< It's a plain directory on the filesystem.
-		kSourceFile        = 1, ///< It's a plain file on the filesystem.
-		kSourceArchiveFile = 2  ///< It's a file contained in an archive.
-	};
+    explicit ResourceTree(const QString &path = "", QObject *parent = 0);
+    ~ResourceTree();
 
-	/** Create a resource tree item from a raw file/directory. */
-	ResourceTreeItem(const Common::FileTree::Entry &entry);
-	/** Create a resource tree item from an archive file. */
-	ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
-	~ResourceTreeItem();
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	/** Return the name of the resource, without path. */
-	const Common::UString &getName() const;
-	/** Return the size of the resource's data. */
-	uint32 getSize() const;
-
-	/** Return where the resource comes from. */
-	Source getSource() const;
-
-	/** Get the Aurora file type of the resource. */
-	Aurora::FileType getFileType() const;
-	/** Get the Aurora resource type. */
-	Aurora::ResourceType getResourceType() const;
-
-	/** Return a stream of the resource file data. */
-	Common::SeekableReadStream *getResourceData() const;
-
-	/** If this is a sound resource, return an audio stream.
-	 *
-	 *  If this is not a sound resource, an Exception is thrown.
-	 */
-	Sound::AudioStream *getAudioStream() const;
-
-	/** If this is an image resource, return an image decoder.
-	 *
-	 *  If this is not an image resource, an Exception is thrown.
-	 */
-	Images::Decoder *getImage() const;
-
-	/** If this is a sound resource, return the estimated duration in milliseconds.
-	 *
-	 *  If this is not a sound resource, or the length can not be estimated,
-	 *  return Sound::RewindableAudioStream::kInvalidLength.
-	 */
-	uint64 getSoundDuration() const;
+    ResourceTreeItem *getNode(const QModelIndex &index) const;
+    bool canFetchMore(const QModelIndex &index);
+    void fetchMore(const QModelIndex &index);
+    bool insertNodes(int position, QList<ResourceTreeItem*> &nodes, QModelIndex parent);
+    bool hasChildren(const QModelIndex &index) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    void setRootPath(const QString& path);
+    void populate(const QString& path, ResourceTreeItem *parentNode);
 
 private:
-	/** Internal resource information. */
-	struct Data {
-		boost::filesystem::path path;
-
-		Aurora::Archive *archive;
-		bool addedArchiveMembers;
-		uint32 archiveIndex;
-	};
-
-	Common::UString _name;
-	size_t _size;
-	Source _source;
-	Data _data;
-
-	mutable bool _triedDuration;
-	mutable uint64 _duration;
-
-	Data &getData();
-
-	static Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
-
-	friend class ResourceTree;
-};
-
-class ResourceTree : public wxTreeCtrl {
-wxDECLARE_DYNAMIC_CLASS(ResourceTree);
-
-public:
-	ResourceTree();
-	ResourceTree(wxWindow *parent/*, MainWindow &mainWindow*/);
-	~ResourceTree();
-
-	void populate(const Common::FileTree::Entry &root);
-
-	ResourceTreeItem *getItemData(const wxTreeItemId &id) const;
-
-	ResourceTreeItem *getSelection() const;
-	ResourceTreeItem *getSelection(wxTreeItemId &id) const;
-
-	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
-
-	void onSelChanged(wxTreeEvent &event);
-	void onItemExpanding(wxTreeEvent &event);
-	void onItemActivated(wxTreeEvent &event);
-
-private:
-	enum Image {
-		kImageNone = -1,
-		kImageDir  =  0,
-		kImageFile     ,
-		kImageMAX
-	};
-
-	// MainWindow *_mainWindow;
-
-	static Image getImage(const ResourceTreeItem &item);
-
-	void populate(const Common::FileTree::Entry &e, wxTreeItemId t);
-
-	wxTreeItemId addRoot(ResourceTreeItem *item);
-	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
-
-	void forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id);
-
-	wxDECLARE_EVENT_TABLE();
+    ResourceTreeItem *_root;
 };
 
 } // End of namespace GUI

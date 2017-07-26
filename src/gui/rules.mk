@@ -34,6 +34,7 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/eventid.h \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
+    src/gui/resoutcetreeitem.h \
     src/gui/panelresourceinfo.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
@@ -46,6 +47,7 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/about.cpp \
     src/gui/mainwindow.cpp \
     src/gui/resourcetree.cpp \
+    src/gui/resourcetreeitem.cpp \
     src/gui/panelresourceinfo.cpp \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \

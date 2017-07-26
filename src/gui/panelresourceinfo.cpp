@@ -172,48 +172,48 @@ void PanelResourceInfo::onExportRaw(wxCommandEvent &UNUSED(event)) {
 
 	const Common::UString title = "Save Aurora game resource file";
 	const Common::UString mask  = "Aurora game resource (*.*)|*.*";
-	const Common::UString def   = _currentItem->getName();
+	// const Common::UString def   = _currentItem->getName();
 
-	exportRaw(dialogSaveFile(title, mask, def));
+	// exportRaw(dialogSaveFile(title, mask, def));
 }
 
 void PanelResourceInfo::onExportBMUMP3(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
-	assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
+	// assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
 
 	const Common::UString title = "Save MP3 file";
 	const Common::UString mask  = "MP3 file (*.mp3)|*.mp3";
-	const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeMP3);
+	// const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeMP3);
 
-	exportBMUMP3(dialogSaveFile(title, mask, def));
+	// exportBMUMP3(dialogSaveFile(title, mask, def));
 }
 
 void PanelResourceInfo::onExportWAV(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
-	assert(_currentItem->getResourceType() == Aurora::kResourceSound);
+	// assert(_currentItem->getResourceType() == Aurora::kResourceSound);
 
 	const Common::UString title = "Save PCM WAV file";
 	const Common::UString mask  = "WAV file (*.wav)|*.wav";
-	const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeWAV);
+	// const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeWAV);
 
-	exportWAV(dialogSaveFile(title, mask, def));
+	// exportWAV(dialogSaveFile(title, mask, def));
 }
 
 void PanelResourceInfo::onExportTGA(wxCommandEvent &UNUSED(event)) {
 	if (!_currentItem)
 		return;
 
-	assert(_currentItem->getResourceType() == Aurora::kResourceImage);
+	// assert(_currentItem->getResourceType() == Aurora::kResourceImage);
 
 	const Common::UString title = "Save TGA file";
 	const Common::UString mask  = "TGA file (*.tga)|*.tga";
-	const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeTGA);
+	// const Common::UString def   = TypeMan.setFileType(_currentItem->getName(), Aurora::kFileTypeTGA);
 
-	exportTGA(dialogSaveFile(title, mask, def));
+	// exportTGA(dialogSaveFile(title, mask, def));
 }
 
 bool PanelResourceInfo::exportRaw(const Common::UString &path) {
@@ -223,7 +223,7 @@ bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 	/*_mainWindow->pushStatus(constructStatus("Saving", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END*/
+	} BOOST_SCOPE_EXIT_END
 
 	try {
 		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
@@ -236,7 +236,7 @@ bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return false;
-	}
+	}*/
 
 	return true;
 }
@@ -248,7 +248,7 @@ bool PanelResourceInfo::exportBMUMP3(const Common::UString &path) {
 	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END*/
+	} BOOST_SCOPE_EXIT_END
 
 	try {
 		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
@@ -261,7 +261,7 @@ bool PanelResourceInfo::exportBMUMP3(const Common::UString &path) {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return false;
-	}
+	}*/
 
 	return true;
 }
@@ -273,7 +273,7 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END*/
+	} BOOST_SCOPE_EXIT_END
 
 	try {
 		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
@@ -286,7 +286,7 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return false;
-	}
+	}*/
 
 	return true;
 }
@@ -298,7 +298,7 @@ bool PanelResourceInfo::exportTGA(const Common::UString &path) {
 	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END*/
+	} BOOST_SCOPE_EXIT_END
 
 	try {
 		Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());
@@ -308,7 +308,7 @@ bool PanelResourceInfo::exportTGA(const Common::UString &path) {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return false;
-	}
+	}*/
 
 	return true;
 }
@@ -397,7 +397,7 @@ void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool sho
 }
 
 void PanelResourceInfo::showExportButtons() {
-	if (!_currentItem || _currentItem->getSource() == ResourceTreeItem::kSourceDirectory) {
+	/*if (!_currentItem || _currentItem->getSource() == ResourceTreeItem::kSourceDirectory) {
 		showExportButtons(false, false, false, false);
 		return;
 	}
@@ -406,10 +406,11 @@ void PanelResourceInfo::showExportButtons() {
 	bool isSound = _currentItem->getResourceType() == Aurora::kResourceSound;
 	bool isImage = _currentItem->getResourceType() == Aurora::kResourceImage;
 
-	showExportButtons(true, isBMU, isSound, isImage);
+	showExportButtons(true, isBMU, isSound, isImage);*/
 }
 
 void PanelResourceInfo::setLabels() {
+	/*
 	Common::UString labelName     = "Resource name: ";
 	Common::UString labelSize     = "Size: ";
 	Common::UString labelFileType = "File type: ";
@@ -440,6 +441,7 @@ void PanelResourceInfo::setLabels() {
 	_textSize->SetLabel(labelSize);
 	_textFileType->SetLabel(labelFileType);
 	_textResType->SetLabel(labelResType);
+	*/
 }
 
 void PanelResourceInfo::update() {

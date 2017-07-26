@@ -131,7 +131,7 @@ void ImageCanvas::loadImage() {
 	_image.reset();
 	_bitmap.reset();
 
-	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceImage)) {
+/*	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceImage)) {
 		SetVirtualSize(0, 0);
 		SetScrollRate(0, 0);
 		return;
@@ -166,7 +166,7 @@ void ImageCanvas::loadImage() {
 	_bitmap.reset(new wxBitmap(*_image));
 
 	SetVirtualSize(width, height);
-	SetScrollRate(1, 1);
+	SetScrollRate(1, 1);*/
 }
 
 void ImageCanvas::writePixel(const byte *&data, Images::PixelFormat format,

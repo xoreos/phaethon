@@ -41,6 +41,8 @@ namespace Ui {
 
 namespace GUI {
 
+class ResourceTree;
+
 class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
 
@@ -71,11 +73,10 @@ public:
     void clearLabels();
 
 private:
-    Ui::MainWindow *ui;
-    QFileSystemModel fsModel;
-    QLabel *statusLabel;
-    QProgressBar *statusProgressBar;
-    QList<QLabel*> resLabels;
+    Ui::MainWindow *_ui;
+    ResourceTree *_treeModel;
+    QLabel *_statusLabel;
+    QList<QLabel*> _resLabels;
     Selection _currentSelection;
 };
 

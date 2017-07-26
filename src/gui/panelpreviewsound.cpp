@@ -126,7 +126,7 @@ void PanelPreviewSound::setCurrentItem(const ResourceTreeItem *item) {
 		return;
 	}
 
-	_duration = item->getSoundDuration();
+	// _duration = item->getSoundDuration();
 }
 
 void PanelPreviewSound::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
@@ -209,7 +209,7 @@ void PanelPreviewSound::setVolume() {
 }
 
 bool PanelPreviewSound::play() {
-	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceSound))
+/*	if (!_currentItem || (_currentItem->getResourceType() != Aurora::kResourceSound))
 		return false;
 
 	if (SoundMan.isPlaying(_sound)) {
@@ -232,7 +232,7 @@ bool PanelPreviewSound::play() {
 		return false;
 	}
 
-	SoundMan.startChannel(_sound);
+	SoundMan.startChannel(_sound);*/
 	return true;
 }
 
