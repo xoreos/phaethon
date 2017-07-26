@@ -24,6 +24,7 @@
 
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QDebug>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -40,6 +41,15 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(this, &MainWindow::open, this, &MainWindow::setTreeViewModel);
+    connect(ui->actionOpen_directory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
+    connect(ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
+    connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
+    connect(ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
+    connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
+    connect(ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
+
     statusLabel = new QLabel(this);
     statusLabel->setText("None");
     statusLabel->setAlignment(Qt::AlignLeft);
@@ -54,7 +64,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // remove close button from Files tab
     ui->filesTabWidget->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0,0);
 
-    ui->filesTabWidget->removeTab(1);
+    resLabels << ui->resLabel1;
+    resLabels << ui->resLabel2;
+    resLabels << ui->resLabel3;
+    resLabels << ui->resLabel4;
+    resLabels[0]->setText("Resource name: -");
+    resLabels[1]->setText("Size: -");
+    resLabels[2]->setText("File type: -");
+    resLabels[3]->setText("Resource type: -");
 }
 
 MainWindow::~MainWindow() {
@@ -69,6 +86,11 @@ void MainWindow::setTreeViewModel(const QString &path) {
 
     ui->treeView->setModel(&fsModel);
 
+    connect(ui->treeView->selectionModel(),
+    		&QItemSelectionModel::selectionChanged,
+    		this,
+    		&MainWindow::selection);
+
     for (int i = 1; i < fsModel.columnCount(); i++)
         ui->treeView->hideColumn(i);
 
@@ -78,7 +100,7 @@ void MainWindow::setTreeViewModel(const QString &path) {
             ui->treeView->setRootIndex(rootIndex);
     }
 
-    statusLabel->setText(cPath);
+    statusLabel->setText(tr("Root: %1").arg(cPath));
     ui->treeView->show();
 }
 
@@ -91,11 +113,14 @@ void MainWindow::on_actionOpen_directory_triggered() {
         emit open(dir);
 }
 
-void MainWindow::on_actionOpen_file_triggered() {
-}
-
 void MainWindow::on_actionClose_triggered() {
     ui->treeView->setModel(nullptr);
+
+	resLabels[0]->setText("Resource name: -");
+	resLabels[1]->setText("Size: -");
+	resLabels[2]->setText("File type: -");
+	resLabels[3]->setText("Resource type: -");
+
     statusLabel->setText("None");
 }
 
@@ -104,8 +129,11 @@ void MainWindow::on_actionQuit_triggered() {
 }
 
 // testing
-void MainWindow::on_pushButton_clicked() {
-    emit open("/home/mike/kotor");
+void MainWindow::on_pushButton_1_clicked() {
+	QString myKotorPath("/home/mike/kotor");
+	QDir dir(myKotorPath);
+	if (dir.exists())
+		emit open(myKotorPath);
 }
 
 void MainWindow::on_pushButton_2_clicked() {
@@ -113,12 +141,44 @@ void MainWindow::on_pushButton_2_clicked() {
 }
 
 void MainWindow::on_pushButton_3_clicked() {
-    ui->filesTabWidget->insertTab(1, ui->ftwTab_2, "Archive");
 }
 
-// can only be 1 == ftwTab_2 (Archive tab)
-void MainWindow::on_filesTabWidget_tabCloseRequested(int index) {
-    ui->filesTabWidget->removeTab(index);
+void MainWindow::on_pushButton_4_clicked() {
+}
+
+// ty stackoverflow
+QString size_human(qint64 size)
+{
+    float num = size;
+    QStringList list;
+    list << "KB" << "MB" << "GB" << "TB";
+
+    QStringListIterator i(list);
+    QString unit("bytes");
+
+    while(num >= 1024.0 && i.hasNext())
+     {
+        unit = i.next();
+        num /= 1024.0;
+    }
+    return QString().setNum(num,'f',2)+" "+unit;
+}
+
+void MainWindow::selection(const QItemSelection &selected) {
+    QModelIndex index = selected.indexes().at(0);
+
+    resLabels[0]->setText(tr("Resource name: %1").arg(fsModel.fileName(index)));
+
+    if (fsModel.isDir(index)) {
+        resLabels[1]->setText("Size: -");
+        resLabels[2]->setText("File type: Directory");
+        resLabels[3]->setText("Resource type: Directory");
+    }
+    else {
+        resLabels[1]->setText(tr("Size: %1").arg(size_human(fsModel.size(index))));
+        resLabels[2]->setText("File type: -"); // TODO
+        resLabels[3]->setText("Resource type: -"); // TODO
+    }
 }
 
 } // End of namespace GUI

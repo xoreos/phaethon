@@ -29,6 +29,7 @@
 #include <QFileSystemModel>
 #include <QLabel>
 #include <QProgressBar>
+#include <QItemSelection>
 
 #include "verdigris/wobjectdefs.h"
 
@@ -54,23 +55,22 @@ public:
 
 // private slots:
     void on_actionOpen_directory_triggered();
-    void on_actionOpen_file_triggered();
     void on_actionClose_triggered();
     void on_actionQuit_triggered();
 
-    void on_pushButton_clicked();
-
+    void on_pushButton_1_clicked();
     void on_pushButton_2_clicked();
-
     void on_pushButton_3_clicked();
+    void on_pushButton_4_clicked();
 
-    void on_filesTabWidget_tabCloseRequested(int index);
+    void selection(const QItemSelection &selected);
 
 private:
     Ui::MainWindow *ui;
     QFileSystemModel fsModel;
     QLabel *statusLabel;
     QProgressBar *statusProgressBar;
+    QList<QLabel*> resLabels;
 };
 
 } // End of namespace GUI
