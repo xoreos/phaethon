@@ -22,9 +22,12 @@
  *  Preview panel for text files.
  */
 
+#include <QTextStream>
+
 #include "verdigris/wobjectimpl.h"
 
 #include "src/gui/panelpreviewtext.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
@@ -33,10 +36,33 @@ W_OBJECT_IMPL(PanelPreviewText)
 PanelPreviewText::PanelPreviewText(QObject *parent) {
     _layout = new QHBoxLayout();
     _layout->setObjectName("previewText");
-    _label = new QLabel("Text");
-    _layout->addWidget(_label);
+    _textBox = new QPlainTextEdit();
+    _layout->addWidget(_textBox);
     setLayout(_layout);
 }
+
+void PanelPreviewText::setItem(ResourceTreeItem *item) {
+    if (item == _currentItem)
+        return;
+
+    if (item->getFileType() != Aurora::FileType::kFileTypeTXT &&
+        item->getFileType() != Aurora::FileType::kFileTypeINI)
+        return;
+
+    if (item->getSize() > 1000000) // 1 MB
+        return; // fixme: exception
+
+    _currentItem = item;
+
+    QFile file(item->getFileInfo().canonicalFilePath());
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream textStream(&file);
+
+    _textBox->setPlainText(textStream.readAll());
+
+    return; // fixme: exception
+}
+
 
 PanelPreviewText::~PanelPreviewText() {
     delete _layout;

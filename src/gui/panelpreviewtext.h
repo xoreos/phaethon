@@ -27,23 +27,30 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QWidget>
+#include <QString>
+#include <QPlainTextEdit>
 
 #include "verdigris/wobjectdefs.h"
 
 namespace GUI {
+
+class ResourceTreeItem;
 
 class PanelPreviewText : public QFrame {
     W_OBJECT(PanelPreviewText)
     
 private:
     QHBoxLayout *_layout;
-    QLabel *_label;
+    QPlainTextEdit *_textBox;
+    QString _text;
+    ResourceTreeItem *_currentItem;
 
 public:
     PanelPreviewText(QObject *parent = 0);
     ~PanelPreviewText();
+
+    void setItem(ResourceTreeItem *item);
 };
 
 } // End of namespace GUI

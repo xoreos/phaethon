@@ -263,6 +263,8 @@ void MainWindow::selection(const QItemSelection &selected) {
     _currentItem = _treeModel->getNode(index);
     setLabels();
     showPreviewPanel();
+
+    _panelPreviewText->setItem(_currentItem);
 }
 
 } // End of namespace GUI
