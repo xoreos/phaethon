@@ -25,11 +25,26 @@
 #ifndef PANELPREVIEWEMPTY_H
 #define PANELPREVIEWEMPTY_H
 
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QWidget>
 
+#include "verdigris/wobjectdefs.h"
 
 namespace GUI {
 
+class PanelPreviewEmpty : public QFrame {
+    W_OBJECT(PanelPreviewEmpty)
 
+private:
+    QHBoxLayout *_layout;
+    QLabel *_label;
+
+public:
+    PanelPreviewEmpty(QObject *parent = 0);
+    ~PanelPreviewEmpty();
+};
 
 } // End of namespace GUI
 

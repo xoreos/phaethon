@@ -19,33 +19,27 @@
  */
 
 /** @file
- *  Preview panel for images resources.
+ *  Preview panel for text files.
  */
 
-#ifndef PANELPREVIEWIMAGE_H
-#define PANELPREVIEWIMAGE_H
+#include "verdigris/wobjectimpl.h"
 
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QWidget>
-
-#include "verdigris/wobjectdefs.h"
+#include "src/gui/panelpreviewtext.h"
 
 namespace GUI {
 
-class PanelPreviewImage : public QFrame {
-    W_OBJECT(PanelPreviewImage)
-    
-private:
-    QHBoxLayout *_layout;
-    QLabel *_label;
+W_OBJECT_IMPL(PanelPreviewText)
 
-public:
-    PanelPreviewImage(QObject *parent = 0);
-    ~PanelPreviewImage();
-};
+PanelPreviewText::PanelPreviewText(QObject *parent) {
+    _layout = new QHBoxLayout();
+    _layout->setObjectName("previewText");
+    _label = new QLabel("Text");
+    _layout->addWidget(_label);
+    setLayout(_layout);
+}
+
+PanelPreviewText::~PanelPreviewText() {
+    delete _layout;
+}
 
 } // End of namespace GUI
-
-#endif // PANELPREVIEWIMAGE_H

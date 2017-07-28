@@ -22,10 +22,24 @@
  *  Preview panel for sound resources.
  */
 
+#include "verdigris/wobjectimpl.h"
 
+#include "src/gui/panelpreviewsound.h"
 
 namespace GUI {
 
+W_OBJECT_IMPL(PanelPreviewSound)
 
+PanelPreviewSound::PanelPreviewSound(QObject *parent) {
+    _layout = new QHBoxLayout();
+    _layout->setObjectName("previewSound");
+    _label = new QLabel("Sound");
+    _layout->addWidget(_label);
+    setLayout(_layout);
+}
+
+PanelPreviewSound::~PanelPreviewSound() {
+    delete _layout;
+}
 
 } // End of namespace GUI

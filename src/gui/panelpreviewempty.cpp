@@ -22,10 +22,24 @@
  *  Preview panel for resources we can't do anything with.
  */
 
+#include "verdigris/wobjectimpl.h"
 
+#include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
 
+W_OBJECT_IMPL(PanelPreviewEmpty)
 
+PanelPreviewEmpty::PanelPreviewEmpty(QObject *parent) {
+    _layout = new QHBoxLayout();
+    _layout->setObjectName("previewEmpty");
+    _label = new QLabel("Empty");
+    _layout->addWidget(_label);
+    setLayout(_layout);
+}
+
+PanelPreviewEmpty::~PanelPreviewEmpty() {
+    delete _layout;
+}
 
 } // End of namespace GUI

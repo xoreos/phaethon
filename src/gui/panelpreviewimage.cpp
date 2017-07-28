@@ -19,13 +19,27 @@
  */
 
 /** @file
- *  Preview panel for resources we can't do anything with.
+ *  Preview panel for images resources.
  */
 
+#include "verdigris/wobjectimpl.h"
 
+#include "src/gui/panelpreviewimage.h"
 
 namespace GUI {
 
+W_OBJECT_IMPL(PanelPreviewImage)
 
+PanelPreviewImage::PanelPreviewImage(QObject *parent) {
+    _layout = new QHBoxLayout();
+    _layout->setObjectName("previewImage");
+    _label = new QLabel("Image");
+    _layout->addWidget(_label);
+    setLayout(_layout);
+}
+
+PanelPreviewImage::~PanelPreviewImage() {
+    delete _layout;
+}
 
 } // End of namespace GUI

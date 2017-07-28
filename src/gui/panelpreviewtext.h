@@ -19,11 +19,11 @@
  */
 
 /** @file
- *  Preview panel for images resources.
+ *  Preview panel for text files.
  */
 
-#ifndef PANELPREVIEWIMAGE_H
-#define PANELPREVIEWIMAGE_H
+#ifndef PANELPREVIEWTEXT_H
+#define PANELPREVIEWTEXT_H
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -34,18 +34,18 @@
 
 namespace GUI {
 
-class PanelPreviewImage : public QFrame {
-    W_OBJECT(PanelPreviewImage)
+class PanelPreviewText : public QFrame {
+    W_OBJECT(PanelPreviewText)
     
 private:
     QHBoxLayout *_layout;
     QLabel *_label;
 
 public:
-    PanelPreviewImage(QObject *parent = 0);
-    ~PanelPreviewImage();
+    PanelPreviewText(QObject *parent = 0);
+    ~PanelPreviewText();
 };
 
 } // End of namespace GUI
 
-#endif // PANELPREVIEWIMAGE_H
+#endif // PANELPREVIEWTEXT_H

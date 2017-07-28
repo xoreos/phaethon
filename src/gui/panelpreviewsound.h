@@ -25,11 +25,26 @@
 #ifndef PANELPREVIEWSOUND_H
 #define PANELPREVIEWSOUND_H
 
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QWidget>
 
+#include "verdigris/wobjectdefs.h"
 
 namespace GUI {
 
+class PanelPreviewSound : public QFrame {
+    W_OBJECT(PanelPreviewSound)
+    
+private:
+    QHBoxLayout *_layout;
+    QLabel *_label;
 
+public:
+    PanelPreviewSound(QObject *parent = 0);
+    ~PanelPreviewSound();
+};
 
 } // End of namespace GUI
 

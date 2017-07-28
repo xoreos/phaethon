@@ -33,6 +33,10 @@
 
 #include "verdigris/wobjectdefs.h"
 
+#include "src/gui/panelpreviewempty.h"
+#include "src/gui/panelpreviewimage.h"
+#include "src/gui/panelpreviewsound.h"
+#include "src/gui/panelpreviewtext.h"
 #include "src/gui/selection.h"
 
 namespace Ui {
@@ -72,12 +76,19 @@ public:
     void setLabels();
     void clearLabels();
 
+    void showPreviewPanel(QFrame *panel);
+    void showPreviewPanel();
+
 private:
     Ui::MainWindow *_ui;
     ResourceTree *_treeModel;
     QLabel *_statusLabel;
-    QList<QLabel*> _resLabels;
     Selection _currentSelection;
+
+    PanelPreviewEmpty *_panelPreviewEmpty;
+    PanelPreviewImage *_panelPreviewImage;
+    PanelPreviewSound *_panelPreviewSound;
+    PanelPreviewText *_panelPreviewText;
 };
 
 } // End of namespace GUI

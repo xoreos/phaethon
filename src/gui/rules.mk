@@ -39,6 +39,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
+    src/gui/panelpreviewtext.h \
     src/gui/selection.h \
     $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
@@ -52,6 +53,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
+    src/gui/panelpreviewtext.cpp \
     src/gui/selection.cpp \
     $(EMPTY)
 

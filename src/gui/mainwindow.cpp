@@ -49,16 +49,23 @@ MainWindow::MainWindow(QWidget *parent, const char *version, QSize size, QString
     _ui->setupUi(this);
 
     connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
-    connect(_ui->actionOpen_directory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
+    connect(_ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
     connect(_ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
     connect(_ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
-    connect(_ui->pushButton_1, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
-    connect(_ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
-    connect(_ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
-    connect(_ui->pushButton_4, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
+    connect(_ui->bLoadKotorDir, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
+    connect(_ui->bCloseDir, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
+    connect(_ui->bUnused1, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
+    connect(_ui->bUnused2, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
 
 	if (size != QSize())
 		resize(size);
+
+    _panelPreviewEmpty = new PanelPreviewEmpty();
+    _panelPreviewImage = new PanelPreviewImage();
+    _panelPreviewSound = new PanelPreviewSound();
+    _panelPreviewText  = new PanelPreviewText();
+
+    _ui->resLayout->addWidget(_panelPreviewEmpty);
 
 	connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
 
@@ -70,14 +77,8 @@ MainWindow::MainWindow(QWidget *parent, const char *version, QSize size, QString
 
     _ui->treeView->setHeaderHidden(true);
 
-    _resLabels << _ui->resLabel1;
-    _resLabels << _ui->resLabel2;
-    _resLabels << _ui->resLabel3;
-    _resLabels << _ui->resLabel4;
-    _resLabels[0]->setText("Resource name:");
-	_resLabels[1]->setText("Size:");
-	_resLabels[2]->setText("File type:");
-	_resLabels[3]->setText("Resource type:");
+    // resource info panel
+    clearLabels();
 
 	if (!path.isEmpty())
         emit openDir(path);
@@ -111,12 +112,11 @@ void MainWindow::on_actionOpen_directory_triggered() {
 }
 
 void MainWindow::on_actionClose_triggered() {
+    showPreviewPanel(_panelPreviewEmpty);
+
     _ui->treeView->setModel(nullptr);
 
-	_resLabels[0]->setText("Resource name:");
-	_resLabels[1]->setText("Size:");
-	_resLabels[2]->setText("File type:");
-	_resLabels[3]->setText("Resource type:");
+	clearLabels();
 
     _statusLabel->setText("None");
 
@@ -204,24 +204,66 @@ void MainWindow::setLabels() {
         labelResType  += getResTypeLabel(resType);
     }
 
-    _resLabels[0]->setText(labelName);
-    _resLabels[1]->setText(labelSize);
-    _resLabels[2]->setText(labelFileType);
-    _resLabels[3]->setText(labelResType);
+    _ui->resLabelName->setText(labelName);
+    _ui->resLabelSize->setText(labelSize);
+    _ui->resLabelFileType->setText(labelFileType);
+    _ui->resLabelResType->setText(labelResType);
 }
 
 
 void MainWindow::clearLabels() {
-    _resLabels[0]->setText("Resource name:");
-    _resLabels[1]->setText("Size:");
-    _resLabels[2]->setText("File type:");
-    _resLabels[3]->setText("Resource type:");
+    _ui->resLabelName->setText("Resource name:");
+    _ui->resLabelSize->setText("Size:");
+    _ui->resLabelFileType->setText("File type:");
+    _ui->resLabelResType->setText("Resource type:");
+}
+
+void MainWindow::showPreviewPanel(QFrame *panel) {
+    if (_ui->resLayout->count()) {
+        QFrame *old = static_cast<QFrame*>(_ui->resLayout->itemAt(0)->widget());
+        if (old != panel) {
+            _ui->resLayout->removeWidget(old);
+            old->setParent(0);
+            _ui->resLayout->addWidget(panel);
+        }
+    }
+}
+
+void MainWindow::showPreviewPanel() {
+    switch (_currentSelection.getResourceType()) {
+        case Aurora::kResourceImage:
+            showPreviewPanel(_panelPreviewImage);
+            break;
+
+        case Aurora::kResourceSound:
+            showPreviewPanel(_panelPreviewSound);
+            break;
+
+        default:
+        {
+            switch (_currentSelection.getFileType()) {
+                case Aurora::FileType::kFileTypeICO:
+                    showPreviewPanel(_panelPreviewImage);
+                    break;
+
+                case Aurora::FileType::kFileTypeINI:
+                case Aurora::FileType::kFileTypeTXT:
+                    showPreviewPanel(_panelPreviewText);
+                    break;
+
+                default:
+                    showPreviewPanel(_panelPreviewEmpty);
+            }
+            break;
+        }
+    }
 }
 
 void MainWindow::selection(const QItemSelection &selected) {
     const QModelIndex index = selected.indexes().at(0);
     _currentSelection = Selection(_treeModel->getNode(index)->getFileInfo());
     setLabels();
+    showPreviewPanel();
 }
 
 } // End of namespace GUI
