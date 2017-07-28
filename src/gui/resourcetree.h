@@ -11,17 +11,20 @@
 
 #include "src/aurora/keyfile.h"
 #include "src/common/ptrmap.h"
+#include "src/gui/statusbar.h"
 #include "src/gui/resourcetreeitem.h"
 
 namespace GUI
 {
 
-class ResourceTree : public QStandardItemModel {
+class ResourceTree : public QAbstractItemModel {
     W_OBJECT(ResourceTree)
 
 private:
+    QString _rootPath;
     ResourceTreeItem *_root;
     QFileIconProvider *_iconProvider;
+    std::shared_ptr<StatusBar> _status;
 
     typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
     typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
@@ -30,7 +33,7 @@ private:
     KEYDataFileMap _keyDataFiles;
 
 public:
-    explicit ResourceTree(QString path, QObject *parent = 0);
+    explicit ResourceTree(std::shared_ptr<StatusBar> statusBar, QString path, QObject *parent = 0);
     ~ResourceTree();
 
     QVariant data(const QModelIndex &index, int role) const override;

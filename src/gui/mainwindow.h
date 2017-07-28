@@ -19,6 +19,7 @@
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/panelresourceinfo.h"
+#include "src/gui/statusbar.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 
@@ -35,13 +36,17 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = 0, const char *version = "", const QSize &size = QSize(800, 600), const Common::UString &path = "");
+    ~MainWindow();
 
 private /*slots*/:
-    void setTreeViewModel(const QString &path);
+    void setTreeViewModel(QString path);
     W_SLOT(setTreeViewModel)
 
     void slotOpenDir();
     W_SLOT(slotOpenDir, W_Access::Private)
+
+    void slotOpenFile();
+    W_SLOT(slotOpenFile, W_Access::Private)
 
     void slotCloseDir();
     W_SLOT(slotCloseDir, W_Access::Private)
@@ -49,7 +54,7 @@ private /*slots*/:
     void slotQuit();
     W_SLOT(slotQuit, W_Access::Private)
 
-    void slotLogAppend(const QString& text);
+    void slotLogAppend(QString text);
     W_SLOT(slotLogAppend, W_Access::Private)
 
     void saveItem();
@@ -58,9 +63,16 @@ private /*slots*/:
     void exportTGA();
     W_SLOT(exportTGA, W_Access::Private)
 
+    void exportBMUMP3();
+    W_SLOT(exportBMUMP3, W_Access::Private)
+
+    void exportWAV();
+    W_SLOT(exportWAV, W_Access::Private)
+
     void slotAbout();
     W_SLOT(slotAbout, W_Access::Private)
 
+    std::shared_ptr<StatusBar> getStatusBar();
     void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
@@ -69,9 +81,11 @@ private:
     void showPreviewPanel();
     void showExportButtons();
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
+    void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+    void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
     Ui::MainWindow _ui;
-    QLabel *_statusLabel;
+    std::shared_ptr<StatusBar> _status;
     const ResourceTreeItem *_currentItem;
     std::unique_ptr<ResourceTree> _treeModel;
     QString _rootPath;

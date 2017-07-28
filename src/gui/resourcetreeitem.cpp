@@ -32,7 +32,7 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Re
     _soundInfo.duration      = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-ResourceTreeItem::ResourceTreeItem(const QString fullPath, ResourceTreeItem *parent)
+ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
     : _parent(parent)
 {
     QFileInfo info(fullPath);

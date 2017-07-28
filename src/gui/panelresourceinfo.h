@@ -37,12 +37,24 @@ public /*signals*/:
     void exportTGAClicked()
     W_SIGNAL(exportTGAClicked)
 
+    void exportBMUMP3Clicked()
+    W_SIGNAL(exportBMUMP3Clicked)
+
+    void exportWAVClicked()
+    W_SIGNAL(exportWAVClicked)
+
 public /*slots*/:
     void slotSave();
     W_SLOT(slotSave, W_Access::Public)
 
     void slotExportTGA();
     W_SLOT(slotExportTGA, W_Access::Public)
+
+    void slotExportBMUMP3();
+    W_SLOT(slotExportBMUMP3)
+
+    void slotExportWAV();
+    W_SLOT(slotExportWAV)
 
 private /*slots*/:
     void slotLoadKotorDir();
@@ -53,6 +65,11 @@ private /*slots*/:
 
 private:
     Ui::ResourceInfoPanel _ui;
+
+    QPushButton *_btnExportRaw;
+    QPushButton *_btnExportBMUMP3;
+    QPushButton *_btnExportWAV;
+    QPushButton *_btnExportTGA;
 };
 
 #endif // RESOURCEINFOPANEL_H

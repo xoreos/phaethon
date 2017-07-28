@@ -1,4 +1,4 @@
-#include "src/gui/panelpreviewempty.h"
+#include "panelpreviewempty.h"
 
 #include "verdigris/wobjectimpl.h"
 

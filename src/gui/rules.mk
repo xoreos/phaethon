@@ -46,6 +46,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
     src/gui/panelpreviewtext.h \
+    src/gui/statusbar.h \
     $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
@@ -59,6 +60,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
     src/gui/panelpreviewtext.cpp \
+    src/gui/statusbar.cpp \
     $(EMPTY)
 
 EXTRA_src_gui_libgui_la_DEPENDENCIES = \

@@ -1,4 +1,4 @@
-#include "src/gui/panelpreviewimage.h"
+#include "panelpreviewimage.h"
 #include "verdigris/wobjectimpl.h"
 
 #include "src/gui/panel.h"
@@ -21,7 +21,7 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
     _ui.imageScrollArea->setWidget(_imageLabel);
     _imageLabel->setScaledContents(true);
 
-    _ui.imageScrollArea->setStyleSheet("background-color: white;");
+    darknessSliderSlot(0);
 
     connect(_ui.darkness, &QSlider::valueChanged, this, &PanelPreviewImage::darknessSliderSlot);
     connect(_ui.zoomIn, &QPushButton::clicked, this, &PanelPreviewImage::zoomIn);
@@ -178,7 +178,7 @@ void PanelPreviewImage::getImageDimensions(const Images::Decoder &image, int32 &
 }
 
 void PanelPreviewImage::darknessSliderSlot(int value) {
-    int rgb = 255 - static_cast<int>(((float)value / (float)_ui.darkness->maximum()) * 255.f);
+    int rgb = static_cast<int>(((float)value / (float)_ui.darkness->maximum()) * 255.f);
     _ui.imageScrollArea->setStyleSheet(QString("background-color: rgb(%1,%2,%3)").arg(rgb).arg(rgb).arg(rgb));
 }
 

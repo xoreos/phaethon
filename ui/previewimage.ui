@@ -45,8 +45,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>556</width>
-        <height>380</height>
+        <width>565</width>
+        <height>376</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -62,7 +62,7 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Background darkness</string>
+            <string>Background brightness</string>
            </property>
           </widget>
          </item>

@@ -10,6 +10,10 @@ W_OBJECT_IMPL(ResourceInfoPanel)
 
 ResourceInfoPanel::ResourceInfoPanel(QWidget *parent)
     : QFrame(parent)
+    , _btnExportRaw(new QPushButton("Save", this))
+    , _btnExportBMUMP3(new QPushButton("Export as MP3", this))
+    , _btnExportTGA(new QPushButton("Export as TGA", this))
+    , _btnExportWAV(new QPushButton("Export as WAV",this))
 {
     _ui.setupUi(this);
 
@@ -18,11 +22,20 @@ ResourceInfoPanel::ResourceInfoPanel(QWidget *parent)
     _ui.resLabelFileType->setText("File type:");
     _ui.resLabelResType->setText("Resource type:");
 
-    _ui.bSave->setEnabled(false);
-    _ui.bExportTGA->setEnabled(false);
+    _ui.horizontalLayout->addWidget(_btnExportRaw);
+    _ui.horizontalLayout->addWidget(_btnExportBMUMP3);
+    _ui.horizontalLayout->addWidget(_btnExportTGA);
+    _ui.horizontalLayout->addWidget(_btnExportWAV);
 
-    QObject::connect(_ui.bSave, &QPushButton::clicked, this, &ResourceInfoPanel::slotSave);
-    QObject::connect(_ui.bExportTGA, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportTGA);
+    _btnExportRaw->setVisible(false);
+    _btnExportBMUMP3->setVisible(false);
+    _btnExportTGA->setVisible(false);
+    _btnExportWAV->setVisible(false);
+
+    QObject::connect(_btnExportRaw, &QPushButton::clicked, this, &ResourceInfoPanel::slotSave);
+    QObject::connect(_btnExportTGA, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportTGA);
+    QObject::connect(_btnExportBMUMP3, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportBMUMP3);
+    QObject::connect(_btnExportWAV, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportWAV);
 
     QObject::connect(_ui.bLoadKotorDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotLoadKotorDir);
     QObject::connect(_ui.bCloseDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotCloseDir);
@@ -54,6 +67,14 @@ void ResourceInfoPanel::slotExportTGA() {
     emit exportTGAClicked();
 }
 
+void ResourceInfoPanel::slotExportBMUMP3() {
+    emit exportBMUMP3Clicked();
+}
+
+void ResourceInfoPanel::slotExportWAV() {
+    emit exportWAVClicked();
+}
+
 void ResourceInfoPanel::update(const ResourceTreeItem *item) {
     setLabels(item);
     showExportButtons(item);
@@ -73,10 +94,10 @@ void ResourceInfoPanel::showExportButtons(const ResourceTreeItem *item) {
 }
 
 void ResourceInfoPanel::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
-    _ui.bSave->setEnabled(enableRaw);
-    _ui.bExportTGA->setEnabled(showTGA);
-//    _buttonExportBMUMP3->Show(showMP3);
-//    _buttonExportWAV->Show(showWAV);
+    _btnExportRaw->setVisible(enableRaw);
+    _btnExportTGA->setVisible(showTGA);
+    _btnExportBMUMP3->setVisible(showMP3);
+    _btnExportWAV->setVisible(showWAV);
 }
 
 const QString getSizeLabel(size_t size) {
@@ -153,6 +174,8 @@ void ResourceInfoPanel::clearLabels() {
 
 void ResourceInfoPanel::setButtonsForClosedDir() {
     _ui.bCloseDir->setEnabled(false);
-    _ui.bSave->setEnabled(false);
-    _ui.bExportTGA->setEnabled(false);
+    _btnExportRaw->setVisible(false);
+    _btnExportBMUMP3->setVisible(false);
+    _btnExportWAV->setVisible(false);
+    _btnExportTGA->setVisible(false);
 }

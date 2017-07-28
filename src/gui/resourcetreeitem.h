@@ -29,8 +29,8 @@ public:
     };
 
     struct FileInfo {
-        QString fileName;
-        QString fullPath;
+        QString fileName; // this is what is displayed in the tree view
+        QString fullPath; // used for QFileInfo and item info such as logging
         bool isDir;
         Source source;
         Aurora::FileType fileType;
@@ -45,7 +45,7 @@ public:
 
 
     ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
-    ResourceTreeItem(const QString fullPath, ResourceTreeItem *parent);
+    ResourceTreeItem(QString fullPath, ResourceTreeItem *parent);
     ~ResourceTreeItem();
 
     /** Model structure. **/
