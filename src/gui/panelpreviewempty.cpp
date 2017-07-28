@@ -22,27 +22,10 @@
  *  Preview panel for resources we can't do anything with.
  */
 
-#include <wx/sizer.h>
-#include <wx/statbox.h>
 
-#include "src/common/ustring.h"
-
-#include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
 
-PanelPreviewEmpty::PanelPreviewEmpty(wxWindow *parent, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY) {
 
-	wxStaticBox *boxPreviewEmpty = new wxStaticBox(this, wxID_ANY, title);
-	boxPreviewEmpty->Lower();
-
-	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxVERTICAL);
-
-	SetSizer(sizerPreviewEmpty);
-}
-
-PanelPreviewEmpty::~PanelPreviewEmpty() {
-}
 
 } // End of namespace GUI

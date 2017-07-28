@@ -25,19 +25,11 @@
 #ifndef PANELPREVIEWEMPTY_H
 #define PANELPREVIEWEMPTY_H
 
-#include <wx/panel.h>
 
-namespace Common {
-	class UString;
-}
 
 namespace GUI {
 
-class PanelPreviewEmpty : public wxPanel {
-public:
-	PanelPreviewEmpty(wxWindow *parent, const Common::UString &title);
-	~PanelPreviewEmpty();
-};
+
 
 } // End of namespace GUI
 

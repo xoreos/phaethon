@@ -25,84 +25,11 @@
 #ifndef PANELPREVIEWSOUND_H
 #define PANELPREVIEWSOUND_H
 
-#include <wx/panel.h>
 
-#include "src/common/types.h"
-#include "src/common/scopedptr.h"
-#include "src/common/ustring.h"
-
-#include "src/sound/types.h"
-
-class wxGenericStaticText;
-class wxSlider;
-class wxButton;
-class wxTimer;
-
-class wxCommandEvent;
-class wxTimerEvent;
-class wxScrollEvent;
 
 namespace GUI {
 
-class ResourceTreeItem;
 
-class PanelPreviewSound : public wxPanel {
-public:
-	PanelPreviewSound(wxWindow *parent, const Common::UString &title);
-	~PanelPreviewSound();
-
-	void setCurrentItem(const ResourceTreeItem *item);
-
-	bool play();
-	void pause();
-	void stop();
-
-private:
-	Sound::ChannelHandle _sound;
-
-	const ResourceTreeItem *_currentItem;
-	uint64 _duration;
-
-	wxGenericStaticText *_textPosition;
-	wxGenericStaticText *_textPercent;
-	wxGenericStaticText *_textDuration;
-	wxGenericStaticText *_textVolume;
-
-	wxSlider *_sliderPosition;
-	wxSlider *_sliderVolume;
-
-	wxButton *_buttonPlay;
-	wxButton *_buttonPause;
-	wxButton *_buttonStop;
-
-	Common::ScopedPtr<wxTimer> _timer;
-
-
-	void onPlay(wxCommandEvent &event);
-	void onPause(wxCommandEvent &event);
-	void onStop(wxCommandEvent &event);
-
-	void onTimer(wxTimerEvent &event);
-
-	void onVolumeChange(wxScrollEvent &event);
-
-
-	void update();
-
-	void setVolume();
-
-
-	void createLayout(const Common::UString &title);
-
-	void setButtons(bool enablePlay, bool enablePause, bool enableStop);
-
-	static Common::UString formatTime(uint64 t);
-	static Common::UString formatPercent(uint64 total, uint64 t);
-
-	static int getSliderPos(uint64 total, uint64 t);
-
-	wxDECLARE_EVENT_TABLE();
-};
 
 } // End of namespace GUI
 
