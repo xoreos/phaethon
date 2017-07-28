@@ -22,127 +22,167 @@
  *  Phaethon's main window.
  */
 
-#include <QFileDialog>
-#include <QStandardPaths>
-#include <QDebug>
-
 #include "verdigris/wobjectimpl.h"
 
-#include "mainwindow.h"
-#include "ui/ui_mainwindow.h"
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QStandardPaths>
 
+#include "src/aurora/util.h"
 #include "src/common/filepath.h"
 #include "src/common/strutil.h"
 #include "src/gui/mainwindow.h"
-#include "src/aurora/util.h"
-#include "src/gui/resourcetree.h"
-#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *version, QSize size, QString path) :
+MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, const Common::UString &path) :
     QMainWindow(parent),
-    _ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow)
+
 {
-    _ui->setupUi(this);
+    ui->setupUi(this);
 
-    connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
-    connect(_ui->actionOpenDirectory, &QAction::triggered, this, &MainWindow::on_actionOpen_directory_triggered);
-    connect(_ui->actionClose, &QAction::triggered, this, &MainWindow::on_actionClose_triggered);
-    connect(_ui->actionQuit, &QAction::triggered, this, &MainWindow::on_actionQuit_triggered);
-    connect(_ui->bLoadKotorDir, &QPushButton::clicked, this, &MainWindow::on_pushButton_1_clicked);
-    connect(_ui->bCloseDir, &QPushButton::clicked, this, &MainWindow::on_pushButton_2_clicked);
-    connect(_ui->bUnused1, &QPushButton::clicked, this, &MainWindow::on_pushButton_3_clicked);
-    connect(_ui->bUnused2, &QPushButton::clicked, this, &MainWindow::on_pushButton_4_clicked);
-
-	if (size != QSize())
-		resize(size);
+    resize(size);
 
     _panelPreviewEmpty = new PanelPreviewEmpty();
     _panelPreviewImage = new PanelPreviewImage();
     _panelPreviewSound = new PanelPreviewSound();
     _panelPreviewText  = new PanelPreviewText();
 
-    _ui->resLayout->addWidget(_panelPreviewEmpty);
+    ui->resLayout->addWidget(_panelPreviewEmpty);
 
-	connect(this, &MainWindow::openDir, this, &MainWindow::setTreeViewModel);
+    // signals/slots
+    QObject::connect(ui->bLoadKotorDir,       &QPushButton::clicked, this, &MainWindow::sbLoadKotorDir);
+    QObject::connect(ui->bCloseDir,           &QPushButton::clicked, this, &MainWindow::sbCloseDir);
+    QObject::connect(ui->bUnused1,            &QPushButton::clicked, this, &MainWindow::sbUnused1);
+    QObject::connect(ui->bUnused2,            &QPushButton::clicked, this, &MainWindow::sbUnused2);
+    QObject::connect(ui->actionOpenDirectory, &QAction::triggered,   this, &MainWindow::slotOpenDir);
+    QObject::connect(ui->actionClose,         &QAction::triggered,   this, &MainWindow::slotCloseDir);
+    QObject::connect(ui->actionQuit,          &QAction::triggered,   this, &MainWindow::slotQuit);
 
+    // status bar
     _statusLabel = new QLabel(this);
     _statusLabel->setText("None");
     _statusLabel->setAlignment(Qt::AlignLeft);
+    ui->statusBar->addWidget(_statusLabel, 1);
 
-    _ui->statusBar->addWidget(_statusLabel, 2);
-
-    _ui->treeView->setHeaderHidden(true);
+    // tree view
+    ui->treeView->setHeaderHidden(true);
 
     // resource info panel
-    clearLabels();
+    ui->resLabelName->setText("Resource name:");
+    ui->resLabelSize->setText("Size:");
+    ui->resLabelFileType->setText("File type:");
+    ui->resLabelResType->setText("Resource type:");
 
-	if (!path.isEmpty())
-        emit openDir(path);
+    ui->bUnused1->setEnabled(false);
+    ui->bUnused2->setEnabled(false);
+
+    // open the path given in command line if any
+    if (path.empty()) {
+        // nothing is open yet
+        ui->actionClose->setEnabled(false);
+        ui->bCloseDir->setEnabled(false);
+    }
+    else {
+        _rootPath = path.toQString();
+        setTreeViewModel(_rootPath);
+    }
 }
 
 MainWindow::~MainWindow() {
-    delete _ui;
+    delete ui;
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
-    QString cPath = QDir(path).canonicalPath();
+    _rootPath = path;
 
-    _treeModel = new ResourceTree(path, _ui->treeView);
-    _ui->treeView->setModel(_treeModel);
+    _statusLabel->setText("Loading...");
+    _statusLabel->repaint();
 
-    connect(_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::selection);
+    if (_treeModel) {
+        ui->treeView->setModel(nullptr);
+        delete _treeModel;
+    }
 
-    _statusLabel->setText(tr("Root: %1").arg(cPath));
-    _ui->treeView->show();
+    _treeModel = new ResourceTree(path, ui->treeView);
+    ui->treeView->setModel(_treeModel);
+    ui->treeView->show();
 
-    _ui->actionClose->setEnabled(true);
+    _statusLabel->setText(tr("Root: %1").arg(path));
+
+
+    QObject::connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                     this, &MainWindow::selection);
+
+
+    ui->log->append(tr("Set root: %1").arg(path));
+
+    ui->bCloseDir->setEnabled(true);
+    ui->actionClose->setEnabled(true);
 }
 
-void MainWindow::on_actionOpen_directory_triggered() {
+void MainWindow::slotOpenDir() {
     QString dir = QFileDialog::getExistingDirectory(this,
                                                     tr("Open directory"),
                                                     QString(QStandardPaths::HomeLocation),
                                                     QFileDialog::ShowDirsOnly);
     if (!dir.isEmpty())
-        emit openDir(dir);
+        setTreeViewModel(dir);
 }
 
-void MainWindow::on_actionClose_triggered() {
+void MainWindow::closeResource() {
     showPreviewPanel(_panelPreviewEmpty);
+}
 
-    _ui->treeView->setModel(nullptr);
+void MainWindow::slotCloseDir() {
+    closeResource();
 
-	clearLabels();
+    ui->bCloseDir->setEnabled(false);
+
+    ui->treeView->setModel(nullptr);
+
+    ui->log->append(tr("Closed directory: %1").arg(_rootPath));
+
+    _rootPath = "";
+
+    if (_currentSelection)
+        _currentSelection = nullptr;
+
+    ui->resLabelName->setText("Resource name:");
+    ui->resLabelSize->setText("Size:");
+    ui->resLabelFileType->setText("File type:");
+    ui->resLabelResType->setText("Resource type:");
 
     _statusLabel->setText("None");
 
-    clearLabels();
+    ui->actionClose->setEnabled(false);
 }
 
-void MainWindow::on_actionQuit_triggered() {
+void MainWindow::slotQuit() {
     QCoreApplication::quit();
 }
 
-// testing
-void MainWindow::on_pushButton_1_clicked() {
-	QString myKotorPath("/home/mike/kotor");
-	QDir dir(myKotorPath);
-	if (dir.exists())
-		emit openDir(myKotorPath);
+/* Buttons (testing). */
+void MainWindow::sbLoadKotorDir() {
+    QString myKotorPath("/home/mike/kotor");
+    QDir dir(myKotorPath);
+    if (dir.exists())
+        setTreeViewModel(myKotorPath);
+    else
+        ui->log->append("Failed: /home/mike/kotor is doesn't exist.");
 }
 
-void MainWindow::on_pushButton_2_clicked() {
-    on_actionClose_triggered();
+void MainWindow::sbCloseDir() {
+    slotCloseDir();
 }
 
-void MainWindow::on_pushButton_3_clicked() {
+void MainWindow::sbUnused1() {
 }
 
-void MainWindow::on_pushButton_4_clicked() {
+void MainWindow::sbUnused2() {
 }
 
 QString getSizeLabel(size_t size) {
@@ -185,51 +225,46 @@ void MainWindow::setLabels() {
     QString labelFileType = "File type: ";
     QString labelResType  = "Resource type: ";
 
-    labelName += _currentItem->getName();
+    labelName += _currentSelection->getName();
 
-    if (_currentItem->getSource() == Source::kSourceDirectory) {
+    if (_currentSelection->getSource() == Source::kSourceDirectory) {
 
         labelSize     += "-";
         labelFileType += "Directory";
         labelResType  += "Directory";
 
-    } else if ((_currentItem->getSource() == Source::kSourceFile) ||
-               (_currentItem->getSource() == Source::kSourceArchiveFile)) {
+    } else if ((_currentSelection->getSource() == Source::kSourceFile) ||
+               (_currentSelection->getSource() == Source::kSourceArchiveFile)) {
 
-        Aurora::FileType     fileType = _currentItem->getFileType();
-        Aurora::ResourceType resType  = _currentItem->getResourceType();
+        Aurora::FileType     fileType = _currentSelection->getFileType();
+        Aurora::ResourceType resType  = _currentSelection->getResourceType();
 
-        labelSize     += getSizeLabel(_currentItem->getSize());
+        labelSize     += getSizeLabel(_currentSelection->getSize());
         labelFileType += getFileTypeLabel(fileType);
         labelResType  += getResTypeLabel(resType);
     }
 
-    _ui->resLabelName->setText(labelName);
-    _ui->resLabelSize->setText(labelSize);
-    _ui->resLabelFileType->setText(labelFileType);
-    _ui->resLabelResType->setText(labelResType);
-}
-
-void MainWindow::clearLabels() {
-    _ui->resLabelName->setText("Resource name:");
-    _ui->resLabelSize->setText("Size:");
-    _ui->resLabelFileType->setText("File type:");
-    _ui->resLabelResType->setText("Resource type:");
+    ui->resLabelName->setText(labelName);
+    ui->resLabelSize->setText(labelSize);
+    ui->resLabelFileType->setText(labelFileType);
+    ui->resLabelResType->setText(labelResType);
 }
 
 void MainWindow::showPreviewPanel(QFrame *panel) {
-    if (_ui->resLayout->count()) {
-        QFrame *old = static_cast<QFrame*>(_ui->resLayout->itemAt(0)->widget());
+    if (ui->resLayout->count()) {
+        QFrame *old = static_cast<QFrame*>(ui->resLayout->itemAt(0)->widget());
         if (old != panel) {
-            _ui->resLayout->removeWidget(old);
+            ui->resLayout->removeWidget(old);
             old->setParent(0);
-            _ui->resLayout->addWidget(panel);
+            if (old == _panelPreviewSound)
+                _panelPreviewSound->stop();
+            ui->resLayout->addWidget(panel);
         }
     }
 }
 
 void MainWindow::showPreviewPanel() {
-    switch (_currentItem->getResourceType()) {
+    switch (_currentSelection->getResourceType()) {
         case Aurora::kResourceImage:
             showPreviewPanel(_panelPreviewImage);
             break;
@@ -240,7 +275,7 @@ void MainWindow::showPreviewPanel() {
 
         default:
         {
-            switch (_currentItem->getFileType()) {
+            switch (_currentSelection->getFileType()) {
                 case Aurora::FileType::kFileTypeICO:
                     showPreviewPanel(_panelPreviewImage);
                     break;
@@ -258,13 +293,14 @@ void MainWindow::showPreviewPanel() {
     }
 }
 
-void MainWindow::selection(const QItemSelection &selected) {
+void MainWindow::selection(const QItemSelection &selected, const QItemSelection &deselected) {
     const QModelIndex index = selected.indexes().at(0);
-    _currentItem = _treeModel->getNode(index);
+    _currentSelection = _treeModel->getNode(index);
     setLabels();
     showPreviewPanel();
 
-    _panelPreviewText->setItem(_currentItem);
+    _panelPreviewText->setItem(_currentSelection);
+    _panelPreviewSound->setItem(_currentSelection);
 }
 
 } // End of namespace GUI

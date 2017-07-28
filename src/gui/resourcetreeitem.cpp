@@ -29,9 +29,8 @@ ResourceTreeItem::ResourceTreeItem(const QString fullPath, Aurora::Archive *arch
     _fileType = TypeMan.getFileType(USTR(_name));
     _resourceType = TypeMan.getResourceType(USTR(_name));
 
-//    _triedDuration = getResourceType() != Aurora::kResourceSound;
-//    _duration = Sound::RewindableAudioStream::kInvalidLength;
-    // fixme
+   _triedDuration = getResourceType() != Aurora::kResourceSound;
+   _duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::ResourceTreeItem(const QString fullPath, ResourceTreeItem *parent) :
@@ -62,6 +61,8 @@ ResourceTreeItem::ResourceTreeItem(const QString fullPath, ResourceTreeItem *par
         _fileType = TypeMan.getFileType(USTR(_name));
         _resourceType = TypeMan.getResourceType(USTR(_name));
     }
+    _triedDuration = getResourceType() != Aurora::kResourceSound;
+    _duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
@@ -233,6 +234,42 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 
 ResourceTreeItem::Data &ResourceTreeItem::getData() {
     return _data;
+}
+
+uint64 ResourceTreeItem::getSoundDuration() const {
+    if (_triedDuration)
+        return _duration;
+
+    _triedDuration = true;
+
+    try {
+        Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
+
+        Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
+        _duration = rewSound.getDuration();
+
+    } catch (...) {
+    }
+
+    return _duration;
+}
+
+Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
+    if (_resourceType != Aurora::kResourceSound)
+        throw Common::Exception("\"%s\" is not a sound resource", _name.toStdString().c_str());
+
+    Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+
+    Sound::AudioStream *sound = 0;
+    try {
+        sound = SoundMan.makeAudioStream(res.get());
+    } catch (Common::Exception &e) {
+        e.add("Failed to get audio stream from \"%s\"", _name.toStdString().c_str());
+        throw;
+    }
+
+    res.release();
+    return sound;
 }
 
 } // End of namespace GUI

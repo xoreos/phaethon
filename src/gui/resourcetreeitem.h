@@ -8,6 +8,9 @@
 #include "src/aurora/util.h"
 #include "src/images/decoder.h"
 
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
+
 namespace GUI {
 
 enum Source {
@@ -28,6 +31,9 @@ private:
     Aurora::FileType _fileType;
     Aurora::ResourceType _resourceType;
     qint64 _size;
+
+    mutable bool _triedDuration;
+    mutable uint64 _duration;
 
     /** Internal resource information. */
 public:
@@ -68,6 +74,8 @@ public:
     Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
     Common::SeekableReadStream *getResourceData() const;
     Data &getData();
+    uint64 getSoundDuration() const;
+    Sound::AudioStream *getAudioStream() const;
 };
 
 } // End of namespace GUI
