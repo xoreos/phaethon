@@ -4,38 +4,70 @@
 #include <QFileInfo>
 #include <QString>
 
+#include "src/aurora/archive.h"
+#include "src/aurora/util.h"
+#include "src/images/decoder.h"
+
 namespace GUI {
 
+enum Source {
+    kSourceDirectory= 0,
+    kSourceFile = 1,
+    kSourceArchive = 2,
+    kSourceArchiveFile = 3
+};
+
 class ResourceTreeItem {
+private:
+    QList<ResourceTreeItem*> _children;
+    QString _name = "DEFAULTNAME";
+    ResourceTreeItem *_parent = nullptr;
+    QString _fullPath = "DEFAULTPATH";
+    bool _isDir;
+    Source _source;
+    Aurora::FileType _fileType;
+    Aurora::ResourceType _resourceType;
+    qint64 _size;
+
+    /** Internal resource information. */
 public:
-    ResourceTreeItem(const QString name, const QString path, ResourceTreeItem *parent);
-    ResourceTreeItem(const QString name, ResourceTreeItem *parent);
+    struct Data {
+        QString path;
+
+        Aurora::Archive *archive = nullptr;
+        bool addedArchiveMembers = false;
+        uint32 archiveIndex;
+    };
+
+private:
+    Data _data;
+
+public:
+    ResourceTreeItem(const QString fullPath, Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
+    ResourceTreeItem(const QString fullPath, ResourceTreeItem *parent);
     ~ResourceTreeItem();
 
     void addChild(ResourceTreeItem *child);
     bool insertChild(int position, ResourceTreeItem *child);
     void setParent(ResourceTreeItem *parent);
-    void setIsDir(bool isDir);
     int childCount();
     ResourceTreeItem *child(int row);
     int row();
-    bool getIsDir();
-    bool getIsTraversed();
-    void setIsTraversed(bool isTraversed);
+    bool isDir();
     QString &getPath();
     ResourceTreeItem *getParent();
     QString getName();
-    void setFileInfo(QFileInfo info);
+    void setFileInfo(const QFileInfo info);
     QFileInfo getFileInfo();
-
-private:
-    bool _isDir;
-    bool _isTraversed;
-    QList<ResourceTreeItem*> _children;
-    QString _name;
-    ResourceTreeItem *_parent;
-    QString _path;
-    QFileInfo _fileInfo;
+    Source getSource();
+    Aurora::FileType getFileType();
+    Aurora::ResourceType getResourceType();
+    qint64 getSize();
+    bool hasChildren();
+    Images::Decoder *getImage();
+    Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
+    Common::SeekableReadStream *getResourceData() const;
+    Data &getData();
 };
 
 } // End of namespace GUI
