@@ -185,21 +185,21 @@ void MainWindow::setLabels() {
     QString labelFileType = "File type: ";
     QString labelResType  = "Resource type: ";
 
-    labelName += _currentSelection.fileName();
+    labelName += _currentItem->getName();
 
-    if (_currentSelection.getSource() == Source::kSourceDirectory) {
+    if (_currentItem->getSource() == Source::kSourceDirectory) {
 
         labelSize     += "-";
         labelFileType += "Directory";
         labelResType  += "Directory";
 
-    } else if ((_currentSelection.getSource() == Source::kSourceFile) ||
-               (_currentSelection.getSource() == Source::kSourceArchiveFile)) {
+    } else if ((_currentItem->getSource() == Source::kSourceFile) ||
+               (_currentItem->getSource() == Source::kSourceArchiveFile)) {
 
-        Aurora::FileType     fileType = _currentSelection.getFileType();
-        Aurora::ResourceType resType  = _currentSelection.getResourceType();
+        Aurora::FileType     fileType = _currentItem->getFileType();
+        Aurora::ResourceType resType  = _currentItem->getResourceType();
 
-        labelSize     += getSizeLabel(_currentSelection.size());
+        labelSize     += getSizeLabel(_currentItem->getSize());
         labelFileType += getFileTypeLabel(fileType);
         labelResType  += getResTypeLabel(resType);
     }
@@ -209,7 +209,6 @@ void MainWindow::setLabels() {
     _ui->resLabelFileType->setText(labelFileType);
     _ui->resLabelResType->setText(labelResType);
 }
-
 
 void MainWindow::clearLabels() {
     _ui->resLabelName->setText("Resource name:");
@@ -230,7 +229,7 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
 }
 
 void MainWindow::showPreviewPanel() {
-    switch (_currentSelection.getResourceType()) {
+    switch (_currentItem->getResourceType()) {
         case Aurora::kResourceImage:
             showPreviewPanel(_panelPreviewImage);
             break;
@@ -241,7 +240,7 @@ void MainWindow::showPreviewPanel() {
 
         default:
         {
-            switch (_currentSelection.getFileType()) {
+            switch (_currentItem->getFileType()) {
                 case Aurora::FileType::kFileTypeICO:
                     showPreviewPanel(_panelPreviewImage);
                     break;
@@ -261,7 +260,7 @@ void MainWindow::showPreviewPanel() {
 
 void MainWindow::selection(const QItemSelection &selected) {
     const QModelIndex index = selected.indexes().at(0);
-    _currentSelection = Selection(_treeModel->getNode(index)->getFileInfo());
+    _currentItem = _treeModel->getNode(index);
     setLabels();
     showPreviewPanel();
 }

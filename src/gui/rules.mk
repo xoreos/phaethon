@@ -34,13 +34,12 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/eventid.h \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
-    src/gui/resoutcetreeitem.h \
+    src/gui/resourcetreeitem.h \
     src/gui/panelresourceinfo.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
     src/gui/panelpreviewtext.h \
-    src/gui/selection.h \
     $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
@@ -54,7 +53,6 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
     src/gui/panelpreviewtext.cpp \
-    src/gui/selection.cpp \
     $(EMPTY)
 
 EXTRA_src_gui_libgui_la_DEPENDENCIES = \

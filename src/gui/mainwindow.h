@@ -37,7 +37,6 @@
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
-#include "src/gui/selection.h"
 
 namespace Ui {
     class MainWindow;
@@ -46,6 +45,7 @@ namespace Ui {
 namespace GUI {
 
 class ResourceTree;
+class ResourceTreeItem;
 
 class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
@@ -83,7 +83,7 @@ private:
     Ui::MainWindow *_ui;
     ResourceTree *_treeModel;
     QLabel *_statusLabel;
-    Selection _currentSelection;
+    ResourceTreeItem *_currentItem;
 
     PanelPreviewEmpty *_panelPreviewEmpty;
     PanelPreviewImage *_panelPreviewImage;
