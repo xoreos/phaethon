@@ -24,7 +24,7 @@ PanelPreviewSound::PanelPreviewSound(QWidget *parent)
     _timer->start(50);
 }
 
-void PanelPreviewSound::setItem(ResourceTreeItem *item) {
+void PanelPreviewSound::setItem(const ResourceTreeItem *item) {
     if (item == _currentItem)
         return;
 

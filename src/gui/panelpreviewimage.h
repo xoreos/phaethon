@@ -16,7 +16,7 @@ class PanelPreviewImage : public QFrame
     W_OBJECT(PanelPreviewImage)
 
 private:
-    ResourceTreeItem *_currentItem;
+    const ResourceTreeItem *_currentItem;
     uint8 _color;
     QLabel *_imageLabel;
     QPixmap _originalPixmap;
@@ -28,7 +28,7 @@ private:
 public:
     PanelPreviewImage(QWidget *parent = 0);
 
-    void setItem(ResourceTreeItem *node);
+    void setItem(const ResourceTreeItem *node);
     void loadImage();
     void convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
     void writePixel(const byte *&data, Images::PixelFormat format, byte *&data_out, QImage::Format &format_out);

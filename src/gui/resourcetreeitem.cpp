@@ -77,29 +77,29 @@ bool ResourceTreeItem::insertChild(int position, ResourceTreeItem *child) {
     return true;
 }
 
-ResourceTreeItem *ResourceTreeItem::childAt(int row) {
+ResourceTreeItem *ResourceTreeItem::childAt(int row) const {
     return _children.at(row);
 }
 
-int ResourceTreeItem::childCount() {
+const int ResourceTreeItem::childCount() const {
     return _children.count();
 }
 
-int ResourceTreeItem::row() {
+const int ResourceTreeItem::row() const {
     if (_parent)
         return _parent->_children.indexOf(const_cast<ResourceTreeItem*>(this));
     return 0;
 }
 
-bool ResourceTreeItem::isDir() {
+const bool ResourceTreeItem::isDir() const {
     return _fileInfo.isDir;
 }
 
-QString &ResourceTreeItem::getPath() {
+const QString ResourceTreeItem::getPath() const {
     return _fileInfo.fullPath;
 }
 
-ResourceTreeItem *ResourceTreeItem::parent() {
+ResourceTreeItem *ResourceTreeItem::getParent() const {
     return _parent;
 }
 
@@ -107,31 +107,31 @@ void ResourceTreeItem::setParent(ResourceTreeItem *parent) {
     _parent = parent;
 }
 
-QString ResourceTreeItem::getName() {
+const QString ResourceTreeItem::getName() const {
     return _fileInfo.fileName;
 }
 
-QFileInfo ResourceTreeItem::getFileInfo() {
+const QFileInfo ResourceTreeItem::getFileInfo() const {
     return QFileInfo(_fileInfo.fullPath);
 }
 
-qint64 ResourceTreeItem::getSize() {
+const qint64 ResourceTreeItem::getSize() const {
     return _fileInfo.size;
 }
 
-ResourceTreeItem::Source ResourceTreeItem::getSource() {
+const ResourceTreeItem::Source ResourceTreeItem::getSource() const {
     return _fileInfo.source;
 }
 
-Aurora::FileType ResourceTreeItem::getFileType() {
+const Aurora::FileType ResourceTreeItem::getFileType() const {
     return _fileInfo.fileType;
 }
 
-Aurora::ResourceType ResourceTreeItem::getResourceType() {
+const Aurora::ResourceType ResourceTreeItem::getResourceType() const {
     return _fileInfo.resourceType;
 }
 
-bool ResourceTreeItem::hasChildren() {
+const bool ResourceTreeItem::hasChildren() const {
     return _children.count();
 }
 
@@ -159,7 +159,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
     return 0;
 }
 
-Images::Decoder *ResourceTreeItem::getImage() {
+Images::Decoder *ResourceTreeItem::getImage() const {
     if (getResourceType() != Aurora::kResourceImage)
         throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
 
@@ -176,7 +176,7 @@ Images::Decoder *ResourceTreeItem::getImage() {
     return img;
 }
 
-Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) {
+Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) const {
     Images::Decoder *img = 0;
     switch (type) {
         case Aurora::kFileTypeDDS:
@@ -230,7 +230,7 @@ ResourceTreeItem::ArchiveInfo &ResourceTreeItem::getData() {
     return _archiveInfo;
 }
 
-uint64 ResourceTreeItem::getSoundDuration() const {
+const uint64 ResourceTreeItem::getSoundDuration() const {
     if (_soundInfo.triedDuration)
         return _soundInfo.duration;
 

@@ -54,12 +54,12 @@ void ResourceInfoPanel::slotExportTGA() {
     emit exportTGAClicked();
 }
 
-void ResourceInfoPanel::update(ResourceTreeItem *item) {
+void ResourceInfoPanel::update(const ResourceTreeItem *item) {
     setLabels(item);
     showExportButtons(item);
 }
 
-void ResourceInfoPanel::showExportButtons(ResourceTreeItem *item) {
+void ResourceInfoPanel::showExportButtons(const ResourceTreeItem *item) {
     if (!item || item->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
         showExportButtons(false, false, false, false);
         return;
@@ -113,7 +113,7 @@ const QString getResTypeLabel(Aurora::ResourceType type) {
     return label;
 }
 
-void ResourceInfoPanel::setLabels(ResourceTreeItem *item) {
+void ResourceInfoPanel::setLabels(const ResourceTreeItem *item) {
     QString labelName     = "Resource name: ";
     QString labelSize     = "Size: ";
     QString labelFileType = "File type: ";

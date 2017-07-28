@@ -2,8 +2,8 @@
 #define RESOURCEINFOPANEL_H
 
 #include <QWidget>
-#include "src/gui/resourcetreeitem.h"
 #include "verdigris/wobjectdefs.h"
+#include "src/gui/resourcetreeitem.h"
 #include "ui/ui_resourceinfopanel.h"
 
 class ResourceInfoPanel : public QFrame
@@ -14,10 +14,10 @@ public:
     ResourceInfoPanel(QWidget *parent = 0);
 
     Ui::ResourceInfoPanel &getUi();
-    void showExportButtons(ResourceTreeItem *item);
+    void showExportButtons(const ResourceTreeItem *item);
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
-    void setLabels(ResourceTreeItem *item);
-    void update(ResourceTreeItem *item);
+    void setLabels(const ResourceTreeItem *item);
+    void update(const ResourceTreeItem *item);
     void clearLabels();
     void setButtonsForClosedDir();
 

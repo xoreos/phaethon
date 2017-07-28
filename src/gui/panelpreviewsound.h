@@ -22,7 +22,7 @@ class PanelPreviewSound : public QFrame
     W_OBJECT(PanelPreviewSound)
 
 private:
-    ResourceTreeItem *_currentItem = nullptr;
+    const ResourceTreeItem *_currentItem;
 
     Sound::ChannelHandle _sound;
     uint64 _duration;
@@ -33,7 +33,7 @@ private:
 public:
     PanelPreviewSound(QWidget *parent = 0);
 
-    void setItem(ResourceTreeItem *node);
+    void setItem(const ResourceTreeItem *node);
 
     bool play();
     W_SLOT(play, W_Access::Private);

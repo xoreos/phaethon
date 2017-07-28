@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
+#include "src/cline.h"
 #include "src/aurora/util.h"
 #include "src/common/filepath.h"
 #include "src/common/strutil.h"
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     QObject::connect(_resInfo, &ResourceInfoPanel::closeDirClicked, this, &MainWindow::slotCloseDir);
     QObject::connect(_resInfo, &ResourceInfoPanel::saveClicked, this, &MainWindow::saveItem);
     QObject::connect(_resInfo, &ResourceInfoPanel::exportTGAClicked, this, &MainWindow::exportTGA);
+    QObject::connect(_ui.actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
 
     // status bar
     _statusLabel = new QLabel(this);
@@ -63,10 +65,6 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     }
 }
 
-MainWindow::~MainWindow() {
-    delete _treeModel;
-}
-
 void MainWindow::slotLogAppend(const QString& text) {
     _ui.log->append(text);
 }
@@ -74,19 +72,16 @@ void MainWindow::slotLogAppend(const QString& text) {
 void MainWindow::setTreeViewModel(const QString &path) {
     if (_rootPath == path)
         return;
-
     _rootPath = path;
 
     _statusLabel->setText("Loading...");
     _statusLabel->repaint();
 
-    if (_treeModel) {
-        delete _treeModel;
-        _ui.treeView->setModel(nullptr);
-    }
+    _treeModel.reset();
+    _ui.treeView->setModel(nullptr);
 
-    _treeModel = new ResourceTree(path, _ui.treeView);
-    _ui.treeView->setModel(_treeModel);
+    _treeModel = std::make_unique<ResourceTree>(path, _ui.treeView);
+    _ui.treeView->setModel(_treeModel.get());
     _ui.treeView->show();
 
     _statusLabel->setText(tr("Root: %1").arg(path));
@@ -122,8 +117,7 @@ void MainWindow::slotCloseDir() {
 
     _rootPath = "";
 
-    if (_currentSelection)
-        _currentSelection = nullptr;
+    _currentItem = nullptr;
 
     _resInfo->clearLabels();
 
@@ -150,7 +144,7 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
 }
 
 void MainWindow::showPreviewPanel() {
-    switch (_currentSelection->getResourceType()) {
+    switch (_currentItem->getResourceType()) {
         case Aurora::kResourceImage:
             showPreviewPanel(_panelPreviewImage);
             break;
@@ -161,7 +155,7 @@ void MainWindow::showPreviewPanel() {
 
         default:
         {
-            switch (_currentSelection->getFileType()) {
+            switch (_currentItem->getFileType()) {
                 case Aurora::FileType::kFileTypeICO:
                     showPreviewPanel(_panelPreviewImage);
                     break;
@@ -181,17 +175,17 @@ void MainWindow::showPreviewPanel() {
 
 void MainWindow::selection(const QItemSelection &selected, const QItemSelection &deselected) {
     const QModelIndex index = selected.indexes().at(0);
-    _currentSelection = _treeModel->getNode(index);
-    _resInfo->update(_currentSelection);
+    _currentItem = _treeModel->getNode(index);
+    _resInfo->update(_currentItem);
     showPreviewPanel();
 
-    _panelPreviewImage->setItem(_currentSelection);
-    _panelPreviewText->setItem(_currentSelection);
-    _panelPreviewSound->setItem(_currentSelection);
+    _panelPreviewImage->setItem(_currentItem);
+    _panelPreviewText->setItem(_currentItem);
+    _panelPreviewSound->setItem(_currentItem);
 }
 
 void MainWindow::saveItem() {
-    if (!_currentSelection)
+    if (!_currentItem)
         return;
 
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -202,7 +196,7 @@ void MainWindow::saveItem() {
         return;
 
     try {
-        QScopedPointer<Common::SeekableReadStream> res(_currentSelection->getResourceData());
+        QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
         Common::WriteFile file(Common::UString(fileName.toStdString().c_str()));
 
@@ -215,10 +209,10 @@ void MainWindow::saveItem() {
 }
 
 void MainWindow::exportTGA() {
-    if (!_currentSelection)
+    if (!_currentItem)
         return;
 
-    assert(_currentSelection->getResourceType() == Aurora::kResourceImage);
+    assert(_currentItem->getResourceType() == Aurora::kResourceImage);
 
     QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save TGA file"), "",
@@ -228,13 +222,19 @@ void MainWindow::exportTGA() {
         return;
 
     try {
-        QScopedPointer<Images::Decoder> image(_currentSelection->getImage());
+        QScopedPointer<Images::Decoder> image(_currentItem->getImage());
 
         image->dumpTGA(Common::UString(fileName.toStdString().c_str()));
 
     } catch (Common::Exception &e) {
         Common::printException(e, "WARNING: ");
     }
+}
+
+void MainWindow::slotAbout() {
+    QString msg = createVersionText().toQString();
+
+    QMessageBox::about(this, "About", msg);
 }
 
 } // End of namespace GUI

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>839</width>
-    <height>146</height>
+    <height>149</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -159,17 +159,11 @@
      <widget class="QPushButton" name="bLoadKotorDir">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>100</y>
-        <width>111</width>
-        <height>31</height>
+        <x>340</x>
+        <y>110</y>
+        <width>101</width>
+        <height>21</height>
        </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
       </property>
       <property name="text">
        <string>Load kotor dir</string>
@@ -178,17 +172,11 @@
      <widget class="QPushButton" name="bSave">
       <property name="geometry">
        <rect>
-        <x>4</x>
-        <y>102</y>
-        <width>96</width>
-        <height>31</height>
+        <x>10</x>
+        <y>110</y>
+        <width>91</width>
+        <height>21</height>
        </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
       </property>
       <property name="text">
        <string>Save</string>
@@ -197,17 +185,11 @@
      <widget class="QPushButton" name="bCloseDir">
       <property name="geometry">
        <rect>
-        <x>500</x>
-        <y>100</y>
-        <width>80</width>
-        <height>31</height>
+        <x>450</x>
+        <y>110</y>
+        <width>71</width>
+        <height>21</height>
        </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
       </property>
       <property name="text">
        <string>Close dir</string>
@@ -216,10 +198,10 @@
      <widget class="QPushButton" name="bExportTGA">
       <property name="geometry">
        <rect>
-        <x>106</x>
-        <y>102</y>
-        <width>111</width>
-        <height>31</height>
+        <x>112</x>
+        <y>110</y>
+        <width>101</width>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">

@@ -17,14 +17,14 @@ class PanelPreviewText : public QFrame
     W_OBJECT(PanelPreviewText)
 
 private:
-    ResourceTreeItem *_currentItem;
+    const ResourceTreeItem *_currentItem;
     Ui::PreviewText _ui;
 
 public:
     PanelPreviewText(QWidget *parent = 0);
 
     void setText(QString text);
-    void setItem(ResourceTreeItem *node);
+    void setItem(const ResourceTreeItem *node);
 };
 
 #endif // PANELPREVIEWTEXT_H

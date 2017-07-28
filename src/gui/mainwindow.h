@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "verdigris/wobjectdefs.h"
+#include <memory>
 
 #include <QMainWindow>
 #include <QFileSystemModel>
@@ -10,6 +10,8 @@
 #include <QProgressBar>
 #include <QItemSelection>
 #include <QPlainTextEdit>
+
+#include "verdigris/wobjectdefs.h"
 
 #include "src/common/ustring.h"
 #include "src/gui/panelpreviewempty.h"
@@ -33,7 +35,6 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = 0, const char *version = "", const QSize &size = QSize(800, 600), const Common::UString &path = "");
-    ~MainWindow();
 
 private /*slots*/:
     void setTreeViewModel(const QString &path);
@@ -57,6 +58,9 @@ private /*slots*/:
     void exportTGA();
     W_SLOT(exportTGA, W_Access::Private)
 
+    void slotAbout();
+    W_SLOT(slotAbout, W_Access::Private)
+
     void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
@@ -68,8 +72,8 @@ private:
 
     Ui::MainWindow _ui;
     QLabel *_statusLabel;
-    ResourceTreeItem *_currentSelection;
-    ResourceTree *_treeModel;
+    const ResourceTreeItem *_currentItem;
+    std::unique_ptr<ResourceTree> _treeModel;
     QString _rootPath;
 
     // resource preview

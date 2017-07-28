@@ -147,7 +147,7 @@ int ResourceTree::columnCount(const QModelIndex &parent) const {
 }
 
 QModelIndex ResourceTree::parent(const QModelIndex &index) const {
-    ResourceTreeItem *parent = getNode(index)->parent();
+    ResourceTreeItem *parent = getNode(index)->getParent();
     if (parent == _root)
         return QModelIndex();
 
@@ -237,7 +237,7 @@ void ResourceTree::insertNodes(int position, QList<ResourceTreeItem*> &nodes, co
 }
 
 Aurora::Archive *ResourceTree::getArchive(const QString &path) {
-    ArchiveMap::iterator a = _archives.find(path.toStdString().c_str());
+    ArchiveMap::iterator a = _archives.find(path);
     if (a != _archives.end())
         return a->second;
 
@@ -277,14 +277,14 @@ Aurora::Archive *ResourceTree::getArchive(const QString &path) {
 
 #define USTR(x) (Common::UString((x).toStdString()))
 
-Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const Common::UString &file) {
+Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
     KEYDataFileMap::iterator d = _keyDataFiles.find(file);
     if (d != _keyDataFiles.end())
         return d->second;
 
-    Common::UString path = Common::FilePath::normalize(USTR(_root->getPath() + "/" + file.toQString()));
+    Common::UString path = Common::FilePath::normalize(USTR(_root->getPath() + "/" + file));
     if (path.empty())
-        throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file.toQString()));
+        throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file));
 
     Aurora::FileType type = TypeMan.getFileType(file);
 
@@ -313,7 +313,7 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
 
             //GetStatusBar()->PushStatusText(Common::UString("Loading data file") + dataFiles[i] + "..."); // fixme
 
-            Aurora::KEYDataFile *dataFile = getKEYDataFile(dataFiles[i]);
+            Aurora::KEYDataFile *dataFile = getKEYDataFile(dataFiles[i].toQString());
             key.addDataFile(i, dataFile);
 
             //GetStatusBar()->PopStatusText(); // fixme

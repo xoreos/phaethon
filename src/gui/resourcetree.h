@@ -1,13 +1,13 @@
 #ifndef RESOURCETREE_H
 #define RESOURCETREE_H
 
-#include "verdigris/wobjectdefs.h"
-
 #include <QStandardItemModel>
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QModelIndex>
 #include <QVariant>
+
+#include "verdigris/wobjectdefs.h"
 
 #include "src/aurora/keyfile.h"
 #include "src/common/ptrmap.h"
@@ -16,18 +16,15 @@
 namespace GUI
 {
 
-class MainWindow;
-
 class ResourceTree : public QStandardItemModel {
     W_OBJECT(ResourceTree)
 
 private:
     ResourceTreeItem *_root;
     QFileIconProvider *_iconProvider;
-    MainWindow *_mainWindow;
 
-    typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
-    typedef Common::PtrMap<Common::UString, Aurora::KEYDataFile> KEYDataFileMap;
+    typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
+    typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
 
     ArchiveMap _archives;
     KEYDataFileMap _keyDataFiles;
@@ -55,7 +52,7 @@ public:
     void setRootPath(QString path);
     void populate(const QString& path, ResourceTreeItem *parentNode);
     Aurora::Archive *getArchive(const QString &path);
-    Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
+    Aurora::KEYDataFile *getKEYDataFile(const QString &file);
     void loadKEYDataFiles(Aurora::KEYFile &key);
 };
 

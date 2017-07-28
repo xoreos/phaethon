@@ -37,7 +37,7 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
     _ui.fitShrinkWidth->setEnabled(false);
 }
 
-void PanelPreviewImage::setItem(ResourceTreeItem *item) {
+void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
     _scaleFactor = 1.0;
     _originalPixmap = QPixmap();
     _imageLabel->setPixmap(_originalPixmap);

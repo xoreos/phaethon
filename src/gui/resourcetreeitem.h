@@ -49,32 +49,32 @@ public:
     ~ResourceTreeItem();
 
     /** Model structure. **/
-    bool hasChildren();
+    const bool hasChildren() const;
     bool insertChild(int position, ResourceTreeItem *child);
-    int childCount();
-    int row();
-    ResourceTreeItem *childAt(int row);
-    ResourceTreeItem *parent();
+    const int childCount() const;
+    const int row() const;
+    ResourceTreeItem *childAt(int row) const;
+    ResourceTreeItem *getParent() const;
     void appendChild(ResourceTreeItem *child);
     void setParent(ResourceTreeItem *parent);
 
     /** File info. **/
-    Aurora::FileType getFileType();
-    Aurora::ResourceType getResourceType();
-    bool isDir();
-    QFileInfo getFileInfo();
-    qint64 getSize();
-    QString &getPath();
-    QString getName();
-    Source getSource();
+    const Aurora::FileType getFileType() const;
+    const Aurora::ResourceType getResourceType() const;
+    const bool isDir() const;
+    const QFileInfo getFileInfo() const;
+    const qint64 getSize() const;
+    const QString getPath() const;
+    const QString getName() const;
+    const Source getSource() const;
 
     /** Resource information. **/
     ArchiveInfo &getData();
     Common::SeekableReadStream *getResourceData() const;
-    Images::Decoder *getImage();
-    Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
+    Images::Decoder *getImage() const;
+    Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type) const;
     Sound::AudioStream *getAudioStream() const;
-    uint64 getSoundDuration() const;
+    const uint64 getSoundDuration() const;
 
 private:
     /** Model information. **/

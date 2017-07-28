@@ -14,7 +14,7 @@ void PanelPreviewText::setText(QString text)
     _ui.textEdit->setText(text);
 }
 
-void PanelPreviewText::setItem(ResourceTreeItem *item) {
+void PanelPreviewText::setItem(const ResourceTreeItem *item) {
     if (item == _currentItem)
         return;
 
