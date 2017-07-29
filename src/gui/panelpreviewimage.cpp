@@ -2,6 +2,7 @@
 
 #include "verdigris/wobjectimpl.h"
 
+#include "src/common/system.h"
 #include "src/gui/panel.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"
@@ -10,7 +11,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewImage)
 
-PanelPreviewImage::PanelPreviewImage(QWidget *parent)
+PanelPreviewImage::PanelPreviewImage(QWidget *UNUSED(parent))
     : _imageLabel(new QLabel(this))
     , _scaleFactor(1)
 {

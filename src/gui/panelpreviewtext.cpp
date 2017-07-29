@@ -1,5 +1,6 @@
 #include "verdigris/wobjectimpl.h"
 
+#include "src/common/system.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/resourcetreeitem.h"
 
@@ -7,7 +8,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewText)
 
-PanelPreviewText::PanelPreviewText(QWidget *parent)
+PanelPreviewText::PanelPreviewText(QWidget *UNUSED(parent))
 {
     _ui.setupUi(this);
 }

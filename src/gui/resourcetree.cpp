@@ -11,6 +11,7 @@
 #include "src/aurora/zipfile.h"
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
+#include "src/common/system.h"
 #include "src/gui/mainwindow.h"
 #include "src/gui/statusbar.h"
 #include "src/gui/resourcetree.h"
@@ -160,7 +161,7 @@ int ResourceTree::rowCount(const QModelIndex &parent) const {
     return getItem(parent)->childCount();
 }
 
-int ResourceTree::columnCount(const QModelIndex &parent) const {
+int ResourceTree::columnCount(const QModelIndex &UNUSED(parent)) const {
     return 1;
 }
 
@@ -181,7 +182,7 @@ QModelIndex ResourceTree::index(int row, int column, const QModelIndex &parent) 
     return createIndex(row, column, child);
 }
 
-QVariant ResourceTree::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant ResourceTree::headerData(int UNUSED(section), Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return _root->getName();
 

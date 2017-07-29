@@ -1,5 +1,6 @@
 #include "verdigris/wobjectimpl.h"
 
+#include "src/common/system.h"
 #include "src/common/util.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/resourcetreeitem.h"
@@ -8,7 +9,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewSound)
 
-PanelPreviewSound::PanelPreviewSound(QWidget *parent)
+PanelPreviewSound::PanelPreviewSound(QWidget *UNUSED(parent))
 {
     _ui.setupUi(this);
     _ui.volSlider->setMaximum(100);
