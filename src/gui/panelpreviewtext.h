@@ -28,6 +28,9 @@ public:
 
     void setText(const QString &text);
     void setItem(const ResourceTreeItem *item);
+
+    void log(const QString &text)
+    W_SIGNAL(log, text)
 };
 
 } // End of namespace GUI

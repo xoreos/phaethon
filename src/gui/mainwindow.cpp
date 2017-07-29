@@ -51,13 +51,14 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     QObject::connect(_ui.actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
     QObject::connect(_ui.actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
     QObject::connect(_resInfo, &PanelResourceInfo::loadModel, this, &MainWindow::setTreeViewModel);
-    QObject::connect(_resInfo, &PanelResourceInfo::logAppend, this, &MainWindow::slotLogAppend);
+    QObject::connect(_resInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
     QObject::connect(_resInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
     QObject::connect(_resInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
     QObject::connect(_resInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
     QObject::connect(_resInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
     QObject::connect(_resInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
     QObject::connect(_ui.actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
+    QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
 
     _ui.actionAbout->setShortcut(QKeySequence(tr("F1")));
 
@@ -80,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 MainWindow::~MainWindow() {
 }
 
-void MainWindow::slotLogAppend(const QString &text) {
+void MainWindow::slotLog(const QString &text) {
     _ui.log->append(text);
 }
 

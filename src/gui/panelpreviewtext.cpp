@@ -26,8 +26,10 @@ void PanelPreviewText::setItem(const ResourceTreeItem *item) {
         item->getFileType() != Aurora::FileType::kFileTypeINI)
         return;
 
-    if (item->getSize() > 1000000) // 1 MB
-        return; // fixme: exception
+    if (item->getSize() > 1000000) { // 1 MB
+        emit log(tr("ERROR: File size too large for '%1' (> 1MB)").arg(item->getName()));
+        return;
+    }
 
     _currentItem = item;
 
@@ -36,8 +38,6 @@ void PanelPreviewText::setItem(const ResourceTreeItem *item) {
     QTextStream textStream(&file);
 
     setText(textStream.readAll());
-
-    return; // fixme: exception
 }
 
 } // End of namespace GUI

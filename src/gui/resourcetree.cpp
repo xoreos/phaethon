@@ -343,7 +343,7 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
         } catch (Common::Exception &e) {
             e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());
 
-            //            GetStatusBar()->PopStatusText(); // fixme
+            _mainWindow->status()->pop();
             Common::printException(e, "WARNING: ");
         }
     }

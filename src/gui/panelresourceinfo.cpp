@@ -56,7 +56,7 @@ void PanelResourceInfo::slotLoadKotorDir() {
     if (dir.exists())
         emit loadModel(myKotorPath);
     else
-        emit logAppend("Failed: /home/mike/kotor is doesn't exist.");
+        emit log("ERROR: /home/mike/kotor doesn't exist.");
 }
 
 void PanelResourceInfo::slotCloseDir() {

@@ -30,8 +30,8 @@ public /*signals*/:
     void loadModel(const QString &path)
     W_SIGNAL(loadModel, path)
 
-    void logAppend(const QString &text)
-    W_SIGNAL(logAppend, text)
+    void log(const QString &text)
+    W_SIGNAL(log, text)
 
     void closeDirClicked()
     W_SIGNAL(closeDirClicked)

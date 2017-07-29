@@ -49,7 +49,7 @@ private /*slots*/:
     void slotOpenFile();
     void slotCloseDir();
     void slotQuit();
-    void slotLogAppend(const QString &text);
+    void slotLog(const QString &text);
     void saveItem();
     void exportTGA();
     void exportBMUMP3();
