@@ -153,6 +153,8 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
                     throw Common::Exception("No archive opened");
 
                 return _data->_archive.data->getResource(_data->_archive.index);
+            default:
+                throw Common::Exception("kSourceArchive is not handled by getResourceData");
         }
     } catch (Common::Exception &e) {
         e.add("Failed to get resource data for resource \"%s\"", _name.toStdString().c_str());
