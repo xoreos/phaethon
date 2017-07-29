@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QFileDialog>
+#include <QPushButton>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -40,9 +41,6 @@ PanelResourceInfo::PanelResourceInfo(QWidget *parent)
     QObject::connect(_btnExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
     QObject::connect(_btnExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
     QObject::connect(_btnExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
-
-    QObject::connect(_ui.bLoadKotorDir, &QPushButton::clicked, this, &PanelResourceInfo::slotLoadKotorDir);
-    QObject::connect(_ui.bCloseDir, &QPushButton::clicked, this, &PanelResourceInfo::slotCloseDir);
 }
 
 Ui::PanelResourceInfo &PanelResourceInfo::getUi() {
@@ -50,19 +48,6 @@ Ui::PanelResourceInfo &PanelResourceInfo::getUi() {
 }
 
 /** SLOTS **/
-void PanelResourceInfo::slotLoadKotorDir() {
-    QString myKotorPath("/home/mike/kotor");
-    QDir dir(myKotorPath);
-    if (dir.exists())
-        emit loadModel(myKotorPath);
-    else
-        emit log("ERROR: /home/mike/kotor doesn't exist.");
-}
-
-void PanelResourceInfo::slotCloseDir() {
-    emit closeDirClicked();
-}
-
 void PanelResourceInfo::slotSave() {
     emit saveClicked();
 }
@@ -177,7 +162,6 @@ void PanelResourceInfo::clearLabels() {
 }
 
 void PanelResourceInfo::setButtonsForClosedDir() {
-    _ui.bCloseDir->setEnabled(false);
     _btnExportRaw->setVisible(false);
     _btnExportBMUMP3->setVisible(false);
     _btnExportWAV->setVisible(false);

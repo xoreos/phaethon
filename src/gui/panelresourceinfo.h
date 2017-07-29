@@ -54,10 +54,6 @@ public /*slots*/:
     void slotExportBMUMP3();
     void slotExportWAV();
 
-private /*slots*/:
-    void slotLoadKotorDir();
-    void slotCloseDir();
-
 private:
     Ui::PanelResourceInfo _ui;
 

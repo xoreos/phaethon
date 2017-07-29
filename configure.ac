@@ -179,7 +179,10 @@ AX_CHECK_LZMA(5, 0, 3, 2, , AC_MSG_ERROR([liblzma(>= 5.0.5) is required and coul
 
 dnl Graphic libraries
 AX_CHECK_QT5(5.7.1, , AC_MSG_ERROR([Qt5 (>= 5.7.1, modules Core, Gui, Multimedia, Widgets) is required and could not be found!]))
-AC_CHECK_PROGS(UIC, [uic])
+AC_CHECK_PROGS(UIC, [uic-qt5 uic])
+if test -z "$UIC"; then
+   AC_MSG_ERROR([Qt utility program uic is required.])
+fi
 
 dnl Sound libraries
 AX_CHECK_AL( , AC_MSG_ERROR([OpenAL or OpenAL Soft (>= 1.12) is required and could not be found!]))

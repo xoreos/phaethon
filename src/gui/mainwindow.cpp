@@ -70,7 +70,6 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     if (path.empty()) {
         // nothing is open yet
         _ui.actionClose->setEnabled(false);
-        _resInfo->getUi().bCloseDir->setEnabled(false);
     }
     else {
         _rootPath = path.toQString();
@@ -112,7 +111,6 @@ void MainWindow::setTreeViewModel(const QString &path) {
 
     _ui.log->append(tr("Set root: %1").arg(path));
 
-    _resInfo->getUi().bCloseDir->setEnabled(true);
     _ui.actionClose->setEnabled(true);
 }
 

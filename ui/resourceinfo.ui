@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>839</width>
-    <height>149</height>
+    <width>837</width>
+    <height>147</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,17 +41,10 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="3">
-       <widget class="QPushButton" name="bCloseDir">
-        <property name="text">
-         <string>Close dir</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout"/>
       </item>
-      <item row="0" column="0" colspan="4">
+      <item row="0" column="0" colspan="3">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QLabel" name="resLabelName">
@@ -158,13 +151,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="bLoadKotorDir">
-        <property name="text">
-         <string>Load kotor dir</string>
-        </property>
-       </widget>
       </item>
       <item row="1" column="1">
        <spacer name="horizontalSpacer">
