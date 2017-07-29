@@ -306,7 +306,7 @@ Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
 
     Common::UString path = Common::FilePath::normalize(USTR(_rootPath + "/" + file));
     if (path.empty())
-        throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file));
+        throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file).toStdString().c_str());
 
     Aurora::FileType type = TypeMan.getFileType(file);
 
