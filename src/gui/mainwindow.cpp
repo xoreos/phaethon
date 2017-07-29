@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
 {
     _ui.setupUi(this);
 
-//    resize(size);
+    resize(size);
 
     // preview
     _panelPreviewEmpty = new PanelPreviewEmpty();
