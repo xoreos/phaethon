@@ -26,11 +26,12 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, const Common::UString &path)
+MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const Common::UString &path)
     : QMainWindow(parent)
 {
     _ui.setupUi(this);
 
+    setWindowTitle(title);
     resize(size);
 
     // preview
@@ -427,7 +428,7 @@ void MainWindow::exportWAV() {
 
 void MainWindow::slotAbout() {
     QString msg = createVersionText().toQString();
-    QMessageBox::about(this, "About", msg);
+    QMessageBox::about(this, "About Phaethon", msg);
 }
 
 std::shared_ptr<StatusBar> MainWindow::status() {

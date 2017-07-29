@@ -38,7 +38,7 @@ class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
 
 public:
-    MainWindow(QWidget *parent = 0, const char *version = "", const QSize &size = QSize(800, 600), const Common::UString &path = "");
+    MainWindow(QWidget *parent, const char *title, const QSize &size, const Common::UString &path);
     ~MainWindow();
 
     std::shared_ptr<StatusBar> status();

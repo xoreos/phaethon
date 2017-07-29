@@ -64,7 +64,7 @@ Phaethon::Phaethon(const Common::UString &path) : _path(path) {
 	char *argv[] = {empty}; // must be at least 1
 	QApplication app(argc, argv);
 
-	GUI::MainWindow mainWindow;
+	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path);
 	mainWindow.show();
 
 	app.exec();
