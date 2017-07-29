@@ -30,7 +30,7 @@ void PanelPreviewText::setItem(const ResourceTreeItem *item) {
 
     _currentItem = item;
 
-    QFile file(item->getFileInfo().canonicalFilePath());
+    QFile file(item->getPath());
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream textStream(&file);
 

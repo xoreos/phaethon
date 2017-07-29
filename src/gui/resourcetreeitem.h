@@ -26,79 +26,71 @@ enum Source {
     kSourceArchiveFile = 3
 };
 
-// can't foward declare nested types
-// so it has to be out here (for treemodel.h)
-struct ArchiveInfo {
-    Aurora::Archive *archive;
-    bool addedArchiveMembers;
-    uint32 archiveIndex;
+struct Archive {
+    Aurora::Archive *data;
+    bool addedMembers;
+    uint32 index;
+};
+
+struct ItemData {
+    ItemData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource);
+    ItemData(const QString &fullPath, const QFileInfo &info);
+
+    QString _fullPath; // used for QFileInfo and item info e.g. logging
+    bool _isDir;
+    Source _source;
+    Aurora::FileType _fileType;
+    Aurora::ResourceType _resourceType;
+    qint64 _size;
+
+    mutable bool _triedDuration;
+    mutable uint64 _duration;
+
+    Archive _archive;
 };
 
 class ResourceTreeItem {
 public:
-    struct FileInfo {
-        QString fullPath; // used for QFileInfo and item info e.g. logging
-        bool isDir;
-        Source source;
-        Aurora::FileType fileType;
-        Aurora::ResourceType resourceType;
-        qint64 size;
-    };
-
-    struct SoundInfo {
-        mutable bool triedDuration;
-        mutable uint64 duration;
-    };
-
-
-    ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
+    ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
     ResourceTreeItem(QString fullPath, ResourceTreeItem *parent);
     ~ResourceTreeItem();
 
     /** Model structure. **/
-    const bool hasChildren() const;
+    bool hasChildren() const;
     bool insertChild(int position, ResourceTreeItem *child);
-    const int childCount() const;
-    const int row() const;
+    int childCount() const;
+    int row() const;
     ResourceTreeItem *childAt(int row) const;
     ResourceTreeItem *getParent() const;
     void appendChild(ResourceTreeItem *child);
     void setParent(ResourceTreeItem *parent);
 
     /** Both. **/
-    const QString getData() const; // doubles as filename
+    const QString &getName() const; // doubles as filename
 
     /** File info. **/
-    const Aurora::FileType getFileType() const;
-    const Aurora::ResourceType getResourceType() const;
-    const bool isDir() const;
-    const QFileInfo getFileInfo() const;
-    const qint64 getSize() const;
-    const QString getPath() const;
-    const Source getSource() const;
+    Aurora::FileType getFileType() const;
+    Aurora::ResourceType getResourceType() const;
+    bool isDir() const;
+    qint64 getSize() const;
+    const QString &getPath() const;
+    Source getSource() const;
 
     /** Resource information. **/
-    ArchiveInfo &getArchive();
+    Archive &getArchive();
     Common::SeekableReadStream *getResourceData() const;
     Images::Decoder *getImage() const;
     Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type) const;
     Sound::AudioStream *getAudioStream() const;
-    const uint64 getSoundDuration() const;
+    uint64 getSoundDuration() const;
 
 private:
     /** Model information. **/
     ResourceTreeItem *_parent;
     QList<ResourceTreeItem*> _children;
+    QString _name; // The filename. It's what the tree model displays.
 
-    /** Both. **/
-    QString _data; // The filename. It's what the model displays.
-
-    /** File information. **/
-    FileInfo _fileInfo;
-
-    /** Resource information. **/
-    SoundInfo _soundInfo;
-    ArchiveInfo _archiveInfo;
+    ItemData *_data;
 };
 
 } // End of namespace GUI

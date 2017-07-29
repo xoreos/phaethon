@@ -144,7 +144,7 @@ void PanelResourceInfo::setLabels(const ResourceTreeItem *item) {
     QString labelFileType = "File type: ";
     QString labelResType  = "Resource type: ";
 
-    labelName += item->getData();
+    labelName += item->getName();
 
     if (item->getSource() == Source::kSourceDirectory) {
 

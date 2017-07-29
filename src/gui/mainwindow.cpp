@@ -219,7 +219,7 @@ void MainWindow::saveItem() {
     if (fileName.isEmpty())
         return;
 
-    _status->push(constructStatus("Saving", _currentItem->getData(), fileName));
+    _status->push(constructStatus("Saving", _currentItem->getName(), fileName));
     BOOST_SCOPE_EXIT((&_status)) {
         _status->pop();
     } BOOST_SCOPE_EXIT_END
@@ -250,7 +250,7 @@ void MainWindow::exportTGA() {
     if (fileName.isEmpty())
         return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getData(), fileName));
+    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
     BOOST_SCOPE_EXIT((&_status)) {
         _status->pop();
     } BOOST_SCOPE_EXIT_END
@@ -285,7 +285,7 @@ void MainWindow::exportBMUMP3() {
 
     const QString title = "Save MP3 file";
     const QString mask  = "MP3 file (*.mp3)|*.mp3";
-    const QString def   = TypeMan.setFileType(USTR(_currentItem->getData()), Aurora::kFileTypeMP3).toQString();
+    const QString def   = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeMP3).toQString();
 
     QString fileName = QFileDialog::getSaveFileName(this,
             title, def,
@@ -294,7 +294,7 @@ void MainWindow::exportBMUMP3() {
     if (fileName.isEmpty())
         return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getData(), fileName));
+    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
     BOOST_SCOPE_EXIT((&_status)) {
         _status->pop();
     } BOOST_SCOPE_EXIT_END
@@ -396,7 +396,7 @@ void MainWindow::exportWAV() {
 
     const QString title = "Save PCM WAV file";
     const QString mask  = "WAV file (*.wav)|*.wav";
-    const QString def   = TypeMan.setFileType(USTR(_currentItem->getData()), Aurora::kFileTypeWAV).toQString();
+    const QString def   = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeWAV).toQString();
 
     QString fileName = QFileDialog::getSaveFileName(this,
             title, def,
@@ -405,7 +405,7 @@ void MainWindow::exportWAV() {
     if (fileName.isEmpty())
         return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getData(), fileName));
+    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
     BOOST_SCOPE_EXIT((&_status)) {
         _status->pop();
     } BOOST_SCOPE_EXIT_END

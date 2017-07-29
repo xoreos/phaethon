@@ -4,59 +4,70 @@
 
 namespace GUI {
 
-ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
+// Data for items within an archive
+ItemData::ItemData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource) {
+    _fullPath     = parentPath + "/" + fileName;
+    _isDir        = false;
+    _source       = kSourceArchiveFile;
+    _fileType     = TypeMan.getFileType(fileName);
+    _resourceType = TypeMan.getResourceType(fileName);
+    _size         = archiveData->getResourceSize(resource.index);
+
+    _archive.data         = archiveData;
+    _archive.addedMembers = false;
+    _archive.index        = resource.index;
+
+    _triedDuration = _resourceType != Aurora::kResourceSound;
+    _duration      = Sound::RewindableAudioStream::kInvalidLength;
+}
+
+// Data for items which are actually on the filesystem
+ItemData::ItemData(const QString &fullPath, const QFileInfo &info) {
+    _fullPath = fullPath;
+    _source   = info.isDir() ? kSourceDirectory : kSourceFile;
+    _isDir    = info.isDir();
+    _size     = _isDir ? Common::kFileInvalid : info.size();
+    if (_isDir) {
+        _fileType = Aurora::kFileTypeNone;
+        _resourceType = Aurora::kResourceNone;
+    }
+    else {
+        _fileType = TypeMan.getFileType(info.fileName());
+        _resourceType = TypeMan.getResourceType(info.fileName());
+    }
+
+    _archive.data         = 0;
+    _archive.addedMembers = false;
+    _archive.index        = 0xFFFFFFFF;
+
+    _triedDuration = _resourceType != Aurora::kResourceSound;
+    _duration = Sound::RewindableAudioStream::kInvalidLength;
+}
+
+// Items within an archive
+ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
     : _parent(parent)
 {
     QString fileName = TypeMan.setFileType(resource.name, resource.type).toQString();
+    _name = fileName;
 
-    _data = fileName;
-
-    _fileInfo.fullPath     = parent->getPath() + "/" + fileName;
-    _fileInfo.isDir        = false;
-    _fileInfo.source       = kSourceArchiveFile;
-    _fileInfo.fileType     = TypeMan.getFileType(fileName);
-    _fileInfo.resourceType = TypeMan.getResourceType(fileName);
-    _fileInfo.size         = archive->getResourceSize(resource.index);
-
-    _archiveInfo.archive             = archive;
-    _archiveInfo.addedArchiveMembers = false;
-    _archiveInfo.archiveIndex        = resource.index;
-
-    _soundInfo.triedDuration = _fileInfo.resourceType != Aurora::kResourceSound;
-    _soundInfo.duration      = Sound::RewindableAudioStream::kInvalidLength;
+    _data = new ItemData(parent->getPath(), fileName, archiveData, resource);
 }
 
+// Items which are actually on the filesystem
 ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
     : _parent(parent)
 {
     QFileInfo info(fullPath);
+    _name = info.fileName();
 
-    _data = info.fileName();
-
-    _fileInfo.fullPath = fullPath;
-    _fileInfo.source   = info.isDir() ? kSourceDirectory : kSourceFile;
-    _fileInfo.isDir    = info.isDir();
-    _fileInfo.size     = _fileInfo.isDir ? Common::kFileInvalid : info.size();
-    if (_fileInfo.isDir) {
-        _fileInfo.fileType = Aurora::kFileTypeNone;
-        _fileInfo.resourceType = Aurora::kResourceNone;
-    }
-    else {
-        _fileInfo.fileType = TypeMan.getFileType(info.fileName());
-        _fileInfo.resourceType = TypeMan.getResourceType(info.fileName());
-    }
-
-    _archiveInfo.archive = 0;
-    _archiveInfo.addedArchiveMembers = false;
-    _archiveInfo.archiveIndex = 0xFFFFFFFF;
-
-    _soundInfo.triedDuration = _fileInfo.resourceType != Aurora::kResourceSound;
-    _soundInfo.duration = Sound::RewindableAudioStream::kInvalidLength;
+    _data = new ItemData(fullPath, info);
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
     qDeleteAll(_children);
     _children.clear();
+    delete _data;
 }
 
 void ResourceTreeItem::appendChild(ResourceTreeItem *child) {
@@ -76,22 +87,14 @@ ResourceTreeItem *ResourceTreeItem::childAt(int row) const {
     return _children.at(row);
 }
 
-const int ResourceTreeItem::childCount() const {
+int ResourceTreeItem::childCount() const {
     return _children.count();
 }
 
-const int ResourceTreeItem::row() const {
+int ResourceTreeItem::row() const {
     if (_parent)
         return _parent->_children.indexOf(const_cast<ResourceTreeItem*>(this));
     return 0;
-}
-
-const bool ResourceTreeItem::isDir() const {
-    return _fileInfo.isDir;
-}
-
-const QString ResourceTreeItem::getPath() const {
-    return _fileInfo.fullPath;
 }
 
 ResourceTreeItem *ResourceTreeItem::getParent() const {
@@ -102,51 +105,57 @@ void ResourceTreeItem::setParent(ResourceTreeItem *parent) {
     _parent = parent;
 }
 
-const QString ResourceTreeItem::getData() const {
-    return _data;
-}
-
-const QFileInfo ResourceTreeItem::getFileInfo() const {
-    return QFileInfo(_fileInfo.fullPath);
-}
-
-const qint64 ResourceTreeItem::getSize() const {
-    return _fileInfo.size;
-}
-
-const Source ResourceTreeItem::getSource() const {
-    return _fileInfo.source;
-}
-
-const Aurora::FileType ResourceTreeItem::getFileType() const {
-    return _fileInfo.fileType;
-}
-
-const Aurora::ResourceType ResourceTreeItem::getResourceType() const {
-    return _fileInfo.resourceType;
-}
-
-const bool ResourceTreeItem::hasChildren() const {
+bool ResourceTreeItem::hasChildren() const {
     return _children.count();
+}
+
+const QString &ResourceTreeItem::getName() const {
+    return _name;
+}
+
+/* Data. */
+
+bool ResourceTreeItem::isDir() const {
+    return _data->_isDir;
+}
+
+const QString &ResourceTreeItem::getPath() const {
+    return _data->_fullPath;
+}
+
+qint64 ResourceTreeItem::getSize() const {
+    return _data->_size;
+}
+
+Source ResourceTreeItem::getSource() const {
+    return _data->_source;
+}
+
+Aurora::FileType ResourceTreeItem::getFileType() const {
+    return _data->_fileType;
+}
+
+Aurora::ResourceType ResourceTreeItem::getResourceType() const {
+    return _data->_resourceType;
 }
 
 Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
     try {
-        switch (_fileInfo.source) {
+        switch (_data->_source) {
             case kSourceDirectory:
                 throw Common::Exception("Can't get file data of a directory");
 
             case kSourceFile:
-                return new Common::ReadFile(_fileInfo.fullPath.toStdString().c_str());
+                return new Common::ReadFile(_data->_fullPath.toStdString().c_str());
 
             case kSourceArchiveFile:
-                if (!_archiveInfo.archive)
+                if (!_data->_archive.data)
                     throw Common::Exception("No archive opened");
 
-                return _archiveInfo.archive->getResource(_archiveInfo.archiveIndex);
+                return _data->_archive.data->getResource(_data->_archive.index);
         }
     } catch (Common::Exception &e) {
-        e.add("Failed to get resource data for resource \"%s\"", _data.toStdString().c_str());
+        e.add("Failed to get resource data for resource \"%s\"", _name.toStdString().c_str());
         throw;
     }
 
@@ -156,15 +165,15 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 
 Images::Decoder *ResourceTreeItem::getImage() const {
     if (getResourceType() != Aurora::kResourceImage)
-        throw Common::Exception("\"%s\" is not an image resource", getData().toStdString().c_str());
+        throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
 
     Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
     Images::Decoder *img = 0;
     try {
-        img = getImage(*res, _fileInfo.fileType);
+        img = getImage(*res, _data->_fileType);
     } catch (Common::Exception &e) {
-        e.add("Failed to get image from \"%s\"", getData().toStdString().c_str());
+        e.add("Failed to get image from \"%s\"", getName().toStdString().c_str());
         throw;
     }
 
@@ -221,31 +230,31 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
     return img;
 }
 
-ArchiveInfo &ResourceTreeItem::getArchive() {
-    return _archiveInfo;
+Archive &ResourceTreeItem::getArchive() {
+    return _data->_archive;
 }
 
-const uint64 ResourceTreeItem::getSoundDuration() const {
-    if (_soundInfo.triedDuration)
-        return _soundInfo.duration;
+uint64 ResourceTreeItem::getSoundDuration() const {
+    if (_data->_triedDuration)
+        return _data->_duration;
 
-    _soundInfo.triedDuration = true;
+    _data->_triedDuration = true;
 
     try {
         Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
 
         Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
-        _soundInfo.duration = rewSound.getDuration();
+        _data->_duration = rewSound.getDuration();
 
     } catch (...) {
     }
 
-    return _soundInfo.duration;
+    return _data->_duration;
 }
 
 Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
-    if (_fileInfo.resourceType != Aurora::kResourceSound)
-        throw Common::Exception("\"%s\" is not a sound resource", _data.toStdString().c_str());
+    if (_data->_resourceType != Aurora::kResourceSound)
+        throw Common::Exception("\"%s\" is not a sound resource", _name.toStdString().c_str());
 
     Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
@@ -253,7 +262,7 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
     try {
         sound = SoundMan.makeAudioStream(res.get());
     } catch (Common::Exception &e) {
-        e.add("Failed to get audio stream from \"%s\"", _data.toStdString().c_str());
+        e.add("Failed to get audio stream from \"%s\"", _name.toStdString().c_str());
         throw;
     }
 

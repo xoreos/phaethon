@@ -34,7 +34,7 @@ namespace Aurora {
 
 namespace GUI {
 
-struct ArchiveInfo;
+struct Archive;
 class MainWindow;
 class ResourceTreeItem;
 
@@ -69,8 +69,8 @@ public:
     ResourceTreeItem *getItem(const QModelIndex &index) const;
     bool canFetchMore(const QModelIndex &index) const override;
     void fetchMore(const QModelIndex &index);
-    void insertItemsFromArchive(ArchiveInfo &data, const QModelIndex &parent);
-    void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parent);
+    void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
+    void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     void setRootPath(const QString &path);

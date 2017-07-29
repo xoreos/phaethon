@@ -110,19 +110,19 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
     ResourceTreeItem *item = getItem(index);
 
     // We already added the archive members. Nothing to do
-    ArchiveInfo &archiveInfo = item->getArchive();
-    if (archiveInfo.addedArchiveMembers)
+    Archive &archive = item->getArchive();
+    if (archive.addedMembers)
         return;
 
-    _mainWindow->status()->push(tr("Loading archive") + item->getData() + "...");
+    _mainWindow->status()->push(tr("Loading archive") + item->getName() + "...");
     BOOST_SCOPE_EXIT((&_mainWindow)) {
         _mainWindow->status()->pop();
     } BOOST_SCOPE_EXIT_END
 
     // Load the archive, if necessary
-    if (!archiveInfo.archive) {
+    if (!archive.data) {
         try {
-            archiveInfo.archive = getArchive(item->getPath());
+            archive.data = getArchive(item->getPath());
         } catch (Common::Exception &e) {
             // If that fails, print the error and treat this archive as empty
 
@@ -133,9 +133,9 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
         }
     }
 
-    insertItemsFromArchive(archiveInfo, index);
+    insertItemsFromArchive(archive, index);
 
-    archiveInfo.addedArchiveMembers = true;
+    archive.addedMembers = true;
 }
 
 bool ResourceTree::hasChildren(const QModelIndex &index) const {
@@ -183,7 +183,7 @@ QModelIndex ResourceTree::index(int row, int column, const QModelIndex &parent) 
 
 QVariant ResourceTree::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return _root->getData();
+        return _root->getName();
 
     return QVariant();
 }
@@ -220,7 +220,7 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
     }
 
     if (role == Qt::DisplayRole)
-        return cur->getData();
+        return cur->getName();
 
     return QVariant();
 }
@@ -232,15 +232,15 @@ Qt::ItemFlags ResourceTree::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index);
 }
 
-void ResourceTree::insertItemsFromArchive(ArchiveInfo &data, const QModelIndex &parentIndex) {
+void ResourceTree::insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex) {
     QList<ResourceTreeItem*> items;
 
     ResourceTreeItem *parentItem = getItem(parent);
 
-    auto resources = data.archive->getResources();
+    auto resources = archive.data->getResources();
     for (auto r = resources.begin(); r != resources.end(); ++r)
     {
-        items << new ResourceTreeItem(data.archive, *r, parentItem);
+        items << new ResourceTreeItem(archive.data, *r, parentItem);
     }
 
     insertItems(0, items, parent);
