@@ -40,9 +40,18 @@ ResourceTree::~ResourceTree() {
 
 void ResourceTree::setRootPath(const QString &path) {
     _mainWindow->status()->push("Populating resource tree...");
-    ResourceTreeItem *top = new ResourceTreeItem(QFileInfo(path).canonicalFilePath(), _root);
-    _root->appendChild(top);
+
+    ResourceTreeItem *top = _root;
+    // If the root path is a directory, add a top level item
+    // with its name
+    auto info = QFileInfo(path);
+    if (info.isDir()) {
+        top = new ResourceTreeItem(info.canonicalFilePath(), _root);
+        _root->appendChild(top);
+    }
+
     populate(path, top);
+
     _mainWindow->status()->pop();
 }
 
