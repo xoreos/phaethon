@@ -63,8 +63,8 @@ private:
 
     QPushButton *_btnExportRaw;
     QPushButton *_btnExportBMUMP3;
-    QPushButton *_btnExportWAV;
     QPushButton *_btnExportTGA;
+    QPushButton *_btnExportWAV;
 };
 
 } // End of namespace GUI
