@@ -15,24 +15,36 @@
 #include "src/common/ustring.h"
 #include "src/sound/types.h"
 
-#include "ui/ui_previewsound.h"
-
 namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewSound : public QFrame
-{
+class PanelPreviewSound : public QFrame {
     W_OBJECT(PanelPreviewSound)
 
 private:
+    QGridLayout *_layoutGrid;
+    QHBoxLayout *_layoutHorizontal;
+    QHBoxLayout *_layoutHorizontal_2;
+    QVBoxLayout *_layoutVertical;
+
+    QSlider *_sliderPosition;
+    QSlider *_sliderVolume;
+
+    QLabel *_labelPosition;
+    QLabel *_labelDuration;
+    QLabel *_labelPercent;
+    QLabel *_labelVolume;
+
+    QPushButton *_buttonPlay;
+    QPushButton *_buttonPause;
+    QPushButton *_buttonStop;
+
     const ResourceTreeItem *_currentItem;
 
     Sound::ChannelHandle _sound;
     uint64 _duration;
     QTimer *_timer;
-
-    Ui::PreviewSound _ui;
 
 public:
     PanelPreviewSound(QWidget *parent = 0);
