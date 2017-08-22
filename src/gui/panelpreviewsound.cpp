@@ -22,18 +22,14 @@ PanelPreviewSound::PanelPreviewSound(QWidget *UNUSED(parent)) {
     _labelPercent = new QLabel(this);
     _labelDuration = new QLabel(this);
 
-    _buttonPlay = new QPushButton(this);
-    _buttonPause = new QPushButton(this);
-    _buttonStop = new QPushButton(this);
+    _buttonPlay = new QPushButton(tr("Play"), this);
+    _buttonPause = new QPushButton(tr("Pause"), this);
+    _buttonStop = new QPushButton(tr("Stop"), this);
 
     _sliderPosition = new QSlider(this);
     _sliderVolume = new QSlider(this);
 
     _sliderPosition->setOrientation(Qt::Horizontal);
-
-    _buttonPlay->setText(tr("Play"));
-    _buttonPause->setText(tr("Pause"));
-    _buttonStop->setText(tr("Stop"));
 
     _layoutHorizontal->addWidget(_labelPosition);
     _layoutHorizontal->addWidget(_labelPercent);

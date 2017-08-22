@@ -1,24 +1,38 @@
 #ifndef PANELRESOURCEINFO_H
 #define PANELRESOURCEINFO_H
 
+#include <QFrame>
+#include <QLabel>
+#include <QLayout>
 #include <QWidget>
 
 #include "verdigris/wobjectdefs.h"
-
-#include "ui/ui_resourceinfo.h"
 
 namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelResourceInfo : public QFrame
-{
+class PanelResourceInfo : public QFrame {
     W_OBJECT(PanelResourceInfo)
+
+private:
+    QVBoxLayout *_layoutVertical;
+    QHBoxLayout *_layoutHorizontal;
+    QVBoxLayout *_layoutVertical_2;
+
+    QPushButton *_buttonExportRaw;
+    QPushButton *_buttonExportBMUMP3;
+    QPushButton *_buttonExportTGA;
+    QPushButton *_buttonExportWAV;
+
+    QLabel *_labelName;
+    QLabel *_labelSize;
+    QLabel *_labelFileType;
+    QLabel *_labelResType;
 
 public:
     PanelResourceInfo(QWidget *parent = 0);
 
-    Ui::PanelResourceInfo &getUi();
     void showExportButtons(const GUI::ResourceTreeItem *item);
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
     void setLabels(const GUI::ResourceTreeItem *item);
@@ -53,14 +67,6 @@ public /*slots*/:
     void slotExportTGA();
     void slotExportBMUMP3();
     void slotExportWAV();
-
-private:
-    Ui::PanelResourceInfo _ui;
-
-    QPushButton *_btnExportRaw;
-    QPushButton *_btnExportBMUMP3;
-    QPushButton *_btnExportTGA;
-    QPushButton *_btnExportWAV;
 };
 
 } // End of namespace GUI

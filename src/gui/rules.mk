@@ -23,7 +23,6 @@ noinst_LTLIBRARIES += src/gui/libgui.la
 
 QT_UI_FORMS_BUILT = \
 	ui/ui_mainwindow.h \
-    ui/ui_resourceinfo.h \
     $(EMPTY)
 
 BUILT_SOURCES += $(QT_UI_FORMS_BUILT)

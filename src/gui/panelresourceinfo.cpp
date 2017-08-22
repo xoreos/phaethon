@@ -5,6 +5,7 @@
 #include "verdigris/wobjectimpl.h"
 
 #include "src/common/filepath.h"
+#include "src/common/system.h"
 #include "src/common/writefile.h"
 #include "src/gui/panelresourceinfo.h"
 #include "src/gui/resourcetreeitem.h"
@@ -13,38 +14,48 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelResourceInfo)
 
-PanelResourceInfo::PanelResourceInfo(QWidget *parent)
-    : QFrame(parent)
-    , _btnExportRaw(new QPushButton("Save", this))
-    , _btnExportBMUMP3(new QPushButton("Export as MP3", this))
-    , _btnExportTGA(new QPushButton("Export as TGA", this))
-    , _btnExportWAV(new QPushButton("Export as WAV",this))
-{
-    _ui.setupUi(this);
+PanelResourceInfo::PanelResourceInfo(QWidget *UNUSED(parent)) {
+    _layoutVertical = new QVBoxLayout(this);
+    _layoutVertical_2 = new QVBoxLayout();
+    _layoutHorizontal = new QHBoxLayout();
 
-    _ui.resLabelName->setText("Resource name:");
-    _ui.resLabelSize->setText("Size:");
-    _ui.resLabelFileType->setText("File type:");
-    _ui.resLabelResType->setText("Resource type:");
+    _buttonExportRaw = new QPushButton(tr("Save"), this);
+    _buttonExportBMUMP3 = new QPushButton(tr("Export as MP3"), this);
+    _buttonExportTGA = new QPushButton(tr("Export as TGA"), this);
+    _buttonExportWAV = new QPushButton(tr("Export as WAV"),this);
 
-    _ui.horizontalLayout->addWidget(_btnExportRaw);
-    _ui.horizontalLayout->addWidget(_btnExportBMUMP3);
-    _ui.horizontalLayout->addWidget(_btnExportTGA);
-    _ui.horizontalLayout->addWidget(_btnExportWAV);
+    _labelName = new QLabel(tr("Resource name :"), this);
+    _labelSize = new QLabel(tr("Size"), this);
+    _labelFileType = new QLabel(tr("File type:"), this);
+    _labelResType = new QLabel(tr("Resource type:"), this);
 
-    _btnExportRaw->setVisible(false);
-    _btnExportBMUMP3->setVisible(false);
-    _btnExportTGA->setVisible(false);
-    _btnExportWAV->setVisible(false);
+    _layoutVertical_2->addWidget(_labelName);
+    _layoutVertical_2->addWidget(_labelSize);
+    _layoutVertical_2->addWidget(_labelFileType);
+    _layoutVertical_2->addWidget(_labelResType);
 
-    QObject::connect(_btnExportRaw, &QPushButton::clicked, this, &PanelResourceInfo::slotSave);
-    QObject::connect(_btnExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
-    QObject::connect(_btnExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
-    QObject::connect(_btnExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
-}
+    _layoutHorizontal->addWidget(_buttonExportRaw);
+    _layoutHorizontal->addWidget(_buttonExportBMUMP3);
+    _layoutHorizontal->addWidget(_buttonExportTGA);
+    _layoutHorizontal->addWidget(_buttonExportWAV);
+    _layoutHorizontal->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-Ui::PanelResourceInfo &PanelResourceInfo::getUi() {
-    return _ui;
+    _layoutHorizontal->setSizeConstraint(QLayout::SetMinimumSize);
+
+    _layoutVertical->addLayout(_layoutVertical_2);
+    _layoutVertical->addLayout(_layoutHorizontal);
+
+    _layoutVertical->setContentsMargins(5, 5, 5, 5); // left margin a bit
+
+    _buttonExportRaw->setVisible(false);
+    _buttonExportBMUMP3->setVisible(false);
+    _buttonExportTGA->setVisible(false);
+    _buttonExportWAV->setVisible(false);
+
+    QObject::connect(_buttonExportRaw, &QPushButton::clicked, this, &PanelResourceInfo::slotSave);
+    QObject::connect(_buttonExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
+    QObject::connect(_buttonExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
+    QObject::connect(_buttonExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
 }
 
 /** SLOTS **/
@@ -83,10 +94,10 @@ void PanelResourceInfo::showExportButtons(const GUI::ResourceTreeItem *item) {
 }
 
 void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
-    _btnExportRaw->setVisible(enableRaw);
-    _btnExportTGA->setVisible(showTGA);
-    _btnExportBMUMP3->setVisible(showMP3);
-    _btnExportWAV->setVisible(showWAV);
+    _buttonExportRaw->setVisible(enableRaw);
+    _buttonExportTGA->setVisible(showTGA);
+    _buttonExportBMUMP3->setVisible(showMP3);
+    _buttonExportWAV->setVisible(showWAV);
 }
 
 const QString getSizeLabel(size_t size) {
@@ -148,24 +159,24 @@ void PanelResourceInfo::setLabels(const ResourceTreeItem *item) {
         labelResType  += getResTypeLabel(resType);
     }
 
-    _ui.resLabelName->setText(labelName);
-    _ui.resLabelSize->setText(labelSize);
-    _ui.resLabelFileType->setText(labelFileType);
-    _ui.resLabelResType->setText(labelResType);
+    _labelName->setText(labelName);
+    _labelSize->setText(labelSize);
+    _labelFileType->setText(labelFileType);
+    _labelResType->setText(labelResType);
 }
 
 void PanelResourceInfo::clearLabels() {
-    _ui.resLabelName->setText("Resource name:");
-    _ui.resLabelSize->setText("Size:");
-    _ui.resLabelFileType->setText("File type:");
-    _ui.resLabelResType->setText("Resource type:");
+    _labelName->setText("Resource name:");
+    _labelSize->setText("Size:");
+    _labelFileType->setText("File type:");
+    _labelResType->setText("Resource type:");
 }
 
 void PanelResourceInfo::setButtonsForClosedDir() {
-    _btnExportRaw->setVisible(false);
-    _btnExportBMUMP3->setVisible(false);
-    _btnExportWAV->setVisible(false);
-    _btnExportTGA->setVisible(false);
+    _buttonExportRaw->setVisible(false);
+    _buttonExportBMUMP3->setVisible(false);
+    _buttonExportWAV->setVisible(false);
+    _buttonExportTGA->setVisible(false);
 }
 
 } // End of namespace GUI

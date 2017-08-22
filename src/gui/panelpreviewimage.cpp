@@ -20,13 +20,13 @@ PanelPreviewImage::PanelPreviewImage(QWidget *UNUSED(parent)) {
     _layoutVertical = new QVBoxLayout();
     _layoutHorizontal = new QHBoxLayout();
 
-    _buttonZoomIn = new QPushButton(this);
-    _buttonZoomOut = new QPushButton(this);
-    _buttonZoomOriginal = new QPushButton(this);
-    _buttonFit = new QPushButton(this);
-    _buttonFitWidth = new QPushButton(this);
-    _buttonShrinkFit = new QPushButton(this);
-    _buttonShrinkFitWidth = new QPushButton(this);
+    _buttonZoomIn = new QPushButton(tr("Zoom in"), this);
+    _buttonZoomOut = new QPushButton(tr("Zoom out"), this);
+    _buttonZoomOriginal = new QPushButton(tr("Zoom 100%"), this);
+    _buttonFit = new QPushButton(tr("Fit"), this);
+    _buttonFitWidth = new QPushButton(tr("Fit width"), this);
+    _buttonShrinkFit = new QPushButton(tr("Shrink fit"), this);
+    _buttonShrinkFitWidth = new QPushButton(tr("Shrink fit width"), this);
 
     _labelDimensions = new QLabel(this);
     _labelBrightness = new QLabel(this);
@@ -38,14 +38,6 @@ PanelPreviewImage::PanelPreviewImage(QWidget *UNUSED(parent)) {
     _sliderBrightness = new QSlider(this);
 
     _checkNearest = new QCheckBox("Nearest", this);
-
-    _buttonZoomIn->setText(tr("Zoom in"));
-    _buttonZoomOut->setText(tr("Zoom out"));
-    _buttonZoomOriginal->setText(tr("Zoom 100%"));
-    _buttonFit->setText(tr("Fit"));
-    _buttonFitWidth->setText(tr("Fit width"));
-    _buttonShrinkFit->setText(tr("Shrink fit"));
-    _buttonShrinkFitWidth->setText(tr("Shrink fit width"));
 
     _layoutVertical->addWidget(_labelZoomPercent);
     _layoutVertical->addWidget(_buttonZoomIn);
