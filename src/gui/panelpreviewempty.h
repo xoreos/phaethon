@@ -3,21 +3,20 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QSpacerItem>
 #include <QWidget>
 
 #include "verdigris/wobjectdefs.h"
 
-#include "ui/ui_previewempty.h"
-
 namespace GUI {
 
-class PanelPreviewEmpty : public QFrame
-{
+class PanelPreviewEmpty : public QFrame {
     W_OBJECT(PanelPreviewEmpty)
 
 private:
-    Ui::PreviewEmpty _ui;
+    QHBoxLayout *_boxLayoutHorizontal;
+    QLabel *_label;
 
 public:
     PanelPreviewEmpty(QWidget *parent = 0);
