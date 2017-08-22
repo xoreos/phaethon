@@ -8,14 +8,19 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewText)
 
-PanelPreviewText::PanelPreviewText(QWidget *UNUSED(parent))
-{
-    _ui.setupUi(this);
+PanelPreviewText::PanelPreviewText(QWidget *UNUSED(parent)) {
+    _layoutHorizontal = new QHBoxLayout(this);
+
+    _textEdit = new QTextEdit();
+
+    _textEdit->setFrameShape(QFrame::NoFrame);
+
+    _layoutHorizontal->addWidget(_textEdit);
+    _layoutHorizontal->setContentsMargins(0, 0, 0, 0);
 }
 
-void PanelPreviewText::setText(const QString &text)
-{
-    _ui.textEdit->setText(text);
+void PanelPreviewText::setText(const QString &text) {
+    _textEdit->setText(text);
 }
 
 void PanelPreviewText::setItem(const ResourceTreeItem *item) {

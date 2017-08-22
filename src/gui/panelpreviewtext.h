@@ -9,19 +9,18 @@
 
 #include "verdigris/wobjectdefs.h"
 
-#include "ui/ui_previewtext.h"
-
 namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewText : public QFrame
-{
+class PanelPreviewText : public QFrame {
     W_OBJECT(PanelPreviewText)
 
 private:
+	QHBoxLayout *_layoutHorizontal;
+	QTextEdit *_textEdit;
+
     const ResourceTreeItem *_currentItem;
-    Ui::PreviewText _ui;
 
 public:
     PanelPreviewText(QWidget *parent = 0);
