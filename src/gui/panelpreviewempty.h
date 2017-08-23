@@ -15,7 +15,7 @@ class PanelPreviewEmpty : public QFrame {
     W_OBJECT(PanelPreviewEmpty)
 
 private:
-    QHBoxLayout *_boxLayoutHorizontal;
+    QHBoxLayout *_layoutHorizontal;
     QLabel *_label;
 
 public:

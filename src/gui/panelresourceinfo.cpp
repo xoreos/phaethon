@@ -14,7 +14,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelResourceInfo)
 
-PanelResourceInfo::PanelResourceInfo(QWidget *UNUSED(parent)) {
+PanelResourceInfo::PanelResourceInfo(QWidget *parent)
+    : QFrame(parent) {
     _layoutVertical = new QVBoxLayout(this);
     _layoutVertical_2 = new QVBoxLayout();
     _layoutHorizontal = new QHBoxLayout();
@@ -24,8 +25,8 @@ PanelResourceInfo::PanelResourceInfo(QWidget *UNUSED(parent)) {
     _buttonExportTGA = new QPushButton(tr("Export as TGA"), this);
     _buttonExportWAV = new QPushButton(tr("Export as WAV"),this);
 
-    _labelName = new QLabel(tr("Resource name :"), this);
-    _labelSize = new QLabel(tr("Size"), this);
+    _labelName = new QLabel(tr("Resource name:"), this);
+    _labelSize = new QLabel(tr("Size:"), this);
     _labelFileType = new QLabel(tr("File type:"), this);
     _labelResType = new QLabel(tr("Resource type:"), this);
 
@@ -45,7 +46,7 @@ PanelResourceInfo::PanelResourceInfo(QWidget *UNUSED(parent)) {
     _layoutVertical->addLayout(_layoutVertical_2);
     _layoutVertical->addLayout(_layoutHorizontal);
 
-    _layoutVertical->setContentsMargins(5, 5, 5, 5); // left margin a bit
+    _layoutVertical->setContentsMargins(0, 0, 0, 0);
 
     _buttonExportRaw->setVisible(false);
     _buttonExportBMUMP3->setVisible(false);

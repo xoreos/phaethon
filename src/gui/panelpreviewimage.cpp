@@ -2,7 +2,6 @@
 
 #include "verdigris/wobjectimpl.h"
 
-#include "src/common/system.h"
 #include "src/gui/panel.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"
@@ -11,7 +10,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewImage)
 
-PanelPreviewImage::PanelPreviewImage(QWidget *UNUSED(parent)) {
+PanelPreviewImage::PanelPreviewImage(QWidget *parent)
+    : QFrame(parent) {
     _zoomFactor = 1.0f;
 
     _mode = Qt::SmoothTransformation;

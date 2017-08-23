@@ -7,20 +7,19 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewEmpty)
 
-PanelPreviewEmpty::PanelPreviewEmpty(QWidget *UNUSED(parent)) {
-		this->setObjectName(QStringLiteral("PanelPreviewEmpty"));
-        this->resize(400, 300);
-        _boxLayoutHorizontal = new QHBoxLayout(this);
-        _boxLayoutHorizontal->setObjectName(QStringLiteral("_boxLayoutHorizontal"));
-        _boxLayoutHorizontal->setContentsMargins(0, 0, 0, 0);
-        _label = new QLabel(this);
-        _label->setObjectName(QStringLiteral("_label"));
-        _label->setEnabled(false);
-        _label->setAlignment(Qt::AlignCenter);
+PanelPreviewEmpty::PanelPreviewEmpty(QWidget *parent) 
+    : QFrame(parent) {
+    _layoutHorizontal = new QHBoxLayout(this);
+    _layoutHorizontal->setContentsMargins(0, 0, 0, 0);
 
-        _boxLayoutHorizontal->addWidget(_label);
+    _label = new QLabel(tr("[Nothing to preview.]"), this);
+    _label->setObjectName(QStringLiteral("_label"));
+    _label->setEnabled(false);
+    _label->setAlignment(Qt::AlignCenter);
 
-        _label->setText(tr("[Nothing to preview.]"));
+    _layoutHorizontal->addWidget(_label);
+
+    this->setLayout(_layoutHorizontal);
 }
 
 } // End of namespace GUI

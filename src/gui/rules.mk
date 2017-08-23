@@ -21,12 +21,6 @@
 
 noinst_LTLIBRARIES += src/gui/libgui.la
 
-QT_UI_FORMS_BUILT = \
-	ui/ui_mainwindow.h \
-    $(EMPTY)
-
-BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
-
 src_gui_libgui_la_SOURCES =
 
 src_gui_libgui_la_SOURCES += \
@@ -40,7 +34,6 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewtext.h \
     src/gui/statusbar.h \
     src/gui/panel.h \
-    $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
@@ -54,10 +47,3 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewtext.cpp \
     src/gui/statusbar.cpp \
     $(EMPTY)
-
-EXTRA_src_gui_libgui_la_DEPENDENCIES = \
-	$(QT_UI_FORMS_BUILT) \
-    $(EMPTY)
-
-ui/ui_%.h: ui/%.ui
-	@UIC@ -o $@ $<

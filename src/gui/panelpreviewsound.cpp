@@ -9,7 +9,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewSound)
 
-PanelPreviewSound::PanelPreviewSound(QWidget *UNUSED(parent)) {
+PanelPreviewSound::PanelPreviewSound(QWidget *parent)
+    : QFrame(parent) {
     _layoutGrid = new QGridLayout(this);
     _layoutHorizontal = new QHBoxLayout();
     _layoutHorizontal_2 = new QHBoxLayout();

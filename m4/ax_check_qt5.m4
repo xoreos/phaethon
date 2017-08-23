@@ -3,7 +3,7 @@ dnl @synopsis AX_CHECK_QT5(version, action-if, action-if-not)
 dnl
 dnl @summary check for Qt5 of sufficient version.
 dnl
-dnl Defines QT5_LIBS, QT5_CFLAGS, QT5_UIC
+dnl Defines QT5_LIBS, QT5_CFLAGS
 dnl
 dnl @category InstalledPackages
 dnl @author Sven Hesse <drmccoy@drmccoy.de>

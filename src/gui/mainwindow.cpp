@@ -1,3 +1,4 @@
+#include <QGroupBox>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -28,39 +29,165 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const Common::UString &path)
-    : QMainWindow(parent)
-{
-    _ui.setupUi(this);
+    : QMainWindow(parent) {
+    _centralWidget = new QWidget(this);
+    _centralLayout = new QGridLayout(_centralWidget);
 
-    setWindowTitle(title);
-    resize(size);
+    _layoutVertical = new QVBoxLayout();
 
-    // preview
+    _splitterTopBottom = new QSplitter(_centralWidget);
+    _splitterLeftRight = new QSplitter(_splitterTopBottom);
+
+    _actionOpenDirectory = new QAction(this);
+    _actionClose = new QAction(this);
+    _actionQuit = new QAction(this);
+    _actionAbout = new QAction(this);
+    _actionOpenFile = new QAction(this);
+
+    _menuBar = new QMenuBar(this);
+    _menuFile = new QMenu(_menuBar);
+    _menuHelp = new QMenu(_menuBar);
+
     _panelPreviewEmpty = new PanelPreviewEmpty();
     _panelPreviewImage = new PanelPreviewImage();
     _panelPreviewSound = new PanelPreviewSound();
     _panelPreviewText  = new PanelPreviewText();
-    _resInfo = new PanelResourceInfo();
+    _panelResourceInfo = new PanelResourceInfo();
 
-    _ui.resBox->addWidget(_resInfo);
-    _ui.resLayout->addWidget(_panelPreviewEmpty);
+    _treeView = new QTreeView(_splitterLeftRight);
+    // 1:8 ratio, 8 being the (res info + preview) wrapper widget
+    {
+        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sp.setHorizontalStretch(1);
+        _treeView->setSizePolicy(sp);
+    }
+
+    QGroupBox *logBox = new QGroupBox(_splitterTopBottom);
+    logBox->setTitle(tr("Log"));
+    _log = new QTextEdit(logBox);
+    {
+        QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sp.setVerticalStretch(1);
+        logBox->setSizePolicy(sp);
+
+        QHBoxLayout *hl = new QHBoxLayout(logBox);
+        hl->addWidget(_log);
+        hl->setContentsMargins(0, 0, 0, 0);
+    }
+
+    _centralLayout->addWidget(_splitterTopBottom);
+
+    // left/right splitter
+    // 8:1 ratio, 1 being the log box
+    {
+        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sp.setVerticalStretch(5);
+        _splitterLeftRight->setSizePolicy(sp);
+    }
+
+    _splitterTopBottom->setOrientation(Qt::Vertical);
+
+    /*
+         _______
+        |       |
+        |_______|
+        |_______|
+    */
+
+    _splitterTopBottom->addWidget(_splitterLeftRight);
+    _splitterTopBottom->addWidget(logBox);
+
+    /*
+         _______
+        | |     |
+        |_|_____|
+        |_______|
+    */
+
+    // can't add a layout directly to a splitter
+    QWidget *wrapperWidget = new QWidget(_splitterTopBottom);
+    wrapperWidget->setContentsMargins(0, 0, 0, 0);
+    {
+        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sp.setHorizontalStretch(6);
+        wrapperWidget->setSizePolicy(sp);
+    }
+
+    _splitterLeftRight->addWidget(_treeView);
+    _splitterLeftRight->addWidget(wrapperWidget);
+
+    wrapperWidget->setLayout(_layoutVertical);
+    _layoutVertical->setParent(wrapperWidget);
+    _layoutVertical->setMargin(0);
+
+    QFrame *resInfoFrame = new QFrame(wrapperWidget);
+    {
+        QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
+        hl->addWidget(_panelResourceInfo);
+    }
+    resInfoFrame->setFrameShape(QFrame::StyledPanel);
+    resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+    resInfoFrame->setFixedHeight(140);
+
+    _resPreviewFrame = new QFrame(wrapperWidget);
+    {
+        QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
+        hl->setMargin(0);
+        hl->addWidget(_panelPreviewEmpty);
+    }
+    _resPreviewFrame->setFrameShape(QFrame::StyledPanel);
+
+    _layoutVertical->addWidget(resInfoFrame);
+    _layoutVertical->addWidget(_resPreviewFrame);
+
+    /*
+         _______
+        | |-----|
+        |_|_____|
+        |_______|
+    */
+
+    _menuBar->addAction(_menuFile->menuAction());
+    _menuBar->addAction(_menuHelp->menuAction());
+    _menuFile->addAction(_actionOpenDirectory);
+    _menuFile->addAction(_actionOpenFile);
+    _menuFile->addSeparator();
+    _menuFile->addAction(_actionClose);
+    _menuFile->addSeparator();
+    _menuFile->addAction(_actionQuit);
+    _menuFile->setTitle("&File");
+    _menuHelp->addAction(_actionAbout);
+    _menuHelp->setTitle("&Help");
+
+    this->setMenuBar(_menuBar);
+
+    _actionOpenDirectory->setText(tr("&Open directory"));
+    _actionClose->setText(tr("&Close"));
+    _actionQuit->setText(tr("MainWindow"));
+    _actionAbout->setText(tr("About"));
+    _actionOpenFile->setText(tr("&Open file"));
+
+    this->setCentralWidget(_centralWidget);
+
+    setWindowTitle(title);
+    resize(size);
 
     // signals/slots
-    QObject::connect(_ui.actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDir);
-    QObject::connect(_ui.actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
-    QObject::connect(_ui.actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
-    QObject::connect(_ui.actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
-    QObject::connect(_resInfo, &PanelResourceInfo::loadModel, this, &MainWindow::setTreeViewModel);
-    QObject::connect(_resInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
-    QObject::connect(_resInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
-    QObject::connect(_resInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
-    QObject::connect(_resInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
-    QObject::connect(_resInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
-    QObject::connect(_resInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
-    QObject::connect(_ui.actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
+    QObject::connect(_actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDir);
+    QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
+    QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
+    QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::loadModel, this, &MainWindow::setTreeViewModel);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
+    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
+    QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
     QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
 
-    _ui.actionAbout->setShortcut(QKeySequence(tr("F1")));
+    _actionAbout->setShortcut(QKeySequence(tr("F1")));
 
     // status bar
     _status = std::make_shared<StatusBar>(this->statusBar());
@@ -69,7 +196,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     // open the path given in command line if any
     if (path.empty()) {
         // nothing is open yet
-        _ui.actionClose->setEnabled(false);
+        _actionClose->setEnabled(false);
     }
     else {
         _rootPath = path.toQString();
@@ -78,10 +205,21 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 }
 
 MainWindow::~MainWindow() {
+    if (_panelPreviewEmpty)
+        delete _panelPreviewEmpty;
+
+    if (_panelPreviewText)
+        delete _panelPreviewText;
+
+    if (_panelPreviewSound)
+        delete _panelPreviewSound;
+
+    if (_panelPreviewImage)
+        delete _panelPreviewImage;
 }
 
 void MainWindow::slotLog(const QString &text) {
-    _ui.log->append(text);
+    _log->append(text);
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
@@ -95,23 +233,23 @@ void MainWindow::setTreeViewModel(const QString &path) {
     } BOOST_SCOPE_EXIT_END
 
     _treeModel.reset();
-    _ui.treeView->setModel(nullptr);
+    _treeView->setModel(nullptr);
 
-    _treeModel = std::make_unique<ResourceTree>(this, path, _ui.treeView);
-    _ui.treeView->setModel(_treeModel.get());
-    _ui.treeView->expandToDepth(0);
-    _ui.treeView->show();
+    _treeModel = std::make_unique<ResourceTree>(this, path, _treeView);
+    _treeView->setModel(_treeModel.get());
+    _treeView->expandToDepth(0);
+    _treeView->show();
 
-    _ui.treeView->resizeColumnToContents(0);
+    _treeView->resizeColumnToContents(0);
 
 
-    QObject::connect(_ui.treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+    QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
                      this, &MainWindow::resourceSelect);
 
 
-    _ui.log->append(tr("Set root: %1").arg(path));
+    _log->append(tr("Set root: %1").arg(path));
 
-    _ui.actionClose->setEnabled(true);
+    _actionClose->setEnabled(true);
 }
 
 void MainWindow::slotOpenDir() {
@@ -131,19 +269,19 @@ void MainWindow::slotOpenFile() {
 void MainWindow::slotCloseDir() {
     showPreviewPanel(_panelPreviewEmpty);
 
-    _resInfo->setButtonsForClosedDir();
+    _panelResourceInfo->setButtonsForClosedDir();
 
-    _ui.treeView->setModel(nullptr);
+    _treeView->setModel(nullptr);
 
-    _ui.log->append(tr("Closed directory: %1").arg(_rootPath));
+    _log->append(tr("Closed directory: %1").arg(_rootPath));
 
     _rootPath = "";
 
     _currentItem = nullptr;
 
-    _resInfo->clearLabels();
+    _panelResourceInfo->clearLabels();
 
-    _ui.actionClose->setEnabled(false);
+    _actionClose->setEnabled(false);
 }
 
 void MainWindow::slotQuit() {
@@ -151,14 +289,14 @@ void MainWindow::slotQuit() {
 }
 
 void MainWindow::showPreviewPanel(QFrame *panel) {
-    if (_ui.resLayout->count()) {
-        QFrame *old = static_cast<QFrame*>(_ui.resLayout->itemAt(0)->widget());
+    if (_resPreviewFrame->layout()->count()) {
+        QFrame *old = static_cast<QFrame*>(_resPreviewFrame->layout()->itemAt(0)->widget());
         if (old != panel) {
-            _ui.resLayout->removeWidget(old);
+            _resPreviewFrame->layout()->removeWidget(old);
             old->setParent(0);
             if (old == _panelPreviewSound)
                 _panelPreviewSound->stop();
-            _ui.resLayout->addWidget(panel);
+            _resPreviewFrame->layout()->addWidget(panel);
         }
     }
 }
@@ -187,8 +325,8 @@ void MainWindow::showPreviewPanel() {
 
                 default:
                     showPreviewPanel(_panelPreviewEmpty);
+                    break;
             }
-            break;
         }
     }
 }
@@ -196,7 +334,7 @@ void MainWindow::showPreviewPanel() {
 void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &UNUSED(deselected)) {
     const QModelIndex index = selected.indexes().at(0);
     _currentItem = _treeModel->getItem(index);
-    _resInfo->update(_currentItem);
+    _panelResourceInfo->update(_currentItem);
     showPreviewPanel();
 
     _panelPreviewImage->setItem(_currentItem);
@@ -204,8 +342,8 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
     _panelPreviewSound->setItem(_currentItem);
 }
 
-QString constructStatus(const QString &action, const QString &name, const QString &destination) {
-    return action + " \"" + name + "\" to \"" + destination + "\"...";
+QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
+    return _action + " \"" + name + "\" to \"" + destination + "\"...";
 }
 
 void MainWindow::saveItem() {

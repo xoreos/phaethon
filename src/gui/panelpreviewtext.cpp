@@ -8,7 +8,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewText)
 
-PanelPreviewText::PanelPreviewText(QWidget *UNUSED(parent)) {
+PanelPreviewText::PanelPreviewText(QWidget *parent)
+    : QFrame(parent) {
     _layoutHorizontal = new QHBoxLayout(this);
 
     _textEdit = new QTextEdit();

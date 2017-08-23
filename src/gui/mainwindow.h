@@ -2,13 +2,19 @@
 #define MAINWINDOW_H
 
 #include <memory>
-#include <QMainWindow>
+
+#include <QAction>
 #include <QFileSystemModel>
 #include <QGraphicsView>
-#include <QLabel>
-#include <QProgressBar>
 #include <QItemSelection>
+#include <QLabel>
+#include <QLayout>
+#include <QMainWindow>
+#include <QMenuBar>
 #include <QPlainTextEdit>
+#include <QProgressBar>
+#include <QSplitter>
+#include <QTreeView>
 
 #include "verdigris/wobjectdefs.h"
 
@@ -17,12 +23,6 @@
 #include "src/common/writestream.h"
 #include "src/gui/statusbar.h"
 #include "src/sound/sound.h"
-
-#include "ui/ui_mainwindow.h"
-
-namespace Ui {
-    class MainWindow;
-}
 
 namespace GUI {
 
@@ -66,18 +66,40 @@ private:
     void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
     void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
-    Ui::MainWindow _ui;
     std::shared_ptr<StatusBar> _status;
     const ResourceTreeItem *_currentItem;
     std::unique_ptr<ResourceTree> _treeModel;
     QString _rootPath;
+
+    QWidget *_centralWidget;
+
+    QGridLayout *_centralLayout;
+    QVBoxLayout *_layoutVertical;
+    QSplitter *_splitterTopBottom;
+    QSplitter *_splitterLeftRight;
+
+    QFrame *_resPreviewFrame;
+
+    QTreeView *_treeView;
+
+    QTextEdit *_log;
+
+    QAction *_actionOpenDirectory;
+    QAction *_actionClose;
+    QAction *_actionQuit;
+    QAction *_actionAbout;
+    QAction *_actionOpenFile;
+
+    QMenuBar *_menuBar;
+    QMenu *_menuFile;
+    QMenu *_menuHelp;
 
     // resource preview
     PanelPreviewEmpty *_panelPreviewEmpty;
     PanelPreviewImage *_panelPreviewImage;
     PanelPreviewSound *_panelPreviewSound;
     PanelPreviewText *_panelPreviewText;
-    PanelResourceInfo *_resInfo;
+    PanelResourceInfo *_panelResourceInfo;
 };
 
 } // End of namespace GUI
