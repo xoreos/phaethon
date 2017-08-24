@@ -47,11 +47,6 @@ class PanelPreviewSound : public QFrame {
     W_OBJECT(PanelPreviewSound)
 
 private:
-    QGridLayout *_layoutGrid;
-    QHBoxLayout *_layoutHorizontal;
-    QHBoxLayout *_layoutHorizontal_2;
-    QVBoxLayout *_layoutVertical;
-
     QSlider *_sliderPosition;
     QSlider *_sliderVolume;
 

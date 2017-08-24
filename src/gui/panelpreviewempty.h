@@ -38,10 +38,6 @@ namespace GUI {
 class PanelPreviewEmpty : public QFrame {
     W_OBJECT(PanelPreviewEmpty)
 
-private:
-    QHBoxLayout *_layoutHorizontal;
-    QLabel *_label;
-
 public:
     PanelPreviewEmpty(QWidget *parent = 0);
 };

@@ -49,10 +49,6 @@ class PanelPreviewImage : public QFrame {
     W_OBJECT(PanelPreviewImage)
 
 private:
-    QGridLayout *_layoutGrid;
-    QVBoxLayout *_layoutVertical;
-    QHBoxLayout *_layoutHorizontal;
-
     QPushButton *_buttonZoomIn;
     QPushButton *_buttonZoomOut;
     QPushButton *_buttonZoomOriginal;
@@ -62,7 +58,6 @@ private:
     QPushButton *_buttonShrinkFitWidth;
 
     QLabel *_labelDimensions;
-    QLabel *_labelBrightness;
     QLabel *_labelZoomPercent;
     QLabel *_labelImage; // this label is used to display the image
 

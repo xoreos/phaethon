@@ -40,10 +40,6 @@ class PanelResourceInfo : public QFrame {
     W_OBJECT(PanelResourceInfo)
 
 private:
-    QVBoxLayout *_layoutVertical;
-    QHBoxLayout *_layoutHorizontal;
-    QVBoxLayout *_layoutVertical_2;
-
     QPushButton *_buttonExportRaw;
     QPushButton *_buttonExportBMUMP3;
     QPushButton *_buttonExportTGA;

@@ -34,14 +34,14 @@ W_OBJECT_IMPL(PanelPreviewText)
 
 PanelPreviewText::PanelPreviewText(QWidget *parent)
     : QFrame(parent) {
-    _layoutHorizontal = new QHBoxLayout(this);
+    QHBoxLayout *layoutTop = new QHBoxLayout(this);
 
     _textEdit = new QTextEdit();
 
     _textEdit->setFrameShape(QFrame::NoFrame);
 
-    _layoutHorizontal->addWidget(_textEdit);
-    _layoutHorizontal->setContentsMargins(0, 0, 0, 0);
+    layoutTop->addWidget(_textEdit);
+    layoutTop->setContentsMargins(0, 0, 0, 0);
 }
 
 void PanelPreviewText::setText(const QString &text) {

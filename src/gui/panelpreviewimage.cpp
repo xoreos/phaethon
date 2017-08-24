@@ -40,9 +40,8 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
 
     _mode = Qt::SmoothTransformation;
 
-    _layoutGrid = new QGridLayout(this);
-    _layoutVertical = new QVBoxLayout();
-    _layoutHorizontal = new QHBoxLayout();
+    QGridLayout *layoutTop = new QGridLayout(this);
+    QVBoxLayout *layoutLeft = new QVBoxLayout();
 
     _buttonZoomIn = new QPushButton(tr("Zoom in"), this);
     _buttonZoomOut = new QPushButton(tr("Zoom out"), this);
@@ -53,7 +52,7 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
     _buttonShrinkFitWidth = new QPushButton(tr("Shrink fit width"), this);
 
     _labelDimensions = new QLabel(this);
-    _labelBrightness = new QLabel(this);
+    QLabel *labelBrightness = new QLabel(tr("Background brightness"), this);
     _labelZoomPercent = new QLabel(this);
     _labelImage = new QLabel(this);
 
@@ -63,26 +62,25 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
 
     _checkNearest = new QCheckBox("Nearest", this);
 
-    _layoutVertical->addWidget(_labelZoomPercent);
-    _layoutVertical->addWidget(_buttonZoomIn);
-    _layoutVertical->addWidget(_buttonZoomOut);
-    _layoutVertical->addWidget(_buttonZoomOriginal);
-    _layoutVertical->addWidget(_buttonFit);
-    _layoutVertical->addWidget(_buttonFitWidth);
-    _layoutVertical->addWidget(_buttonShrinkFit);
-    _layoutVertical->addWidget(_buttonShrinkFitWidth);
-    _layoutVertical->addWidget(_checkNearest);
-    _layoutVertical->insertStretch(-1, 1); // get rid of spacing between buttons
+    layoutLeft->addWidget(_labelZoomPercent);
+    layoutLeft->addWidget(_buttonZoomIn);
+    layoutLeft->addWidget(_buttonZoomOut);
+    layoutLeft->addWidget(_buttonZoomOriginal);
+    layoutLeft->addWidget(_buttonFit);
+    layoutLeft->addWidget(_buttonFitWidth);
+    layoutLeft->addWidget(_buttonShrinkFit);
+    layoutLeft->addWidget(_buttonShrinkFitWidth);
+    layoutLeft->addWidget(_checkNearest);
+    layoutLeft->insertStretch(-1, 1); // get rid of spacing between buttons
     _labelZoomPercent->setAlignment(Qt::AlignCenter);
 
-    _layoutGrid->addWidget(_labelDimensions, 0, 0);
-    _layoutGrid->addWidget(_labelBrightness, 1, 0);
-    _layoutGrid->addWidget(_sliderBrightness, 1, 1);
-    _layoutGrid->addLayout(_layoutVertical, 2, 0);
-    _layoutGrid->addWidget(_scrollAreaImage, 2, 1);
+    layoutTop->addWidget(_labelDimensions, 0, 0);
+    layoutTop->addWidget(labelBrightness, 1, 0);
+    layoutTop->addWidget(_sliderBrightness, 1, 1);
+    layoutTop->addLayout(layoutLeft, 2, 0);
+    layoutTop->addWidget(_scrollAreaImage, 2, 1);
 
     _labelDimensions->setText(tr("(WxH)"));
-    _labelBrightness->setText(tr("Background brightness"));
     _labelZoomPercent->setText(tr("100%"));
 
     _labelImage->setBackgroundRole(QPalette::Base);

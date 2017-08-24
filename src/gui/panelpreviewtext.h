@@ -41,7 +41,6 @@ class PanelPreviewText : public QFrame {
     W_OBJECT(PanelPreviewText)
 
 private:
-	QHBoxLayout *_layoutHorizontal;
 	QTextEdit *_textEdit;
 
     const ResourceTreeItem *_currentItem;

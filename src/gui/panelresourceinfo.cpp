@@ -40,9 +40,9 @@ W_OBJECT_IMPL(PanelResourceInfo)
 
 PanelResourceInfo::PanelResourceInfo(QWidget *parent)
     : QFrame(parent) {
-    _layoutVertical = new QVBoxLayout(this);
-    _layoutVertical_2 = new QVBoxLayout();
-    _layoutHorizontal = new QHBoxLayout();
+    QVBoxLayout *layoutTop = new QVBoxLayout(this);
+    QVBoxLayout *layoutLabels = new QVBoxLayout();
+    QHBoxLayout *layoutButtons = new QHBoxLayout();
 
     _buttonExportRaw = new QPushButton(tr("Save"), this);
     _buttonExportBMUMP3 = new QPushButton(tr("Export as MP3"), this);
@@ -54,23 +54,23 @@ PanelResourceInfo::PanelResourceInfo(QWidget *parent)
     _labelFileType = new QLabel(tr("File type:"), this);
     _labelResType = new QLabel(tr("Resource type:"), this);
 
-    _layoutVertical_2->addWidget(_labelName);
-    _layoutVertical_2->addWidget(_labelSize);
-    _layoutVertical_2->addWidget(_labelFileType);
-    _layoutVertical_2->addWidget(_labelResType);
+    layoutLabels->addWidget(_labelName);
+    layoutLabels->addWidget(_labelSize);
+    layoutLabels->addWidget(_labelFileType);
+    layoutLabels->addWidget(_labelResType);
 
-    _layoutHorizontal->addWidget(_buttonExportRaw);
-    _layoutHorizontal->addWidget(_buttonExportBMUMP3);
-    _layoutHorizontal->addWidget(_buttonExportTGA);
-    _layoutHorizontal->addWidget(_buttonExportWAV);
-    _layoutHorizontal->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
+    layoutButtons->addWidget(_buttonExportRaw);
+    layoutButtons->addWidget(_buttonExportBMUMP3);
+    layoutButtons->addWidget(_buttonExportTGA);
+    layoutButtons->addWidget(_buttonExportWAV);
+    layoutButtons->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    _layoutHorizontal->setSizeConstraint(QLayout::SetMinimumSize);
+    layoutButtons->setSizeConstraint(QLayout::SetMinimumSize);
 
-    _layoutVertical->addLayout(_layoutVertical_2);
-    _layoutVertical->addLayout(_layoutHorizontal);
+    layoutTop->addLayout(layoutLabels);
+    layoutTop->addLayout(layoutButtons);
 
-    _layoutVertical->setContentsMargins(0, 0, 0, 0);
+    layoutTop->setContentsMargins(0, 0, 0, 0);
 
     _buttonExportRaw->setVisible(false);
     _buttonExportBMUMP3->setVisible(false);

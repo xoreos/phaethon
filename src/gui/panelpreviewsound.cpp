@@ -35,10 +35,10 @@ W_OBJECT_IMPL(PanelPreviewSound)
 
 PanelPreviewSound::PanelPreviewSound(QWidget *parent)
     : QFrame(parent) {
-    _layoutGrid = new QGridLayout(this);
-    _layoutHorizontal = new QHBoxLayout();
-    _layoutHorizontal_2 = new QHBoxLayout();
-    _layoutVertical = new QVBoxLayout();
+    QGridLayout *layoutTop = new QGridLayout(this);
+    QHBoxLayout *layoutLabels = new QHBoxLayout();
+    QHBoxLayout *layoutButtons = new QHBoxLayout();
+    QVBoxLayout *layoutVolume = new QVBoxLayout();
 
     _timer = new QTimer(this);
 
@@ -56,23 +56,23 @@ PanelPreviewSound::PanelPreviewSound(QWidget *parent)
 
     _sliderPosition->setOrientation(Qt::Horizontal);
 
-    _layoutHorizontal->addWidget(_labelPosition);
-    _layoutHorizontal->addWidget(_labelPercent);
-    _layoutHorizontal->addWidget(_labelDuration);
+    layoutLabels->addWidget(_labelPosition);
+    layoutLabels->addWidget(_labelPercent);
+    layoutLabels->addWidget(_labelDuration);
 
-    _layoutHorizontal_2->addWidget(_buttonPlay);
-    _layoutHorizontal_2->addWidget(_buttonPause);
-    _layoutHorizontal_2->addWidget(_buttonStop);
+    layoutButtons->addWidget(_buttonPlay);
+    layoutButtons->addWidget(_buttonPause);
+    layoutButtons->addWidget(_buttonStop);
 
-    _layoutVertical->addWidget(_labelVolume);
-    _layoutVertical->addWidget(_sliderVolume);
+    layoutVolume->addWidget(_labelVolume);
+    layoutVolume->addWidget(_sliderVolume);
 
-    _layoutGrid->addWidget(_sliderPosition,     0, 0);
-    _layoutGrid->addLayout(_layoutHorizontal,   1, 0);
-    _layoutGrid->addLayout(_layoutVertical,     0, 1);
-    _layoutGrid->addLayout(_layoutHorizontal_2, 2, 0);
+    layoutTop->addWidget(_sliderPosition, 0, 0);
+    layoutTop->addLayout(layoutLabels,    1, 0);
+    layoutTop->addLayout(layoutVolume,    0, 1);
+    layoutTop->addLayout(layoutButtons,   2, 0);
 
-    _layoutGrid->setSizeConstraint(QLayout::SetFixedSize);
+    layoutTop->setSizeConstraint(QLayout::SetFixedSize);
 
     _sliderVolume->setMaximum(100);
 
