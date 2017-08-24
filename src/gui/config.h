@@ -22,11 +22,11 @@
  *  Config file for Phaethon.
  */
 
-#ifndef PANEL_H
-#define PANEL_H
+#ifndef GUI_CONFIG_H
+#define GUI_CONFIG_H
 
-namespace Panel {
-    bool kPreviewMoreTypes = true;
+namespace GUI {
+    extern bool kPreviewMoreTypes;
 }
 
-#endif // PANEL_H
+#endif // GUI_CONFIG_H

@@ -36,6 +36,7 @@
 #include "src/common/strutil.h"
 #include "src/common/system.h"
 #include "src/common/writefile.h"
+#include "src/gui/config.h"
 #include "src/gui/mainwindow.h"
 #include "src/gui/panelpreviewempty.h"
 #include "src/gui/panelpreviewimage.h"
@@ -75,7 +76,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     _panelPreviewEmpty = new PanelPreviewEmpty();
     _panelPreviewImage = new PanelPreviewImage();
     _panelPreviewSound = new PanelPreviewSound();
-    _panelPreviewText  = new PanelPreviewText();
+    if (kPreviewMoreTypes)
+        _panelPreviewText  = new PanelPreviewText();
     _panelResourceInfo = new PanelResourceInfo();
 
     _treeView = new QTreeView(_splitterLeftRight);
@@ -209,7 +211,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
     QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
     QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
-    QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
+    if (kPreviewMoreTypes)
+        QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
 
     _actionAbout->setShortcut(QKeySequence(tr("F1")));
 
@@ -232,8 +235,9 @@ MainWindow::~MainWindow() {
     if (_panelPreviewEmpty)
         delete _panelPreviewEmpty;
 
-    if (_panelPreviewText)
-        delete _panelPreviewText;
+    if (kPreviewMoreTypes)
+        if (_panelPreviewText)
+            delete _panelPreviewText;
 
     if (_panelPreviewSound)
         delete _panelPreviewSound;
@@ -339,12 +343,14 @@ void MainWindow::showPreviewPanel() {
         {
             switch (_currentItem->getFileType()) {
                 case Aurora::FileType::kFileTypeICO:
-                    showPreviewPanel(_panelPreviewImage);
+                    if (kPreviewMoreTypes)
+                        showPreviewPanel(_panelPreviewImage);
                     break;
 
                 case Aurora::FileType::kFileTypeINI:
                 case Aurora::FileType::kFileTypeTXT:
-                    showPreviewPanel(_panelPreviewText);
+                    if (kPreviewMoreTypes)
+                        showPreviewPanel(_panelPreviewText);
                     break;
 
                 default:
@@ -362,7 +368,8 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
     showPreviewPanel();
 
     _panelPreviewImage->setItem(_currentItem);
-    _panelPreviewText->setItem(_currentItem);
+    if (kPreviewMoreTypes)
+        _panelPreviewText->setItem(_currentItem);
     _panelPreviewSound->setItem(_currentItem);
 }
 

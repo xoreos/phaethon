@@ -26,7 +26,7 @@
 
 #include "verdigris/wobjectimpl.h"
 
-#include "src/gui/panel.h"
+#include "src/gui/config.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"
 
@@ -125,7 +125,7 @@ void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
 }
 
 void PanelPreviewImage::loadImage() {
-    if (Panel::kPreviewMoreTypes) {
+    if (kPreviewMoreTypes) {
         if (_currentItem->getFileType() == Aurora::FileType::kFileTypeICO) {
             QImageReader reader(_currentItem->getPath());
             reader.setAutoTransform(true);
