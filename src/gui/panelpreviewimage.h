@@ -76,10 +76,6 @@ private:
 
     Qt::TransformationMode _mode;
 
-public:
-    PanelPreviewImage(QWidget *parent = 0);
-
-    void setItem(const GUI::ResourceTreeItem *item);
     void loadImage();
     void convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
     void writePixel(const byte *&data, Images::PixelFormat format, byte *&data_out, QImage::Format &format_out);
@@ -92,7 +88,12 @@ public:
     void zoomStep(float step);
     void updateButtons();
 
-/*slots:*/
+public:
+    PanelPreviewImage(QWidget *parent = 0);
+
+    void setItem(const GUI::ResourceTreeItem *item);
+
+// public slots:
     void slotSliderBrightness(int value);
     void slotZoomIn();
     void slotZoomOut();

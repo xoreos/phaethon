@@ -81,6 +81,13 @@ public:
     int getSliderPos(uint64 total, uint64 t) const;
     void setButtons(bool enablePlay, bool enablePause, bool enableStop);
     void update();
+
+public:
+    PanelPreviewSound(QWidget *parent = 0);
+
+    void setItem(const ResourceTreeItem *item);
+
+    void stop();
 };
 
 } // End of namespace GUI

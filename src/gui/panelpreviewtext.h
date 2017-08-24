@@ -45,12 +45,14 @@ private:
 
     const ResourceTreeItem *_currentItem;
 
+    void setText(const QString &text);
+
 public:
     PanelPreviewText(QWidget *parent = 0);
 
-    void setText(const QString &text);
     void setItem(const ResourceTreeItem *item);
 
+// public signals:
     void log(const QString &text)
     W_SIGNAL(log, text)
 };
