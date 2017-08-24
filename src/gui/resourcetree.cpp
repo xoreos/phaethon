@@ -90,7 +90,7 @@ void ResourceTree::populate(const QString& path, ResourceTreeItem *parent) {
 
         QFileInfoList list = dir.entryInfoList();
 
-        for (auto &e : list) {
+        for (const auto &e : list) {
             curItem = new ResourceTreeItem(e.canonicalFilePath(), parent);
             parent->appendChild(curItem);
             if (e.isDir()) {
@@ -285,7 +285,7 @@ void ResourceTree::insertItems(int position, QList<ResourceTreeItem*> &items, co
 
     beginInsertRows(parent, position, position + items.count() - 1);
 
-    for (auto &child : items)
+    for (const auto &child : items)
         parentItem->appendChild(child);
 
     endInsertRows();
