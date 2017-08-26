@@ -36,7 +36,6 @@
 
 #include "verdigris/wobjectdefs.h"
 
-#include "src/common/ustring.h"
 #include "src/sound/types.h"
 
 namespace GUI {

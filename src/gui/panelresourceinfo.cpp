@@ -132,7 +132,7 @@ const QString getSizeLabel(size_t size) {
     if (size < 1024)
         return QString("%1").arg(size);
 
-    QString humanRead = Common::FilePath::getHumanReadableSize(size).toQString();
+    QString humanRead = QString::fromUtf8(Common::FilePath::getHumanReadableSize(size).c_str());
 
     return QString("%1 (%2)").arg(humanRead).arg(size);
 }
@@ -141,7 +141,7 @@ const QString getFileTypeLabel(Aurora::FileType type) {
     QString label = QString("%1").arg(type);
 
     if (type != Aurora::kFileTypeNone) {
-        QString temp = TypeMan.getExtension(type).toQString();
+        QString temp = QString::fromUtf8(TypeMan.getExtension(type).c_str());
         label += QString(" (%1)").arg(temp);
     }
 
@@ -152,7 +152,7 @@ const QString getResTypeLabel(Aurora::ResourceType type) {
     QString label = QString("%1").arg(type);
 
     if (type != Aurora::kResourceNone) {
-        QString temp = getResourceTypeDescription(type).toQString();
+        QString temp = QString::fromUtf8(getResourceTypeDescription(type).c_str());
         label += QString(" (%1)").arg(temp);
     }
 

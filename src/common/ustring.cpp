@@ -39,10 +39,6 @@ UString::UString(const UString &str) {
 	*this = str;
 }
 
-UString::UString(const QString &str) {
-	*this = str;
-}
-
 UString::UString(const std::string &str) {
 	*this = str;
 }
@@ -68,21 +64,9 @@ UString::UString(iterator sBegin, iterator sEnd) : _size(0) {
 UString::~UString() {
 }
 
-UString::operator QString() const {
-	return QString(c_str());
-}
-
 UString &UString::operator=(const UString &str) {
 	_string = str._string;
 	_size   = str._size;
-
-	return *this;
-}
-
-UString &UString::operator=(const QString &str) {
-	_string = str.toStdString();
-
-	recalculateSize();
 
 	return *this;
 }
@@ -125,14 +109,6 @@ UString UString::operator+(const UString &str) const {
 	return tmp;
 }
 
-UString UString::operator+(const QString &str) const {
-	UString tmp(*this);
-
-	tmp += str;
-
-	return tmp;
-}
-
 UString UString::operator+(const std::string &str) const {
 	UString tmp(*this);
 
@@ -162,12 +138,6 @@ UString &UString::operator+=(const UString &str) {
 	_size   += str._size;
 
 	return *this;
-}
-
-UString &UString::operator+=(const QString &str) {
-	UString ustr(str);
-
-	return *this += ustr;
 }
 
 UString &UString::operator+=(const std::string &str) {
@@ -276,10 +246,6 @@ bool UString::empty() const {
 
 const char *UString::c_str() const {
 	return _string.c_str();
-}
-
-QString UString::toQString() const {
-    return QString::fromStdString(_string);
 }
 
 UString::iterator UString::begin() const {

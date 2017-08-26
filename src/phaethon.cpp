@@ -22,20 +22,15 @@
  *  The project's main entry point.
  */
 
-#include <cstdio>
-
 #include <QApplication>
-
-#include "src/version/version.h"
 
 #include "src/common/util.h"
 #include "src/common/error.h"
 #include "src/common/ustring.h"
 #include "src/common/platform.h"
-
-#include "src/sound/sound.h"
-
 #include "src/gui/mainwindow.h"
+#include "src/sound/sound.h"
+#include "src/version/version.h"
 
 #include "src/cline.h"
 
@@ -64,7 +59,7 @@ Phaethon::Phaethon(const Common::UString &path) : _path(path) {
 	char *argv[] = {empty}; // must be at least 1
 	QApplication app(argc, argv);
 
-	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path);
+	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path.c_str());
 	mainWindow.show();
 
 	app.exec();

@@ -43,7 +43,6 @@
 #include "verdigris/wobjectdefs.h"
 
 #include "src/common/readstream.h"
-#include "src/common/ustring.h"
 #include "src/common/writestream.h"
 #include "src/gui/statusbar.h"
 #include "src/sound/sound.h"
@@ -62,7 +61,7 @@ class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
 
 public:
-    MainWindow(QWidget *parent, const char *title, const QSize &size, const Common::UString &path);
+    MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
     ~MainWindow();
 
     std::shared_ptr<StatusBar> status();

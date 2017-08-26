@@ -297,7 +297,7 @@ Aurora::Archive *ResourceTree::getArchive(const QString &path) {
         return a->second;
 
     Aurora::Archive *arch = 0;
-    switch (TypeMan.getFileType(path)) {
+    switch (TypeMan.getFileType(path.toStdString().c_str())) {
         case Aurora::kFileTypeZIP:
             arch = new Aurora::ZIPFile(new Common::ReadFile(path.toStdString().c_str()));
             break;
@@ -341,7 +341,7 @@ Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
     if (path.empty())
         throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file).toStdString().c_str());
 
-    Aurora::FileType type = TypeMan.getFileType(file);
+    Aurora::FileType type = TypeMan.getFileType(file.toStdString().c_str());
 
     Aurora::KEYDataFile *dataFile = 0;
     switch (type) {
@@ -366,9 +366,9 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
     for (uint i = 0; i < dataFiles.size(); i++) {
         try {
 
-            _mainWindow->status()->push(tr("Loading data file") + dataFiles[i].toQString() + "...");
+            _mainWindow->status()->push(tr("Loading data file") + QString::fromUtf8(dataFiles[i].c_str()) + "...");
 
-            Aurora::KEYDataFile *dataFile = getKEYDataFile(dataFiles[i].toQString());
+            Aurora::KEYDataFile *dataFile = getKEYDataFile(QString::fromUtf8(dataFiles[i].c_str()));
             key.addDataFile(i, dataFile);
 
             _mainWindow->status()->pop();

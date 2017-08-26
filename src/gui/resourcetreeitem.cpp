@@ -33,8 +33,8 @@ ItemData::ItemData(const QString &parentPath, const QString &fileName, Aurora::A
     _fullPath     = parentPath + "/" + fileName;
     _isDir        = false;
     _source       = kSourceArchiveFile;
-    _fileType     = TypeMan.getFileType(fileName);
-    _resourceType = TypeMan.getResourceType(fileName);
+    _fileType     = TypeMan.getFileType(fileName.toStdString().c_str());
+    _resourceType = TypeMan.getResourceType(fileName.toStdString().c_str());
     _size         = archiveData->getResourceSize(resource.index);
 
     _archive.data         = archiveData;
@@ -56,8 +56,8 @@ ItemData::ItemData(const QString &fullPath, const QFileInfo &info) {
         _resourceType = Aurora::kResourceNone;
     }
     else {
-        _fileType = TypeMan.getFileType(info.fileName());
-        _resourceType = TypeMan.getResourceType(info.fileName());
+        _fileType = TypeMan.getFileType(info.fileName().toStdString().c_str());
+        _resourceType = TypeMan.getResourceType(info.fileName().toStdString().c_str());
     }
 
     _archive.data         = 0;
@@ -72,7 +72,7 @@ ItemData::ItemData(const QString &fullPath, const QFileInfo &info) {
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
     : _parent(parent)
 {
-    QString fileName = TypeMan.setFileType(resource.name, resource.type).toQString();
+    QString fileName = QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str());
     _name = fileName;
 
     _data = new ItemData(parent->getPath(), fileName, archiveData, resource);

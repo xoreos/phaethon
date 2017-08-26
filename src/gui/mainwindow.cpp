@@ -35,6 +35,7 @@
 #include "src/common/filepath.h"
 #include "src/common/strutil.h"
 #include "src/common/system.h"
+#include "src/common/ustring.h"
 #include "src/common/writefile.h"
 #include "src/gui/config.h"
 #include "src/gui/mainwindow.h"
@@ -53,7 +54,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const Common::UString &path)
+MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path)
     : QMainWindow(parent) {
     _centralWidget = new QWidget(this);
     _centralLayout = new QGridLayout(_centralWidget);
@@ -220,15 +221,12 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     _status = std::make_shared<StatusBar>(this->statusBar());
     _status->setText("Idle...");
 
-    // open the path given in command line if any
-    if (path.empty()) {
-        // nothing is open yet
+    const QString qpath = QString::fromUtf8(path);
+
+    if (qpath.isEmpty())
         _actionClose->setEnabled(false);
-    }
-    else {
-        _rootPath = path.toQString();
-        setTreeViewModel(_rootPath);
-    }
+    else
+        setTreeViewModel(qpath);
 }
 
 MainWindow::~MainWindow() {
@@ -454,7 +452,8 @@ void MainWindow::exportBMUMP3() {
 
     const QString title = "Save MP3 file";
     const QString mask  = "MP3 file (*.mp3)|*.mp3";
-    const QString def   = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeMP3).toQString();
+    const char *defCstr = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeMP3).c_str();
+    const QString def   = QString::fromUtf8(defCstr);
 
     QString fileName = QFileDialog::getSaveFileName(this,
             title, def,
@@ -565,7 +564,8 @@ void MainWindow::exportWAV() {
 
     const QString title = "Save PCM WAV file";
     const QString mask  = "WAV file (*.wav)|*.wav";
-    const QString def   = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeWAV).toQString();
+    const char *defCstr = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeWAV).c_str();
+    const QString def   = QString::fromUtf8(defCstr);
 
     QString fileName = QFileDialog::getSaveFileName(this,
             title, def,
@@ -596,7 +596,7 @@ void MainWindow::exportWAV() {
 }
 
 void MainWindow::slotAbout() {
-    QString msg = createVersionText().toQString();
+    const QString msg = QString::fromUtf8(createVersionText().c_str());
     QMessageBox::about(this, "About Phaethon", msg);
 }
 
