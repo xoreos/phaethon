@@ -44,6 +44,7 @@
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/panelresourceinfo.h"
+#include "src/gui/proxymodel.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 #include "src/images/dumptga.h"
@@ -262,7 +263,14 @@ void MainWindow::setTreeViewModel(const QString &path) {
     _treeView->setModel(nullptr);
 
     _treeModel = std::make_unique<ResourceTree>(this, path, _treeView);
-    _treeView->setModel(_treeModel.get());
+
+    ProxyModel *proxy = new ProxyModel(this);
+    proxy->setSourceModel(_treeModel.get());
+
+    proxy->sort(0);
+
+    _treeView->setModel(proxy);
+
     _treeView->expandToDepth(0);
     _treeView->show();
 
