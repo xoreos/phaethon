@@ -56,24 +56,36 @@ struct Archive {
     uint32 index;
 };
 
-struct ItemData {
-    ItemData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource);
-    ItemData(const QString &fullPath, const QFileInfo &info);
+struct SoundData {
+    mutable bool triedDuration;
+    mutable uint64 duration;
+};
+
+struct FSData {
+    FSData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource);
+    FSData(const QString &fullPath, const QFileInfo &info);
 
     QString _fullPath; // used for QFileInfo and item info e.g. logging
     bool _isDir;
-    Source _source;
-    Aurora::FileType _fileType;
-    Aurora::ResourceType _resourceType;
     qint64 _size;
-
-    mutable bool _triedDuration;
-    mutable uint64 _duration;
-
-    Archive _archive;
 };
 
 class ResourceTreeItem {
+private:
+    ResourceTreeItem *_parent;
+    QList<ResourceTreeItem*> _children;
+    QString _name; // The filename. It's what the tree view displays.
+
+    FSData *_fsData;
+
+    SoundData _soundData;
+
+    Archive _archive;
+
+    Source _source;
+    Aurora::FileType _fileType;
+    Aurora::ResourceType _resourceType;
+
 public:
     ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
     ResourceTreeItem(QString fullPath, ResourceTreeItem *parent);
@@ -107,14 +119,6 @@ public:
     Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type) const;
     Sound::AudioStream *getAudioStream() const;
     uint64 getSoundDuration() const;
-
-private:
-    /** Model information. **/
-    ResourceTreeItem *_parent;
-    QList<ResourceTreeItem*> _children;
-    QString _name; // The filename. It's what the tree model displays.
-
-    ItemData *_data;
 };
 
 } // End of namespace GUI

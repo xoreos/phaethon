@@ -44,7 +44,6 @@
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/panelresourceinfo.h"
-#include "src/gui/proxymodel.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 #include "src/images/dumptga.h"
@@ -224,6 +223,9 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 
     const QString qpath = QString::fromUtf8(path);
 
+    _treeModel = nullptr;
+    _proxyModel = nullptr;
+
     if (qpath.isEmpty())
         _actionClose->setEnabled(false);
     else
@@ -259,17 +261,22 @@ void MainWindow::setTreeViewModel(const QString &path) {
         _status->pop();
     } BOOST_SCOPE_EXIT_END
 
-    _treeModel.reset();
     _treeView->setModel(nullptr);
 
-    _treeModel = std::make_unique<ResourceTree>(this, path, _treeView);
+    if (_treeModel)
+        delete _treeModel;
 
-    ProxyModel *proxy = new ProxyModel(this);
-    proxy->setSourceModel(_treeModel.get());
+    _treeModel = new ResourceTree(this, path, _treeView);
 
-    proxy->sort(0);
+    if (_proxyModel)
+        delete _proxyModel;
 
-    _treeView->setModel(proxy);
+    _proxyModel = new ProxyModel(this);
+    _proxyModel->setSourceModel(_treeModel);
+
+    _proxyModel->sort(0);
+
+    _treeView->setModel(_proxyModel);
 
     _treeView->expandToDepth(0);
     _treeView->show();
@@ -368,15 +375,17 @@ void MainWindow::showPreviewPanel() {
 }
 
 void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &UNUSED(deselected)) {
-    const QModelIndex index = selected.indexes().at(0);
-    _currentItem = _treeModel->getItem(index);
+    const QModelIndexList index = _proxyModel->mapSelectionToSource(selected).indexes();
+    _currentItem = _treeModel->itemFromIndex(index.at(0));
+
     _panelResourceInfo->update(_currentItem);
-    showPreviewPanel();
 
     _panelPreviewImage->setItem(_currentItem);
     if (kPreviewMoreTypes)
         _panelPreviewText->setItem(_currentItem);
     _panelPreviewSound->setItem(_currentItem);
+
+    showPreviewPanel();
 }
 
 QString constructStatus(const QString &_action, const QString &name, const QString &destination) {

@@ -44,6 +44,7 @@
 
 #include "src/common/readstream.h"
 #include "src/common/writestream.h"
+#include "src/gui/proxymodel.h"
 #include "src/gui/statusbar.h"
 #include "src/sound/sound.h"
 
@@ -91,7 +92,8 @@ private:
 
     std::shared_ptr<StatusBar> _status;
     const ResourceTreeItem *_currentItem;
-    std::unique_ptr<ResourceTree> _treeModel;
+    ResourceTree *_treeModel;
+    ProxyModel *_proxyModel;
     QString _rootPath;
 
     QWidget *_centralWidget;

@@ -66,10 +66,10 @@ class ResourceTree : public QAbstractItemModel {
     W_OBJECT(ResourceTree)
 
 private:
-    QString _rootPath;
     ResourceTreeItem *_root;
+    MainWindow *_mainWindow;
+    
     QFileIconProvider *_iconProvider;
-    MainWindow *_mainWindow; // to access status bar and log
 
     typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
     typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
@@ -81,24 +81,22 @@ public:
     explicit ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent = 0);
     ~ResourceTree();
 
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const override;
-    QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const override;
+    void populate(const QString& path, ResourceTreeItem *parent);
+
+    ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
+
+    QModelIndex index(int row, int col, const QModelIndex &parent) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    ResourceTreeItem *getItem(const QModelIndex &index) const;
-    bool canFetchMore(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool canFetchMore(const QModelIndex &index) const;
     void fetchMore(const QModelIndex &index);
+    bool hasChildren(const QModelIndex &index) const;
+
     void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
     void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
-    bool hasChildren(const QModelIndex &index) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    void setRootPath(const QString &path);
-    void populate(const QString& path, ResourceTreeItem *parent);
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const QString &file);
     void loadKEYDataFiles(Aurora::KEYFile &key);

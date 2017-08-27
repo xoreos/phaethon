@@ -11,19 +11,26 @@ namespace GUI {
 W_OBJECT_IMPL(ProxyModel)
 
 bool ProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
-    QString lname = sourceModel()->data(left).toString();
-    QString rname = sourceModel()->data(right).toString();
+	ResourceTree *model = qobject_cast<ResourceTree*>(sourceModel());
 
-    bool ldir = qobject_cast<ResourceTree*>(sourceModel())->getItem(left)->isDir();
-    bool rdir = qobject_cast<ResourceTree*>(sourceModel())->getItem(right)->isDir();
+	ResourceTreeItem *itemLeft = model->itemFromIndex(left);
+	ResourceTreeItem *itemRight = model->itemFromIndex(right);
 
-    if (ldir && rdir)
-        return !QString::compare(lname, rname, Qt::CaseInsensitive);
+	bool compare = QString::compare(itemLeft->getName(), itemRight->getName(), Qt::CaseInsensitive) < 0;
 
-    else if (ldir && !rdir)
-        return true;
+	bool leftDir = itemLeft->isDir();
+	bool rightDir = itemRight->isDir();
 
-    return !QString::compare(lname, rname, Qt::CaseInsensitive);
+	if (leftDir && rightDir)
+		return compare;
+
+	else if (leftDir && !rightDir)
+		return true;
+
+	else if (!leftDir && rightDir)
+		return false;
+
+	return compare;
 }
 
 } // End of namespace GUI
