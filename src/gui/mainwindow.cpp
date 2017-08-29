@@ -251,6 +251,28 @@ void MainWindow::slotLog(const QString &text) {
     _log->append(text);
 }
 
+void MainWindow::finishTree() {
+    if (_proxyModel)
+        delete _proxyModel;
+
+    _proxyModel = new ProxyModel(this);
+    _proxyModel->setSourceModel(_treeModel);
+
+    _proxyModel->sort(0);
+
+    _treeView->setModel(_proxyModel);
+
+    _treeView->expandToDepth(0);
+    _treeView->show();
+
+    _treeView->resizeColumnToContents(0);
+
+    QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                     this, &MainWindow::resourceSelect);
+
+    _status->setText("Idle...");
+}
+
 void MainWindow::setTreeViewModel(const QString &path) {
     if (_rootPath == path)
         return;
@@ -267,26 +289,6 @@ void MainWindow::setTreeViewModel(const QString &path) {
         delete _treeModel;
 
     _treeModel = new ResourceTree(this, path, _treeView);
-
-    if (_proxyModel)
-        delete _proxyModel;
-
-    _proxyModel = new ProxyModel(this);
-    _proxyModel->setSourceModel(_treeModel);
-
-    _proxyModel->sort(0);
-
-    _treeView->setModel(_proxyModel);
-
-    _treeView->expandToDepth(0);
-    _treeView->show();
-
-    _treeView->resizeColumnToContents(0);
-
-
-    QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                     this, &MainWindow::resourceSelect);
-
 
     _log->append(tr("Set root: %1").arg(path));
 

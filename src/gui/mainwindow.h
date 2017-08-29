@@ -66,6 +66,7 @@ public:
     ~MainWindow();
 
     std::shared_ptr<StatusBar> status();
+    void finishTree();
 
 private /*slots*/:
     void setTreeViewModel(const QString &path);

@@ -23,6 +23,9 @@
  */
 
 #include <QDir>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtConcurrentRun>
 #include <boost/scope_exit.hpp>
 
 #include "verdigris/wobjectimpl.h"
@@ -52,7 +55,7 @@ ResourceTree::ResourceTree(MainWindow *mainWindow, const QString &path, QObject 
 
     _root = new ResourceTreeItem("Filename", nullptr);
 
-    _mainWindow->status()->push("Populating resource tree...");
+    _mainWindow->status()->setText("Populating resource tree...");
 
     ResourceTreeItem *top = _root;
 
@@ -63,9 +66,12 @@ ResourceTree::ResourceTree(MainWindow *mainWindow, const QString &path, QObject 
         _root->appendChild(top);
     }
 
-    populate(path, top);
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
 
-    _mainWindow->status()->pop();
+    connect(watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::finishTree);
+
+    QFuture<void> future = QtConcurrent::run(this, &ResourceTree::populate, path, top);
+    watcher->setFuture(future);
 }
 
 ResourceTree::~ResourceTree() {
