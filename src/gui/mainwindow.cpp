@@ -251,6 +251,7 @@ void MainWindow::slotLog(const QString &text) {
     _log->append(text);
 }
 
+// called when the populate thread finishes
 void MainWindow::finishTree() {
     if (_proxyModel)
         delete _proxyModel;
@@ -270,7 +271,7 @@ void MainWindow::finishTree() {
     QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
                      this, &MainWindow::resourceSelect);
 
-    _status->setText("Idle...");
+    _status->pop();
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
@@ -278,10 +279,8 @@ void MainWindow::setTreeViewModel(const QString &path) {
         return;
     _rootPath = path;
 
+    // popped in finishTree
     _status->push("Populating resource tree...");
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
-    } BOOST_SCOPE_EXIT_END
 
     _treeView->setModel(nullptr);
 

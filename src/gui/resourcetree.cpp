@@ -55,8 +55,6 @@ ResourceTree::ResourceTree(MainWindow *mainWindow, const QString &path, QObject 
 
     _root = new ResourceTreeItem("Filename", nullptr);
 
-    _mainWindow->status()->setText("Populating resource tree...");
-
     ResourceTreeItem *top = _root;
 
     // If the root path is a directory, add a top level item
