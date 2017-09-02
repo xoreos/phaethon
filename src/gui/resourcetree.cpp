@@ -180,17 +180,7 @@ QVariant ResourceTree::headerData(int UNUSED(section), Qt::Orientation orientati
 }
 
 bool ResourceTree::canFetchMore(const QModelIndex &index) const {
-    auto type = itemFromIndex(index)->getFileType();
-    if (type == Aurora::kFileTypeZIP ||
-        type == Aurora::kFileTypeERF ||
-        type == Aurora::kFileTypeMOD ||
-        type == Aurora::kFileTypeNWM ||
-        type == Aurora::kFileTypeSAV ||
-        type == Aurora::kFileTypeHAK ||
-        type == Aurora::kFileTypeRIM ||
-        type == Aurora::kFileTypeKEY)
-        return true;
-    return false;
+    return itemFromIndex(index)->isArchive();
 }
 
 void ResourceTree::fetchMore(const QModelIndex &index) {
@@ -232,15 +222,7 @@ bool ResourceTree::hasChildren(const QModelIndex &index) const {
     if (!index.isValid())
         return true;
 
-    auto type = itemFromIndex(index)->getFileType();
-    if (type == Aurora::kFileTypeZIP ||
-        type == Aurora::kFileTypeERF ||
-        type == Aurora::kFileTypeMOD ||
-        type == Aurora::kFileTypeNWM ||
-        type == Aurora::kFileTypeSAV ||
-        type == Aurora::kFileTypeHAK ||
-        type == Aurora::kFileTypeRIM ||
-        type == Aurora::kFileTypeKEY)
+    if (itemFromIndex(index)->isArchive())
         return true;
 
     return itemFromIndex(index)->hasChildren();

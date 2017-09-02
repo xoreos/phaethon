@@ -91,6 +91,17 @@ public:
     ResourceTreeItem(QString fullPath, ResourceTreeItem *parent);
     ~ResourceTreeItem();
 
+    inline bool isArchive() {
+        return _fileType == Aurora::kFileTypeZIP ||
+               _fileType == Aurora::kFileTypeERF ||
+               _fileType == Aurora::kFileTypeMOD ||
+               _fileType == Aurora::kFileTypeNWM ||
+               _fileType == Aurora::kFileTypeSAV ||
+               _fileType == Aurora::kFileTypeHAK ||
+               _fileType == Aurora::kFileTypeRIM ||
+               _fileType == Aurora::kFileTypeKEY;
+    }
+
     /** Model structure. **/
     bool hasChildren() const;
     bool insertChild(int position, ResourceTreeItem *child);
