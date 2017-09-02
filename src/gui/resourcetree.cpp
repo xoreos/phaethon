@@ -197,18 +197,6 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
     if (!index.isValid())
         return;
 
-    // We only need special treatment for these archives
-    auto type = itemFromIndex(index)->getFileType();
-    if (type != Aurora::kFileTypeZIP &&
-        type != Aurora::kFileTypeERF &&
-        type != Aurora::kFileTypeMOD &&
-        type != Aurora::kFileTypeNWM &&
-        type != Aurora::kFileTypeSAV &&
-        type != Aurora::kFileTypeHAK &&
-        type != Aurora::kFileTypeRIM &&
-        type != Aurora::kFileTypeKEY)
-        return;
-
     ResourceTreeItem *item = itemFromIndex(index);
 
     // We already added the archive members. Nothing to do
