@@ -83,6 +83,9 @@ ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
         _resourceType = TypeMan.getResourceType(info.fileName().toStdString().c_str());
     }
 
+    _soundData.triedDuration = _resourceType != Aurora::kResourceSound;
+    _soundData.duration      = Sound::RewindableAudioStream::kInvalidLength;
+
     _archive.data         = nullptr;
     _archive.addedMembers = false;
     _archive.index        = 0xFFFFFFFF;
