@@ -31,10 +31,8 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
-    src/gui/panelpreviewtext.h \
     src/gui/proxymodel.h \
     src/gui/statusbar.h \
-    src/gui/config.h \
     $(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
@@ -45,8 +43,6 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
-    src/gui/panelpreviewtext.cpp \
     src/gui/proxymodel.cpp \
     src/gui/statusbar.cpp \
-    src/gui/config.cpp \
     $(EMPTY)

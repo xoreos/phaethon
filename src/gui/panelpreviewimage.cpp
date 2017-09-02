@@ -26,7 +26,6 @@
 
 #include "verdigris/wobjectimpl.h"
 
-#include "src/gui/config.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"
 
@@ -123,23 +122,6 @@ void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
 }
 
 void PanelPreviewImage::loadImage() {
-    if (kPreviewMoreTypes) {
-        if (_currentItem->getFileType() == Aurora::FileType::kFileTypeICO) {
-            QImageReader reader(_currentItem->getPath());
-            reader.setAutoTransform(true);
-            const QImage newImage = reader.read();
-
-            _originalPixmap = QPixmap::fromImage(newImage);
-            _originalSize = _originalPixmap.size();
-            _labelImage->setPixmap(_originalPixmap);
-            _labelImage->setFixedSize(_originalSize);
-
-            _labelDimensions->setText(QString("(%1x%2)").arg(_originalPixmap.width()).arg(_originalPixmap.height()));
-            _scrollAreaImage->show();
-            return;
-        }
-    }
-
     QScopedPointer<Images::Decoder> image(_currentItem->getImage());
 
     if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0)) {

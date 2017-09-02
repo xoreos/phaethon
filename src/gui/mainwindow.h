@@ -53,7 +53,6 @@ namespace GUI {
 class PanelPreviewEmpty;
 class PanelPreviewImage;
 class PanelPreviewSound;
-class PanelPreviewText;
 class PanelResourceInfo;
 class ResourceTreeItem;
 class ResourceTree;
@@ -124,7 +123,6 @@ private:
     PanelPreviewEmpty *_panelPreviewEmpty;
     PanelPreviewImage *_panelPreviewImage;
     PanelPreviewSound *_panelPreviewSound;
-    PanelPreviewText *_panelPreviewText;
     PanelResourceInfo *_panelResourceInfo;
 };
 
