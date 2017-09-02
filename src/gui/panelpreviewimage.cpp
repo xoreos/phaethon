@@ -108,9 +108,8 @@ void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
     _originalPixmap = QPixmap();
     _labelImage->setPixmap(_originalPixmap);
 
-    if (item->getResourceType() != Aurora::kResourceImage &&
-        item->getFileType() != Aurora::FileType::kFileTypeICO)
-            return;
+    if (item->getResourceType() != Aurora::kResourceImage)
+        return;
 
     _currentItem = item;
 
