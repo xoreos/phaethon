@@ -81,25 +81,40 @@ public:
     explicit ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent = 0);
     ~ResourceTree();
 
+    /** Walk the given path and add the items to the tree structure. */
     void populate(const QString& path, ResourceTreeItem *parent);
 
-    ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
-
-    QModelIndex index(int row, int col, const QModelIndex &parent) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool canFetchMore(const QModelIndex &index) const;
-    void fetchMore(const QModelIndex &index);
-    bool hasChildren(const QModelIndex &index) const;
-
+    /** Called in fetchMore. */
     void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
     void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
+
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const QString &file);
     void loadKEYDataFiles(Aurora::KEYFile &key);
+
+    /** Return the item in the tree structure that corresponds to the given index. */
+    ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
+
+    /** Model functions. */
+
+    /** Return the index if it exists, else create it. */
+    QModelIndex index(int row, int col, const QModelIndex &parent) const override;
+    /** Return the parent of the given index if it exists, else create it. */
+    QModelIndex parent(const QModelIndex &index) const override;
+    /** Return the data for the given index. */
+    QVariant data(const QModelIndex &index, int role) const override;
+    /** Return the header data. */
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    /** Define what file types should have an expand arrow in the tree. */
+    bool canFetchMore(const QModelIndex &index) const;
+    /** Return whether the item for index actually has children. */
+    bool hasChildren(const QModelIndex &index) const;
+    /** Return column count (in our case, 1 -- the filename.) */
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    /** Return row count -- how many children the given index has. */
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    /** Add children to the given index. */
+    void fetchMore(const QModelIndex &index);
 };
 
 } // End of namespace GUI
