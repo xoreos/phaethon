@@ -78,18 +78,13 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archi
     _duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-
-ResourceTreeItem::ResourceTreeItem() {
-    _parent = nullptr;
+ResourceTreeItem::ResourceTreeItem(const QString &data) {
+    _name = data;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
     qDeleteAll(_children);
     _children.clear();
-}
-
-void ResourceTreeItem::setData(QString data) {
-    _name = data;
 }
 
 void ResourceTreeItem::addChild(ResourceTreeItem *child) {

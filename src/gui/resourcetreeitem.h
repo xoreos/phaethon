@@ -81,7 +81,8 @@ public:
     /** Archive item. */
     ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
     /** Root item. */
-    ResourceTreeItem();
+    ResourceTreeItem(const QString &data);
+    
     ~ResourceTreeItem();
 
     inline bool isArchive() {
@@ -94,9 +95,6 @@ public:
                _fileType == Aurora::kFileTypeRIM ||
                _fileType == Aurora::kFileTypeKEY;
     }
-    
-    void setData(QString data);
-    void addChild(ResourceTreeItem *child);
 
     /** Model structure. **/
     bool hasChildren() const;
@@ -105,7 +103,7 @@ public:
     int row() const;
     ResourceTreeItem *childAt(int row) const;
     ResourceTreeItem *getParent() const;
-    void appendChild(ResourceTreeItem *child);
+    void addChild(ResourceTreeItem *child);
     void setParent(ResourceTreeItem *parent);
 
     /** Both. **/

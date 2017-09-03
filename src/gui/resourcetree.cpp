@@ -52,8 +52,7 @@ ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent)
     : QAbstractItemModel(parent)
     , _mainWindow(mainWindow)
     , _iconProvider(new QFileIconProvider()) {
-    _root = new ResourceTreeItem();
-    _root->setData("Filename");
+    _root = new ResourceTreeItem("Filename");
 }
 
 void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
