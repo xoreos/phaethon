@@ -45,6 +45,7 @@ PanelPreviewSound::PanelPreviewSound(QWidget *parent)
     _labelVolume = new QLabel(this);
     _labelPosition = new QLabel(this);
     _labelPercent = new QLabel(this);
+    _labelPercent->setAlignment(Qt::AlignCenter);
     _labelDuration = new QLabel(this);
 
     _buttonPlay = new QPushButton(tr("Play"), this);

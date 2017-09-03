@@ -35,6 +35,7 @@
 
 #include "src/aurora/archive.h"
 #include "src/aurora/util.h"
+#include "src/common/filetree.h"
 #include "src/common/ptrmap.h"
 #include "src/gui/statusbar.h"
 #include "src/images/decoder.h"
@@ -78,11 +79,11 @@ private:
     KEYDataFileMap _keyDataFiles;
 
 public:
-    explicit ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent = 0);
+    ResourceTree(MainWindow *mainWindow, QObject *parent = 0);
     ~ResourceTree();
 
-    /** Walk the given path and add the items to the tree structure. */
-    void populate(const QString& path, ResourceTreeItem *parent);
+    void populate(const Common::FileTree::Entry &rootEntry);
+    void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
 
     /** Called in fetchMore. */
     void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);

@@ -28,77 +28,73 @@
 
 namespace GUI {
 
-// Data for items within an archive
-FSData::FSData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource) {
-    _fullPath     = parentPath + "/" + fileName;
-    _isDir        = false;
-    _size         = archiveData->getResourceSize(resource.index);
-}
+ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
+    _name(QString::fromUtf8(entry.name.c_str())), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
-// Data for items which are actually on the filesystem
-FSData::FSData(const QString &fullPath, const QFileInfo &info) {
-    _fullPath = fullPath;
-    _isDir    = info.isDir();
-    _size     = _isDir ? Common::kFileInvalid : info.size();
-}
+    _path = QString::fromUtf8(entry.path.c_str());
 
-// Items within an archive
-ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
-    : _parent(parent)
-{
-    QString fileName = QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str());
-    _name = fileName;
-
-    _fsData = new FSData(parent->getPath(), fileName);
-
-    _source       = kSourceArchiveFile;
-    _fileType     = TypeMan.getFileType(fileName.toStdString().c_str());
-    _resourceType = TypeMan.getResourceType(fileName.toStdString().c_str());
-
-    _soundData.triedDuration = _resourceType != Aurora::kResourceSound;
-    _soundData.duration      = Sound::RewindableAudioStream::kInvalidLength;
-
-    _archive.data         = archiveData;
+    _archive.data = 0;
     _archive.addedMembers = false;
-    _archive.index        = resource.index;
-}
+    _archive.index = 0xFFFFFFFF;
 
-// Items which are actually on the filesystem
-ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
-    : _parent(parent)
-{
-    QFileInfo info(fullPath);
-    _name = info.fileName();
+    _size = Common::kFileInvalid;
+    if (_source == kSourceFile)
+        _size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
 
-    _fsData = new FSData(fullPath, info);
-
-    _source = info.isDir() ? kSourceDirectory : kSourceFile;
-
-    if (info.isDir()) {
+    if (_source == kSourceDirectory)
         _fileType = Aurora::kFileTypeNone;
+    else
+        _fileType = TypeMan.getFileType(_name.toStdString());
+
+    if (_source == kSourceDirectory)
         _resourceType = Aurora::kResourceNone;
-    }
-    else {
-        _fileType = TypeMan.getFileType(info.fileName().toStdString().c_str());
-        _resourceType = TypeMan.getResourceType(info.fileName().toStdString().c_str());
-    }
+    else
+        _resourceType = TypeMan.getResourceType(_name.toStdString());
 
-    _soundData.triedDuration = _resourceType != Aurora::kResourceSound;
-    _soundData.duration      = Sound::RewindableAudioStream::kInvalidLength;
+    _triedDuration = getResourceType() != Aurora::kResourceSound;
+    _duration = Sound::RewindableAudioStream::kInvalidLength;
+}
 
-    _archive.data         = nullptr;
+ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
+    _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())), _source(kSourceArchiveFile) {
+
+    _archive.data = archive;
     _archive.addedMembers = false;
-    _archive.index        = 0xFFFFFFFF;
+    _archive.index = resource.index;
+
+    _size = archive->getResourceSize(resource.index);
+
+    if (_source == kSourceDirectory)
+        _fileType = Aurora::kFileTypeNone;
+    else
+        _fileType = TypeMan.getFileType(_name.toStdString());
+
+    if (_source == kSourceDirectory)
+        _resourceType = Aurora::kResourceNone;
+    else
+        _resourceType = TypeMan.getResourceType(_name.toStdString());
+
+    _triedDuration = getResourceType() != Aurora::kResourceSound;
+    _duration = Sound::RewindableAudioStream::kInvalidLength;
+}
+
+
+ResourceTreeItem::ResourceTreeItem() {
+    _parent = nullptr;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
     qDeleteAll(_children);
     _children.clear();
-    delete _fsData;
 }
 
-void ResourceTreeItem::appendChild(ResourceTreeItem *child) {
+void ResourceTreeItem::setData(QString data) {
+    _name = data;
+}
+
+void ResourceTreeItem::addChild(ResourceTreeItem *child) {
     _children << child;
+    child->setParent(this);
 }
 
 bool ResourceTreeItem::insertChild(int position, ResourceTreeItem *child) {
@@ -143,15 +139,15 @@ const QString &ResourceTreeItem::getName() const {
 /* Data. */
 
 bool ResourceTreeItem::isDir() const {
-    return _fsData->_isDir;
+    return _source == kSourceDirectory;
 }
 
 const QString &ResourceTreeItem::getPath() const {
-    return _fsData->_fullPath;
+    return _path;
 }
 
 qint64 ResourceTreeItem::getSize() const {
-    return _fsData->_size;
+    return _size;
 }
 
 Source ResourceTreeItem::getSource() const {
@@ -173,7 +169,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
                 throw Common::Exception("Can't get file data of a directory");
 
             case kSourceFile:
-                return new Common::ReadFile(_fsData->_fullPath.toStdString().c_str());
+                return new Common::ReadFile(_path.toStdString().c_str());
 
             case kSourceArchiveFile:
                 if (!_archive.data)
@@ -264,21 +260,21 @@ Archive &ResourceTreeItem::getArchive() {
 }
 
 uint64 ResourceTreeItem::getSoundDuration() const {
-    if (_soundData.triedDuration)
-        return _soundData.duration;
+    if (_triedDuration)
+        return _duration;
 
-    _soundData.triedDuration = true;
+    _triedDuration = true;
 
     try {
         Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
 
         Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
-        _soundData.duration = rewSound.getDuration();
+        _duration = rewSound.getDuration();
 
     } catch (...) {
     }
 
-    return _soundData.duration;
+    return _duration;
 }
 
 Sound::AudioStream *ResourceTreeItem::getAudioStream() const {

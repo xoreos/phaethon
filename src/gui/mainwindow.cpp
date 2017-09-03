@@ -200,7 +200,6 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
     QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
     QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::loadModel, this, &MainWindow::setTreeViewModel);
     QObject::connect(_panelResourceInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
     QObject::connect(_panelResourceInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
     QObject::connect(_panelResourceInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
@@ -212,18 +211,18 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     _actionAbout->setShortcut(QKeySequence(tr("F1")));
 
     // status bar
-    _status = std::make_shared<StatusBar>(this->statusBar());
+    _status = new StatusBar(this->statusBar());
     _status->setText("Idle...");
 
     const QString qpath = QString::fromUtf8(path);
 
-    _treeModel = nullptr;
-    _proxyModel = nullptr;
+    _treeModel = new ResourceTree(this, _treeView);
+    _proxyModel = new ProxyModel(this);
 
     if (qpath.isEmpty())
         _actionClose->setEnabled(false);
     else
-        setTreeViewModel(qpath);
+        open(qpath);
 }
 
 MainWindow::~MainWindow() {
@@ -241,21 +240,40 @@ void MainWindow::slotLog(const QString &text) {
     _log->append(text);
 }
 
+void MainWindow::open(const QString &path) {
+    if (_rootPath == path)
+        return;
+
+    _rootPath = path;
+
+    // popped in openFinish
+    _status->push("Populating resource tree...");
+
+    try {
+        _files.readPath(Common::UString(path.toStdString()), -1);
+    } catch (Common::Exception &e) {
+        _status->pop();
+
+        Common::printException(e, "WARNING: ");
+        return;
+    }
+
+    // enters populate thread in here
+    _treeModel->populate(_files.getRoot());
+
+    _log->append(tr("Set root: %1").arg(path));
+
+    _actionClose->setEnabled(true);
+}
+
 // called when the populate thread finishes
-void MainWindow::finishTree() {
-    if (_proxyModel)
-        delete _proxyModel;
-
-    _proxyModel = new ProxyModel(this);
+void MainWindow::openFinish() {
     _proxyModel->setSourceModel(_treeModel);
-
     _proxyModel->sort(0);
 
     _treeView->setModel(_proxyModel);
-
     _treeView->expandToDepth(0);
     _treeView->show();
-
     _treeView->resizeColumnToContents(0);
 
     QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
@@ -264,38 +282,18 @@ void MainWindow::finishTree() {
     _status->pop();
 }
 
-void MainWindow::setTreeViewModel(const QString &path) {
-    if (_rootPath == path)
-        return;
-    _rootPath = path;
-
-    // popped in finishTree
-    _status->push("Populating resource tree...");
-
-    _treeView->setModel(nullptr);
-
-    if (_treeModel)
-        delete _treeModel;
-
-    _treeModel = new ResourceTree(this, path, _treeView);
-
-    _log->append(tr("Set root: %1").arg(path));
-
-    _actionClose->setEnabled(true);
-}
-
 void MainWindow::slotOpenDir() {
     QString dir = QFileDialog::getExistingDirectory(this,
         tr("Open directory"), QString(QStandardPaths::HomeLocation), QFileDialog::ShowDirsOnly);
     if (!dir.isEmpty())
-        setTreeViewModel(dir);
+        open(dir);
 }
 
 void MainWindow::slotOpenFile() {
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open Aurora game resource file"), QString(QStandardPaths::HomeLocation), tr("Aurora game resource (*.*)"));
     if (!fileName.isEmpty())
-        setTreeViewModel(fileName);
+        open(fileName);
 }
 
 void MainWindow::slotCloseDir() {
@@ -384,7 +382,7 @@ void MainWindow::saveItem() {
     try {
         QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
-        Common::WriteFile file(Common::UString(fileName.toStdString().c_str()));
+        Common::WriteFile file(fileName.toStdString());
 
         file.writeStream(*res);
         file.flush();
@@ -415,7 +413,7 @@ void MainWindow::exportTGA() {
     try {
         QScopedPointer<Images::Decoder> image(_currentItem->getImage());
 
-        image->dumpTGA(Common::UString(fileName.toStdString().c_str()));
+        image->dumpTGA(fileName.toStdString());
 
     } catch (Common::Exception &e) {
         Common::printException(e, "WARNING: ");
@@ -432,8 +430,6 @@ void MainWindow::exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::Write
     mp3.writeStream(bmu);
 }
 
-#define USTR(x) (Common::UString((x).toStdString()))
-
 void MainWindow::exportBMUMP3() {
     if (!_currentItem)
         return;
@@ -442,7 +438,7 @@ void MainWindow::exportBMUMP3() {
 
     const QString title = "Save MP3 file";
     const QString mask  = "MP3 file (*.mp3)|*.mp3";
-    const char *defCstr = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeMP3).c_str();
+    const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3).c_str();
     const QString def   = QString::fromUtf8(defCstr);
 
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -460,7 +456,7 @@ void MainWindow::exportBMUMP3() {
     try {
         Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
-        Common::WriteFile file(USTR(fileName));
+        Common::WriteFile file(fileName.toStdString());
 
         exportBMUMP3Impl(*res, file);
         file.flush();
@@ -554,7 +550,7 @@ void MainWindow::exportWAV() {
 
     const QString title = "Save PCM WAV file";
     const QString mask  = "WAV file (*.wav)|*.wav";
-    const char *defCstr = TypeMan.setFileType(USTR(_currentItem->getName()), Aurora::kFileTypeWAV).c_str();
+    const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV).c_str();
     const QString def   = QString::fromUtf8(defCstr);
 
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -572,7 +568,7 @@ void MainWindow::exportWAV() {
     try {
         Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
-        Common::WriteFile file(USTR(fileName));
+        Common::WriteFile file(fileName.toStdString());
 
         exportWAVImpl(sound.get(), file);
         file.flush();
@@ -590,8 +586,12 @@ void MainWindow::slotAbout() {
     QMessageBox::about(this, "About Phaethon", msg);
 }
 
-std::shared_ptr<StatusBar> MainWindow::status() {
-    return _status;
+void MainWindow::statusPush(const QString &text) {
+    _status->push(text);
+}
+
+void MainWindow::statusPop() {
+    _status->pop();
 }
 
 } // End of namespace GUI

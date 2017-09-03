@@ -30,6 +30,7 @@
 
 #include "src/aurora/archive.h"
 #include "src/aurora/util.h"
+#include "src/common/filetree.h"
 #include "src/images/dds.h"
 #include "src/images/sbm.h"
 #include "src/images/tga.h"
@@ -56,29 +57,17 @@ struct Archive {
     uint32 index;
 };
 
-struct SoundData {
-    mutable bool triedDuration;
-    mutable uint64 duration;
-};
-
-struct FSData {
-    FSData(const QString &parentPath, const QString &fileName, Aurora::Archive *archiveData, Aurora::Archive::Resource &resource);
-    FSData(const QString &fullPath, const QFileInfo &info);
-
-    QString _fullPath; // used for QFileInfo and item info e.g. logging
-    bool _isDir;
-    qint64 _size;
-};
-
 class ResourceTreeItem {
 private:
     ResourceTreeItem *_parent;
     QList<ResourceTreeItem*> _children;
     QString _name; // The filename. It's what the tree view displays.
 
-    FSData *_fsData;
+    QString _path;
+    qint64 _size;
 
-    SoundData _soundData;
+    mutable bool _triedDuration;
+    mutable uint64 _duration;
 
     Archive _archive;
 
@@ -87,8 +76,12 @@ private:
     Aurora::ResourceType _resourceType;
 
 public:
-    ResourceTreeItem(Aurora::Archive *archiveData, Aurora::Archive::Resource &resource, ResourceTreeItem *parent);
-    ResourceTreeItem(QString fullPath, ResourceTreeItem *parent);
+    /** Filesystem item. */
+    ResourceTreeItem(const Common::FileTree::Entry &entry);
+    /** Archive item. */
+    ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
+    /** Root item. */
+    ResourceTreeItem();
     ~ResourceTreeItem();
 
     inline bool isArchive() {
@@ -101,6 +94,9 @@ public:
                _fileType == Aurora::kFileTypeRIM ||
                _fileType == Aurora::kFileTypeKEY;
     }
+    
+    void setData(QString data);
+    void addChild(ResourceTreeItem *child);
 
     /** Model structure. **/
     bool hasChildren() const;

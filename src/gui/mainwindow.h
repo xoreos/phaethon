@@ -42,6 +42,7 @@
 
 #include "verdigris/wobjectdefs.h"
 
+#include "src/common/filetree.h"
 #include "src/common/readstream.h"
 #include "src/common/writestream.h"
 #include "src/gui/proxymodel.h"
@@ -64,11 +65,12 @@ public:
     MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
     ~MainWindow();
 
-    std::shared_ptr<StatusBar> status();
-    void finishTree();
+    void statusPush(const QString &text);
+    void statusPop();
+    void openFinish();
 
 private /*slots*/:
-    void setTreeViewModel(const QString &path);
+    void open(const QString &path);
     void slotOpenDir();
     void slotOpenFile();
     void slotCloseDir();
@@ -90,7 +92,9 @@ private:
     void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
     void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
-    std::shared_ptr<StatusBar> _status;
+    Common::FileTree _files;
+
+    StatusBar *_status;
     const ResourceTreeItem *_currentItem;
     ResourceTree *_treeModel;
     ProxyModel *_proxyModel;

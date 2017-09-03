@@ -48,28 +48,32 @@ namespace GUI {
 
 W_OBJECT_IMPL(ResourceTree)
 
-ResourceTree::ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent)
+ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent)
     : QAbstractItemModel(parent)
     , _mainWindow(mainWindow)
     , _iconProvider(new QFileIconProvider()) {
+    _root = new ResourceTreeItem();
+    _root->setData("Filename");
+}
 
-    _root = new ResourceTreeItem("Filename", nullptr);
-
-    ResourceTreeItem *top = _root;
-
-    // If the root path is a directory, add a top level item
-    auto info = QFileInfo(path);
-    if (info.isDir()) {
-        top = new ResourceTreeItem(info.canonicalFilePath(), _root);
-        _root->appendChild(top);
-    }
+void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
+    ResourceTreeItem *treeRoot = new ResourceTreeItem(rootEntry);
+    _root->addChild(treeRoot);
 
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-
-    connect(watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::finishTree);
-
-    QFuture<void> future = QtConcurrent::run(this, &ResourceTree::populate, path, top);
+    connect(watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::openFinish);
+    QFuture<void> future = QtConcurrent::run(this, &ResourceTree::populate, rootEntry, treeRoot);
     watcher->setFuture(future);
+}
+
+void ResourceTree::populate(const Common::FileTree::Entry &entry, ResourceTreeItem *parent) {
+    for (std::list<Common::FileTree::Entry>::const_iterator childIter = entry.children.begin();
+         childIter != entry.children.end(); ++childIter) {
+
+        ResourceTreeItem *child = new ResourceTreeItem(*childIter);
+        parent->addChild(child);
+        populate(*childIter, child);
+    }
 }
 
 ResourceTree::~ResourceTree() {
@@ -77,27 +81,6 @@ ResourceTree::~ResourceTree() {
     _keyDataFiles.clear();
     delete _iconProvider;
     delete _root;
-}
-
-void ResourceTree::populate(const QString& path, ResourceTreeItem *parent) {
-    QFileInfo info(path);
-    if (info.isDir()) {
-        QDir dir(path);
-        dir.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-        QFileInfoList list = dir.entryInfoList();
-
-        for (const auto &item : list) {
-            ResourceTreeItem *child = new ResourceTreeItem(item.canonicalFilePath(), parent);
-            parent->appendChild(child);
-
-            if (item.isDir())
-                populate(item.canonicalFilePath(), child);
-        }
-    }
-    else {
-        parent->appendChild(new ResourceTreeItem(path, parent));
-    }
 }
 
 ResourceTreeItem *ResourceTree::itemFromIndex(const QModelIndex &index) const
@@ -194,9 +177,9 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
     if (archive.addedMembers)
         return;
 
-    _mainWindow->status()->push(tr("Loading archive") + item->getName() + "...");
+    _mainWindow->statusPush(tr("Loading archive") + item->getName() + "...");
     BOOST_SCOPE_EXIT((&_mainWindow)) {
-        _mainWindow->status()->pop();
+        _mainWindow->statusPop();
     } BOOST_SCOPE_EXIT_END
 
     // Load the archive, if necessary
@@ -228,17 +211,13 @@ bool ResourceTree::hasChildren(const QModelIndex &index) const {
     return itemFromIndex(index)->hasChildren();
 }
 
-
-
 void ResourceTree::insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex) {
     QList<ResourceTreeItem*> items;
-
-    ResourceTreeItem *parentItem = itemFromIndex(parentIndex);
 
     auto resources = archive.data->getResources();
     for (auto r = resources.begin(); r != resources.end(); ++r)
     {
-        items << new ResourceTreeItem(archive.data, *r, parentItem);
+        items << new ResourceTreeItem(archive.data, *r);
     }
 
     insertItems(0, items, parent);
@@ -249,8 +228,10 @@ void ResourceTree::insertItems(int position, QList<ResourceTreeItem*> &items, co
 
     beginInsertRows(parent, position, position + items.count() - 1);
 
-    for (const auto &child : items)
-        parentItem->appendChild(child);
+    for (const auto &item : items)
+    {
+        parentItem->addChild(item);
+    }
 
     endInsertRows();
 }
@@ -330,17 +311,17 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
     for (uint i = 0; i < dataFiles.size(); i++) {
         try {
 
-            _mainWindow->status()->push(tr("Loading data file") + QString::fromUtf8(dataFiles[i].c_str()) + "...");
+            _mainWindow->statusPush(tr("Loading data file") + QString::fromUtf8(dataFiles[i].c_str()) + "...");
 
             Aurora::KEYDataFile *dataFile = getKEYDataFile(QString::fromUtf8(dataFiles[i].c_str()));
             key.addDataFile(i, dataFile);
 
-            _mainWindow->status()->pop();
+            _mainWindow->statusPop();
 
         } catch (Common::Exception &e) {
             e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());
 
-            _mainWindow->status()->pop();
+            _mainWindow->statusPop();
             Common::printException(e, "WARNING: ");
         }
     }
