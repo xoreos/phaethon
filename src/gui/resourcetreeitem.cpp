@@ -131,8 +131,6 @@ const QString &ResourceTreeItem::getName() const {
     return _name;
 }
 
-/* Data. */
-
 bool ResourceTreeItem::isDir() const {
     return _source == kSourceDirectory;
 }

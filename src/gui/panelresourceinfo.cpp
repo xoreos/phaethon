@@ -38,8 +38,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelResourceInfo)
 
-PanelResourceInfo::PanelResourceInfo(QWidget *parent)
-    : QFrame(parent) {
+PanelResourceInfo::PanelResourceInfo(QWidget *parent) : QFrame(parent) {
     QVBoxLayout *layoutTop = new QVBoxLayout(this);
     QVBoxLayout *layoutLabels = new QVBoxLayout();
     QHBoxLayout *layoutButtons = new QHBoxLayout();

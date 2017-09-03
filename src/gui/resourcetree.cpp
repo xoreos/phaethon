@@ -48,10 +48,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(ResourceTree)
 
-ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent)
-    : QAbstractItemModel(parent)
-    , _mainWindow(mainWindow)
-    , _iconProvider(new QFileIconProvider()) {
+ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent) : QAbstractItemModel(parent),
+    _mainWindow(mainWindow), _iconProvider(new QFileIconProvider()) {
     _root = new ResourceTreeItem("Filename");
 }
 
@@ -82,16 +80,14 @@ ResourceTree::~ResourceTree() {
     delete _root;
 }
 
-ResourceTreeItem *ResourceTree::itemFromIndex(const QModelIndex &index) const
-{
+ResourceTreeItem *ResourceTree::itemFromIndex(const QModelIndex &index) const {
     if (!index.isValid())
         return _root;
 
     return static_cast<ResourceTreeItem*>(index.internalPointer());
 }
 
-QModelIndex ResourceTree::index(int row, int col, const QModelIndex &parent) const
-{
+QModelIndex ResourceTree::index(int row, int col, const QModelIndex &parent) const {
     ResourceTreeItem *item = itemFromIndex(parent)->childAt(row);
 
     if (!item)
@@ -100,8 +96,7 @@ QModelIndex ResourceTree::index(int row, int col, const QModelIndex &parent) con
     return createIndex(row, col, item);
 }
 
-QModelIndex ResourceTree::parent(const QModelIndex &index) const
-{
+QModelIndex ResourceTree::parent(const QModelIndex &index) const {
     ResourceTreeItem *parent = itemFromIndex(index)->getParent();
     if (parent == _root)
         return QModelIndex();

@@ -52,8 +52,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path)
-    : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
+    QMainWindow(parent) {
     _centralWidget = new QWidget(this);
     _centralLayout = new QGridLayout(_centralWidget);
 

@@ -33,8 +33,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewSound)
 
-PanelPreviewSound::PanelPreviewSound(QWidget *parent)
-    : QFrame(parent) {
+PanelPreviewSound::PanelPreviewSound(QWidget *parent) : QFrame(parent) {
     QGridLayout *layoutTop = new QGridLayout(this);
     QHBoxLayout *layoutLabels = new QHBoxLayout();
     QHBoxLayout *layoutButtons = new QHBoxLayout();
