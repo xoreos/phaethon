@@ -118,28 +118,23 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
 
     ResourceTreeItem *item = itemFromIndex(index);
 
-    if (role == Qt::DecorationRole)
-    {
+    if (role == Qt::DecorationRole) {
         switch (item->getSource()) {
             case Source::kSourceFile:
-                switch (item->getFileType()) {
-                    case Aurora::kFileTypeZIP:
-                    case Aurora::kFileTypeERF:
-                    case Aurora::kFileTypeMOD:
-                    case Aurora::kFileTypeNWM:
-                    case Aurora::kFileTypeSAV:
-                    case Aurora::kFileTypeHAK:
-                    case Aurora::kFileTypeRIM:
-                    case Aurora::kFileTypeKEY:
-                        // TODO: special icon for archives?
-                        //return _iconProvider->icon(QFileIconProvider::File);
+            case Source::kSourceArchiveFile:
+                switch (item->getResourceType()) {
+                    case Aurora::kResourceSound:
+                        return QIcon::fromTheme("audio-x-generic");
+                    case Aurora::kResourceImage:
+                        return QIcon::fromTheme("image");
+                    case Aurora::kResourceArchive:
+                        return QIcon::fromTheme("package-x-generic");
                     default:
                         return _iconProvider->icon(QFileIconProvider::File);
                 }
-            case Source::kSourceDirectory:
-                return _iconProvider->icon(QFileIconProvider::Folder);
+                break;
             default:
-                return _iconProvider->icon(QFileIconProvider::File);
+                return _iconProvider->icon(QFileInfo(item->getPath()));
         }
     }
 
