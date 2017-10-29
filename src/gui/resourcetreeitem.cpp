@@ -31,7 +31,7 @@ namespace GUI {
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
     _name(QString::fromUtf8(entry.name.c_str())), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
-    _path = QString::fromUtf8(entry.path.c_str());
+    _path = QString::fromUtf8(entry.path.string().c_str());
 
     _archive.data = 0;
     _archive.addedMembers = false;

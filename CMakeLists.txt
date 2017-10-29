@@ -262,15 +262,11 @@ find_package(LibLZMA REQUIRED)
 include_directories(${LIBLZMA_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${LIBLZMA_LIBRARIES})
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5MultimediaWidgets REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
-include_directories(${Qt5MultimediaWidgets_INCLUDE_DIRS})
-include_directories(${Qt5Concurrent_INCLUDE_DIRS})
-list(APPEND PHAETHON_LIBRARIES Qt5::Core Qt5::Widgets Qt5::MultimediaWidgets Qt5::Gui Qt5::Concurrent)
+find_package(Qt5Widgets)
+find_package(Qt5MultimediaWidgets)
+find_package(Qt5Concurrent)
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5MultimediaWidgets_INCLUDE_DIRS} ${Qt5Concurrent_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::MultimediaWidgets Qt5::Concurrent)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 find_package(Iconv REQUIRED)
@@ -317,7 +313,7 @@ endforeach()
 
 foreach(AM_PROGRAM ${AM_PROGRAMS})
   target_compile_features(${AM_PROGRAM} PRIVATE cxx_relaxed_constexpr) # for verdigris
-  target_link_libraries(${AM_PROGRAM} Qt5::Gui Qt5::Widgets ${PHAETHON_LIBRARIES})
+  target_link_libraries(${AM_PROGRAM} ${PHAETHON_LIBRARIES})
 endforeach()
 
 
