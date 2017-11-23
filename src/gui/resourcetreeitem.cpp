@@ -83,35 +83,37 @@ ResourceTreeItem::ResourceTreeItem(const QString &data) {
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
-    qDeleteAll(_children);
-    _children.clear();
 }
 
 void ResourceTreeItem::addChild(ResourceTreeItem *child) {
-    _children << child;
     child->setParent(this);
+    _children.push_back(std::unique_ptr<ResourceTreeItem>(child));
 }
 
-bool ResourceTreeItem::insertChild(int position, ResourceTreeItem *child) {
-    if (position < 0 or position >= _children.count())
+bool ResourceTreeItem::insertChild(size_t position, ResourceTreeItem *child) {
+    if (position >= _children.size())
         return false;
 
-    _children.insert(position, child);
+    _children.insert(_children.begin() + position, std::unique_ptr<ResourceTreeItem>(child));
 
     return true;
 }
 
 ResourceTreeItem *ResourceTreeItem::childAt(int row) const {
-    return _children.at(row);
+    return _children[row].get();
 }
 
 int ResourceTreeItem::childCount() const {
-    return _children.count();
+    return _children.size();
 }
 
 int ResourceTreeItem::row() const {
-    if (_parent)
-        return _parent->_children.indexOf(const_cast<ResourceTreeItem*>(this));
+    if (_parent) {
+        for (size_t i = 0; i < _parent->_children.size(); i++) {
+            if (_parent->_children[i].get() == this)
+                return i;
+        }
+    }
     return 0;
 }
 
@@ -124,7 +126,7 @@ void ResourceTreeItem::setParent(ResourceTreeItem *parent) {
 }
 
 bool ResourceTreeItem::hasChildren() const {
-    return _children.count();
+    return _children.size();
 }
 
 const QString &ResourceTreeItem::getName() const {

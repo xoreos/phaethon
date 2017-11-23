@@ -39,7 +39,7 @@ class PanelPreviewEmpty : public QFrame {
     W_OBJECT(PanelPreviewEmpty)
 
 public:
-    PanelPreviewEmpty(QWidget *parent = 0);
+    PanelPreviewEmpty();
 };
 
 } // End of namespace GUI

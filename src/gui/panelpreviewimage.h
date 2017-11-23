@@ -89,7 +89,7 @@ private:
     void updateButtons();
 
 public:
-    PanelPreviewImage(QWidget *parent = 0);
+    PanelPreviewImage();
 
     void setItem(const GUI::ResourceTreeItem *item);
 

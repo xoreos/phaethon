@@ -33,7 +33,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewImage)
 
-PanelPreviewImage::PanelPreviewImage(QWidget *parent) : QFrame(parent) {
+PanelPreviewImage::PanelPreviewImage() : QFrame(0) {
     _zoomFactor = 1.0f;
 
     _mode = Qt::SmoothTransformation;

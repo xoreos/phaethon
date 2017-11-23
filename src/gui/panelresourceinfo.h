@@ -51,7 +51,7 @@ private:
     QLabel *_labelResType;
 
 public:
-    PanelResourceInfo(QWidget *parent = 0);
+    PanelResourceInfo();
 
     void showExportButtons(const GUI::ResourceTreeItem *item);
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);

@@ -60,7 +60,7 @@ struct Archive {
 class ResourceTreeItem {
 private:
     ResourceTreeItem *_parent;
-    QList<ResourceTreeItem*> _children;
+    std::vector<std::unique_ptr<ResourceTreeItem>> _children;
     QString _name; // The filename. It's what the tree view displays.
 
     QString _path;
@@ -98,7 +98,7 @@ public:
 
     /** Model structure. **/
     bool hasChildren() const;
-    bool insertChild(int position, ResourceTreeItem *child);
+    bool insertChild(size_t position, ResourceTreeItem *child);
     int childCount() const;
     int row() const;
     ResourceTreeItem *childAt(int row) const;

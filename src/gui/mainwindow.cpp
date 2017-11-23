@@ -52,6 +52,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
+MainWindow::~MainWindow(){} // needed for ScopedPtr
+
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
     QMainWindow(parent) {
     _centralWidget = new QWidget(this);
@@ -72,10 +74,10 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     _menuFile = new QMenu(_menuBar);
     _menuHelp = new QMenu(_menuBar);
 
-    _panelPreviewEmpty = new PanelPreviewEmpty();
-    _panelPreviewImage = new PanelPreviewImage();
-    _panelPreviewSound = new PanelPreviewSound();
-    _panelResourceInfo = new PanelResourceInfo();
+    _panelPreviewEmpty.reset(new PanelPreviewEmpty());
+    _panelPreviewImage.reset(new PanelPreviewImage());
+    _panelPreviewSound.reset(new PanelPreviewSound());
+    _panelResourceInfo.reset(new PanelResourceInfo());
 
     _treeView = new QTreeView(_splitterLeftRight);
     // 1:8 ratio, 8 being the (res info + preview) wrapper widget
@@ -146,7 +148,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     QFrame *resInfoFrame = new QFrame(wrapperWidget);
     {
         QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
-        hl->addWidget(_panelResourceInfo);
+        hl->addWidget(_panelResourceInfo.get());
     }
     resInfoFrame->setFrameShape(QFrame::StyledPanel);
     resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
@@ -156,7 +158,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     {
         QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
         hl->setMargin(0);
-        hl->addWidget(_panelPreviewEmpty);
+        hl->addWidget(_panelPreviewEmpty.get());
     }
     _resPreviewFrame->setFrameShape(QFrame::StyledPanel);
 
@@ -186,7 +188,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 
     _actionOpenDirectory->setText(tr("&Open directory"));
     _actionClose->setText(tr("&Close"));
-    _actionQuit->setText(tr("MainWindow"));
+    _actionQuit->setText(tr("Quit"));
     _actionAbout->setText(tr("About"));
     _actionOpenFile->setText(tr("&Open file"));
 
@@ -200,40 +202,29 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
     QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
     QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
     QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
-    QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::log, this, &MainWindow::slotLog);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
+    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
     QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
 
     _actionAbout->setShortcut(QKeySequence(tr("F1")));
 
     // status bar
-    _status = new StatusBar(this->statusBar());
+    _status.reset(new StatusBar(this->statusBar()));
     _status->setText("Idle...");
 
     const QString qpath = QString::fromUtf8(path);
 
-    _treeModel = new ResourceTree(this, _treeView);
-    _proxyModel = new ProxyModel(this);
+    _treeModel.reset(new ResourceTree(this, _treeView));
+    _proxyModel.reset(new ProxyModel(this));
 
     if (qpath.isEmpty())
         _actionClose->setEnabled(false);
     else
         open(qpath);
-}
-
-MainWindow::~MainWindow() {
-    if (_panelPreviewEmpty)
-        delete _panelPreviewEmpty;
-
-    if (_panelPreviewSound)
-        delete _panelPreviewSound;
-
-    if (_panelPreviewImage)
-        delete _panelPreviewImage;
 }
 
 void MainWindow::slotLog(const QString &text) {
@@ -258,7 +249,7 @@ void MainWindow::open(const QString &path) {
         return;
     }
 
-    _treeModel = new ResourceTree(this, _treeView);
+    _treeModel.reset(new ResourceTree(this, _treeView));
 
     // enters populate thread in here
     _treeModel->populate(_files.getRoot());
@@ -270,10 +261,10 @@ void MainWindow::open(const QString &path) {
 
 // called when the populate thread finishes
 void MainWindow::openFinish() {
-    _proxyModel->setSourceModel(_treeModel);
+    _proxyModel->setSourceModel(_treeModel.get());
     _proxyModel->sort(0);
 
-    _treeView->setModel(_proxyModel);
+    _treeView->setModel(_proxyModel.get());
     _treeView->expandToDepth(0);
     _treeView->show();
     _treeView->resizeColumnToContents(0);
@@ -299,14 +290,13 @@ void MainWindow::slotOpenFile() {
 }
 
 void MainWindow::slotCloseDir() {
-    showPreviewPanel(_panelPreviewEmpty);
+    showPreviewPanel(_panelPreviewEmpty.get());
 
     _panelResourceInfo->setButtonsForClosedDir();
 
     _treeView->setModel(nullptr);
 
-    delete _treeModel;
-    _treeModel = nullptr;
+    _treeModel.reset(nullptr);
 
     _log->append(tr("Closed directory: %1").arg(_rootPath));
 
@@ -329,7 +319,7 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
         if (old != panel) {
             _resPreviewFrame->layout()->removeWidget(old);
             old->setParent(0);
-            if (old == _panelPreviewSound)
+            if (old == _panelPreviewSound.get())
                 _panelPreviewSound->stop();
             _resPreviewFrame->layout()->addWidget(panel);
         }
@@ -339,15 +329,15 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
 void MainWindow::showPreviewPanel() {
     switch (_currentItem->getResourceType()) {
         case Aurora::kResourceImage:
-            showPreviewPanel(_panelPreviewImage);
+            showPreviewPanel(_panelPreviewImage.get());
             break;
 
         case Aurora::kResourceSound:
-            showPreviewPanel(_panelPreviewSound);
+            showPreviewPanel(_panelPreviewSound.get());
             break;
 
         default:
-            showPreviewPanel(_panelPreviewEmpty);
+            showPreviewPanel(_panelPreviewEmpty.get());
             break;
     }
 }

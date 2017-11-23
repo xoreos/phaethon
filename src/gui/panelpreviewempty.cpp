@@ -31,7 +31,7 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewEmpty)
 
-PanelPreviewEmpty::PanelPreviewEmpty(QWidget *parent) : QFrame(parent) {
+PanelPreviewEmpty::PanelPreviewEmpty() : QFrame(0) {
     QHBoxLayout *layoutTop = new QHBoxLayout(this);
     layoutTop->setContentsMargins(0, 0, 0, 0);
 

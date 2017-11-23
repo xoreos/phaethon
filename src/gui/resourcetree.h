@@ -67,10 +67,10 @@ class ResourceTree : public QAbstractItemModel {
     W_OBJECT(ResourceTree)
 
 private:
-    ResourceTreeItem *_root;
+    Common::ScopedPtr<ResourceTreeItem> _root;
     MainWindow *_mainWindow;
     
-    QFileIconProvider *_iconProvider;
+    Common::ScopedPtr<QFileIconProvider> _iconProvider;
 
     typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
     typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
@@ -87,7 +87,7 @@ public:
 
     /** Called in fetchMore. */
     void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
-    void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
+    void insertItems(size_t position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
 
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const QString &file);

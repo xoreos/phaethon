@@ -49,8 +49,9 @@ namespace GUI {
 W_OBJECT_IMPL(ResourceTree)
 
 ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent) : QAbstractItemModel(parent),
-    _mainWindow(mainWindow), _iconProvider(new QFileIconProvider()) {
-    _root = new ResourceTreeItem("Filename");
+    _mainWindow(mainWindow) {
+    _root.reset(new ResourceTreeItem("Filename"));
+    _iconProvider.reset(new QFileIconProvider());
 }
 
 void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
@@ -76,13 +77,11 @@ void ResourceTree::populate(const Common::FileTree::Entry &entry, ResourceTreeIt
 ResourceTree::~ResourceTree() {
     _archives.clear();
     _keyDataFiles.clear();
-    delete _iconProvider;
-    delete _root;
 }
 
 ResourceTreeItem *ResourceTree::itemFromIndex(const QModelIndex &index) const {
     if (!index.isValid())
-        return _root;
+        return _root.get();
 
     return static_cast<ResourceTreeItem*>(index.internalPointer());
 }
@@ -98,7 +97,7 @@ QModelIndex ResourceTree::index(int row, int col, const QModelIndex &parent) con
 
 QModelIndex ResourceTree::parent(const QModelIndex &index) const {
     ResourceTreeItem *parent = itemFromIndex(index)->getParent();
-    if (parent == _root)
+    if (parent == _root.get())
         return QModelIndex();
 
     return createIndex(parent->row(), 0, parent);
@@ -206,16 +205,16 @@ void ResourceTree::insertItemsFromArchive(Archive &archive, const QModelIndex &p
     auto resources = archive.data->getResources();
     for (auto r = resources.begin(); r != resources.end(); ++r)
     {
-        items << new ResourceTreeItem(archive.data, *r);
+        items.push_back(new ResourceTreeItem(archive.data, *r));
     }
 
     insertItems(0, items, parent);
 }
 
-void ResourceTree::insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parent) {
+void ResourceTree::insertItems(size_t position, QList<ResourceTreeItem*> &items, const QModelIndex &parent) {
     ResourceTreeItem *parentItem = itemFromIndex(parent);
 
-    beginInsertRows(parent, position, position + items.count() - 1);
+    beginInsertRows(parent, position, position + items.size() - 1);
 
     for (const auto &item : items)
     {

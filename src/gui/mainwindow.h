@@ -25,8 +25,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <memory>
-
 #include <QAction>
 #include <QFileSystemModel>
 #include <QGraphicsView>
@@ -94,10 +92,10 @@ private:
 
     Common::FileTree _files;
 
-    StatusBar *_status;
-    const ResourceTreeItem *_currentItem;
-    ResourceTree *_treeModel;
-    ProxyModel *_proxyModel;
+    Common::ScopedPtr<StatusBar> _status;
+    ResourceTreeItem *_currentItem;
+    Common::ScopedPtr<ResourceTree> _treeModel;
+    Common::ScopedPtr<ProxyModel> _proxyModel;
     QString _rootPath;
 
     QWidget *_centralWidget;
@@ -124,10 +122,10 @@ private:
     QMenu *_menuHelp;
 
     // resource preview
-    PanelPreviewEmpty *_panelPreviewEmpty;
-    PanelPreviewImage *_panelPreviewImage;
-    PanelPreviewSound *_panelPreviewSound;
-    PanelResourceInfo *_panelResourceInfo;
+    Common::ScopedPtr<PanelPreviewEmpty> _panelPreviewEmpty;
+    Common::ScopedPtr<PanelPreviewImage> _panelPreviewImage;
+    Common::ScopedPtr<PanelPreviewSound> _panelPreviewSound;
+    Common::ScopedPtr<PanelResourceInfo> _panelResourceInfo;
 };
 
 } // End of namespace GUI
