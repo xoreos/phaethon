@@ -258,6 +258,8 @@ void MainWindow::open(const QString &path) {
         return;
     }
 
+    _treeModel = new ResourceTree(this, _treeView);
+
     // enters populate thread in here
     _treeModel->populate(_files.getRoot());
 
@@ -302,6 +304,9 @@ void MainWindow::slotCloseDir() {
     _panelResourceInfo->setButtonsForClosedDir();
 
     _treeView->setModel(nullptr);
+
+    delete _treeModel;
+    _treeModel = nullptr;
 
     _log->append(tr("Closed directory: %1").arg(_rootPath));
 
