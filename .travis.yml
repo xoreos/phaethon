@@ -25,9 +25,25 @@ matrix:
     - compiler: clang
       env: USECMAKE=1
 
+# Install a new gcc and our library dependencies.
+# This is a bit of a complicated setup, because:
+# 1) The C++ ABI change means we can't mix-n-match C++ stuff from
+#    different sources
+# 2) The dpkg version in Xenial added a new keyword that's used in
+#    Artful packages, most prominently libc-bin
+#
+# So we do this in 3 steps:
+# 1) We add the Xenial repos, and upgrade dpkg
+# 2) We add the Artful repos, and upgrade the libc, gcc and binutils
+# 3) We install our library dependencies
 before_script:
-  # The wxWidget version in Trusty won't compile without
-  - export CXXFLAGS="-std=c++0x"
+  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu xenial main universe restricted multiverse"
+  - sudo apt-get update -qq
+  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg
+  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu artful main universe restricted multiverse"
+  - sudo apt-get update -qq
+  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg gcc g++ libc6-dev libc6 binutils binutils-dev
+  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5
 
 script:
   # Configure, autotools
@@ -43,17 +59,6 @@ script:
   - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 1 \) ]; then make -j4 check; fi
 
 addons:
-  apt:
-    packages:
-      - libboost-all-dev
-      - libopenal-dev
-      - libmad0-dev
-      - libvorbis-dev
-      - zlib1g-dev
-      - liblzma-dev
-      - libwxgtk3.0-dev
-      - libpango-1.0-0
-      - libpangocairo-1.0-0
   coverity_scan:
     build_script_url: https://raw.githubusercontent.com/$TRAVIS_REPO_SLUG/$TRAVIS_BRANCH/.travis_coverity.sh
     project:
