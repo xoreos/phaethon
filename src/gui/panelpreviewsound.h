@@ -43,9 +43,9 @@ public:
     void changeVolume(int value);
     void positionChanged(qint64 position);
 
-    QString formatTime(uint64 t);
-    QString formatPercent(uint64 total, uint64 t);
-    int getSliderPos(uint64 total, uint64 t);
+    QString formatTime(uint64 t) const;
+    QString formatPercent(uint64 total, uint64 t) const;
+    int getSliderPos(uint64 total, uint64 t) const;
     void setButtons(bool enablePlay, bool enablePause, bool enableStop);
     void update();
 };

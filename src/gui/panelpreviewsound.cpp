@@ -94,7 +94,7 @@ void PanelPreviewSound::positionChanged(qint64 position) {
     _ui.posSlider->setValue(position/100);
 }
 
-QString PanelPreviewSound::formatTime(uint64 t) {
+QString PanelPreviewSound::formatTime(uint64 t) const {
     if (t == Sound::RewindableAudioStream::kInvalidLength)
         return "??:??:??.???";
 
@@ -116,7 +116,7 @@ QString PanelPreviewSound::formatTime(uint64 t) {
     return ret.sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
 }
 
-QString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
+QString PanelPreviewSound::formatPercent(uint64 total, uint64 t) const {
     if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
         (t == Sound::RewindableAudioStream::kInvalidLength))
         return "???%";
@@ -130,7 +130,7 @@ QString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
     return ret.sprintf("%3u%%", percent);
 }
 
-int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) {
+int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) const {
     if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
         (t == Sound::RewindableAudioStream::kInvalidLength))
         return 0;
