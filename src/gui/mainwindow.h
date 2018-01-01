@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <memory>
-
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QGraphicsView>
@@ -13,15 +12,11 @@
 
 #include "verdigris/wobjectdefs.h"
 
+#include "src/common/readstream.h"
 #include "src/common/ustring.h"
-#include "src/gui/panelpreviewempty.h"
-#include "src/gui/panelpreviewimage.h"
-#include "src/gui/panelpreviewsound.h"
-#include "src/gui/panelpreviewtext.h"
-#include "src/gui/panelresourceinfo.h"
+#include "src/common/writestream.h"
 #include "src/gui/statusbar.h"
-#include "src/gui/resourcetree.h"
-#include "src/gui/resourcetreeitem.h"
+#include "src/sound/sound.h"
 
 #include "ui/ui_mainwindow.h"
 
@@ -31,6 +26,14 @@ namespace Ui {
 
 namespace GUI {
 
+class PanelPreviewEmpty;
+class PanelPreviewImage;
+class PanelPreviewSound;
+class PanelPreviewText;
+class ResourceInfoPanel;
+class ResourceTreeItem;
+class ResourceTree;
+
 class MainWindow : public QMainWindow {
     W_OBJECT(MainWindow)
 
@@ -39,30 +42,20 @@ public:
     ~MainWindow();
 
     std::shared_ptr<StatusBar> status();
-private /*slots*/:
 
+private /*slots*/:
     void setTreeViewModel(const QString &path);
     void slotOpenDir();
-
     void slotOpenFile();
-
     void slotCloseDir();
-
     void slotQuit();
-
     void slotLogAppend(const QString &text);
-
     void saveItem();
-
     void exportTGA();
-
     void exportBMUMP3();
-
     void exportWAV();
-
     void slotAbout();
     void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
-
 
 private:
     void setLabels();

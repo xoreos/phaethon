@@ -1,6 +1,6 @@
-#include "panelpreviewempty.h"
-
 #include "verdigris/wobjectimpl.h"
+
+#include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
 

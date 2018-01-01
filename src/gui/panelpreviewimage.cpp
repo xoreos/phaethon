@@ -1,10 +1,11 @@
-#include "panelpreviewimage.h"
+#include <QImageReader>
 #include "verdigris/wobjectimpl.h"
 
 #include "src/gui/panel.h"
+#include "src/gui/panelpreviewimage.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
-#include <QImageReader>
 
 W_OBJECT_IMPL(PanelPreviewImage)
 

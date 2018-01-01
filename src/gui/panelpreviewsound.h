@@ -1,12 +1,5 @@
-#ifndef PANELPREVIEWSOUND_H
+    #ifndef PANELPREVIEWSOUND_H
 #define PANELPREVIEWSOUND_H
-
-#include "verdigris/wobjectdefs.h"
-
-#include "ui/ui_previewsound.h"
-
-#include "src/common/ustring.h"
-#include "src/gui/resourcetreeitem.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -17,7 +10,16 @@
 #include <QtMultimedia>
 #include <QWidget>
 
+#include "verdigris/wobjectdefs.h"
+
+#include "src/common/ustring.h"
+#include "src/sound/types.h"
+
+#include "ui/ui_previewsound.h"
+
 namespace GUI {
+
+class ResourceTreeItem;
 
 class PanelPreviewSound : public QFrame
 {

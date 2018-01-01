@@ -1,14 +1,14 @@
 #ifndef PANELPREVIEWEMPTY_H
 #define PANELPREVIEWEMPTY_H
 
-#include "ui/ui_previewempty.h"
-
-#include "verdigris/wobjectdefs.h"
-
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include <QWidget>
+
+#include "verdigris/wobjectdefs.h"
+
+#include "ui/ui_previewempty.h"
 
 namespace GUI {
 

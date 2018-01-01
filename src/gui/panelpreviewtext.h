@@ -1,18 +1,19 @@
 #ifndef PANELPREVIEWTEXT_H
 #define PANELPREVIEWTEXT_H
 
-#include "verdigris/wobjectdefs.h"
-
-#include "ui/ui_previewtext.h"
-#include "src/gui/resourcetreeitem.h"
-
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
 #include <QTextStream>
 #include <QWidget>
 
+#include "verdigris/wobjectdefs.h"
+
+#include "ui/ui_previewtext.h"
+
 namespace GUI {
+
+class ResourceTreeItem;
 
 class PanelPreviewText : public QFrame
 {
@@ -26,7 +27,7 @@ public:
     PanelPreviewText(QWidget *parent = 0);
 
     void setText(const QString &text);
-    void setItem(const ResourceTreeItem *node);
+    void setItem(const ResourceTreeItem *item);
 };
 
 } // End of namespace GUI

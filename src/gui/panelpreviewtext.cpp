@@ -1,6 +1,7 @@
-#include "panelpreviewtext.h"
-
 #include "verdigris/wobjectimpl.h"
+
+#include "src/gui/panelpreviewtext.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 

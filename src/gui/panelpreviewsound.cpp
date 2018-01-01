@@ -1,8 +1,8 @@
-#include "panelpreviewsound.h"
-
 #include "verdigris/wobjectimpl.h"
 
 #include "src/common/util.h"
+#include "src/gui/panelpreviewsound.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 

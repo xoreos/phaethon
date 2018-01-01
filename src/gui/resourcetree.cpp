@@ -1,8 +1,4 @@
-#include <QDebug>
 #include <QDir>
-#include <QDirIterator>
-#include <QFileInfoList>
-#include <QTreeView>
 #include <boost/scope_exit.hpp>
 
 #include "verdigris/wobjectimpl.h"
@@ -10,6 +6,7 @@
 #include "src/aurora/biffile.h"
 #include "src/aurora/bzffile.h"
 #include "src/aurora/erffile.h"
+#include "src/aurora/keyfile.h"
 #include "src/aurora/rimfile.h"
 #include "src/aurora/zipfile.h"
 #include "src/common/filepath.h"
@@ -17,6 +14,7 @@
 #include "src/gui/mainwindow.h"
 #include "src/gui/statusbar.h"
 #include "src/gui/resourcetree.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 

@@ -23,11 +23,11 @@ noinst_LTLIBRARIES += src/gui/libgui.la
 
 QT_UI_FORMS_BUILT = \
 	ui/ui_mainwindow.h \
-	ui/ui_previewsound.h \
-	ui/ui_previewimage.h \
-	ui/ui_previewempty.h \
-	ui/ui_previewtext.h \
-	ui/ui_resourceinfopanel.h \
+    ui/ui_resourceinfopanel.h \
+    ui/ui_previewempty.h \
+    ui/ui_previewimage.h \
+    ui/ui_previewsound.h \
+    ui/ui_previewtext.h \
     $(EMPTY)
 
 BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
@@ -35,27 +35,24 @@ BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
 src_gui_libgui_la_SOURCES =
 
 src_gui_libgui_la_SOURCES += \
-	src/gui/about.h \
-	src/gui/eventid.h \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
     src/gui/resourcetreeitem.h \
-    src/gui/panel.h \
-    src/gui/panelresourceinfo.h \
+    src/gui/resourceinfopanel.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
     src/gui/panelpreviewtext.h \
     src/gui/statusbar.h \
+    src/gui/panel.h \
     $(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
-	src/gui/about.cpp \
     src/gui/mainwindow.cpp \
     src/gui/resourcetree.cpp \
     src/gui/resourcetreeitem.cpp \
-    src/gui/panelresourceinfo.cpp \
+    src/gui/resourceinfopanel.cpp \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \
