@@ -39,7 +39,7 @@ UString::UString(const UString &str) {
 	*this = str;
 }
 
-UString::UString(const wxString &str) {
+UString::UString(const QString &str) {
 	*this = str;
 }
 
@@ -68,8 +68,8 @@ UString::UString(iterator sBegin, iterator sEnd) : _size(0) {
 UString::~UString() {
 }
 
-UString::operator wxString() const {
-	return wxString::FromUTF8(c_str());
+UString::operator QString() const {
+	return QString(c_str());
 }
 
 UString &UString::operator=(const UString &str) {
@@ -79,8 +79,8 @@ UString &UString::operator=(const UString &str) {
 	return *this;
 }
 
-UString &UString::operator=(const wxString &str) {
-	_string = str.mb_str(wxConvUTF8);
+UString &UString::operator=(const QString &str) {
+	_string = str.toStdString();
 
 	recalculateSize();
 
@@ -125,7 +125,7 @@ UString UString::operator+(const UString &str) const {
 	return tmp;
 }
 
-UString UString::operator+(const wxString &str) const {
+UString UString::operator+(const QString &str) const {
 	UString tmp(*this);
 
 	tmp += str;
@@ -164,7 +164,7 @@ UString &UString::operator+=(const UString &str) {
 	return *this;
 }
 
-UString &UString::operator+=(const wxString &str) {
+UString &UString::operator+=(const QString &str) {
 	UString ustr(str);
 
 	return *this += ustr;

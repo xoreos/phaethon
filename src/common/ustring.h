@@ -33,7 +33,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <wx/string.h>
+#include <QString>
 
 #include "src/common/types.h"
 #include "src/common/system.h"
@@ -71,8 +71,8 @@ public:
 	UString();
 	/** Copy constructor. */
 	UString(const UString &str);
-	/** Construct UString from a wxString. */
-	UString(const wxString &str);
+	/** Construct UString from a QString. */
+	UString(const QString &str);
 	/** Construct UString from an UTF-8 string. */
 	UString(const std::string &str);
 	/** Construct UString from an UTF-8 string. */
@@ -85,10 +85,10 @@ public:
 	UString(iterator sBegin, iterator sEnd);
 	~UString();
 
-	operator wxString() const;
+	operator QString() const;
 
 	UString &operator=(const UString &str);
-	UString &operator=(const wxString &str);
+	UString &operator=(const QString &str);
 	UString &operator=(const std::string &str);
 	UString &operator=(const char *str);
 
@@ -98,13 +98,13 @@ public:
 	bool operator>(const UString &str) const;
 
 	UString operator+(const UString &str) const;
-	UString operator+(const wxString &str) const;
+	UString operator+(const QString &str) const;
 	UString operator+(const std::string &str) const;
 	UString operator+(const char *str) const;
 	UString operator+(uint32 c) const;
 
 	UString &operator+=(const UString &str);
-	UString &operator+=(const wxString &str);
+	UString &operator+=(const QString &str);
 	UString &operator+=(const std::string &str);
 	UString &operator+=(const char *str);
 	UString &operator+=(uint32 c);

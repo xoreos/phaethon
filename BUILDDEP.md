@@ -24,7 +24,7 @@ Build-time library dependencies
   - Boost.Locale
   - Boost.Thread
 
-- wxWidgets (>= 3.0.0)
+- Qt (>= 5.7.1)
 
 - OpenAL Soft (>= 1.12)
 - MAD (>= 0.15.1b)

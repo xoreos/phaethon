@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-# GUI code, using wxWidgets.
+# GUI code, using Qt.
 
 noinst_LTLIBRARIES += src/gui/libgui.la
 
