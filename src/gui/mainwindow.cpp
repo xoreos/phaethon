@@ -90,6 +90,7 @@ void MainWindow::setTreeViewModel(const QString &path) {
 
     _treeModel = std::make_unique<ResourceTree>(this, path, _ui.treeView);
     _ui.treeView->setModel(_treeModel.get());
+    _ui.treeView->expandToDepth(0);
     _ui.treeView->show();
 
     _ui.treeView->resizeColumnToContents(0);
