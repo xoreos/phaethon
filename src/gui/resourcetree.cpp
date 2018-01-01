@@ -110,7 +110,7 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
     ResourceTreeItem *item = getItem(index);
 
     // We already added the archive members. Nothing to do
-    ResourceTreeItem::ArchiveInfo &archiveInfo = item->getData();
+    ArchiveInfo &archiveInfo = item->getArchive();
     if (archiveInfo.addedArchiveMembers)
         return;
 
@@ -183,7 +183,7 @@ QModelIndex ResourceTree::index(int row, int column, const QModelIndex &parent) 
 
 QVariant ResourceTree::headerData(int section, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return _root->getName();
+        return _root->getData();
 
     return QVariant();
 }
@@ -197,7 +197,7 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole)
     {
         switch (cur->getSource()) {
-            case ResourceTreeItem::Source::kSourceFile:
+            case Source::kSourceFile:
                 switch (cur->getFileType()) {
                     case Aurora::kFileTypeZIP:
                     case Aurora::kFileTypeERF:
@@ -212,7 +212,7 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
                     default:
                         return _iconProvider->icon(QFileIconProvider::File);
                 }
-            case ResourceTreeItem::Source::kSourceDirectory:
+            case Source::kSourceDirectory:
                 return _iconProvider->icon(QFileIconProvider::Folder);
             default:
                 return _iconProvider->icon(QFileIconProvider::File);
@@ -220,7 +220,7 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
     }
 
     if (role == Qt::DisplayRole)
-        return cur->getName();
+        return cur->getData();
 
     return QVariant();
 }
@@ -232,7 +232,7 @@ Qt::ItemFlags ResourceTree::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index);
 }
 
-void ResourceTree::insertItemsFromArchive(ResourceTreeItem::ArchiveInfo &data, const QModelIndex &parent) {
+void ResourceTree::insertItemsFromArchive(ArchiveInfo &data, const QModelIndex &parentIndex) {
     QList<ResourceTreeItem*> items;
 
     ResourceTreeItem *parentItem = getItem(parent);

@@ -1,28 +1,21 @@
-#include "src/gui/resourcetreeitem.h"
-
-#include "src/aurora/util.h"
-
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
-#include "src/images/dds.h"
-#include "src/images/sbm.h"
-#include "src/images/tga.h"
-#include "src/images/tpc.h"
-#include "src/images/txb.h"
-#include "src/images/winiconimage.h"
-
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
     : _parent(parent)
 {
-    _fileInfo.fileName     = TypeMan.setFileType(resource.name, resource.type).toQString();
-    _fileInfo.fullPath     = parent->getPath() + "/" + _fileInfo.fileName;
+    QString fileName = TypeMan.setFileType(resource.name, resource.type).toQString();
+
+    _data = fileName;
+
+    _fileInfo.fullPath     = parent->getPath() + "/" + fileName;
     _fileInfo.isDir        = false;
     _fileInfo.source       = kSourceArchiveFile;
-    _fileInfo.fileType     = TypeMan.getFileType(_fileInfo.fileName);
-    _fileInfo.resourceType = TypeMan.getResourceType(_fileInfo.fileName);
+    _fileInfo.fileType     = TypeMan.getFileType(fileName);
+    _fileInfo.resourceType = TypeMan.getResourceType(fileName);
     _fileInfo.size         = archive->getResourceSize(resource.index);
 
     _archiveInfo.archive             = archive;
@@ -38,7 +31,8 @@ ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
 {
     QFileInfo info(fullPath);
 
-    _fileInfo.fileName = info.fileName();
+    _data = info.fileName();
+
     _fileInfo.fullPath = fullPath;
     _fileInfo.source   = info.isDir() ? kSourceDirectory : kSourceFile;
     _fileInfo.isDir    = info.isDir();
@@ -48,8 +42,8 @@ ResourceTreeItem::ResourceTreeItem(QString fullPath, ResourceTreeItem *parent)
         _fileInfo.resourceType = Aurora::kResourceNone;
     }
     else {
-        _fileInfo.fileType = TypeMan.getFileType(_fileInfo.fileName);
-        _fileInfo.resourceType = TypeMan.getResourceType(_fileInfo.fileName);
+        _fileInfo.fileType = TypeMan.getFileType(info.fileName());
+        _fileInfo.resourceType = TypeMan.getResourceType(info.fileName());
     }
 
     _archiveInfo.archive = 0;
@@ -108,8 +102,8 @@ void ResourceTreeItem::setParent(ResourceTreeItem *parent) {
     _parent = parent;
 }
 
-const QString ResourceTreeItem::getName() const {
-    return _fileInfo.fileName;
+const QString ResourceTreeItem::getData() const {
+    return _data;
 }
 
 const QFileInfo ResourceTreeItem::getFileInfo() const {
@@ -120,7 +114,7 @@ const qint64 ResourceTreeItem::getSize() const {
     return _fileInfo.size;
 }
 
-const ResourceTreeItem::Source ResourceTreeItem::getSource() const {
+const Source ResourceTreeItem::getSource() const {
     return _fileInfo.source;
 }
 
@@ -152,7 +146,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
                 return _archiveInfo.archive->getResource(_archiveInfo.archiveIndex);
         }
     } catch (Common::Exception &e) {
-        e.add("Failed to get resource data for resource \"%s\"", _fileInfo.fileName.toStdString().c_str());
+        e.add("Failed to get resource data for resource \"%s\"", _data.toStdString().c_str());
         throw;
     }
 
@@ -162,7 +156,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 
 Images::Decoder *ResourceTreeItem::getImage() const {
     if (getResourceType() != Aurora::kResourceImage)
-        throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
+        throw Common::Exception("\"%s\" is not an image resource", getData().toStdString().c_str());
 
     Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
@@ -170,7 +164,7 @@ Images::Decoder *ResourceTreeItem::getImage() const {
     try {
         img = getImage(*res, _fileInfo.fileType);
     } catch (Common::Exception &e) {
-        e.add("Failed to get image from \"%s\"", getName().toStdString().c_str());
+        e.add("Failed to get image from \"%s\"", getData().toStdString().c_str());
         throw;
     }
 
@@ -227,7 +221,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
     return img;
 }
 
-ResourceTreeItem::ArchiveInfo &ResourceTreeItem::getData() {
+ArchiveInfo &ResourceTreeItem::getArchive() {
     return _archiveInfo;
 }
 
@@ -251,7 +245,7 @@ const uint64 ResourceTreeItem::getSoundDuration() const {
 
 Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
     if (_fileInfo.resourceType != Aurora::kResourceSound)
-        throw Common::Exception("\"%s\" is not a sound resource", _fileInfo.fileName.toStdString().c_str());
+        throw Common::Exception("\"%s\" is not a sound resource", _data.toStdString().c_str());
 
     Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
@@ -259,7 +253,7 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
     try {
         sound = SoundMan.makeAudioStream(res.get());
     } catch (Common::Exception &e) {
-        e.add("Failed to get audio stream from \"%s\"", _fileInfo.fileName.toStdString().c_str());
+        e.add("Failed to get audio stream from \"%s\"", _data.toStdString().c_str());
         throw;
     }
 

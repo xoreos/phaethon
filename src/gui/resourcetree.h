@@ -1,7 +1,7 @@
 #ifndef RESOURCETREE_H
 #define RESOURCETREE_H
 
-#include <QStandardItemModel>
+#include <QAbstractItemModel>
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QModelIndex>
@@ -9,15 +9,36 @@
 
 #include "verdigris/wobjectdefs.h"
 
-#include "src/aurora/keyfile.h"
+#include "src/aurora/archive.h"
+#include "src/aurora/util.h"
 #include "src/common/ptrmap.h"
 #include "src/gui/statusbar.h"
-#include "src/gui/resourcetreeitem.h"
+#include "src/images/decoder.h"
+
+namespace Common {
+    class SeekableReadStream;
+}
+
+namespace Sound {
+    class AudioStream;
+}
+
+namespace Images {
+    class Decoder;
+}
+
+namespace Aurora {
+    class KEYFile;
+    class KEYDataFile;
+}
 
 namespace GUI
 {
 
+struct ArchiveInfo;
 class MainWindow;
+class ResourceTreeItem;
+
 class ResourceTree : public QAbstractItemModel {
     W_OBJECT(ResourceTree)
 
@@ -49,7 +70,7 @@ public:
     ResourceTreeItem *getItem(const QModelIndex &index) const;
     bool canFetchMore(const QModelIndex &index) const override;
     void fetchMore(const QModelIndex &index);
-    void insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
+    void insertItemsFromArchive(ArchiveInfo &data, const QModelIndex &parent);
     void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parent);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
