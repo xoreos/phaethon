@@ -1,5 +1,7 @@
 #include "statusbar.h"
 
+namespace GUI {
+
 StatusBar::StatusBar(QStatusBar *statusBar)
 {
     _statusBar = statusBar;
@@ -20,3 +22,5 @@ void StatusBar::pop()
 {
     _statusBar->showMessage(_text);
 }
+
+} // End of namespace GUI

@@ -12,6 +12,8 @@
 #include <QTextStream>
 #include <QWidget>
 
+namespace GUI {
+
 class PanelPreviewText : public QFrame
 {
     W_OBJECT(PanelPreviewText)
@@ -26,5 +28,7 @@ public:
     void setText(QString text);
     void setItem(const ResourceTreeItem *node);
 };
+
+} // End of namespace GUI
 
 #endif // PANELPREVIEWTEXT_H

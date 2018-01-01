@@ -17,6 +17,8 @@
 #include <QtMultimedia>
 #include <QWidget>
 
+namespace GUI {
+
 class PanelPreviewSound : public QFrame
 {
     W_OBJECT(PanelPreviewSound)
@@ -47,5 +49,7 @@ public:
     void setButtons(bool enablePlay, bool enablePause, bool enableStop);
     void update();
 };
+
+} // End of namespace GUI
 
 #endif // PANELPREVIEWSOUND_H

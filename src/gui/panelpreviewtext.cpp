@@ -2,6 +2,8 @@
 
 #include "verdigris/wobjectimpl.h"
 
+namespace GUI {
+
 W_OBJECT_IMPL(PanelPreviewText)
 
 PanelPreviewText::PanelPreviewText(QWidget *parent)
@@ -35,3 +37,5 @@ void PanelPreviewText::setItem(const ResourceTreeItem *item) {
 
     return; // fixme: exception
 }
+
+} // End of namespace GUI

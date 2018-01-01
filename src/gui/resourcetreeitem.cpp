@@ -5,6 +5,7 @@
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
 
+namespace GUI {
 #include "src/images/dds.h"
 #include "src/images/sbm.h"
 #include "src/images/tga.h"
@@ -265,3 +266,5 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
     res.release();
     return sound;
 }
+
+} // End of namespace GUI

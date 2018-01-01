@@ -5,6 +5,8 @@
 #include <QStatusBar>
 #include <QWidget>
 
+namespace GUI {
+
 /** Class to have identical functionality to Phaethon.
  *  Or wx.                                              **/
 
@@ -20,5 +22,7 @@ private:
     QStatusBar *_statusBar;
     QString _text;
 };
+
+} // End of namespace GUI
 
 #endif // STATUSBAR_H

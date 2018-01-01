@@ -11,6 +11,8 @@
 #include <QScrollBar>
 #include <QWidget>
 
+namespace GUI {
+
 class PanelPreviewImage : public QFrame
 {
     W_OBJECT(PanelPreviewImage)
@@ -48,5 +50,7 @@ public:
 
     void nearestToggled(bool checked);
 };
+
+} // End of namespace GUI
 
 #endif // PANELPREVIEWIMAGE_H

@@ -3,6 +3,7 @@
 
 #include "src/gui/panel.h"
 
+namespace GUI {
 #include <QImageReader>
 
 W_OBJECT_IMPL(PanelPreviewImage)
@@ -224,3 +225,5 @@ void PanelPreviewImage::nearestToggled(bool checked) {
 
     scaleImage(1.0);
 }
+
+} // End of namespace GUI

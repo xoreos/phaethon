@@ -10,6 +10,7 @@
 #include "src/sound/sound.h"
 #include "src/sound/audiostream.h"
 
+namespace GUI {
 #include "src/images/decoder.h"
 
 
@@ -88,5 +89,7 @@ private:
     SoundInfo _soundInfo;
     ArchiveInfo _archiveInfo;
 };
+
+} // End of namespace GUI
 
 #endif // TREEITEM_H

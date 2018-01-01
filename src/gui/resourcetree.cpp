@@ -17,8 +17,7 @@
 #include "src/gui/statusbar.h"
 #include "src/gui/resourcetree.h"
 
-namespace GUI
-{
+namespace GUI {
 
 W_OBJECT_IMPL(ResourceTree)
 
@@ -348,4 +347,4 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
     }
 }
 
-} // namespace GUI
+} // End of namespace GUI
