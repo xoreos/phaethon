@@ -30,7 +30,7 @@ class PanelPreviewEmpty;
 class PanelPreviewImage;
 class PanelPreviewSound;
 class PanelPreviewText;
-class ResourceInfoPanel;
+class PanelResourceInfo;
 class ResourceTreeItem;
 class ResourceTree;
 
@@ -77,7 +77,7 @@ private:
     PanelPreviewImage *_panelPreviewImage;
     PanelPreviewSound *_panelPreviewSound;
     PanelPreviewText *_panelPreviewText;
-    ResourceInfoPanel *_resInfo;
+    PanelResourceInfo *_resInfo;
 };
 
 } // End of namespace GUI

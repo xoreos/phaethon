@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ResourceInfoPanel</class>
- <widget class="QFrame" name="ResourceInfoPanel">
+ <class>PanelResourceInfo</class>
+ <widget class="QFrame" name="PanelResourceInfo">
   <property name="geometry">
    <rect>
     <x>0</x>

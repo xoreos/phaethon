@@ -15,7 +15,7 @@
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
-#include "src/gui/resourceinfopanel.h"
+#include "src/gui/panelresourceinfo.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 #include "src/images/dumptga.h"
@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     _panelPreviewImage = new PanelPreviewImage();
     _panelPreviewSound = new PanelPreviewSound();
     _panelPreviewText  = new PanelPreviewText();
-    _resInfo = new ResourceInfoPanel();
+    _resInfo = new PanelResourceInfo();
 
     _ui.resBox->addWidget(_resInfo);
     _ui.resLayout->addWidget(_panelPreviewEmpty);
@@ -48,13 +48,13 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     QObject::connect(_ui.actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
     QObject::connect(_ui.actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
     QObject::connect(_ui.actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
-    QObject::connect(_resInfo, &ResourceInfoPanel::loadModel, this, &MainWindow::setTreeViewModel);
-    QObject::connect(_resInfo, &ResourceInfoPanel::logAppend, this, &MainWindow::slotLogAppend);
-    QObject::connect(_resInfo, &ResourceInfoPanel::closeDirClicked, this, &MainWindow::slotCloseDir);
-    QObject::connect(_resInfo, &ResourceInfoPanel::saveClicked, this, &MainWindow::saveItem);
-    QObject::connect(_resInfo, &ResourceInfoPanel::exportTGAClicked, this, &MainWindow::exportTGA);
-    QObject::connect(_resInfo, &ResourceInfoPanel::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
-    QObject::connect(_resInfo, &ResourceInfoPanel::exportWAVClicked, this, &MainWindow::exportWAV);
+    QObject::connect(_resInfo, &PanelResourceInfo::loadModel, this, &MainWindow::setTreeViewModel);
+    QObject::connect(_resInfo, &PanelResourceInfo::logAppend, this, &MainWindow::slotLogAppend);
+    QObject::connect(_resInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
+    QObject::connect(_resInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
+    QObject::connect(_resInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
+    QObject::connect(_resInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
+    QObject::connect(_resInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
     QObject::connect(_ui.actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
 
     _ui.actionAbout->setShortcut(QKeySequence(tr("F1")));

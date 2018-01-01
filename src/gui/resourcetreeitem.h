@@ -1,5 +1,5 @@
-#ifndef TREEITEM_H
-#define TREEITEM_H
+#ifndef RESOURCETREEITEM_H
+#define RESOURCETREEITEM_H
 
 #include <QFileInfo>
 #include <QString>
@@ -103,4 +103,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // TREEITEM_H
+#endif // RESOURCETREEITEM_H

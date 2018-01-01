@@ -1,14 +1,18 @@
-#include "src/gui/panelresourceinfo.h"
-
 #include <QDir>
 #include <QFileDialog>
-#include "src/common/filepath.h"
-#include "src/common/writefile.h"
+
 #include "verdigris/wobjectimpl.h"
 
-W_OBJECT_IMPL(ResourceInfoPanel)
+#include "src/common/filepath.h"
+#include "src/common/writefile.h"
+#include "src/gui/panelresourceinfo.h"
+#include "src/gui/resourcetreeitem.h"
 
-ResourceInfoPanel::ResourceInfoPanel(QWidget *parent)
+namespace GUI {
+
+W_OBJECT_IMPL(PanelResourceInfo)
+
+PanelResourceInfo::PanelResourceInfo(QWidget *parent)
     : QFrame(parent)
     , _btnExportRaw(new QPushButton("Save", this))
     , _btnExportBMUMP3(new QPushButton("Export as MP3", this))
@@ -32,21 +36,21 @@ ResourceInfoPanel::ResourceInfoPanel(QWidget *parent)
     _btnExportTGA->setVisible(false);
     _btnExportWAV->setVisible(false);
 
-    QObject::connect(_btnExportRaw, &QPushButton::clicked, this, &ResourceInfoPanel::slotSave);
-    QObject::connect(_btnExportTGA, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportTGA);
-    QObject::connect(_btnExportBMUMP3, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportBMUMP3);
-    QObject::connect(_btnExportWAV, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportWAV);
+    QObject::connect(_btnExportRaw, &QPushButton::clicked, this, &PanelResourceInfo::slotSave);
+    QObject::connect(_btnExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
+    QObject::connect(_btnExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
+    QObject::connect(_btnExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
 
-    QObject::connect(_ui.bLoadKotorDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotLoadKotorDir);
-    QObject::connect(_ui.bCloseDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotCloseDir);
+    QObject::connect(_ui.bLoadKotorDir, &QPushButton::clicked, this, &PanelResourceInfo::slotLoadKotorDir);
+    QObject::connect(_ui.bCloseDir, &QPushButton::clicked, this, &PanelResourceInfo::slotCloseDir);
 }
 
-Ui::ResourceInfoPanel &ResourceInfoPanel::getUi() {
+Ui::PanelResourceInfo &PanelResourceInfo::getUi() {
     return _ui;
 }
 
 /** SLOTS **/
-void ResourceInfoPanel::slotLoadKotorDir() {
+void PanelResourceInfo::slotLoadKotorDir() {
     QString myKotorPath("/home/mike/kotor");
     QDir dir(myKotorPath);
     if (dir.exists())
@@ -55,33 +59,33 @@ void ResourceInfoPanel::slotLoadKotorDir() {
         emit logAppend("Failed: /home/mike/kotor is doesn't exist.");
 }
 
-void ResourceInfoPanel::slotCloseDir() {
+void PanelResourceInfo::slotCloseDir() {
     emit closeDirClicked();
 }
 
-void ResourceInfoPanel::slotSave() {
+void PanelResourceInfo::slotSave() {
     emit saveClicked();
 }
 
-void ResourceInfoPanel::slotExportTGA() {
+void PanelResourceInfo::slotExportTGA() {
     emit exportTGAClicked();
 }
 
-void ResourceInfoPanel::slotExportBMUMP3() {
+void PanelResourceInfo::slotExportBMUMP3() {
     emit exportBMUMP3Clicked();
 }
 
-void ResourceInfoPanel::slotExportWAV() {
+void PanelResourceInfo::slotExportWAV() {
     emit exportWAVClicked();
 }
 
-void ResourceInfoPanel::update(const ResourceTreeItem *item) {
+void PanelResourceInfo::update(const GUI::ResourceTreeItem *item) {
     setLabels(item);
     showExportButtons(item);
 }
 
-void ResourceInfoPanel::showExportButtons(const ResourceTreeItem *item) {
-    if (!item || item->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
+void PanelResourceInfo::showExportButtons(const GUI::ResourceTreeItem *item) {
+    if (!item || item->getSource() == Source::kSourceDirectory) {
         showExportButtons(false, false, false, false);
         return;
     }
@@ -93,7 +97,7 @@ void ResourceInfoPanel::showExportButtons(const ResourceTreeItem *item) {
     showExportButtons(true, isBMU, isSound, isImage);
 }
 
-void ResourceInfoPanel::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
+void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
     _btnExportRaw->setVisible(enableRaw);
     _btnExportTGA->setVisible(showTGA);
     _btnExportBMUMP3->setVisible(showMP3);
@@ -134,22 +138,22 @@ const QString getResTypeLabel(Aurora::ResourceType type) {
     return label;
 }
 
-void ResourceInfoPanel::setLabels(const ResourceTreeItem *item) {
+void PanelResourceInfo::setLabels(const ResourceTreeItem *item) {
     QString labelName     = "Resource name: ";
     QString labelSize     = "Size: ";
     QString labelFileType = "File type: ";
     QString labelResType  = "Resource type: ";
 
-    labelName += item->getName();
+    labelName += item->getData();
 
-    if (item->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
+    if (item->getSource() == Source::kSourceDirectory) {
 
         labelSize     += "-";
         labelFileType += "Directory";
         labelResType  += "Directory";
 
-    } else if ((item->getSource() == ResourceTreeItem::Source::kSourceFile) ||
-               (item->getSource() == ResourceTreeItem::Source::kSourceArchiveFile)) {
+    } else if ((item->getSource() == Source::kSourceFile) ||
+               (item->getSource() == Source::kSourceArchiveFile)) {
 
         Aurora::FileType     fileType = item->getFileType();
         Aurora::ResourceType resType  = item->getResourceType();
@@ -165,17 +169,19 @@ void ResourceInfoPanel::setLabels(const ResourceTreeItem *item) {
     _ui.resLabelResType->setText(labelResType);
 }
 
-void ResourceInfoPanel::clearLabels() {
+void PanelResourceInfo::clearLabels() {
     _ui.resLabelName->setText("Resource name:");
     _ui.resLabelSize->setText("Size:");
     _ui.resLabelFileType->setText("File type:");
     _ui.resLabelResType->setText("Resource type:");
 }
 
-void ResourceInfoPanel::setButtonsForClosedDir() {
+void PanelResourceInfo::setButtonsForClosedDir() {
     _ui.bCloseDir->setEnabled(false);
     _btnExportRaw->setVisible(false);
     _btnExportBMUMP3->setVisible(false);
     _btnExportWAV->setVisible(false);
     _btnExportTGA->setVisible(false);
 }
+
+} // End of namespace GUI

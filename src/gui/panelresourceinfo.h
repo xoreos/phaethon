@@ -1,23 +1,28 @@
-#ifndef RESOURCEINFOPANEL_H
-#define RESOURCEINFOPANEL_H
+#ifndef PANELRESOURCEINFO_H
+#define PANELRESOURCEINFO_H
 
 #include <QWidget>
-#include "verdigris/wobjectdefs.h"
-#include "src/gui/resourcetreeitem.h"
-#include "ui/ui_resourceinfopanel.h"
 
-class ResourceInfoPanel : public QFrame
+#include "verdigris/wobjectdefs.h"
+
+#include "ui/ui_resourceinfo.h"
+
+namespace GUI {
+
+class ResourceTreeItem;
+
+class PanelResourceInfo : public QFrame
 {
-    W_OBJECT(ResourceInfoPanel)
+    W_OBJECT(PanelResourceInfo)
 
 public:
-    ResourceInfoPanel(QWidget *parent = 0);
+    PanelResourceInfo(QWidget *parent = 0);
 
-    Ui::ResourceInfoPanel &getUi();
-    void showExportButtons(const ResourceTreeItem *item);
+    Ui::PanelResourceInfo &getUi();
+    void showExportButtons(const GUI::ResourceTreeItem *item);
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
-    void setLabels(const ResourceTreeItem *item);
-    void update(const ResourceTreeItem *item);
+    void setLabels(const GUI::ResourceTreeItem *item);
+    void update(const GUI::ResourceTreeItem *item);
     void clearLabels();
     void setButtonsForClosedDir();
 
@@ -45,26 +50,16 @@ public /*signals*/:
 
 public /*slots*/:
     void slotSave();
-    W_SLOT(slotSave, W_Access::Public)
-
     void slotExportTGA();
-    W_SLOT(slotExportTGA, W_Access::Public)
-
     void slotExportBMUMP3();
-    W_SLOT(slotExportBMUMP3)
-
     void slotExportWAV();
-    W_SLOT(slotExportWAV)
 
 private /*slots*/:
     void slotLoadKotorDir();
-    W_SLOT(slotLoadKotorDir, W_Access::Private)
-
     void slotCloseDir();
-    W_SLOT(slotCloseDir, W_Access::Private)
 
 private:
-    Ui::ResourceInfoPanel _ui;
+    Ui::PanelResourceInfo _ui;
 
     QPushButton *_btnExportRaw;
     QPushButton *_btnExportBMUMP3;
@@ -72,4 +67,6 @@ private:
     QPushButton *_btnExportTGA;
 };
 
-#endif // RESOURCEINFOPANEL_H
+} // End of namespace GUI
+
+#endif // PANELRESOURCEINFO_H

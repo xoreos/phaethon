@@ -23,7 +23,7 @@ noinst_LTLIBRARIES += src/gui/libgui.la
 
 QT_UI_FORMS_BUILT = \
 	ui/ui_mainwindow.h \
-    ui/ui_resourceinfopanel.h \
+    ui/ui_resourceinfo.h \
     ui/ui_previewempty.h \
     ui/ui_previewimage.h \
     ui/ui_previewsound.h \
@@ -38,7 +38,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
     src/gui/resourcetreeitem.h \
-    src/gui/resourceinfopanel.h \
+    src/gui/panelresourceinfo.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \
     src/gui/panelpreviewimage.h \
@@ -52,7 +52,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/mainwindow.cpp \
     src/gui/resourcetree.cpp \
     src/gui/resourcetreeitem.cpp \
-    src/gui/resourceinfopanel.cpp \
+    src/gui/panelresourceinfo.cpp \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewsound.cpp \
     src/gui/panelpreviewimage.cpp \

@@ -32,8 +32,7 @@ namespace Aurora {
     class KEYDataFile;
 }
 
-namespace GUI
-{
+namespace GUI {
 
 struct ArchiveInfo;
 class MainWindow;
