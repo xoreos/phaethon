@@ -5,6 +5,11 @@
 #include <QStatusBar>
 #include <QWidget>
 
+/** @file
+ *  Wrapper class for status bar in order to
+ *  have identical functionality to Phaethon (wx version.)
+ */
+
 namespace GUI {
 
 /** Class to have identical functionality to Phaethon.
