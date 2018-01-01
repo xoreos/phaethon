@@ -1,4 +1,5 @@
 #include <QImageReader>
+
 #include "verdigris/wobjectimpl.h"
 
 #include "src/gui/panel.h"
@@ -29,14 +30,11 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
     connect(_ui.zoomIn, &QPushButton::clicked, this, &PanelPreviewImage::zoomIn);
     connect(_ui.zoomOut, &QPushButton::clicked, this, &PanelPreviewImage::zoomOut);
     connect(_ui.zoomOriginal, &QPushButton::clicked, this, &PanelPreviewImage::zoomOriginal);
+    connect(_ui.fit, &QPushButton::clicked, this, &PanelPreviewImage::onZoomFit);
+    connect(_ui.fitWidth, &QPushButton::clicked, this, &PanelPreviewImage::onZoomFitWidth);
+    connect(_ui.fitShrink, &QPushButton::clicked, this, &PanelPreviewImage::onZoomShrinkFit);
+    connect(_ui.fitShrinkWidth, &QPushButton::clicked, this, &PanelPreviewImage::onZoomShrinkFitWidth);
     connect(_ui.nearest, &QCheckBox::toggled, this, &PanelPreviewImage::nearestToggled);
-
-
-    // TODO
-    _ui.fit->setEnabled(false);
-    _ui.fitWidth->setEnabled(false);
-    _ui.fitShrink->setEnabled(false);
-    _ui.fitShrinkWidth->setEnabled(false);
 }
 
 void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
@@ -65,8 +63,9 @@ void PanelPreviewImage::loadImage() {
             const QImage newImage = reader.read();
 
             _originalPixmap = QPixmap::fromImage(newImage);
+            _originalSize = _originalPixmap.size();
             _imageLabel->setPixmap(_originalPixmap);
-            scaleImage(1.0);
+            _imageLabel->setFixedSize(_originalSize);
 
             _ui.dimensions->setText(QString("(%1x%2)").arg(_originalPixmap.width()).arg(_originalPixmap.height()));
             _ui.imageScrollArea->show();
@@ -94,9 +93,10 @@ void PanelPreviewImage::loadImage() {
     convertImage(*image, data.get(), format);
 
     _originalPixmap = QPixmap::fromImage(QImage(data.get(), width, height, format).mirrored());
+    _originalSize = _originalPixmap.size();
     _imageLabel->setPixmap(_originalPixmap);
     _imageLabel->adjustSize();
-    scaleImage(1.0);
+    _imageLabel->setFixedSize(_originalSize);
 
     data.release();
 }
@@ -184,47 +184,158 @@ void PanelPreviewImage::darknessSliderSlot(int value) {
     _ui.imageScrollArea->setStyleSheet(QString("background-color: rgb(%1,%2,%3)").arg(rgb).arg(rgb).arg(rgb));
 }
 
-#define MAX_ZOOM 2
-
 void PanelPreviewImage::updateButtons() {
-    _ui.zoomOut->setEnabled(_scaleFactor >= 1.0 / MAX_ZOOM);
-    _ui.zoomIn->setEnabled(_scaleFactor <= 1.0 * MAX_ZOOM);
+    _ui.zoomOut->setEnabled(_scaleFactor <= 5.0);
+    _ui.zoomIn->setEnabled(_scaleFactor >= 0.1);
     _ui.zoomOriginal->setEnabled(_scaleFactor <= 0.95 || _scaleFactor >= 1.05);
 }
 
-void PanelPreviewImage::scaleImage(double factor) {
-    _scaleFactor *= factor;
+void PanelPreviewImage::zoomTo(int width, int height, double zoom) {
+    double aspect = ((double) width) / ((double) height);
 
-    QSize size = _originalPixmap.size() * _scaleFactor;
+    // Calculate width using the zoom level and height using the aspect ratio
+    width  = MAX<int>(width * zoom  , 1);
+    height = MAX<int>(width / aspect, 1);
 
-    _imageLabel->setPixmap(_originalPixmap.scaled(size, Qt::IgnoreAspectRatio, _mode));
-    _imageLabel->setFixedSize(size);
+    QSize newSize(width, height);
+    _imageLabel->setPixmap(_originalPixmap.scaled(newSize, Qt::IgnoreAspectRatio, _mode));
+    _imageLabel->setFixedSize(newSize);
 
-    _ui.zoomPercent->setText(QString("%1%").arg(_scaleFactor * 100));
-
+    _scaleFactor = zoom;
     updateButtons();
+    _ui.zoomPercent->setText(QString("%1%").arg((int)(_scaleFactor*100)));
+}
+
+void PanelPreviewImage::zoomTo(double zoom) {
+    int fullWidth, fullHeight, currentWidth, currentHeight;
+
+    getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+    if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+        return;
+
+    zoomTo(fullWidth, fullHeight, zoom);
+}
+
+void PanelPreviewImage::zoomStep(double step) {
+    int fullWidth, fullHeight, currentWidth, currentHeight;
+
+    getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+    if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+        return;
+
+    double zoom = ((double) currentWidth) / ((double) fullWidth);
+
+    // Only allow zoom from 10% to 500%
+    double newZoom = CLIP<double>(zoom + step, 0.1, 5.0);
+    if (zoom == newZoom)
+        return;
+
+    zoomTo(fullWidth, fullHeight, newZoom);
 }
 
 void PanelPreviewImage::zoomIn() {
-    scaleImage(1.1);
+    zoomStep(0.1);
 }
 
 void PanelPreviewImage::zoomOut() {
-    scaleImage(1.0/1.1);
+    zoomStep(-0.1);
 }
 
 void PanelPreviewImage::zoomOriginal() {
-    scaleImage(1.0/_scaleFactor);
+    _imageLabel->setPixmap(_originalPixmap.scaled(_originalSize, Qt::IgnoreAspectRatio, _mode));
+    _imageLabel->setFixedSize(_originalSize);
     _scaleFactor = 1.0;
+    updateButtons();
+    _ui.zoomPercent->setText("100%");
+    // fixme: there's probably a better way
 }
 
+void PanelPreviewImage::onZoomFit() {
+    zoomFit(false, true);
+}
+
+void PanelPreviewImage::onZoomFitWidth() {
+    zoomFit(true, true);
+}
+
+void PanelPreviewImage::onZoomShrinkFit() {
+    zoomFit(false, false);
+}
+
+void PanelPreviewImage::onZoomShrinkFitWidth() {
+    zoomFit(true, false);
+}
+
+// fixme: zoom to 100% and shrink fit width are equal, and don't cause a
+// re-draw after this is toggled
 void PanelPreviewImage::nearestToggled(bool checked) {
     if (checked)
         _mode = Qt::FastTransformation;
     else
         _mode = Qt::SmoothTransformation;
 
-    scaleImage(1.0);
+    _imageLabel->setPixmap(_originalPixmap.scaled(_imageLabel->size(), Qt::IgnoreAspectRatio, _mode));
+    // fixme: there's probably a better way
+}
+
+void PanelPreviewImage::getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const {
+    if (!_imageLabel) {
+        fullWidth = fullHeight = currentWidth = currentHeight = 0;
+        return;
+    }
+
+    fullWidth     = _originalPixmap.width();
+    fullHeight    = _originalPixmap.height();
+    currentWidth  = _imageLabel->width();
+    currentHeight = _imageLabel->height();
+}
+
+double PanelPreviewImage::getCurrentZoomLevel() const {
+    int fullWidth, fullHeight, currentWidth, currentHeight;
+
+    getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+    if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+        return 1.0;
+
+    return ((double) currentWidth) / ((double) fullWidth);
+}
+
+void PanelPreviewImage::zoomFit(bool onlyWidth, bool grow) {
+    int fullWidth, fullHeight, currentWidth, currentHeight;
+
+    getSize(fullWidth, fullHeight, currentWidth, currentHeight);
+    if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
+        return;
+
+    double aspect = ((double) fullWidth) / ((double) fullHeight);
+
+    QRect rect = _ui.imageScrollArea->contentsRect();
+    int areaWidth = rect.width();
+    int areaHeight = rect.height();
+
+    // The size we want to scale to, depending on whether to grow the image
+    int toWidth  = grow ? areaWidth  : MIN<int>(areaWidth , fullWidth);
+    int toHeight = grow ? areaHeight : MIN<int>(areaHeight, fullHeight);
+
+    // Try to fit by width
+    int newWidth  = toWidth;
+    int newHeight = MAX<int>(newWidth / aspect, 1);
+
+    // If the height overflows, fit by height instead (if requested)
+    if (!onlyWidth && (newHeight > toHeight)) {
+        newHeight = toHeight;
+        newWidth  = MAX<int>(newHeight * aspect, 1);
+    }
+
+    QSize newSize(newWidth, newHeight);
+    _imageLabel->setPixmap(_originalPixmap.scaled(newSize, Qt::IgnoreAspectRatio, _mode));
+    _imageLabel->setFixedSize(newSize);
+
+    double zoomLevel = getCurrentZoomLevel() * 100;
+    _scaleFactor = 100 / zoomLevel;
+    _ui.zoomPercent->setText(QString("%1%").arg((int)zoomLevel));
+
+    _ui.zoomOriginal->setEnabled(true);
 }
 
 } // End of namespace GUI

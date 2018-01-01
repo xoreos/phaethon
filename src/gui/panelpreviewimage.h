@@ -27,6 +27,7 @@ private:
     uint8 _color;
     QLabel *_imageLabel;
     QPixmap _originalPixmap;
+    QSize _originalSize;
     double _scaleFactor = 1.0;
     Qt::TransformationMode _mode = Qt::SmoothTransformation;
 
@@ -40,8 +41,12 @@ public:
     void convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
     void writePixel(const byte *&data, Images::PixelFormat format, byte *&data_out, QImage::Format &format_out);
     void getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
-    void scaleImage(double factor);
-    void adjustScrollBar(QScrollBar *scrollBar, double factor);
+    void getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
+    void zoomFit(bool onlyWidth, bool grow);
+    double getCurrentZoomLevel() const;
+    void zoomTo(int width, int height, double zoom);
+    void zoomTo(double zoom);
+    void zoomStep(double step);
     void updateButtons();
 
 /*slots:*/
@@ -49,6 +54,10 @@ public:
     void zoomIn();
     void zoomOut();
     void zoomOriginal();
+    void onZoomFit();
+    void onZoomFitWidth();
+    void onZoomShrinkFit();
+    void onZoomShrinkFitWidth();
     void nearestToggled(bool checked);
 };
 
