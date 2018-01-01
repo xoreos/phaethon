@@ -36,15 +36,10 @@ public:
     void setItem(const ResourceTreeItem *node);
 
     bool play();
-    W_SLOT(play, W_Access::Private);
     void pause();
-    W_SLOT(pause, W_Access::Private);
     void stop();
-    W_SLOT(stop, W_Access::Private);
     void changeVolume(int value);
-    W_SLOT(changeVolume, W_Access::Private);
     void positionChanged(qint64 position);
-    W_SLOT(positionChanged, W_Access::Private);
 
     QString formatTime(uint64 t);
     QString formatPercent(uint64 total, uint64 t);
