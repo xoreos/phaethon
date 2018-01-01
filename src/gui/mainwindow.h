@@ -61,8 +61,8 @@ private /*slots*/:
     void exportWAV();
 
     void slotAbout();
+    void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
 
-    void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     void setLabels();

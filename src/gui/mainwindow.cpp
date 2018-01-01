@@ -97,7 +97,7 @@ void MainWindow::setTreeViewModel(const QString &path) {
 
 
     QObject::connect(_ui.treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                     this, &MainWindow::selection);
+                     this, &MainWindow::resourceSelect);
 
 
     _ui.log->append(tr("Set root: %1").arg(path));
@@ -185,7 +185,7 @@ void MainWindow::showPreviewPanel() {
     }
 }
 
-void MainWindow::selection(const QItemSelection &selected, const QItemSelection &deselected) {
+void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &deselected) {
     const QModelIndex index = selected.indexes().at(0);
     _currentItem = _treeModel->getNode(index);
     _resInfo->update(_currentItem);
