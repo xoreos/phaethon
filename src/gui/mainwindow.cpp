@@ -187,7 +187,7 @@ void MainWindow::showPreviewPanel() {
 
 void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &deselected) {
     const QModelIndex index = selected.indexes().at(0);
-    _currentItem = _treeModel->getNode(index);
+    _currentItem = _treeModel->getItem(index);
     _resInfo->update(_currentItem);
     showPreviewPanel();
 

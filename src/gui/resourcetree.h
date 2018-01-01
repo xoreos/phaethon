@@ -46,15 +46,15 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    ResourceTreeItem *getNode(const QModelIndex &index) const;
+    ResourceTreeItem *getItem(const QModelIndex &index) const;
     bool canFetchMore(const QModelIndex &index) const override;
     void fetchMore(const QModelIndex &index);
-    void insertItemsFromArchive(ResourceTreeItem::ArchiveInfo &data, const QModelIndex &parent);
     void insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
+    void insertItems(int position, QList<ResourceTreeItem*> &items, const QModelIndex &parent);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     void setRootPath(const QString &path);
-    void populate(const QString& path, ResourceTreeItem *parentNode);
+    void populate(const QString& path, ResourceTreeItem *parent);
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const QString &file);
     void loadKEYDataFiles(Aurora::KEYFile &key);
