@@ -89,7 +89,7 @@ void MainWindow::setTreeViewModel(QString path) {
     _treeModel.reset();
     _ui.treeView->setModel(nullptr);
 
-    _treeModel = std::make_unique<ResourceTree>(_status, path, _ui.treeView);
+    _treeModel = std::make_unique<ResourceTree>(this, path, _ui.treeView);
     _ui.treeView->setModel(_treeModel.get());
     _ui.treeView->show();
 
@@ -423,7 +423,7 @@ void MainWindow::slotAbout() {
     QMessageBox::about(this, "About", msg);
 }
 
-std::shared_ptr<StatusBar> MainWindow::getStatusBar() {
+std::shared_ptr<StatusBar> MainWindow::status() {
     return _status;
 }
 

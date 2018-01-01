@@ -17,6 +17,7 @@
 namespace GUI
 {
 
+class MainWindow;
 class ResourceTree : public QAbstractItemModel {
     W_OBJECT(ResourceTree)
 
@@ -24,7 +25,7 @@ private:
     QString _rootPath;
     ResourceTreeItem *_root;
     QFileIconProvider *_iconProvider;
-    std::shared_ptr<StatusBar> _status;
+    MainWindow *_mainWindow; // to access status bar and log
 
     typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
     typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
@@ -33,7 +34,7 @@ private:
     KEYDataFileMap _keyDataFiles;
 
 public:
-    explicit ResourceTree(std::shared_ptr<StatusBar> statusBar, QString path, QObject *parent = 0);
+    explicit ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent = 0);
     ~ResourceTree();
 
     QVariant data(const QModelIndex &index, int role) const override;

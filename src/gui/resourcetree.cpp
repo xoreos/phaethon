@@ -14,6 +14,7 @@
 #include "src/aurora/zipfile.h"
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
+#include "src/gui/mainwindow.h"
 #include "src/gui/statusbar.h"
 #include "src/gui/resourcetree.h"
 
@@ -21,10 +22,10 @@ namespace GUI {
 
 W_OBJECT_IMPL(ResourceTree)
 
-ResourceTree::ResourceTree(std::shared_ptr<StatusBar> statusBar, QString path, QObject *parent)
+ResourceTree::ResourceTree(MainWindow *mainWindow, const QString &path, QObject *parent)
     : QAbstractItemModel(parent)
     , _iconProvider(new QFileIconProvider())
-    , _status(statusBar)
+    , _mainWindow(mainWindow)
 {
     _rootPath = path;
     _root = new ResourceTreeItem("Filename", nullptr);
@@ -39,14 +40,14 @@ ResourceTree::~ResourceTree() {
 }
 
 void ResourceTree::setRootPath(QString path) {
-    _status->push("Populating resource tree...");
     populate(path, _root);
-    _status->pop();
+    _mainWindow->status()->push("Populating resource tree...");
+    _mainWindow->status()->pop();
 }
 
 void ResourceTree::populate(const QString& path, ResourceTreeItem *parentNode) {
     if (QFileInfo(path).isDir()) {
-        _status->push(tr("Recursively adding all files in ") + path + "...");
+        _mainWindow->status()->push(tr("Recursively adding all files in ") + path + "...");
         ResourceTreeItem *curNode;
 
         QDir dir(path);
@@ -64,7 +65,7 @@ void ResourceTree::populate(const QString& path, ResourceTreeItem *parentNode) {
         }
     }
     else {
-        _status->push(tr("Adding file ") + path + "...");
+        _mainWindow->status()->push(tr("Adding file ") + path + "...");
         parentNode->appendChild(new ResourceTreeItem(path, parentNode));
     }
 }
@@ -113,9 +114,9 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
     if (archiveInfo.addedArchiveMembers)
         return;
 
-    _status->push(tr("Loading archive") + item->getName() + "...");
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
+    _mainWindow->status()->push(tr("Loading archive") + item->getData() + "...");
+    BOOST_SCOPE_EXIT((&_mainWindow)) {
+        _mainWindow->status()->pop();
     } BOOST_SCOPE_EXIT_END
 
     // Load the archive, if necessary
@@ -331,12 +332,12 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
     for (uint i = 0; i < dataFiles.size(); i++) {
         try {
 
-            _status->push(tr("Loading data file") + dataFiles[i].toQString() + "...");
+            _mainWindow->status()->push(tr("Loading data file") + dataFiles[i].toQString() + "...");
 
             Aurora::KEYDataFile *dataFile = getKEYDataFile(dataFiles[i].toQString());
             key.addDataFile(i, dataFile);
 
-            _status->pop();
+            _mainWindow->status()->pop();
 
         } catch (Common::Exception &e) {
             e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());

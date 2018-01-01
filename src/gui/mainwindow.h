@@ -38,6 +38,7 @@ public:
     MainWindow(QWidget *parent = 0, const char *version = "", const QSize &size = QSize(800, 600), const Common::UString &path = "");
     ~MainWindow();
 
+    std::shared_ptr<StatusBar> status();
 private /*slots*/:
     void setTreeViewModel(QString path);
 
@@ -61,7 +62,6 @@ private /*slots*/:
 
     void slotAbout();
 
-    std::shared_ptr<StatusBar> getStatusBar();
     void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
