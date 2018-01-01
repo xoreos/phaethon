@@ -53,7 +53,7 @@ public:
     void insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    void setRootPath(QString path);
+    void setRootPath(const QString &path);
     void populate(const QString& path, ResourceTreeItem *parentNode);
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const QString &file);

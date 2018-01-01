@@ -25,7 +25,7 @@ private:
 public:
     PanelPreviewText(QWidget *parent = 0);
 
-    void setText(QString text);
+    void setText(const QString &text);
     void setItem(const ResourceTreeItem *node);
 };
 

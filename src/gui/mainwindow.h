@@ -40,8 +40,8 @@ public:
 
     std::shared_ptr<StatusBar> status();
 private /*slots*/:
-    void setTreeViewModel(QString path);
 
+    void setTreeViewModel(const QString &path);
     void slotOpenDir();
 
     void slotOpenFile();
@@ -50,7 +50,7 @@ private /*slots*/:
 
     void slotQuit();
 
-    void slotLogAppend(QString text);
+    void slotLogAppend(const QString &text);
 
     void saveItem();
 

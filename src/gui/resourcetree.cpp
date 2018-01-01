@@ -39,7 +39,7 @@ ResourceTree::~ResourceTree() {
     delete _root;
 }
 
-void ResourceTree::setRootPath(QString path) {
+void ResourceTree::setRootPath(const QString &path) {
     populate(path, _root);
     _mainWindow->status()->push("Populating resource tree...");
     _mainWindow->status()->pop();

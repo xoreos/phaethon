@@ -11,7 +11,7 @@ PanelPreviewText::PanelPreviewText(QWidget *parent)
     _ui.setupUi(this);
 }
 
-void PanelPreviewText::setText(QString text)
+void PanelPreviewText::setText(const QString &text)
 {
     _ui.textEdit->setText(text);
 }

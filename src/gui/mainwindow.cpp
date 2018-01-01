@@ -72,11 +72,11 @@ MainWindow::~MainWindow() {
 //    delete _status;
 }
 
-void MainWindow::slotLogAppend(QString text) {
+void MainWindow::slotLogAppend(const QString &text) {
     _ui.log->append(text);
 }
 
-void MainWindow::setTreeViewModel(QString path) {
+void MainWindow::setTreeViewModel(const QString &path) {
     if (_rootPath == path)
         return;
     _rootPath = path;
