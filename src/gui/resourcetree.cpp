@@ -38,8 +38,10 @@ ResourceTree::~ResourceTree() {
 }
 
 void ResourceTree::setRootPath(const QString &path) {
-    populate(path, _root);
     _mainWindow->status()->push("Populating resource tree...");
+    ResourceTreeItem *top = new ResourceTreeItem(QFileInfo(path).canonicalFilePath(), _root);
+    _root->appendChild(top);
+    populate(path, top);
     _mainWindow->status()->pop();
 }
 
