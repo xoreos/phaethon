@@ -69,7 +69,6 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
 }
 
 MainWindow::~MainWindow() {
-//    delete _status;
 }
 
 void MainWindow::slotLogAppend(const QString &text) {
