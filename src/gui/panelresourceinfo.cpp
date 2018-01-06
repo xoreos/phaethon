@@ -39,168 +39,168 @@ namespace GUI {
 W_OBJECT_IMPL(PanelResourceInfo)
 
 PanelResourceInfo::PanelResourceInfo() : QFrame(0) {
-    QVBoxLayout *layoutTop = new QVBoxLayout(this);
-    QVBoxLayout *layoutLabels = new QVBoxLayout();
-    QHBoxLayout *layoutButtons = new QHBoxLayout();
+	QVBoxLayout *layoutTop = new QVBoxLayout(this);
+	QVBoxLayout *layoutLabels = new QVBoxLayout();
+	QHBoxLayout *layoutButtons = new QHBoxLayout();
 
-    _buttonExportRaw = new QPushButton(tr("Save"), this);
-    _buttonExportBMUMP3 = new QPushButton(tr("Export as MP3"), this);
-    _buttonExportTGA = new QPushButton(tr("Export as TGA"), this);
-    _buttonExportWAV = new QPushButton(tr("Export as WAV"),this);
+	_buttonExportRaw = new QPushButton(tr("Save"), this);
+	_buttonExportBMUMP3 = new QPushButton(tr("Export as MP3"), this);
+	_buttonExportTGA = new QPushButton(tr("Export as TGA"), this);
+	_buttonExportWAV = new QPushButton(tr("Export as WAV"),this);
 
-    _labelName = new QLabel(tr("Resource name:"), this);
-    _labelSize = new QLabel(tr("Size:"), this);
-    _labelFileType = new QLabel(tr("File type:"), this);
-    _labelResType = new QLabel(tr("Resource type:"), this);
+	_labelName = new QLabel(tr("Resource name:"), this);
+	_labelSize = new QLabel(tr("Size:"), this);
+	_labelFileType = new QLabel(tr("File type:"), this);
+	_labelResType = new QLabel(tr("Resource type:"), this);
 
-    layoutLabels->addWidget(_labelName);
-    layoutLabels->addWidget(_labelSize);
-    layoutLabels->addWidget(_labelFileType);
-    layoutLabels->addWidget(_labelResType);
+	layoutLabels->addWidget(_labelName);
+	layoutLabels->addWidget(_labelSize);
+	layoutLabels->addWidget(_labelFileType);
+	layoutLabels->addWidget(_labelResType);
 
-    layoutButtons->addWidget(_buttonExportRaw);
-    layoutButtons->addWidget(_buttonExportBMUMP3);
-    layoutButtons->addWidget(_buttonExportTGA);
-    layoutButtons->addWidget(_buttonExportWAV);
-    layoutButtons->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
+	layoutButtons->addWidget(_buttonExportRaw);
+	layoutButtons->addWidget(_buttonExportBMUMP3);
+	layoutButtons->addWidget(_buttonExportTGA);
+	layoutButtons->addWidget(_buttonExportWAV);
+	layoutButtons->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    layoutButtons->setSizeConstraint(QLayout::SetMinimumSize);
+	layoutButtons->setSizeConstraint(QLayout::SetMinimumSize);
 
-    layoutTop->addLayout(layoutLabels);
-    layoutTop->addLayout(layoutButtons);
+	layoutTop->addLayout(layoutLabels);
+	layoutTop->addLayout(layoutButtons);
 
-    layoutTop->setContentsMargins(0, 0, 0, 0);
+	layoutTop->setContentsMargins(0, 0, 0, 0);
 
-    _buttonExportRaw->setVisible(false);
-    _buttonExportBMUMP3->setVisible(false);
-    _buttonExportTGA->setVisible(false);
-    _buttonExportWAV->setVisible(false);
+	_buttonExportRaw->setVisible(false);
+	_buttonExportBMUMP3->setVisible(false);
+	_buttonExportTGA->setVisible(false);
+	_buttonExportWAV->setVisible(false);
 
-    QObject::connect(_buttonExportRaw, &QPushButton::clicked, this, &PanelResourceInfo::slotSave);
-    QObject::connect(_buttonExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
-    QObject::connect(_buttonExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
-    QObject::connect(_buttonExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
+	QObject::connect(_buttonExportRaw, &QPushButton::clicked, this, &PanelResourceInfo::slotSave);
+	QObject::connect(_buttonExportTGA, &QPushButton::clicked, this, &PanelResourceInfo::slotExportTGA);
+	QObject::connect(_buttonExportBMUMP3, &QPushButton::clicked, this, &PanelResourceInfo::slotExportBMUMP3);
+	QObject::connect(_buttonExportWAV, &QPushButton::clicked, this, &PanelResourceInfo::slotExportWAV);
 }
 
 /** SLOTS **/
 void PanelResourceInfo::slotSave() {
-    emit saveClicked();
+	emit saveClicked();
 }
 
 void PanelResourceInfo::slotExportTGA() {
-    emit exportTGAClicked();
+	emit exportTGAClicked();
 }
 
 void PanelResourceInfo::slotExportBMUMP3() {
-    emit exportBMUMP3Clicked();
+	emit exportBMUMP3Clicked();
 }
 
 void PanelResourceInfo::slotExportWAV() {
-    emit exportWAVClicked();
+	emit exportWAVClicked();
 }
 
 void PanelResourceInfo::update(const GUI::ResourceTreeItem *item) {
-    setLabels(item);
-    showExportButtons(item);
+	setLabels(item);
+	showExportButtons(item);
 }
 
 void PanelResourceInfo::showExportButtons(const GUI::ResourceTreeItem *item) {
-    if (!item || item->getSource() == Source::kSourceDirectory) {
-        showExportButtons(false, false, false, false);
-        return;
-    }
+	if (!item || item->getSource() == Source::kSourceDirectory) {
+		showExportButtons(false, false, false, false);
+		return;
+	}
 
-    bool isBMU   = item->getFileType()     == Aurora::kFileTypeBMU;
-    bool isSound = item->getResourceType() == Aurora::kResourceSound;
-    bool isImage = item->getResourceType() == Aurora::kResourceImage;
+	bool isBMU   = item->getFileType()     == Aurora::kFileTypeBMU;
+	bool isSound = item->getResourceType() == Aurora::kResourceSound;
+	bool isImage = item->getResourceType() == Aurora::kResourceImage;
 
-    showExportButtons(true, isBMU, isSound, isImage);
+	showExportButtons(true, isBMU, isSound, isImage);
 }
 
 void PanelResourceInfo::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
-    _buttonExportRaw->setVisible(enableRaw);
-    _buttonExportTGA->setVisible(showTGA);
-    _buttonExportBMUMP3->setVisible(showMP3);
-    _buttonExportWAV->setVisible(showWAV);
+	_buttonExportRaw->setVisible(enableRaw);
+	_buttonExportTGA->setVisible(showTGA);
+	_buttonExportBMUMP3->setVisible(showMP3);
+	_buttonExportWAV->setVisible(showWAV);
 }
 
 const QString getSizeLabel(size_t size) {
-    if (size == Common::kFileInvalid)
-        return "-";
+	if (size == Common::kFileInvalid)
+		return "-";
 
-    if (size < 1024)
-        return QString("%1").arg(size);
+	if (size < 1024)
+		return QString("%1").arg(size);
 
-    QString humanRead = QString::fromUtf8(Common::FilePath::getHumanReadableSize(size).c_str());
+	QString humanRead = QString::fromUtf8(Common::FilePath::getHumanReadableSize(size).c_str());
 
-    return QString("%1 (%2)").arg(humanRead).arg(size);
+	return QString("%1 (%2)").arg(humanRead).arg(size);
 }
 
 const QString getFileTypeLabel(Aurora::FileType type) {
-    QString label = QString("%1").arg(type);
+	QString label = QString("%1").arg(type);
 
-    if (type != Aurora::kFileTypeNone) {
-        QString temp = QString::fromUtf8(TypeMan.getExtension(type).c_str());
-        label += QString(" (%1)").arg(temp);
-    }
+	if (type != Aurora::kFileTypeNone) {
+		QString temp = QString::fromUtf8(TypeMan.getExtension(type).c_str());
+		label += QString(" (%1)").arg(temp);
+	}
 
-    return label;
+	return label;
 }
 
 const QString getResTypeLabel(Aurora::ResourceType type) {
-    QString label = QString("%1").arg(type);
+	QString label = QString("%1").arg(type);
 
-    if (type != Aurora::kResourceNone) {
-        QString temp = QString::fromUtf8(getResourceTypeDescription(type).c_str());
-        label += QString(" (%1)").arg(temp);
-    }
+	if (type != Aurora::kResourceNone) {
+		QString temp = QString::fromUtf8(getResourceTypeDescription(type).c_str());
+		label += QString(" (%1)").arg(temp);
+	}
 
-    return label;
+	return label;
 }
 
 void PanelResourceInfo::setLabels(const ResourceTreeItem *item) {
-    QString labelName     = "Resource name: ";
-    QString labelSize     = "Size: ";
-    QString labelFileType = "File type: ";
-    QString labelResType  = "Resource type: ";
+	QString labelName     = "Resource name: ";
+	QString labelSize     = "Size: ";
+	QString labelFileType = "File type: ";
+	QString labelResType  = "Resource type: ";
 
-    labelName += item->getName();
+	labelName += item->getName();
 
-    if (item->getSource() == Source::kSourceDirectory) {
+	if (item->getSource() == Source::kSourceDirectory) {
 
-        labelSize     += "-";
-        labelFileType += "Directory";
-        labelResType  += "Directory";
+		labelSize     += "-";
+		labelFileType += "Directory";
+		labelResType  += "Directory";
 
-    } else if ((item->getSource() == Source::kSourceFile) ||
-               (item->getSource() == Source::kSourceArchiveFile)) {
+	} else if ((item->getSource() == Source::kSourceFile) ||
+			   (item->getSource() == Source::kSourceArchiveFile)) {
 
-        Aurora::FileType     fileType = item->getFileType();
-        Aurora::ResourceType resType  = item->getResourceType();
+		Aurora::FileType     fileType = item->getFileType();
+		Aurora::ResourceType resType  = item->getResourceType();
 
-        labelSize     += getSizeLabel(item->getSize());
-        labelFileType += getFileTypeLabel(fileType);
-        labelResType  += getResTypeLabel(resType);
-    }
+		labelSize     += getSizeLabel(item->getSize());
+		labelFileType += getFileTypeLabel(fileType);
+		labelResType  += getResTypeLabel(resType);
+	}
 
-    _labelName->setText(labelName);
-    _labelSize->setText(labelSize);
-    _labelFileType->setText(labelFileType);
-    _labelResType->setText(labelResType);
+	_labelName->setText(labelName);
+	_labelSize->setText(labelSize);
+	_labelFileType->setText(labelFileType);
+	_labelResType->setText(labelResType);
 }
 
 void PanelResourceInfo::clearLabels() {
-    _labelName->setText("Resource name:");
-    _labelSize->setText("Size:");
-    _labelFileType->setText("File type:");
-    _labelResType->setText("Resource type:");
+	_labelName->setText("Resource name:");
+	_labelSize->setText("Size:");
+	_labelFileType->setText("File type:");
+	_labelResType->setText("Resource type:");
 }
 
 void PanelResourceInfo::setButtonsForClosedDir() {
-    _buttonExportRaw->setVisible(false);
-    _buttonExportBMUMP3->setVisible(false);
-    _buttonExportWAV->setVisible(false);
-    _buttonExportTGA->setVisible(false);
+	_buttonExportRaw->setVisible(false);
+	_buttonExportBMUMP3->setVisible(false);
+	_buttonExportWAV->setVisible(false);
+	_buttonExportTGA->setVisible(false);
 }
 
 } // End of namespace GUI

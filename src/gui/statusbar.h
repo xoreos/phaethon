@@ -34,14 +34,14 @@ namespace GUI {
 
 class StatusBar {
 public:
-    StatusBar(QStatusBar *statusBar);
-    void setText(const QString &text);
-    void push(const QString &text, int timeout = 0);
-    void pop();
+	StatusBar(QStatusBar *statusBar);
+	void setText(const QString &text);
+	void push(const QString &text, int timeout = 0);
+	void pop();
 
 private:
-    QStatusBar *_statusBar;
-    QString _text;
+	QStatusBar *_statusBar;
+	QString _text;
 };
 
 } // End of namespace GUI

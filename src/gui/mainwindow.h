@@ -43,9 +43,11 @@
 #include "src/common/filetree.h"
 #include "src/common/readstream.h"
 #include "src/common/writestream.h"
+
+#include "src/sound/sound.h"
+
 #include "src/gui/proxymodel.h"
 #include "src/gui/statusbar.h"
-#include "src/sound/sound.h"
 
 namespace GUI {
 
@@ -57,75 +59,83 @@ class ResourceTreeItem;
 class ResourceTree;
 
 class MainWindow : public QMainWindow {
-    W_OBJECT(MainWindow)
+	W_OBJECT(MainWindow)
 
 public:
-    MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
-    ~MainWindow();
+	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
+	~MainWindow();
 
-    void statusPush(const QString &text);
-    void statusPop();
-    void openFinish();
+	void statusPush(const QString &text);
+	void statusPop();
 
-private /*slots*/:
-    void open(const QString &path);
-    void slotOpenDir();
-    void slotOpenFile();
-    void slotCloseDir();
-    void slotQuit();
-    void slotLog(const QString &text);
-    void saveItem();
-    void exportTGA();
-    void exportBMUMP3();
-    void exportWAV();
-    void slotAbout();
-    void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
+	/** Called by the "populate" thread when it finishes.
+	 *  Assigns the created resource tree model to the model.
+	 */
+	void openFinish();
+
+private /*slots*/ :
+	void open(const QString &path);
+	void slotOpenDir();
+	void slotOpenFile();
+	void slotCloseDir();
+	void slotQuit();
+	void slotLog(const QString &text);
+	void saveItem();
+	void exportTGA();
+	void exportBMUMP3();
+	void exportWAV();
+	void slotAbout();
+
+	/** Called by the selection model to respond to changes in the tree model.
+	 */
+	void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
-    void setLabels();
-    void showPreviewPanel(QFrame *panel);
-    void showPreviewPanel();
-    void showExportButtons();
-    void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
-    void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
-    void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
+	/** Decides which type of resource preview is required and shows it.
+	 */
+	void showPreviewPanel();
+	void showPreviewPanel(QFrame *panel);
 
-    Common::FileTree _files;
+	// TODO: Move these to a more appropriate place.
+	void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+	void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
-    Common::ScopedPtr<StatusBar> _status;
-    ResourceTreeItem *_currentItem;
-    Common::ScopedPtr<ResourceTree> _treeModel;
-    Common::ScopedPtr<ProxyModel> _proxyModel;
-    QString _rootPath;
+	Common::FileTree _files;
 
-    QWidget *_centralWidget;
+	Common::ScopedPtr<StatusBar> _status; ///< Pointer to a wrapper of the status bar.
+	ResourceTreeItem *_currentItem; ///< Passed to preview classes to provide information on the current item.
+	Common::ScopedPtr<ResourceTree> _treeModel; 
+	Common::ScopedPtr<ProxyModel> _proxyModel; ///< Used for sorting the tree.
+	QString _rootPath;
 
-    QGridLayout *_centralLayout;
-    QVBoxLayout *_layoutVertical;
-    QSplitter *_splitterTopBottom;
-    QSplitter *_splitterLeftRight;
+	QWidget *_centralWidget;
 
-    QFrame *_resPreviewFrame;
+	QGridLayout *_centralLayout;
+	QVBoxLayout *_layoutVertical;
+	QSplitter *_splitterTopBottom;
+	QSplitter *_splitterLeftRight;
 
-    QTreeView *_treeView;
+	QFrame *_resPreviewFrame;
 
-    QTextEdit *_log;
+	QTreeView *_treeView;
 
-    QAction *_actionOpenDirectory;
-    QAction *_actionClose;
-    QAction *_actionQuit;
-    QAction *_actionAbout;
-    QAction *_actionOpenFile;
+	QTextEdit *_log;
 
-    QMenuBar *_menuBar;
-    QMenu *_menuFile;
-    QMenu *_menuHelp;
+	QAction *_actionOpenDirectory;
+	QAction *_actionClose;
+	QAction *_actionQuit;
+	QAction *_actionAbout;
+	QAction *_actionOpenFile;
 
-    // resource preview
-    Common::ScopedPtr<PanelPreviewEmpty> _panelPreviewEmpty;
-    Common::ScopedPtr<PanelPreviewImage> _panelPreviewImage;
-    Common::ScopedPtr<PanelPreviewSound> _panelPreviewSound;
-    Common::ScopedPtr<PanelResourceInfo> _panelResourceInfo;
+	QMenuBar *_menuBar;
+	QMenu *_menuFile;
+	QMenu *_menuHelp;
+
+	// resource preview
+	Common::ScopedPtr<PanelPreviewEmpty> _panelPreviewEmpty;
+	Common::ScopedPtr<PanelPreviewImage> _panelPreviewImage;
+	Common::ScopedPtr<PanelPreviewSound> _panelPreviewSound;
+	Common::ScopedPtr<PanelResourceInfo> _panelResourceInfo;
 };
 
 } // End of namespace GUI

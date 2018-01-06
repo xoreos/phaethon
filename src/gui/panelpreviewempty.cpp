@@ -25,6 +25,7 @@
 #include "verdigris/wobjectimpl.h"
 
 #include "src/common/system.h"
+
 #include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
@@ -32,16 +33,16 @@ namespace GUI {
 W_OBJECT_IMPL(PanelPreviewEmpty)
 
 PanelPreviewEmpty::PanelPreviewEmpty() : QFrame(0) {
-    QHBoxLayout *layoutTop = new QHBoxLayout(this);
-    layoutTop->setContentsMargins(0, 0, 0, 0);
+	QHBoxLayout *layoutTop = new QHBoxLayout(this);
+	layoutTop->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *label = new QLabel(tr("[No preview.]"), this);
-    label->setEnabled(false);
-    label->setAlignment(Qt::AlignCenter);
+	QLabel *label = new QLabel(tr("[No preview.]"), this);
+	label->setEnabled(false);
+	label->setAlignment(Qt::AlignCenter);
 
-    layoutTop->addWidget(label);
+	layoutTop->addWidget(label);
 
-    this->setLayout(layoutTop);
+	this->setLayout(layoutTop);
 }
 
 } // End of namespace GUI

@@ -1,17 +1,17 @@
+#include <QString>
+
 #include "verdigris/wobjectdefs.h"
 
 #include "src/gui/proxymodel.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 
-#include <QString>
-
 namespace GUI {
 
 W_OBJECT_IMPL(ProxyModel)
 
-bool ProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
-	ResourceTree *model = qobject_cast<ResourceTree*>(sourceModel());
+bool ProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const {
+	ResourceTree *model = qobject_cast<ResourceTree *>(sourceModel());
 
 	ResourceTreeItem *itemLeft = model->itemFromIndex(left);
 	ResourceTreeItem *itemRight = model->itemFromIndex(right);

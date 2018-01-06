@@ -24,270 +24,271 @@
 
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
+
 #include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-    _name(QString::fromUtf8(entry.name.c_str())), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
+	_name(QString::fromUtf8(entry.name.c_str())), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
-    _path = QString::fromUtf8(entry.path.string().c_str());
+	_path = QString::fromUtf8(entry.path.string().c_str());
 
-    _archive.data = 0;
-    _archive.addedMembers = false;
-    _archive.index = 0xFFFFFFFF;
+	_archive.data = 0;
+	_archive.addedMembers = false;
+	_archive.index = 0xFFFFFFFF;
 
-    _size = Common::kFileInvalid;
-    if (_source == kSourceFile)
-        _size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
+	_size = Common::kFileInvalid;
+	if (_source == kSourceFile)
+		_size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
 
-    if (_source == kSourceDirectory)
-        _fileType = Aurora::kFileTypeNone;
-    else
-        _fileType = TypeMan.getFileType(_name.toStdString());
+	if (_source == kSourceDirectory)
+		_fileType = Aurora::kFileTypeNone;
+	else
+		_fileType = TypeMan.getFileType(_name.toStdString());
 
-    if (_source == kSourceDirectory)
-        _resourceType = Aurora::kResourceNone;
-    else
-        _resourceType = TypeMan.getResourceType(_name.toStdString());
+	if (_source == kSourceDirectory)
+		_resourceType = Aurora::kResourceNone;
+	else
+		_resourceType = TypeMan.getResourceType(_name.toStdString());
 
-    _triedDuration = getResourceType() != Aurora::kResourceSound;
-    _duration = Sound::RewindableAudioStream::kInvalidLength;
+	_triedDuration = getResourceType() != Aurora::kResourceSound;
+	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
-    _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())), _source(kSourceArchiveFile) {
+	_name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())), _source(kSourceArchiveFile) {
 
-    _archive.data = archive;
-    _archive.addedMembers = false;
-    _archive.index = resource.index;
+	_archive.data = archive;
+	_archive.addedMembers = false;
+	_archive.index = resource.index;
 
-    _size = archive->getResourceSize(resource.index);
+	_size = archive->getResourceSize(resource.index);
 
-    if (_source == kSourceDirectory)
-        _fileType = Aurora::kFileTypeNone;
-    else
-        _fileType = TypeMan.getFileType(_name.toStdString());
+	if (_source == kSourceDirectory)
+		_fileType = Aurora::kFileTypeNone;
+	else
+		_fileType = TypeMan.getFileType(_name.toStdString());
 
-    if (_source == kSourceDirectory)
-        _resourceType = Aurora::kResourceNone;
-    else
-        _resourceType = TypeMan.getResourceType(_name.toStdString());
+	if (_source == kSourceDirectory)
+		_resourceType = Aurora::kResourceNone;
+	else
+		_resourceType = TypeMan.getResourceType(_name.toStdString());
 
-    _triedDuration = getResourceType() != Aurora::kResourceSound;
-    _duration = Sound::RewindableAudioStream::kInvalidLength;
+	_triedDuration = getResourceType() != Aurora::kResourceSound;
+	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::ResourceTreeItem(const QString &data) {
-    _name = data;
+	_name = data;
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
 }
 
 void ResourceTreeItem::addChild(ResourceTreeItem *child) {
-    child->setParent(this);
-    _children.push_back(std::unique_ptr<ResourceTreeItem>(child));
+	child->setParent(this);
+	_children.push_back(std::unique_ptr<ResourceTreeItem>(child));
 }
 
 bool ResourceTreeItem::insertChild(size_t position, ResourceTreeItem *child) {
-    if (position >= _children.size())
-        return false;
+	if (position >= _children.size())
+		return false;
 
-    _children.insert(_children.begin() + position, std::unique_ptr<ResourceTreeItem>(child));
+	_children.insert(_children.begin() + position, std::unique_ptr<ResourceTreeItem>(child));
 
-    return true;
+	return true;
 }
 
 ResourceTreeItem *ResourceTreeItem::childAt(int row) const {
-    return _children[row].get();
+	return _children[row].get();
 }
 
 int ResourceTreeItem::childCount() const {
-    return _children.size();
+	return _children.size();
 }
 
 int ResourceTreeItem::row() const {
-    if (_parent) {
-        for (size_t i = 0; i < _parent->_children.size(); i++) {
-            if (_parent->_children[i].get() == this)
-                return i;
-        }
-    }
-    return 0;
+	if (_parent) {
+		for (size_t i = 0; i < _parent->_children.size(); i++) {
+			if (_parent->_children[i].get() == this)
+				return i;
+		}
+	}
+	return 0;
 }
 
 ResourceTreeItem *ResourceTreeItem::getParent() const {
-    return _parent;
+	return _parent;
 }
 
 void ResourceTreeItem::setParent(ResourceTreeItem *parent) {
-    _parent = parent;
+	_parent = parent;
 }
 
 bool ResourceTreeItem::hasChildren() const {
-    return _children.size();
+	return _children.size();
 }
 
 const QString &ResourceTreeItem::getName() const {
-    return _name;
+	return _name;
 }
 
 bool ResourceTreeItem::isDir() const {
-    return _source == kSourceDirectory;
+	return _source == kSourceDirectory;
 }
 
 const QString &ResourceTreeItem::getPath() const {
-    return _path;
+	return _path;
 }
 
 qint64 ResourceTreeItem::getSize() const {
-    return _size;
+	return _size;
 }
 
 Source ResourceTreeItem::getSource() const {
-    return _source;
+	return _source;
 }
 
 Aurora::FileType ResourceTreeItem::getFileType() const {
-    return _fileType;
+	return _fileType;
 }
 
 Aurora::ResourceType ResourceTreeItem::getResourceType() const {
-    return _resourceType;
+	return _resourceType;
 }
 
 Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
-    try {
-        switch (_source) {
-            case kSourceDirectory:
-                throw Common::Exception("Can't get file data of a directory");
+	try {
+		switch (_source) {
+			case kSourceDirectory:
+				throw Common::Exception("Can't get file data of a directory");
 
-            case kSourceFile:
-                return new Common::ReadFile(_path.toStdString().c_str());
+			case kSourceFile:
+				return new Common::ReadFile(_path.toStdString().c_str());
 
-            case kSourceArchiveFile:
-                if (!_archive.data)
-                    throw Common::Exception("No archive opened");
+			case kSourceArchiveFile:
+				if (!_archive.data)
+					throw Common::Exception("No archive opened");
 
-                return _archive.data->getResource(_archive.index);
-            default:
-                throw Common::Exception("kSourceArchive is not handled by getResourceData");
-        }
-    } catch (Common::Exception &e) {
-        e.add("Failed to get resource data for resource \"%s\"", _name.toStdString().c_str());
-        throw;
-    }
+				return _archive.data->getResource(_archive.index);
+			default:
+				throw Common::Exception("kSourceArchive is not handled by getResourceData");
+		}
+	} catch (Common::Exception &e) {
+		e.add("Failed to get resource data for resource \"%s\"", _name.toStdString().c_str());
+		throw;
+	}
 
-    assert(false);
-    return 0;
+	assert(false);
+	return 0;
 }
 
 Images::Decoder *ResourceTreeItem::getImage() const {
-    if (getResourceType() != Aurora::kResourceImage)
-        throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
+	if (getResourceType() != Aurora::kResourceImage)
+		throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
 
-    Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
-    Images::Decoder *img = 0;
-    try {
-        img = getImage(*res, _fileType);
-    } catch (Common::Exception &e) {
-        e.add("Failed to get image from \"%s\"", getName().toStdString().c_str());
-        throw;
-    }
+	Images::Decoder *img = 0;
+	try {
+		img = getImage(*res, _fileType);
+	} catch (Common::Exception &e) {
+		e.add("Failed to get image from \"%s\"", getName().toStdString().c_str());
+		throw;
+	}
 
-    return img;
+	return img;
 }
 
 Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) const {
-    Images::Decoder *img = 0;
-    switch (type) {
-        case Aurora::kFileTypeDDS:
-            img = new Images::DDS(res);
-            break;
+	Images::Decoder *img = 0;
+	switch (type) {
+		case Aurora::kFileTypeDDS:
+			img = new Images::DDS(res);
+			break;
 
-        case Aurora::kFileTypeTPC:
-            img = new Images::TPC(res);
-            break;
+		case Aurora::kFileTypeTPC:
+			img = new Images::TPC(res);
+			break;
 
-        // TXB may be actually TPC
-        case Aurora::kFileTypeTXB:
-        case Aurora::kFileTypeTXB2:
-            try {
-                img = new Images::TXB(res);
-            } catch (Common::Exception &e1) {
+		// TXB may be actually TPC
+		case Aurora::kFileTypeTXB:
+		case Aurora::kFileTypeTXB2:
+			try {
+				img = new Images::TXB(res);
+			} catch (Common::Exception &e1) {
 
-                try {
-                    res.seek(0);
-                    img = new Images::TPC(res);
+				try {
+					res.seek(0);
+					img = new Images::TPC(res);
 
-                } catch (Common::Exception &e2) {
-                    e1.add(e2);
+				} catch (Common::Exception &e2) {
+					e1.add(e2);
 
-                    throw e1;
-                }
-            }
-            break;
+					throw e1;
+				}
+			}
+			break;
 
-        case Aurora::kFileTypeTGA:
-            img = new Images::TGA(res);
-            break;
+		case Aurora::kFileTypeTGA:
+			img = new Images::TGA(res);
+			break;
 
-        case Aurora::kFileTypeSBM:
-            img = new Images::SBM(res);
-            break;
+		case Aurora::kFileTypeSBM:
+			img = new Images::SBM(res);
+			break;
 
-        case Aurora::kFileTypeCUR:
-        case Aurora::kFileTypeCURS:
-            img = new Images::WinIconImage(res);
-            break;
+		case Aurora::kFileTypeCUR:
+		case Aurora::kFileTypeCURS:
+			img = new Images::WinIconImage(res);
+			break;
 
-        default:
-            throw Common::Exception("Unsupported image type %d", type);
-    }
+		default:
+			throw Common::Exception("Unsupported image type %d", type);
+	}
 
-    return img;
+	return img;
 }
 
 Archive &ResourceTreeItem::getArchive() {
-    return _archive;
+	return _archive;
 }
 
 uint64 ResourceTreeItem::getSoundDuration() const {
-    if (_triedDuration)
-        return _duration;
+	if (_triedDuration)
+		return _duration;
 
-    _triedDuration = true;
+	_triedDuration = true;
 
-    try {
-        Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
+	try {
+		Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
 
-        Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
-        _duration = rewSound.getDuration();
+		Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
+		_duration = rewSound.getDuration();
 
-    } catch (...) {
-    }
+	} catch (...) {
+	}
 
-    return _duration;
+	return _duration;
 }
 
 Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
-    if (_resourceType != Aurora::kResourceSound)
-        throw Common::Exception("\"%s\" is not a sound resource", _name.toStdString().c_str());
+	if (_resourceType != Aurora::kResourceSound)
+		throw Common::Exception("\"%s\" is not a sound resource", _name.toStdString().c_str());
 
-    Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
-    Sound::AudioStream *sound = 0;
-    try {
-        sound = SoundMan.makeAudioStream(res.get());
-    } catch (Common::Exception &e) {
-        e.add("Failed to get audio stream from \"%s\"", _name.toStdString().c_str());
-        throw;
-    }
+	Sound::AudioStream *sound = 0;
+	try {
+		sound = SoundMan.makeAudioStream(res.get());
+	} catch (Common::Exception &e) {
+		e.add("Failed to get audio stream from \"%s\"", _name.toStdString().c_str());
+		throw;
+	}
 
-    res.release();
-    return sound;
+	res.release();
+	return sound;
 }
 
 } // End of namespace GUI

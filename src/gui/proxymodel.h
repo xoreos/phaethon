@@ -8,11 +8,13 @@
 namespace GUI {
 
 class ProxyModel : public QSortFilterProxyModel {
-    W_OBJECT(ProxyModel)
+	W_OBJECT(ProxyModel)
+	
 public:
-    using QSortFilterProxyModel::QSortFilterProxyModel;
+	using QSortFilterProxyModel::QSortFilterProxyModel;
+
 protected:
-    virtual bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
+	virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 } // End of namespace GUI

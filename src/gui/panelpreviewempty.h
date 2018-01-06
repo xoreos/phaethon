@@ -36,10 +36,10 @@
 namespace GUI {
 
 class PanelPreviewEmpty : public QFrame {
-    W_OBJECT(PanelPreviewEmpty)
+	W_OBJECT(PanelPreviewEmpty)
 
 public:
-    PanelPreviewEmpty();
+	PanelPreviewEmpty();
 };
 
 } // End of namespace GUI

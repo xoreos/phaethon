@@ -35,26 +35,29 @@
 
 #include "src/aurora/archive.h"
 #include "src/aurora/util.h"
+
 #include "src/common/filetree.h"
 #include "src/common/ptrmap.h"
+
 #include "src/gui/statusbar.h"
+
 #include "src/images/decoder.h"
 
 namespace Common {
-    class SeekableReadStream;
+	class SeekableReadStream;
 }
 
 namespace Sound {
-    class AudioStream;
+	class AudioStream;
 }
 
 namespace Images {
-    class Decoder;
+	class Decoder;
 }
 
 namespace Aurora {
-    class KEYFile;
-    class KEYDataFile;
+	class KEYFile;
+	class KEYDataFile;
 }
 
 namespace GUI {
@@ -64,58 +67,77 @@ class MainWindow;
 class ResourceTreeItem;
 
 class ResourceTree : public QAbstractItemModel {
-    W_OBJECT(ResourceTree)
+	W_OBJECT(ResourceTree)
 
 private:
-    Common::ScopedPtr<ResourceTreeItem> _root;
-    MainWindow *_mainWindow;
-    
-    Common::ScopedPtr<QFileIconProvider> _iconProvider;
+	Common::ScopedPtr<ResourceTreeItem> _root;
+	MainWindow *_mainWindow;
 
-    typedef Common::PtrMap<QString, Aurora::Archive> ArchiveMap;
-    typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
+	Common::ScopedPtr<QFileIconProvider> _iconProvider;
 
-    ArchiveMap _archives;
-    KEYDataFileMap _keyDataFiles;
+	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
+	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
+
+	ArchiveMap _archives;
+	KEYDataFileMap _keyDataFiles;
 
 public:
-    ResourceTree(MainWindow *mainWindow, QObject *parent = 0);
-    ~ResourceTree();
+	ResourceTree(MainWindow *mainWindow, QObject *parent = 0);
+	~ResourceTree();
 
-    void populate(const Common::FileTree::Entry &rootEntry);
-    void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
+	void populate(const Common::FileTree::Entry &rootEntry);
+	void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
 
-    /** Called in fetchMore. */
-    void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
-    void insertItems(size_t position, QList<ResourceTreeItem*> &items, const QModelIndex &parentIndex);
+	/** Called in fetchMore.
+	*/
+	void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
+	void insertItems(size_t position, QList<ResourceTreeItem *> &items, const QModelIndex &parentIndex);
 
-    Aurora::Archive *getArchive(const QString &path);
-    Aurora::KEYDataFile *getKEYDataFile(const QString &file);
-    void loadKEYDataFiles(Aurora::KEYFile &key);
+	Aurora::Archive     *getArchive(const QString &path);
+	Aurora::KEYDataFile *getKEYDataFile(const QString &file);
+	void                loadKEYDataFiles(Aurora::KEYFile &key);
 
-    /** Return the item in the tree structure that corresponds to the given index. */
-    ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
+	/** Return the item in the tree structure that corresponds to the given index.
+	*/
+	ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
 
-    /** Model functions. */
+	/** Model functions. */
 
-    /** Return the index if it exists, else create it. */
-    QModelIndex index(int row, int col, const QModelIndex &parent) const override;
-    /** Return the parent of the given index if it exists, else create it. */
-    QModelIndex parent(const QModelIndex &index) const override;
-    /** Return the data for the given index. */
-    QVariant data(const QModelIndex &index, int role) const override;
-    /** Return the header data. */
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    /** Define what file types should have an expand arrow in the tree. */
-    bool canFetchMore(const QModelIndex &index) const;
-    /** Return whether the item for index actually has children. */
-    bool hasChildren(const QModelIndex &index) const;
-    /** Return column count (in our case, 1 -- the filename.) */
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    /** Return row count -- how many children the given index has. */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    /** Add children to the given index. */
-    void fetchMore(const QModelIndex &index);
+	/** Return the index if it exists, else create it.
+	*/
+	QModelIndex index(int row, int col, const QModelIndex &parent) const override;
+
+	/** Return the parent of the given index if it exists, else create it.
+	*/
+	QModelIndex parent(const QModelIndex &index) const override;
+
+	/** Return the data for the given index.
+	*/
+	QVariant data(const QModelIndex &index, int role) const override;
+
+	/** Return the header data.
+	*/
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+	/** Define what file types should have an expand arrow in the tree.
+	*/
+	bool canFetchMore(const QModelIndex &index) const;
+
+	/** Return whether the item for index actually has children.
+	*/
+	bool hasChildren(const QModelIndex &index) const;
+
+	/** Return column count (in our case, 1 -- the filename.)
+	*/
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	/** Return row count -- how many children the given index has.
+	*/
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	/** Add children to the given index.
+	*/
+	void fetchMore(const QModelIndex &index);
 };
 
 } // End of namespace GUI

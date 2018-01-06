@@ -43,50 +43,44 @@ namespace GUI {
 class ResourceTreeItem;
 
 class PanelPreviewSound : public QFrame {
-    W_OBJECT(PanelPreviewSound)
+	W_OBJECT(PanelPreviewSound)
+
+public:
+	PanelPreviewSound();
+
+	void setItem(const ResourceTreeItem *item);
+
+	void stop();
 
 private:
-    QSlider *_sliderPosition;
-    QSlider *_sliderVolume;
+	QSlider *_sliderPosition;
+	QSlider *_sliderVolume;
 
-    QLabel *_labelPosition;
-    QLabel *_labelDuration;
-    QLabel *_labelPercent;
-    QLabel *_labelVolume;
+	QLabel *_labelPosition;
+	QLabel *_labelDuration;
+	QLabel *_labelPercent;
+	QLabel *_labelVolume;
 
-    QPushButton *_buttonPlay;
-    QPushButton *_buttonPause;
-    QPushButton *_buttonStop;
+	QPushButton *_buttonPlay;
+	QPushButton *_buttonPause;
+	QPushButton *_buttonStop;
 
-    const ResourceTreeItem *_currentItem;
+	const ResourceTreeItem *_currentItem;
 
-    Sound::ChannelHandle _sound;
-    uint64 _duration;
-    QTimer *_timer;
+	Sound::ChannelHandle _sound;
+	uint64 _duration;
+	QTimer *_timer;
 
-public:
-    PanelPreviewSound(QWidget *parent = 0);
+	bool play();
+	void pause();
+	void changeVolume(int value);
+	void positionChanged(qint64 position);
 
-    void setItem(const ResourceTreeItem *node);
-
-    bool play();
-    void pause();
-    void stop();
-    void changeVolume(int value);
-    void positionChanged(qint64 position);
-
-    QString formatTime(uint64 t) const;
-    QString formatPercent(uint64 total, uint64 t) const;
-    int getSliderPos(uint64 total, uint64 t) const;
-    void setButtons(bool enablePlay, bool enablePause, bool enableStop);
-    void update();
-
-public:
-    PanelPreviewSound();
-
-    void setItem(const ResourceTreeItem *item);
-
-    void stop();
+	QString formatTime(uint64 t) const;
+	QString formatPercent(uint64 total, uint64 t) const;
+	int     getSliderPos(uint64 total, uint64 t) const;
+	void    setButtons(bool enablePlay, bool enablePause, bool enableStop);
+	void    update();
 };
 
 } // End of namespace GUI

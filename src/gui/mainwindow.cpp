@@ -26,27 +26,33 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStandardPaths>
+
 #include <boost/scope_exit.hpp>
 
 #include "verdigris/wobjectimpl.h"
 
 #include "src/cline.h"
-#include "src/aurora/util.h"
-#include "src/common/filepath.h"
-#include "src/common/strutil.h"
+
 #include "src/common/system.h"
 #include "src/common/ustring.h"
+#include "src/common/strutil.h"
+#include "src/common/filepath.h"
 #include "src/common/writefile.h"
+
+#include "src/aurora/util.h"
+
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
+
 #include "src/gui/mainwindow.h"
+#include "src/gui/resourcetree.h"
+#include "src/gui/resourcetreeitem.h"
 #include "src/gui/panelpreviewempty.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelresourceinfo.h"
-#include "src/gui/resourcetree.h"
-#include "src/gui/resourcetreeitem.h"
+
 #include "src/images/dumptga.h"
-#include "src/sound/sound.h"
-#include "src/sound/audiostream.h"
 
 namespace GUI {
 
@@ -55,538 +61,540 @@ W_OBJECT_IMPL(MainWindow)
 MainWindow::~MainWindow(){} // needed for ScopedPtr
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
-    QMainWindow(parent) {
-    _centralWidget = new QWidget(this);
-    _centralLayout = new QGridLayout(_centralWidget);
+	QMainWindow(parent) {
+	_centralWidget = new QWidget(this);
+	_centralLayout = new QGridLayout(_centralWidget);
 
-    _layoutVertical = new QVBoxLayout();
+	_layoutVertical = new QVBoxLayout();
 
-    _splitterTopBottom = new QSplitter(_centralWidget);
-    _splitterLeftRight = new QSplitter(_splitterTopBottom);
+	_splitterTopBottom = new QSplitter(_centralWidget);
+	_splitterLeftRight = new QSplitter(_splitterTopBottom);
 
-    _actionOpenDirectory = new QAction(this);
-    _actionClose = new QAction(this);
-    _actionQuit = new QAction(this);
-    _actionAbout = new QAction(this);
-    _actionOpenFile = new QAction(this);
+	_actionOpenDirectory = new QAction(this);
+	_actionClose = new QAction(this);
+	_actionQuit = new QAction(this);
+	_actionAbout = new QAction(this);
+	_actionOpenFile = new QAction(this);
 
-    _menuBar = new QMenuBar(this);
-    _menuFile = new QMenu(_menuBar);
-    _menuHelp = new QMenu(_menuBar);
+	_menuBar = new QMenuBar(this);
+	_menuFile = new QMenu(_menuBar);
+	_menuHelp = new QMenu(_menuBar);
 
-    _panelPreviewEmpty.reset(new PanelPreviewEmpty());
-    _panelPreviewImage.reset(new PanelPreviewImage());
-    _panelPreviewSound.reset(new PanelPreviewSound());
-    _panelResourceInfo.reset(new PanelResourceInfo());
+	_panelPreviewEmpty.reset(new PanelPreviewEmpty());
+	_panelPreviewImage.reset(new PanelPreviewImage());
+	_panelPreviewSound.reset(new PanelPreviewSound());
+	_panelResourceInfo.reset(new PanelResourceInfo());
 
-    _treeView = new QTreeView(_splitterLeftRight);
-    // 1:8 ratio, 8 being the (res info + preview) wrapper widget
-    {
-        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sp.setHorizontalStretch(1);
-        _treeView->setSizePolicy(sp);
-    }
+	_treeView = new QTreeView(_splitterLeftRight);
+	// 1:8 ratio, 8 being the (res info + preview) wrapper widget
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setHorizontalStretch(1);
+		_treeView->setSizePolicy(sp);
+	}
 
-    QGroupBox *logBox = new QGroupBox(_splitterTopBottom);
-    logBox->setTitle(tr("Log"));
-    _log = new QTextEdit(logBox);
-    {
-        QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sp.setVerticalStretch(1);
-        logBox->setSizePolicy(sp);
+	QGroupBox *logBox = new QGroupBox(_splitterTopBottom);
+	logBox->setTitle(tr("Log"));
+	_log = new QTextEdit(logBox);
+	{
+		QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		sp.setVerticalStretch(1);
+		logBox->setSizePolicy(sp);
 
-        QHBoxLayout *hl = new QHBoxLayout(logBox);
-        hl->addWidget(_log);
-        hl->setContentsMargins(0, 0, 0, 0);
-    }
+		QHBoxLayout *hl = new QHBoxLayout(logBox);
+		hl->addWidget(_log);
+		hl->setContentsMargins(0, 0, 0, 0);
+	}
 
-    _centralLayout->addWidget(_splitterTopBottom);
+	_centralLayout->addWidget(_splitterTopBottom);
 
-    // left/right splitter
-    // 8:1 ratio, 1 being the log box
-    {
-        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sp.setVerticalStretch(5);
-        _splitterLeftRight->setSizePolicy(sp);
-    }
+	// left/right splitter
+	// 8:1 ratio, 1 being the log box
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setVerticalStretch(5);
+		_splitterLeftRight->setSizePolicy(sp);
+	}
 
-    _splitterTopBottom->setOrientation(Qt::Vertical);
+	_splitterTopBottom->setOrientation(Qt::Vertical);
 
-    /*
-         _______
-        |       |
-        |_______|
-        |_______|
-    */
+	/*
+		 _______
+		|       |
+		|_______|
+		|_______|
+	*/
 
-    _splitterTopBottom->addWidget(_splitterLeftRight);
-    _splitterTopBottom->addWidget(logBox);
+	// FIXME: "Log" title text is cut off (at least on my specific setup).
 
-    /*
-         _______
-        | |     |
-        |_|_____|
-        |_______|
-    */
+	_splitterTopBottom->addWidget(_splitterLeftRight);
+	_splitterTopBottom->addWidget(logBox);
 
-    // can't add a layout directly to a splitter
-    QWidget *wrapperWidget = new QWidget(_splitterTopBottom);
-    wrapperWidget->setContentsMargins(0, 0, 0, 0);
-    {
-        QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sp.setHorizontalStretch(6);
-        wrapperWidget->setSizePolicy(sp);
-    }
+	/*
+		 _______
+		| |     |
+		|_|_____|
+		|_______|
+	*/
 
-    _splitterLeftRight->addWidget(_treeView);
-    _splitterLeftRight->addWidget(wrapperWidget);
+	// can't add a layout directly to a splitter
+	QWidget *wrapperWidget = new QWidget(_splitterTopBottom);
+	wrapperWidget->setContentsMargins(0, 0, 0, 0);
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setHorizontalStretch(6);
+		wrapperWidget->setSizePolicy(sp);
+	}
 
-    wrapperWidget->setLayout(_layoutVertical);
-    _layoutVertical->setParent(wrapperWidget);
-    _layoutVertical->setMargin(0);
+	_splitterLeftRight->addWidget(_treeView);
+	_splitterLeftRight->addWidget(wrapperWidget);
 
-    QFrame *resInfoFrame = new QFrame(wrapperWidget);
-    {
-        QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
-        hl->addWidget(_panelResourceInfo.get());
-    }
-    resInfoFrame->setFrameShape(QFrame::StyledPanel);
-    resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
-    resInfoFrame->setFixedHeight(140);
+	wrapperWidget->setLayout(_layoutVertical);
+	_layoutVertical->setParent(wrapperWidget);
+	_layoutVertical->setMargin(0);
 
-    _resPreviewFrame = new QFrame(wrapperWidget);
-    {
-        QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
-        hl->setMargin(0);
-        hl->addWidget(_panelPreviewEmpty.get());
-    }
-    _resPreviewFrame->setFrameShape(QFrame::StyledPanel);
+	QFrame *resInfoFrame = new QFrame(wrapperWidget);
+	{
+		QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
+		hl->addWidget(_panelResourceInfo.get());
+	}
+	resInfoFrame->setFrameShape(QFrame::StyledPanel);
+	resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+	resInfoFrame->setFixedHeight(140);
 
-    _layoutVertical->addWidget(resInfoFrame);
-    _layoutVertical->addWidget(_resPreviewFrame);
+	_resPreviewFrame = new QFrame(wrapperWidget);
+	{
+		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
+		hl->setMargin(0);
+		hl->addWidget(_panelPreviewEmpty.get());
+	}
+	_resPreviewFrame->setFrameShape(QFrame::StyledPanel);
 
-    /*
-         _______
-        | |-----|
-        |_|_____|
-        |_______|
-    */
+	_layoutVertical->addWidget(resInfoFrame);
+	_layoutVertical->addWidget(_resPreviewFrame);
 
-    _menuBar->addAction(_menuFile->menuAction());
-    _menuBar->addAction(_menuHelp->menuAction());
-    _menuFile->addAction(_actionOpenDirectory);
-    _menuFile->addAction(_actionOpenFile);
-    _menuFile->addSeparator();
-    _menuFile->addAction(_actionClose);
-    _menuFile->addSeparator();
-    _menuFile->addAction(_actionQuit);
-    _menuFile->setTitle("&File");
-    _menuHelp->addAction(_actionAbout);
-    _menuHelp->setTitle("&Help");
+	/*
+		 _______
+		| |-----|
+		|_|_____|
+		|_______|
+	*/
 
-    this->setMenuBar(_menuBar);
+	_menuBar->addAction(_menuFile->menuAction());
+	_menuBar->addAction(_menuHelp->menuAction());
+	_menuFile->addAction(_actionOpenDirectory);
+	_menuFile->addAction(_actionOpenFile);
+	_menuFile->addSeparator();
+	_menuFile->addAction(_actionClose);
+	_menuFile->addSeparator();
+	_menuFile->addAction(_actionQuit);
+	_menuFile->setTitle("&File");
+	_menuHelp->addAction(_actionAbout);
+	_menuHelp->setTitle("&Help");
 
-    _actionOpenDirectory->setText(tr("&Open directory"));
-    _actionClose->setText(tr("&Close"));
-    _actionQuit->setText(tr("Quit"));
-    _actionAbout->setText(tr("About"));
-    _actionOpenFile->setText(tr("&Open file"));
+	this->setMenuBar(_menuBar);
 
-    this->setCentralWidget(_centralWidget);
+	_actionOpenDirectory->setText(tr("&Open directory"));
+	_actionClose->setText(tr("&Close"));
+	_actionQuit->setText(tr("Quit"));
+	_actionAbout->setText(tr("About"));
+	_actionOpenFile->setText(tr("&Open file"));
 
-    setWindowTitle(title);
-    resize(size);
+	this->setCentralWidget(_centralWidget);
 
-    // signals/slots
-    QObject::connect(_actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDir);
-    QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
-    QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
-    QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::log, this, &MainWindow::slotLog);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
-    QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
-    QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
+	setWindowTitle(title);
+	resize(size);
 
-    _actionAbout->setShortcut(QKeySequence(tr("F1")));
+	// signals/slots
+	QObject::connect(_actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDir);
+	QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
+	QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
+	QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::log, this, &MainWindow::slotLog);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotCloseDir);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
+	QObject::connect(_panelResourceInfo.get(), &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
+	QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
 
-    // status bar
-    _status.reset(new StatusBar(this->statusBar()));
-    _status->setText("Idle...");
+	_actionAbout->setShortcut(QKeySequence(tr("F1")));
 
-    const QString qpath = QString::fromUtf8(path);
+	// status bar
+	_status.reset(new StatusBar(this->statusBar()));
+	_status->setText("Idle...");
 
-    _treeModel.reset(new ResourceTree(this, _treeView));
-    _proxyModel.reset(new ProxyModel(this));
+	const QString qpath = QString::fromUtf8(path);
 
-    if (qpath.isEmpty())
-        _actionClose->setEnabled(false);
-    else
-        open(qpath);
+	_treeModel.reset(new ResourceTree(this, _treeView));
+	_proxyModel.reset(new ProxyModel(this));
+
+	// FIXME: I haven't investigated but this might need fixing when
+	// opening a relative path, specifically when opening a symlink.
+
+	if (qpath.isEmpty())
+		_actionClose->setEnabled(false);
+	else
+		open(qpath);
 }
 
 void MainWindow::slotLog(const QString &text) {
-    _log->append(text);
+	_log->append(text);
 }
 
 void MainWindow::open(const QString &path) {
-    if (_rootPath == path)
-        return;
+	if (_rootPath == path)
+		return;
 
-    _rootPath = path;
+	_rootPath = path;
 
-    // popped in openFinish
-    _status->push("Populating resource tree...");
+	// popped in openFinish
+	_status->push("Populating resource tree...");
 
-    try {
-        _files.readPath(Common::UString(path.toStdString()), -1);
-    } catch (Common::Exception &e) {
-        _status->pop();
+	try {
+		_files.readPath(Common::UString(path.toStdString()), -1);
+	} catch (Common::Exception &e) {
+		_status->pop();
 
-        Common::printException(e, "WARNING: ");
-        return;
-    }
+		Common::printException(e, "WARNING: ");
+		return;
+	}
 
-    _treeModel.reset(new ResourceTree(this, _treeView));
+	_treeModel.reset(new ResourceTree(this, _treeView));
 
-    // enters populate thread in here
-    _treeModel->populate(_files.getRoot());
+	// enters populate thread in here
+	_treeModel->populate(_files.getRoot());
 
-    _log->append(tr("Set root: %1").arg(path));
+	_log->append(tr("Set root: %1").arg(path));
 
-    _actionClose->setEnabled(true);
+	_actionClose->setEnabled(true);
 }
 
-// called when the populate thread finishes
 void MainWindow::openFinish() {
-    _proxyModel->setSourceModel(_treeModel.get());
-    _proxyModel->sort(0);
+	_proxyModel->setSourceModel(_treeModel.get());
+	_proxyModel->sort(0);
 
-    _treeView->setModel(_proxyModel.get());
-    _treeView->expandToDepth(0);
-    _treeView->show();
-    _treeView->resizeColumnToContents(0);
+	_treeView->setModel(_proxyModel.get());
+	_treeView->expandToDepth(0);
+	_treeView->show();
+	_treeView->resizeColumnToContents(0);
 
-    QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                     this, &MainWindow::resourceSelect);
+	QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+        this, &MainWindow::resourceSelect);
 
-    _status->pop();
+	_status->pop();
 }
 
 void MainWindow::slotOpenDir() {
-    QString dir = QFileDialog::getExistingDirectory(this,
-        tr("Open directory"), QString(QStandardPaths::HomeLocation), QFileDialog::ShowDirsOnly);
-    if (!dir.isEmpty())
-        open(dir);
+	QString dir = QFileDialog::getExistingDirectory(this,
+        tr("Open directory"),
+        QString(QStandardPaths::HomeLocation),
+        QFileDialog::ShowDirsOnly);
+
+	if (!dir.isEmpty())
+		open(dir);
 }
 
 void MainWindow::slotOpenFile() {
-    QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open Aurora game resource file"), QString(QStandardPaths::HomeLocation), tr("Aurora game resource (*.*)"));
-    if (!fileName.isEmpty())
-        open(fileName);
+	QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open Aurora game resource file"),
+        QString(QStandardPaths::HomeLocation),
+        tr("Aurora game resource (*.*)"));
+
+	if (!fileName.isEmpty())
+		open(fileName);
 }
 
 void MainWindow::slotCloseDir() {
-    showPreviewPanel(_panelPreviewEmpty.get());
+	showPreviewPanel(_panelPreviewEmpty.get());
 
-    _panelResourceInfo->setButtonsForClosedDir();
+	_panelResourceInfo->setButtonsForClosedDir();
 
-    _treeView->setModel(nullptr);
+	_treeView->setModel(nullptr);
 
-    _treeModel.reset(nullptr);
+	_treeModel.reset(nullptr);
 
-    _log->append(tr("Closed directory: %1").arg(_rootPath));
+	_log->append(tr("Closed directory: %1").arg(_rootPath));
 
-    _rootPath = "";
+	_rootPath = "";
 
-    _currentItem = nullptr;
+	_currentItem = nullptr;
 
-    _panelResourceInfo->clearLabels();
+	_panelResourceInfo->clearLabels();
 
-    _actionClose->setEnabled(false);
+	_actionClose->setEnabled(false);
 }
 
 void MainWindow::slotQuit() {
-    QCoreApplication::quit();
+	QCoreApplication::quit();
 }
 
 void MainWindow::showPreviewPanel(QFrame *panel) {
-    if (_resPreviewFrame->layout()->count()) {
-        QFrame *old = static_cast<QFrame*>(_resPreviewFrame->layout()->itemAt(0)->widget());
-        if (old != panel) {
-            _resPreviewFrame->layout()->removeWidget(old);
-            old->setParent(0);
-            if (old == _panelPreviewSound.get())
-                _panelPreviewSound->stop();
-            _resPreviewFrame->layout()->addWidget(panel);
-        }
-    }
+	if (_resPreviewFrame->layout()->count()) {
+		QFrame *old = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
+		if (old != panel) {
+			_resPreviewFrame->layout()->removeWidget(old);
+			old->setParent(0);
+			if (old == _panelPreviewSound.get())
+				_panelPreviewSound->stop();
+			_resPreviewFrame->layout()->addWidget(panel);
+		}
+	}
 }
 
 void MainWindow::showPreviewPanel() {
-    switch (_currentItem->getResourceType()) {
-        case Aurora::kResourceImage:
-            showPreviewPanel(_panelPreviewImage.get());
-            break;
+	switch (_currentItem->getResourceType()) {
+		case Aurora::kResourceImage:
+			showPreviewPanel(_panelPreviewImage.get());
+			break;
 
-        case Aurora::kResourceSound:
-            showPreviewPanel(_panelPreviewSound.get());
-            break;
+		case Aurora::kResourceSound:
+			showPreviewPanel(_panelPreviewSound.get());
+			break;
 
-        default:
-            showPreviewPanel(_panelPreviewEmpty.get());
-            break;
-    }
+		default:
+			showPreviewPanel(_panelPreviewEmpty.get());
+			break;
+	}
 }
 
 void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &UNUSED(deselected)) {
-    const QModelIndexList index = _proxyModel->mapSelectionToSource(selected).indexes();
-    _currentItem = _treeModel->itemFromIndex(index.at(0));
+	const QModelIndexList index = _proxyModel->mapSelectionToSource(selected).indexes();
+	_currentItem = _treeModel->itemFromIndex(index.at(0));
 
-    _panelResourceInfo->update(_currentItem);
+	_panelResourceInfo->update(_currentItem);
 
-    _panelPreviewImage->setItem(_currentItem);
-    _panelPreviewSound->setItem(_currentItem);
+	_panelPreviewImage->setItem(_currentItem);
+	_panelPreviewSound->setItem(_currentItem);
 
-    showPreviewPanel();
+	showPreviewPanel();
 }
 
 QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
-    return _action + " \"" + name + "\" to \"" + destination + "\"...";
+	return _action + " \"" + name + "\" to \"" + destination + "\"...";
 }
 
 void MainWindow::saveItem() {
-    if (!_currentItem)
-        return;
+	if (!_currentItem)
+		return;
 
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save Aurora game resource file"), "",
-            tr("Aurora game resource (*.*)|*.*"));
+	QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Aurora game resource file"), "",
+        tr("Aurora game resource (*.*)|*.*"));
 
-    if (fileName.isEmpty())
-        return;
+	if (fileName.isEmpty())
+		return;
 
-    _status->push(constructStatus("Saving", _currentItem->getName(), fileName));
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
-    } BOOST_SCOPE_EXIT_END
+	_status->push(constructStatus("Saving", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status->pop();
+	} BOOST_SCOPE_EXIT_END
 
-    try {
-        QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
+	try {
+		QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
-        Common::WriteFile file(fileName.toStdString());
+		Common::WriteFile file(fileName.toStdString());
 
-        file.writeStream(*res);
-        file.flush();
+		file.writeStream(*res);
+		file.flush();
 
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-    }
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+	}
 }
 
 void MainWindow::exportTGA() {
-    if (!_currentItem)
-        return;
+	if (!_currentItem)
+		return;
 
-    assert(_currentItem->getResourceType() == Aurora::kResourceImage);
+	assert(_currentItem->getResourceType() == Aurora::kResourceImage);
 
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save TGA file"), "",
-            tr("TGA file (*.tga)|*.tga"));
+	QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save TGA file"), "",
+        tr("TGA file (*.tga)|*.tga"));
 
-    if (fileName.isEmpty())
-        return;
+	if (fileName.isEmpty())
+		return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
-    } BOOST_SCOPE_EXIT_END
+	_status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status->pop();
+	} BOOST_SCOPE_EXIT_END
 
-    try {
-        QScopedPointer<Images::Decoder> image(_currentItem->getImage());
+	try {
+		QScopedPointer<Images::Decoder> image(_currentItem->getImage());
 
-        image->dumpTGA(fileName.toStdString());
+		image->dumpTGA(fileName.toStdString());
 
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-    }
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+	}
 }
 
 /* EXPORT MP3 : UNTESTED! */
 void MainWindow::exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
-    if ((bmu.size() <= 8) ||
+	if ((bmu.size() <= 8) ||
         (bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
         (bmu.readUint32BE() != MKTAG('V', '1', '.', '0')))
-        throw Common::Exception("Not a valid BMU file");
+		throw Common::Exception("Not a valid BMU file");
 
-    mp3.writeStream(bmu);
+	mp3.writeStream(bmu);
 }
 
 void MainWindow::exportBMUMP3() {
-    if (!_currentItem)
-        return;
+	if (!_currentItem)
+		return;
 
-    assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
+	assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
 
-    const QString title = "Save MP3 file";
-    const QString mask  = "MP3 file (*.mp3)|*.mp3";
-    const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3).c_str();
-    const QString def   = QString::fromUtf8(defCstr);
+	const QString title = "Save MP3 file";
+	const QString mask  = "MP3 file (*.mp3)|*.mp3";
+	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3).c_str();
+	const QString def   = QString::fromUtf8(defCstr);
 
-    QString fileName = QFileDialog::getSaveFileName(this,
-            title, def,
-            mask);
+	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
 
-    if (fileName.isEmpty())
-        return;
+	if (fileName.isEmpty())
+		return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
-    } BOOST_SCOPE_EXIT_END
+	_status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status->pop();
+	} BOOST_SCOPE_EXIT_END
 
-    try {
-        Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
+	try {
+		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
-        Common::WriteFile file(fileName.toStdString());
+		Common::WriteFile file(fileName.toStdString());
 
-        exportBMUMP3Impl(*res, file);
-        file.flush();
+		exportBMUMP3Impl(*res, file);
+		file.flush();
 
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-        return;
-    }
-
-//    return true;
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
 }
 
 uint64 getLength(Sound::AudioStream *sound) {
-    Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
-    if (!rewSound)
-        return Sound::RewindableAudioStream::kInvalidLength;
+	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
+	if (!rewSound)
+		return Sound::RewindableAudioStream::kInvalidLength;
 
-    return rewSound->getLength();
+	return rewSound->getLength();
 }
 
 struct SoundBuffer {
-    static const size_t kBufferSize = 4096;
+	static const size_t kBufferSize = 4096;
 
-    int16 buffer[kBufferSize];
-    int samples;
+	int16 buffer[kBufferSize];
+	int samples;
 
-    SoundBuffer() : samples(0) {
-    }
+	SoundBuffer() : samples(0) {
+	}
 };
 
 void MainWindow::exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav) {
-    assert(sound);
+	assert(sound);
 
-    const uint16 channels = sound->getChannels();
-    const uint32 rate     = sound->getRate();
+	const uint16 channels = sound->getChannels();
+	const uint32 rate     = sound->getRate();
 
-    std::deque<SoundBuffer> buffers;
+	std::deque<SoundBuffer> buffers;
 
-    uint64 length = getLength(sound);
-    if (length != Sound::RewindableAudioStream::kInvalidLength)
-        buffers.resize((length / (SoundBuffer::kBufferSize / channels)) + 1);
+	uint64 length = getLength(sound);
+	if (length != Sound::RewindableAudioStream::kInvalidLength)
+		buffers.resize((length / (SoundBuffer::kBufferSize / channels)) + 1);
 
-    uint32 samples = 0;
-    std::deque<SoundBuffer>::iterator buffer = buffers.begin();
-    while (!sound->endOfStream()) {
-        if (buffer == buffers.end()) {
-            buffers.push_back(SoundBuffer());
-            buffer = --buffers.end();
-        }
+	uint32 samples = 0;
+	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
+	while (!sound->endOfStream()) {
+		if (buffer == buffers.end()) {
+			buffers.push_back(SoundBuffer());
+			buffer = --buffers.end();
+		}
 
-        buffer->samples = sound->readBuffer(buffer->buffer, SoundBuffer::kBufferSize);
+		buffer->samples = sound->readBuffer(buffer->buffer, SoundBuffer::kBufferSize);
 
-        if (buffer->samples > 0)
-            samples += buffer->samples;
+		if (buffer->samples > 0)
+			samples += buffer->samples;
 
-        ++buffer;
-    }
+		++buffer;
+	}
 
-    samples /= channels;
+	samples /= channels;
 
-    const uint32 dataSize   = samples * channels * 2;
-    const uint32 byteRate   = rate * channels * 2;
-    const uint16 blockAlign = channels * 2;
+	const uint32 dataSize   = samples * channels * 2;
+	const uint32 byteRate   = rate * channels * 2;
+	const uint16 blockAlign = channels * 2;
 
-    wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
-    wav.writeUint32LE(36 + dataSize);
-    wav.writeUint32BE(MKTAG('W', 'A', 'V', 'E'));
+	wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
+	wav.writeUint32LE(36 + dataSize);
+	wav.writeUint32BE(MKTAG('W', 'A', 'V', 'E'));
 
-    wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
-    wav.writeUint32LE(16);
-    wav.writeUint16LE(1);
-    wav.writeUint16LE(channels);
-    wav.writeUint32LE(rate);
-    wav.writeUint32LE(byteRate);
-    wav.writeUint16LE(blockAlign);
-    wav.writeUint16LE(16);
+	wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
+	wav.writeUint32LE(16);
+	wav.writeUint16LE(1);
+	wav.writeUint16LE(channels);
+	wav.writeUint32LE(rate);
+	wav.writeUint32LE(byteRate);
+	wav.writeUint16LE(blockAlign);
+	wav.writeUint16LE(16);
 
-    wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
-    wav.writeUint32LE(dataSize);
+	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
+	wav.writeUint32LE(dataSize);
 
-    for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
-        for (int i = 0; i < b->samples; i++)
-            wav.writeUint16LE(b->buffer[i]);
+	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
+		for (int i = 0; i < b->samples; i++)
+			wav.writeUint16LE(b->buffer[i]);
 }
 
 void MainWindow::exportWAV() {
-    if (!_currentItem)
-        return;
+	if (!_currentItem)
+		return;
 
-    assert(_currentItem->getResourceType() == Aurora::kResourceSound);
+	assert(_currentItem->getResourceType() == Aurora::kResourceSound);
 
-    const QString title = "Save PCM WAV file";
-    const QString mask  = "WAV file (*.wav)|*.wav";
-    const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV).c_str();
-    const QString def   = QString::fromUtf8(defCstr);
+	const QString title = "Save PCM WAV file";
+	const QString mask  = "WAV file (*.wav)|*.wav";
+	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV).c_str();
+	const QString def   = QString::fromUtf8(defCstr);
 
-    QString fileName = QFileDialog::getSaveFileName(this,
-            title, def,
-            mask);
+	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
 
-    if (fileName.isEmpty())
-        return;
+	if (fileName.isEmpty())
+		return;
 
-    _status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
-    BOOST_SCOPE_EXIT((&_status)) {
-        _status->pop();
-    } BOOST_SCOPE_EXIT_END
+	_status->push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status->pop();
+	} BOOST_SCOPE_EXIT_END
 
-    try {
-        Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
+	try {
+		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
-        Common::WriteFile file(fileName.toStdString());
+		Common::WriteFile file(fileName.toStdString());
 
-        exportWAVImpl(sound.get(), file);
-        file.flush();
+		exportWAVImpl(sound.get(), file);
+		file.flush();
 
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-        return;
-    }
-
-//    return true;
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
 }
 
 void MainWindow::slotAbout() {
-    const QString msg = QString::fromUtf8(createVersionText().c_str());
-    QMessageBox::about(this, "About Phaethon", msg);
+	const QString msg = QString::fromUtf8(createVersionText().c_str());
+	QMessageBox::about(this, "About Phaethon", msg);
 }
 
 void MainWindow::statusPush(const QString &text) {
-    _status->push(text);
+	_status->push(text);
 }
 
 void MainWindow::statusPop() {
-    _status->pop();
+	_status->pop();
 }
 
 } // End of namespace GUI

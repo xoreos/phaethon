@@ -37,56 +37,67 @@ namespace GUI {
 class ResourceTreeItem;
 
 class PanelResourceInfo : public QFrame {
-    W_OBJECT(PanelResourceInfo)
-
-private:
-    QPushButton *_buttonExportRaw;
-    QPushButton *_buttonExportBMUMP3;
-    QPushButton *_buttonExportTGA;
-    QPushButton *_buttonExportWAV;
-
-    QLabel *_labelName;
-    QLabel *_labelSize;
-    QLabel *_labelFileType;
-    QLabel *_labelResType;
+	W_OBJECT(PanelResourceInfo)
 
 public:
-    PanelResourceInfo();
+	PanelResourceInfo();
 
-    void showExportButtons(const GUI::ResourceTreeItem *item);
-    void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
-    void setLabels(const GUI::ResourceTreeItem *item);
-    void update(const GUI::ResourceTreeItem *item);
-    void clearLabels();
-    void setButtonsForClosedDir();
+	/** Decides which of the export buttons are required and shows them.
+	 */
+	void showExportButtons(const GUI::ResourceTreeItem *item);
+	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
 
-public /*signals*/:
-    void loadModel(const QString &path)
-    W_SIGNAL(loadModel, path)
+	/** Updates the labels which display information about the resource.
+	*/
+	void setLabels(const GUI::ResourceTreeItem *item);
 
-    void log(const QString &text)
-    W_SIGNAL(log, text)
+	/** Calls showExportButtons and setLabels.
+	*/
+	void update(const GUI::ResourceTreeItem *item);
 
-    void closeDirClicked()
-    W_SIGNAL(closeDirClicked)
+	/** Used when a directory is closed.
+	*/
+	void clearLabels();
+	void setButtonsForClosedDir();
 
-    void saveClicked()
-    W_SIGNAL(saveClicked)
+public /*signals*/ :
+	void loadModel(const QString &path)
+	W_SIGNAL(loadModel, path)
 
-    void exportTGAClicked()
-    W_SIGNAL(exportTGAClicked)
+	void log(const QString &text)
+	W_SIGNAL(log,       text)
 
-    void exportBMUMP3Clicked()
-    W_SIGNAL(exportBMUMP3Clicked)
+	void closeDirClicked()
+	W_SIGNAL(closeDirClicked)
 
-    void exportWAVClicked()
-    W_SIGNAL(exportWAVClicked)
+	void saveClicked()
+	W_SIGNAL(saveClicked)
 
-public /*slots*/:
-    void slotSave();
-    void slotExportTGA();
-    void slotExportBMUMP3();
-    void slotExportWAV();
+	void exportTGAClicked()
+	W_SIGNAL(exportTGAClicked)
+
+	void exportBMUMP3Clicked()
+	W_SIGNAL(exportBMUMP3Clicked)
+
+	void exportWAVClicked()
+	W_SIGNAL(exportWAVClicked)
+
+public /*slots*/ :
+	void slotSave();
+	void slotExportTGA();
+	void slotExportBMUMP3();
+	void slotExportWAV();
+
+private:
+	QPushButton *_buttonExportRaw;
+	QPushButton *_buttonExportBMUMP3;
+	QPushButton *_buttonExportTGA;
+	QPushButton *_buttonExportWAV;
+
+	QLabel *_labelName;
+	QLabel *_labelSize;
+	QLabel *_labelFileType;
+	QLabel *_labelResType;
 };
 
 } // End of namespace GUI
