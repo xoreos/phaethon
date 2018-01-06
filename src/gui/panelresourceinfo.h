@@ -48,18 +48,18 @@ class wxCommandEvent;
 
 namespace GUI {
 
-class MainWindow;
+// class MainWindow;
 class ResourceTreeItem;
 
 class PanelResourceInfo : public wxPanel {
 public:
-	PanelResourceInfo(wxWindow *parent, MainWindow &mainWindow, const Common::UString &title);
+	PanelResourceInfo(wxWindow *parent/*, MainWindow &mainWindow*/, const Common::UString &title);
 	~PanelResourceInfo();
 
 	void setCurrentItem(const ResourceTreeItem *item);
 
 private:
-	MainWindow *_mainWindow;
+	// MainWindow *_mainWindow;
 
 	const ResourceTreeItem *_currentItem;
 

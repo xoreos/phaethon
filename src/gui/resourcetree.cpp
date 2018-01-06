@@ -44,7 +44,7 @@
 
 #include "src/gui/resourcetree.h"
 #include "src/gui/eventid.h"
-#include "src/gui/mainwindow.h"
+// #include "src/gui/mainwindow.h"
 
 namespace GUI {
 
@@ -246,12 +246,12 @@ wxBEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
-ResourceTree::ResourceTree() : _mainWindow(0) {
+ResourceTree::ResourceTree() /*: _mainWindow(0)*/ {
 }
 
-ResourceTree::ResourceTree(wxWindow *parent, MainWindow &mainWindow) :
-	wxTreeCtrl(parent, kEventResourceTree, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE),
-	_mainWindow(&mainWindow) {
+ResourceTree::ResourceTree(wxWindow *parent/*, MainWindow &mainWindow*/) :
+	wxTreeCtrl(parent, kEventResourceTree, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE)/*,
+	_mainWindow(&mainWindow)*/ {
 
 	wxIcon icon[kImageMAX];
 
@@ -275,7 +275,7 @@ void ResourceTree::populate(const Common::FileTree::Entry &root) {
 	populate(root, treeRoot);
 	Expand(treeRoot);
 
-	_mainWindow->resourceSelect(getItemData(treeRoot));
+	// _mainWindow->resourceSelect(getItemData(treeRoot));
 }
 
 void ResourceTree::populate(const Common::FileTree::Entry &e, wxTreeItemId t) {
@@ -310,9 +310,9 @@ int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &
 }
 
 void ResourceTree::onSelChanged(wxTreeEvent &event) {
-	assert(_mainWindow);
+	// assert(_mainWindow);
 
-	_mainWindow->resourceSelect(getItemData(event.GetItem()));
+	// _mainWindow->resourceSelect(getItemData(event.GetItem()));
 }
 
 void ResourceTree::onItemExpanding(wxTreeEvent &event) {
@@ -336,16 +336,16 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	if (data.addedArchiveMembers)
 		return;
 
-	_mainWindow->pushStatus(Common::UString("Loading archive ") + item->getName() + "...");
+	// _mainWindow->pushStatus(Common::UString("Loading archive ") + item->getName() + "...");
 
 	// Load the archive, if necessary
 	if (!data.archive) {
 		try {
-			data.archive = _mainWindow->getArchive(data.path);
+			// data.archive = _mainWindow->getArchive(data.path);
 		} catch (Common::Exception &e) {
 			// If that fails, print the error and treat this archive as empty
 
-			_mainWindow->popStatus();
+			// _mainWindow->popStatus();
 
 			e.add("Failed to load archive \"%s\"", item->getName().c_str());
 			Common::printException(e, "WARNING: ");
@@ -360,18 +360,18 @@ void ResourceTree::onItemExpanding(wxTreeEvent &event) {
 	for (Aurora::Archive::ResourceList::const_iterator r = resources.begin(); r != resources.end(); ++r)
 		appendItem(event.GetItem(), new ResourceTreeItem(data.archive, *r));
 
-	_mainWindow->popStatus();
+	// _mainWindow->popStatus();
 	data.addedArchiveMembers = true;
 }
 
 void ResourceTree::onItemActivated(wxTreeEvent &event) {
-	assert(_mainWindow);
+	// assert(_mainWindow);
 
 	const ResourceTreeItem *item = getItemData(event.GetItem());
 	if (!item)
 		return;
 
-	_mainWindow->resourceActivate(*item);
+	// _mainWindow->resourceActivate(*item);
 }
 
 ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {

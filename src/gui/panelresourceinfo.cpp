@@ -48,7 +48,7 @@
 
 #include "src/gui/panelresourceinfo.h"
 #include "src/gui/eventid.h"
-#include "src/gui/mainwindow.h"
+// #include "src/gui/mainwindow.h"
 #include "src/gui/resourcetree.h"
 
 namespace GUI {
@@ -60,8 +60,8 @@ wxBEGIN_EVENT_TABLE(PanelResourceInfo, wxPanel)
 	EVT_BUTTON(kEventButtonExportTGA   , PanelResourceInfo::onExportTGA)
 wxEND_EVENT_TABLE()
 
-PanelResourceInfo::PanelResourceInfo(wxWindow *parent, MainWindow &mainWindow, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY), _mainWindow(&mainWindow), _currentItem(0) {
+PanelResourceInfo::PanelResourceInfo(wxWindow *parent/*, MainWindow &mainWindow*/, const Common::UString &title) :
+	wxPanel(parent, wxID_ANY), /*_mainWindow(&mainWindow),*/ _currentItem(0) {
 
 	createLayout(title);
 }
@@ -220,10 +220,10 @@ bool PanelResourceInfo::exportRaw(const Common::UString &path) {
 	if (!_currentItem || path.empty())
 		return false;
 
-	_mainWindow->pushStatus(constructStatus("Saving", _currentItem->getName(), path));
+	/*_mainWindow->pushStatus(constructStatus("Saving", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END
+	} BOOST_SCOPE_EXIT_END*/
 
 	try {
 		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
@@ -245,10 +245,10 @@ bool PanelResourceInfo::exportBMUMP3(const Common::UString &path) {
 	if (!_currentItem || path.empty())
 		return false;
 
-	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END
+	} BOOST_SCOPE_EXIT_END*/
 
 	try {
 		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
@@ -270,10 +270,10 @@ bool PanelResourceInfo::exportWAV(const Common::UString &path) {
 	if (!_currentItem || path.empty())
 		return false;
 
-	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END
+	} BOOST_SCOPE_EXIT_END*/
 
 	try {
 		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
@@ -295,10 +295,10 @@ bool PanelResourceInfo::exportTGA(const Common::UString &path) {
 	if (!_currentItem || path.empty())
 		return false;
 
-	_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
+	/*_mainWindow->pushStatus(constructStatus("Exporting", _currentItem->getName(), path));
 	BOOST_SCOPE_EXIT( (&_mainWindow) ) {
 		_mainWindow->popStatus();
-	} BOOST_SCOPE_EXIT_END
+	} BOOST_SCOPE_EXIT_END*/
 
 	try {
 		Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());

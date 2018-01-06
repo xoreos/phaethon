@@ -24,7 +24,7 @@
 
 #include <cstdio>
 
-#include <wx/app.h>
+#include <QApplication>
 
 #include "src/version/version.h"
 
@@ -41,69 +41,7 @@
 
 void initPlatform();
 
-void openGamePath(const Common::UString &path);
-
-int main(int argc, char **argv) {
-	initPlatform();
-
-	std::vector<Common::UString> args;
-	Common::Platform::getParameters(argc, argv, args);
-
-	try {
-		// Find out what we're supposed to do
-		Job job = parseCommandLine(args);
-
-		// Handle the job
-		switch (job.operation) {
-			case kOperationHelp:
-				std::printf("%s\n", createHelpText(args[0]).c_str());
-				break;
-
-			case kOperationVersion:
-				std::printf("%s\n", createVersionText().c_str());
-				break;
-
-			case kOperationPath:
-				openGamePath(job.path);
-				break;
-
-			case kOperationInvalid:
-			default:
-				std::printf("%s\n", createHelpText(args[0]).c_str());
-				return 1;
-		}
-	} catch (Common::Exception &e) {
-		Common::printException(e);
-		return 2;
-	} catch (std::exception &e) {
-		Common::Exception se(e);
-
-		Common::printException(se);
-		return 2;
-	}
-
-	return 0;
-}
-
-#ifdef WIN32
-extern "C" int wmain(int UNUSED(argc), wchar_t **UNUSED(argv)) {
-	return main(0, 0);
-}
-#endif
-
-void initPlatform() {
-	try {
-		Common::Platform::init();
-	} catch (Common::Exception &e) {
-		e.add("Failed to initialize the low-level platform-specific subsytem");
-
-		Common::printException(e);
-		std::exit(1);
-	}
-}
-
-
-class Phaethon : public wxApp {
+class Phaethon {
 public:
 	Phaethon(const Common::UString &path = "");
 	~Phaethon();
@@ -119,9 +57,21 @@ private:
 };
 
 Phaethon::Phaethon(const Common::UString &path) : _path(path) {
+	initSubsystems();
+
+	int argc = 1; // QApplication requires it to be at least 1
+	char empty[] = ""; // silence -Wwrite-string warning
+	char *argv[] = {empty}; // must be at least 1
+	QApplication app(argc, argv);
+
+	GUI::MainWindow mainWindow;
+	mainWindow.show();
+
+	app.exec();
 }
 
 Phaethon::~Phaethon() {
+	deinitSubsystems();
 }
 
 void Phaethon::initSubsystems() {
@@ -147,31 +97,66 @@ void Phaethon::deinitSubsystems() {
 	}
 }
 
-bool Phaethon::OnInit() {
-	initSubsystems();
+int main(int argc, char **argv) {
+	initPlatform();
 
-	GUI::MainWindow *mainWindow =
-		new GUI::MainWindow(Version::getProjectNameVersion(), wxDefaultPosition, wxSize(800, 600));
+	Phaethon *phaethon = nullptr;
 
-	mainWindow->Show(true);
-	if (!_path.empty())
-		mainWindow->open(_path);
+	std::vector<Common::UString> args;
+	Common::Platform::getParameters(argc, argv, args);
 
-	return true;
-}
+	try {
+		// Find out what we're supposed to do
+		Job job = parseCommandLine(args);
 
-int Phaethon::OnExit() {
-	deinitSubsystems();
+		// Handle the job
+		switch (job.operation) {
+			case kOperationHelp:
+				std::printf("%s\n", createHelpText(args[0]).c_str());
+				break;
+
+			case kOperationVersion:
+				std::printf("%s\n", createVersionText().c_str());
+				break;
+
+			case kOperationPath:
+				phaethon = new Phaethon(job.path);
+				break;
+
+			case kOperationInvalid:
+			default:
+				std::printf("%s\n", createHelpText(args[0]).c_str());
+				return 1;
+		}
+	} catch (Common::Exception &e) {
+		Common::printException(e);
+		return 2;
+	} catch (std::exception &e) {
+		Common::Exception se(e);
+
+		Common::printException(se);
+		return 2;
+	}
+
+	if (phaethon)
+		delete phaethon;
+
 	return 0;
 }
 
+#ifdef WIN32
+extern "C" int wmain(int UNUSED(argc), wchar_t **UNUSED(argv)) {
+	return main(0, 0);
+}
+#endif
 
-void openGamePath(const Common::UString &path) {
-	wxApp *phaethon = new Phaethon(path);
+void initPlatform() {
+	try {
+		Common::Platform::init();
+	} catch (Common::Exception &e) {
+		e.add("Failed to initialize the low-level platform-specific subsytem");
 
-	wxApp::SetInstance(phaethon);
-
-	int      argc = 0;
-	wxChar **argv = 0;
-	wxEntry(argc, argv);
+		Common::printException(e);
+		std::exit(1);
+	}
 }

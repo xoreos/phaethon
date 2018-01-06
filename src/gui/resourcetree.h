@@ -47,7 +47,7 @@ namespace Images {
 
 namespace GUI {
 
-class MainWindow;
+// class MainWindow;
 
 class ResourceTreeItem : public wxTreeItemData {
 public:
@@ -129,7 +129,7 @@ wxDECLARE_DYNAMIC_CLASS(ResourceTree);
 
 public:
 	ResourceTree();
-	ResourceTree(wxWindow *parent, MainWindow &mainWindow);
+	ResourceTree(wxWindow *parent/*, MainWindow &mainWindow*/);
 	~ResourceTree();
 
 	void populate(const Common::FileTree::Entry &root);
@@ -153,7 +153,7 @@ private:
 		kImageMAX
 	};
 
-	MainWindow *_mainWindow;
+	// MainWindow *_mainWindow;
 
 	static Image getImage(const ResourceTreeItem &item);
 

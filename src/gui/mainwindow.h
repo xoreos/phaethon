@@ -25,96 +25,52 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <map>
+#include <QMainWindow>
+#include <QFileSystemModel>
+#include <QLabel>
+#include <QProgressBar>
 
-#include <wx/frame.h>
+#include "verdigris/wobjectdefs.h"
 
-#include "src/common/ptrmap.h"
-#include "src/common/ustring.h"
-#include "src/common/filetree.h"
-
-#include "src/aurora/types.h"
-#include "src/aurora/archive.h"
-
-namespace Aurora {
-	class KEYFile;
-	class KEYDataFile;
+namespace Ui {
+    class MainWindow;
 }
-
-class wxPanel;
-class wxSplitterWindow;
-class wxGenericStaticText;
-class wxBoxSizer;
-class wxButton;
 
 namespace GUI {
 
-class ResourceTree;
-class ResourceTreeItem;
+class MainWindow : public QMainWindow {
+    W_OBJECT(MainWindow)
 
-class PanelResourceInfo;
-
-class PanelPreviewEmpty;
-class PanelPreviewSound;
-class PanelPreviewImage;
-
-class MainWindow : public wxFrame {
 public:
-	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size);
-	~MainWindow();
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
-	bool open(Common::UString path);
+// signals:
+    void open(const QString &path)
+    W_SIGNAL(open, path)
 
-	void forceRedraw();
-	void pushStatus(const Common::UString &text);
-	void popStatus();
+// public slots:
+    void setTreeViewModel(const QString &path);
 
-	void resourceSelect(const ResourceTreeItem *item);
-	void resourceActivate(const ResourceTreeItem &item);
+// private slots:
+    void on_actionOpen_directory_triggered();
+    void on_actionOpen_file_triggered();
+    void on_actionClose_triggered();
+    void on_actionQuit_triggered();
 
-	Aurora::Archive *getArchive(const boost::filesystem::path &path);
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void on_filesTabWidget_tabCloseRequested(int index);
 
 private:
-	typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
-	typedef Common::PtrMap<Common::UString, Aurora::KEYDataFile> KEYDataFileMap;
-
-	Common::UString _path;
-	Common::FileTree _files;
-
-	ResourceTree *_resourceTree;
-
-	wxSplitterWindow *_splitterInfoPreview;
-
-	PanelResourceInfo *_panelResourceInfo;
-
-	PanelPreviewEmpty *_panelPreviewEmpty;
-	PanelPreviewSound *_panelPreviewSound;
-	PanelPreviewImage *_panelPreviewImage;
-
-	ArchiveMap _archives;
-	KEYDataFileMap _keyDataFiles;
-
-	void onOpenDir(wxCommandEvent &event);
-	void onOpenFile(wxCommandEvent &event);
-	void onClose(wxCommandEvent &event);
-	void onQuit(wxCommandEvent &event);
-	void onAbout(wxCommandEvent &event);
-
-	void createLayout();
-
-	void close();
-
-	void showPreviewPanel(wxPanel *panel);
-	void showPreviewPanel(Aurora::ResourceType type);
-	void showPreviewPanel(const ResourceTreeItem *item);
-
-	Common::UString dialogOpenDir(const Common::UString &title);
-	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
-
-	void loadKEYDataFiles(Aurora::KEYFile &key);
-	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
-
-	wxDECLARE_EVENT_TABLE();
+    Ui::MainWindow *ui;
+    QFileSystemModel fsModel;
+    QLabel *statusLabel;
+    QProgressBar *statusProgressBar;
 };
 
 } // End of namespace GUI

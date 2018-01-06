@@ -22,6 +22,7 @@
 noinst_LTLIBRARIES += src/gui/libgui.la
 
 QT_UI_FORMS_BUILT = \
+	ui/ui_mainwindow.h
     $(EMPTY)
 
 BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
@@ -54,5 +55,5 @@ EXTRA_src_gui_libgui_la_DEPENDENCIES = \
 	$(QT_UI_FORMS_BUILT) \
     $(EMPTY)
 
-ui_%.h: ui/%.ui
+ui/ui_%.h: ui/%.ui
 	@UIC@ -o $@ $<
