@@ -1,27 +1,3 @@
-/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
- *
- * Phaethon is the legal property of its developers, whose names
- * can be found in the AUTHORS file distributed with this source
- * distribution.
- *
- * Phaethon is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * Phaethon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILIT	Y or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/** @file
- *  Phaethon's main window.
- */
-
 #include "verdigris/wobjectimpl.h"
 
 #include <QFileDialog>
@@ -31,7 +7,9 @@
 #include "src/aurora/util.h"
 #include "src/common/filepath.h"
 #include "src/common/strutil.h"
+#include "src/common/writefile.h"
 #include "src/gui/mainwindow.h"
+#include "src/images/dumptga.h"
 
 namespace GUI {
 
@@ -44,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
 {
     ui->setupUi(this);
 
-    resize(size);
+//    resize(size);
 
     _panelPreviewEmpty = new PanelPreviewEmpty();
     _panelPreviewImage = new PanelPreviewImage();
@@ -56,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     // signals/slots
     QObject::connect(ui->bLoadKotorDir,       &QPushButton::clicked, this, &MainWindow::sbLoadKotorDir);
     QObject::connect(ui->bCloseDir,           &QPushButton::clicked, this, &MainWindow::sbCloseDir);
-    QObject::connect(ui->bUnused1,            &QPushButton::clicked, this, &MainWindow::sbUnused1);
-    QObject::connect(ui->bUnused2,            &QPushButton::clicked, this, &MainWindow::sbUnused2);
+    QObject::connect(ui->bSave,               &QPushButton::clicked, this, &MainWindow::sbSave);
+    QObject::connect(ui->bExportTGA,          &QPushButton::clicked, this, &MainWindow::sbExportTGA);
     QObject::connect(ui->actionOpenDirectory, &QAction::triggered,   this, &MainWindow::slotOpenDir);
     QObject::connect(ui->actionClose,         &QAction::triggered,   this, &MainWindow::slotCloseDir);
     QObject::connect(ui->actionQuit,          &QAction::triggered,   this, &MainWindow::slotQuit);
@@ -77,8 +55,8 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     ui->resLabelFileType->setText("File type:");
     ui->resLabelResType->setText("Resource type:");
 
-    ui->bUnused1->setEnabled(false);
-    ui->bUnused2->setEnabled(false);
+    ui->bSave->setEnabled(false);
+    ui->bExportTGA->setEnabled(false);
 
     // open the path given in command line if any
     if (path.empty()) {
@@ -133,14 +111,12 @@ void MainWindow::slotOpenDir() {
         setTreeViewModel(dir);
 }
 
-void MainWindow::closeResource() {
-    showPreviewPanel(_panelPreviewEmpty);
-}
-
 void MainWindow::slotCloseDir() {
-    closeResource();
+    showPreviewPanel(_panelPreviewEmpty);
 
     ui->bCloseDir->setEnabled(false);
+    ui->bSave->setEnabled(false);
+    ui->bExportTGA->setEnabled(false);
 
     ui->treeView->setModel(nullptr);
 
@@ -165,7 +141,11 @@ void MainWindow::slotQuit() {
     QCoreApplication::quit();
 }
 
-/* Buttons (testing). */
+
+/*                        */
+/** Resource info panel. **/
+/*                        */
+
 void MainWindow::sbLoadKotorDir() {
     QString myKotorPath("/home/mike/kotor");
     QDir dir(myKotorPath);
@@ -179,10 +159,51 @@ void MainWindow::sbCloseDir() {
     slotCloseDir();
 }
 
-void MainWindow::sbUnused1() {
+void MainWindow::sbSave() {
+    if (!_currentSelection)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save Aurora game resource file"), "",
+            tr("Aurora game resource (*.*)|*.*"));
+
+    if (fileName.isEmpty())
+        return;
+
+    try {
+        QScopedPointer<Common::SeekableReadStream> res(_currentSelection->getResourceData());
+
+        Common::WriteFile file(Common::UString(fileName.toStdString().c_str()));
+
+        file.writeStream(*res);
+        file.flush();
+
+    } catch (Common::Exception &e) {
+        Common::printException(e, "WARNING: ");
+    }
 }
 
-void MainWindow::sbUnused2() {
+void MainWindow::sbExportTGA() {
+    if (!_currentSelection)
+        return;
+
+    assert(_currentSelection->getResourceType() == Aurora::kResourceImage);
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save TGA file"), "",
+            tr("TGA file (*.tga)|*.tga"));
+
+    if (fileName.isEmpty())
+        return;
+
+    try {
+        QScopedPointer<Images::Decoder> image(_currentSelection->getImage());
+
+        image->dumpTGA(Common::UString(fileName.toStdString().c_str()));
+
+    } catch (Common::Exception &e) {
+        Common::printException(e, "WARNING: ");
+    }
 }
 
 QString getSizeLabel(size_t size) {
@@ -227,14 +248,14 @@ void MainWindow::setLabels() {
 
     labelName += _currentSelection->getName();
 
-    if (_currentSelection->getSource() == Source::kSourceDirectory) {
+    if (_currentSelection->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
 
         labelSize     += "-";
         labelFileType += "Directory";
         labelResType  += "Directory";
 
-    } else if ((_currentSelection->getSource() == Source::kSourceFile) ||
-               (_currentSelection->getSource() == Source::kSourceArchiveFile)) {
+    } else if ((_currentSelection->getSource() == ResourceTreeItem::Source::kSourceFile) ||
+               (_currentSelection->getSource() == ResourceTreeItem::Source::kSourceArchiveFile)) {
 
         Aurora::FileType     fileType = _currentSelection->getFileType();
         Aurora::ResourceType resType  = _currentSelection->getResourceType();
@@ -298,9 +319,31 @@ void MainWindow::selection(const QItemSelection &selected, const QItemSelection 
     _currentSelection = _treeModel->getNode(index);
     setLabels();
     showPreviewPanel();
+    showExportButtons();
 
+    _panelPreviewImage->setItem(_currentSelection);
     _panelPreviewText->setItem(_currentSelection);
     _panelPreviewSound->setItem(_currentSelection);
+}
+
+void MainWindow::showExportButtons() {
+    if (!_currentSelection || _currentSelection->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
+        showExportButtons(false, false, false, false);
+        return;
+    }
+
+    bool isBMU   = _currentSelection->getFileType()     == Aurora::kFileTypeBMU;
+    bool isSound = _currentSelection->getResourceType() == Aurora::kResourceSound;
+    bool isImage = _currentSelection->getResourceType() == Aurora::kResourceImage;
+
+    showExportButtons(true, isBMU, isSound, isImage);
+}
+
+void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
+    ui->bSave->setEnabled(enableRaw);
+    ui->bExportTGA->setEnabled(showTGA);
+//    _buttonExportBMUMP3->Show(showMP3);
+//    _buttonExportWAV->Show(showWAV);
 }
 
 } // End of namespace GUI

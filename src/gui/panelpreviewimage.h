@@ -1,49 +1,53 @@
-/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
- *
- * Phaethon is the legal property of its developers, whose names
- * can be found in the AUTHORS file distributed with this source
- * distribution.
- *
- * Phaethon is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * Phaethon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/** @file
- *  Preview panel for images resources.
- */
-
 #ifndef PANELPREVIEWIMAGE_H
 #define PANELPREVIEWIMAGE_H
 
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QWidget>
-
+#include "ui/ui_previewimage.h"
 #include "verdigris/wobjectdefs.h"
+
+#include "src/gui/resourcetreeitem.h"
+
+#include <QFrame>
+#include <QGraphicsView>
+#include <QScrollBar>
+#include <QWidget>
 
 namespace GUI {
 
-class PanelPreviewImage : public QFrame {
+class PanelPreviewImage : public QFrame
+{
     W_OBJECT(PanelPreviewImage)
-    
+
 private:
-    QHBoxLayout *_layout;
-    QLabel *_label;
+    ResourceTreeItem *_currentItem;
+    uint8 _color;
+    QLabel *_imageLabel;
+    QPixmap _originalPixmap;
+    double _scaleFactor = 1.0;
+    Qt::TransformationMode _mode = Qt::SmoothTransformation;
+
+    Ui::PreviewImage _ui;
 
 public:
-    PanelPreviewImage(QObject *parent = 0);
+    PanelPreviewImage(QWidget *parent = 0);
     ~PanelPreviewImage();
+
+    void setItem(ResourceTreeItem *node);
+    void loadImage();
+    void convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
+    void writePixel(const byte *&data, Images::PixelFormat format, byte *&data_out, QImage::Format &format_out);
+    void getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
+
+    void scaleImage(double factor);
+    void adjustScrollBar(QScrollBar *scrollBar, double factor);
+    void updateButtons();
+
+    void darknessSliderSlot(int value);
+
+    void zoomIn();
+    void zoomOut();
+    void zoomOriginal();
+
+    void nearestToggled(bool checked);
 };
 
 } // End of namespace GUI

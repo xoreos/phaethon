@@ -24,6 +24,7 @@ noinst_LTLIBRARIES += src/gui/libgui.la
 QT_UI_FORMS_BUILT = \
 	ui/ui_mainwindow.h \
 	ui/ui_previewsound.h \
+	ui/ui_previewimage.h \
     $(EMPTY)
 
 BUILT_SOURCES += $(QT_UI_FORMS_BUILT)
@@ -36,6 +37,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
     src/gui/resourcetreeitem.h \
+    src/gui/panel.h \
     src/gui/panelresourceinfo.h \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewsound.h \

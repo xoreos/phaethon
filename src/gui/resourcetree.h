@@ -1,37 +1,13 @@
-/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
- *
- * Phaethon is the legal property of its developers, whose names
- * can be found in the AUTHORS file distributed with this source
- * distribution.
- *
- * Phaethon is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * Phaethon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/** @file
- *  Phaethon's tree of game resource files.
- */
-
 #ifndef RESOURCETREE_H
 #define RESOURCETREE_H
 
-#include <QAbstractItemModel>
+#include "verdigris/wobjectdefs.h"
+
+#include <QStandardItemModel>
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QModelIndex>
 #include <QVariant>
-
-#include "verdigris/wobjectdefs.h"
 
 #include "src/aurora/keyfile.h"
 #include "src/common/ptrmap.h"
@@ -41,7 +17,7 @@ namespace GUI {
 
 class MainWindow;
 
-class ResourceTree : public QAbstractItemModel {
+class ResourceTree : public QStandardItemModel {
     W_OBJECT(ResourceTree)
 
 private:
@@ -71,8 +47,8 @@ public:
     ResourceTreeItem *getNode(const QModelIndex &index) const;
     bool canFetchMore(const QModelIndex &index) const override;
     void fetchMore(const QModelIndex &index);
-    bool insertNodes(ResourceTreeItem::Data &data, const QModelIndex &parent);
-    bool insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
+    void insertItemsFromArchive(ResourceTreeItem::ArchiveInfo &data, const QModelIndex &parent);
+    void insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     void setRootPath(const QString& path);

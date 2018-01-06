@@ -42,16 +42,17 @@ private /*slots*/:
 
     void sbLoadKotorDir();
     void sbCloseDir();
-    void sbUnused1();
-    void sbUnused2();
+    void sbSave();
+    void sbExportTGA();
 
     void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     void setLabels();
-    void closeResource();
     void showPreviewPanel(QFrame *panel);
     void showPreviewPanel();
+    void showExportButtons();
+    void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
 
 private:
     Ui::MainWindow *ui = nullptr;

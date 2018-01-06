@@ -1,27 +1,3 @@
-/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
- *
- * Phaethon is the legal property of its developers, whose names
- * can be found in the AUTHORS file distributed with this source
- * distribution.
- *
- * Phaethon is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * Phaethon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/** @file
- *  Preview panel for sound resources.
- */
-
 #include "src/gui/panelpreviewsound.h"
 
 #include "verdigris/wobjectimpl.h"
@@ -32,61 +8,26 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewSound)
 
-PanelPreviewSound::PanelPreviewSound(QObject *parent)
+PanelPreviewSound::PanelPreviewSound(QWidget *parent)
 {
+    _ui.setupUi(this);
+    _ui.volSlider->setMaximum(100);
+
     _timer = new QTimer(this);
-
-    _layout = new QGridLayout();
-    _layout->setObjectName("panelPreviewSoundLayout");
-    _volBox = new QVBoxLayout();
-    _volBox->setObjectName("panelPreviewSoundLayoutVol");
-    _btnBox = new QHBoxLayout();
-    _btnBox->setObjectName("panelPreviewSoundLayoutBtns");
-    _txtBox = new QHBoxLayout();
-    _txtBox->setObjectName("panelPreviewSoundLayoutTxt");
-
-    _volSlider = new QSlider(Qt::Vertical);
-    _posSlider = new QSlider(Qt::Horizontal);
-    _play = new QPushButton("Play");
-    _pause = new QPushButton("Pause");
-    _stop = new QPushButton("Stop");
-    _textPosition = new QLabel();
-    _textDuration = new QLabel();
-    _textPercent = new QLabel();
-    _textVolume = new QLabel();
-
-    _layout->addLayout(_volBox, 0, 0);
-    _volBox->addWidget(_textVolume);
-    _volBox->addWidget(_volSlider);
-
-    _layout->addLayout(_btnBox, 0, 1);
-    _btnBox->addWidget(_play);
-    _btnBox->addWidget(_pause);
-    _btnBox->addWidget(_stop);
-
-    _layout->addLayout(_txtBox, 1, 1);
-    _txtBox->addWidget(_textPosition);
-    _txtBox->addWidget(_textPercent);
-    _txtBox->addWidget(_textDuration);
-
-    _layout->addWidget(_posSlider, 2, 1);
 
     changeVolume(20);
 
-    connect(_play, &QPushButton::clicked, this, &PanelPreviewSound::play);
-    connect(_pause, &QPushButton::clicked, this, &PanelPreviewSound::pause);
-    connect(_stop, &QPushButton::clicked, this, &PanelPreviewSound::stop);
-    connect(_volSlider, &QSlider::valueChanged, this, &PanelPreviewSound::changeVolume);
+    connect(_ui.play, &QPushButton::clicked, this, &PanelPreviewSound::play);
+    connect(_ui.pause, &QPushButton::clicked, this, &PanelPreviewSound::pause);
+    connect(_ui.stop, &QPushButton::clicked, this, &PanelPreviewSound::stop);
+    connect(_ui.volSlider, &QSlider::valueChanged, this, &PanelPreviewSound::changeVolume);
     connect(_timer, &QTimer::timeout, this, &PanelPreviewSound::update);
 
     _timer->start(50);
-
-    setLayout(_layout);
 }
 
 PanelPreviewSound::~PanelPreviewSound()
 {
-    delete _layout;
 }
 
 void PanelPreviewSound::setItem(ResourceTreeItem *item) {
@@ -147,16 +88,14 @@ void PanelPreviewSound::stop() {
 }
 
 void PanelPreviewSound::changeVolume(int value) {
-    // fixme: only goes to 99%
-    _textVolume->setText(QString("%1%").arg(value));
-
-    _volSlider->setValue(value);
+    _ui.volSlider->setValue(value);
+    _ui.volume->setText(QString("%1%").arg(_ui.volSlider->value()));
 
     SoundMan.setListenerGain((double)value / (double)100);
 }
 
 void PanelPreviewSound::positionChanged(qint64 position) {
-    _posSlider->setValue(position/100);
+    _ui.posSlider->setValue(position/100);
 }
 
 QString PanelPreviewSound::formatTime(uint64 t) {
@@ -207,9 +146,9 @@ int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) {
 }
 
 void PanelPreviewSound::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
-    _play->setEnabled(enablePlay);
-    _pause->setEnabled(enablePause);
-    _stop->setEnabled(enableStop);
+    _ui.play->setEnabled(enablePlay);
+    _ui.pause->setEnabled(enablePause);
+    _ui.stop->setEnabled(enableStop);
 }
 
 void PanelPreviewSound::update() {
@@ -219,14 +158,11 @@ void PanelPreviewSound::update() {
     QString total   = formatTime(_duration);
     QString percent = formatPercent(_duration, t);
 
-    _textPosition->setText(played);
-    _textPercent->setText(percent);
-    _textDuration->setText(total);
-//    _textPosition->setText("pos");
-//    _textPercent->setText("per%");
-//    _textDuration->setText("length");
+    _ui.position->setText(played);
+    _ui.percent->setText(percent);
+    _ui.duration->setText(total);
 
-    _posSlider->setValue(getSliderPos(_duration, t));
+    _ui.posSlider->setValue(getSliderPos(_duration, t));
 
     bool isPlaying = SoundMan.isPlaying(_sound);
     bool isPaused  = SoundMan.isPaused(_sound);
