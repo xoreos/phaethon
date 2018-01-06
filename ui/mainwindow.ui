@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>961</width>
-    <height>740</height>
+    <width>959</width>
+    <height>738</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -166,7 +166,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="resourceInfoFrame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -182,212 +182,33 @@ p, li { white-space: pre-wrap; }
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <widget class="QWidget" name="">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>4</y>
-         <width>941</width>
-         <height>92</height>
-        </rect>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="resLabelName">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>IBeamCursor</cursorShape>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <property name="text">
-           <string>Te&amp;xtLabel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="resLabelSize">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>IBeamCursor</cursorShape>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="resLabelFileType">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>IBeamCursor</cursorShape>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="resLabelResType">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="cursor">
-           <cursorShape>IBeamCursor</cursorShape>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QPushButton" name="bLoadKotorDir">
-       <property name="geometry">
-        <rect>
-         <x>380</x>
-         <y>100</y>
-         <width>111</width>
-         <height>31</height>
-        </rect>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+       <property name="rightMargin">
+        <number>0</number>
        </property>
-       <property name="text">
-        <string>Load kotor dir</string>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
-      </widget>
-      <widget class="QPushButton" name="bSave">
-       <property name="geometry">
-        <rect>
-         <x>4</x>
-         <y>102</y>
-         <width>96</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="bCloseDir">
-       <property name="geometry">
-        <rect>
-         <x>500</x>
-         <y>100</y>
-         <width>80</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Close dir</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="bExportTGA">
-       <property name="geometry">
-        <rect>
-         <x>106</x>
-         <y>102</y>
-         <width>111</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Export as TGA</string>
-       </property>
-      </widget>
+       <item>
+        <layout class="QHBoxLayout" name="resBox"/>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
-   <zorder>splitter_2</zorder>
-   <zorder>bLoadKotorDir</zorder>
-   <zorder>bSave</zorder>
-   <zorder>bCloseDir</zorder>
-   <zorder>bExportTGA</zorder>
-   <zorder>resourcePanel</zorder>
-   <zorder></zorder>
-   <zorder></zorder>
-   <zorder>gridLayoutWidget</zorder>
-   <zorder>frame_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>961</width>
+     <width>959</width>
      <height>27</height>
     </rect>
    </property>

@@ -11,8 +11,6 @@
 #include <QScrollBar>
 #include <QWidget>
 
-namespace GUI {
-
 class PanelPreviewImage : public QFrame
 {
     W_OBJECT(PanelPreviewImage)
@@ -29,7 +27,6 @@ private:
 
 public:
     PanelPreviewImage(QWidget *parent = 0);
-    ~PanelPreviewImage();
 
     void setItem(ResourceTreeItem *node);
     void loadImage();
@@ -42,14 +39,19 @@ public:
     void updateButtons();
 
     void darknessSliderSlot(int value);
+    W_SLOT(darknessSliderSlot, W_Access::Private)
 
     void zoomIn();
+    W_SLOT(zoomIn, W_Access::Private)
+
     void zoomOut();
+    W_SLOT(zoomOut, W_Access::Private)
+
     void zoomOriginal();
+    W_SLOT(zoomOriginal, W_Access::Private)
 
     void nearestToggled(bool checked);
+    W_SLOT(nearestToggled, W_Access::Private)
 };
-
-} // End of namespace GUI
 
 #endif // PANELPREVIEWIMAGE_H

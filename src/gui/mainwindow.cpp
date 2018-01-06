@@ -15,12 +15,11 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, const Common::UString &path) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-
+MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, const Common::UString &path)
+    : QMainWindow(parent)
+    , _treeModel(nullptr)
 {
-    ui->setupUi(this);
+    _ui.setupUi(this);
 
 //    resize(size);
 
@@ -28,41 +27,35 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
     _panelPreviewImage = new PanelPreviewImage();
     _panelPreviewSound = new PanelPreviewSound();
     _panelPreviewText  = new PanelPreviewText();
+    _resInfo = new ResourceInfoPanel();
 
-    ui->resLayout->addWidget(_panelPreviewEmpty);
+    _ui.resBox->addWidget(_resInfo);
+    _ui.resLayout->addWidget(_panelPreviewEmpty);
 
     // signals/slots
-    QObject::connect(ui->bLoadKotorDir,       &QPushButton::clicked, this, &MainWindow::sbLoadKotorDir);
-    QObject::connect(ui->bCloseDir,           &QPushButton::clicked, this, &MainWindow::sbCloseDir);
-    QObject::connect(ui->bSave,               &QPushButton::clicked, this, &MainWindow::sbSave);
-    QObject::connect(ui->bExportTGA,          &QPushButton::clicked, this, &MainWindow::sbExportTGA);
-    QObject::connect(ui->actionOpenDirectory, &QAction::triggered,   this, &MainWindow::slotOpenDir);
-    QObject::connect(ui->actionClose,         &QAction::triggered,   this, &MainWindow::slotCloseDir);
-    QObject::connect(ui->actionQuit,          &QAction::triggered,   this, &MainWindow::slotQuit);
+    QObject::connect(_ui.actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDir);
+    QObject::connect(_ui.actionClose, &QAction::triggered, this, &MainWindow::slotCloseDir);
+    QObject::connect(_ui.actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
+    QObject::connect(_resInfo, &ResourceInfoPanel::loadModel, this, &MainWindow::setTreeViewModel);
+    QObject::connect(_resInfo, &ResourceInfoPanel::logAppend, this, &MainWindow::slotLogAppend);
+    QObject::connect(_resInfo, &ResourceInfoPanel::closeDirClicked, this, &MainWindow::slotCloseDir);
+    QObject::connect(_resInfo, &ResourceInfoPanel::saveClicked, this, &MainWindow::saveItem);
+    QObject::connect(_resInfo, &ResourceInfoPanel::exportTGAClicked, this, &MainWindow::exportTGA);
 
     // status bar
     _statusLabel = new QLabel(this);
     _statusLabel->setText("None");
     _statusLabel->setAlignment(Qt::AlignLeft);
-    ui->statusBar->addWidget(_statusLabel, 1);
+    _ui.statusBar->addWidget(_statusLabel, 1);
 
     // tree view
-    ui->treeView->setHeaderHidden(true);
-
-    // resource info panel
-    ui->resLabelName->setText("Resource name:");
-    ui->resLabelSize->setText("Size:");
-    ui->resLabelFileType->setText("File type:");
-    ui->resLabelResType->setText("Resource type:");
-
-    ui->bSave->setEnabled(false);
-    ui->bExportTGA->setEnabled(false);
+    _ui.treeView->setHeaderHidden(true);
 
     // open the path given in command line if any
     if (path.empty()) {
         // nothing is open yet
-        ui->actionClose->setEnabled(false);
-        ui->bCloseDir->setEnabled(false);
+        _ui.actionClose->setEnabled(false);
+        _resInfo->getUi().bCloseDir->setEnabled(false);
     }
     else {
         _rootPath = path.toQString();
@@ -71,35 +64,42 @@ MainWindow::MainWindow(QWidget *parent, const char *version, const QSize &size, 
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    delete _treeModel;
+}
+
+void MainWindow::slotLogAppend(const QString& text) {
+    _ui.log->append(text);
 }
 
 void MainWindow::setTreeViewModel(const QString &path) {
+    if (_rootPath == path)
+        return;
+
     _rootPath = path;
 
     _statusLabel->setText("Loading...");
     _statusLabel->repaint();
 
     if (_treeModel) {
-        ui->treeView->setModel(nullptr);
         delete _treeModel;
+        _ui.treeView->setModel(nullptr);
     }
 
-    _treeModel = new ResourceTree(path, ui->treeView);
-    ui->treeView->setModel(_treeModel);
-    ui->treeView->show();
+    _treeModel = new ResourceTree(path, _ui.treeView);
+    _ui.treeView->setModel(_treeModel);
+    _ui.treeView->show();
 
     _statusLabel->setText(tr("Root: %1").arg(path));
 
 
-    QObject::connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+    QObject::connect(_ui.treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
                      this, &MainWindow::selection);
 
 
-    ui->log->append(tr("Set root: %1").arg(path));
+    _ui.log->append(tr("Set root: %1").arg(path));
 
-    ui->bCloseDir->setEnabled(true);
-    ui->actionClose->setEnabled(true);
+    _resInfo->getUi().bCloseDir->setEnabled(true);
+    _ui.actionClose->setEnabled(true);
 }
 
 void MainWindow::slotOpenDir() {
@@ -114,172 +114,37 @@ void MainWindow::slotOpenDir() {
 void MainWindow::slotCloseDir() {
     showPreviewPanel(_panelPreviewEmpty);
 
-    ui->bCloseDir->setEnabled(false);
-    ui->bSave->setEnabled(false);
-    ui->bExportTGA->setEnabled(false);
+    _resInfo->setButtonsForClosedDir();
 
-    ui->treeView->setModel(nullptr);
+    _ui.treeView->setModel(nullptr);
 
-    ui->log->append(tr("Closed directory: %1").arg(_rootPath));
+    _ui.log->append(tr("Closed directory: %1").arg(_rootPath));
 
     _rootPath = "";
 
     if (_currentSelection)
         _currentSelection = nullptr;
 
-    ui->resLabelName->setText("Resource name:");
-    ui->resLabelSize->setText("Size:");
-    ui->resLabelFileType->setText("File type:");
-    ui->resLabelResType->setText("Resource type:");
+    _resInfo->clearLabels();
 
     _statusLabel->setText("None");
 
-    ui->actionClose->setEnabled(false);
+    _ui.actionClose->setEnabled(false);
 }
 
 void MainWindow::slotQuit() {
     QCoreApplication::quit();
 }
 
-
-/*                        */
-/** Resource info panel. **/
-/*                        */
-
-void MainWindow::sbLoadKotorDir() {
-    QString myKotorPath("/home/mike/kotor");
-    QDir dir(myKotorPath);
-    if (dir.exists())
-        setTreeViewModel(myKotorPath);
-    else
-        ui->log->append("Failed: /home/mike/kotor is doesn't exist.");
-}
-
-void MainWindow::sbCloseDir() {
-    slotCloseDir();
-}
-
-void MainWindow::sbSave() {
-    if (!_currentSelection)
-        return;
-
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save Aurora game resource file"), "",
-            tr("Aurora game resource (*.*)|*.*"));
-
-    if (fileName.isEmpty())
-        return;
-
-    try {
-        QScopedPointer<Common::SeekableReadStream> res(_currentSelection->getResourceData());
-
-        Common::WriteFile file(Common::UString(fileName.toStdString().c_str()));
-
-        file.writeStream(*res);
-        file.flush();
-
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-    }
-}
-
-void MainWindow::sbExportTGA() {
-    if (!_currentSelection)
-        return;
-
-    assert(_currentSelection->getResourceType() == Aurora::kResourceImage);
-
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save TGA file"), "",
-            tr("TGA file (*.tga)|*.tga"));
-
-    if (fileName.isEmpty())
-        return;
-
-    try {
-        QScopedPointer<Images::Decoder> image(_currentSelection->getImage());
-
-        image->dumpTGA(Common::UString(fileName.toStdString().c_str()));
-
-    } catch (Common::Exception &e) {
-        Common::printException(e, "WARNING: ");
-    }
-}
-
-QString getSizeLabel(size_t size) {
-    if (size == Common::kFileInvalid)
-        return "-";
-
-    if (size < 1024)
-        return QString("%1").arg(size);
-
-    QString humanRead = Common::FilePath::getHumanReadableSize(size).toQString();
-
-    return QString("%1 (%2)").arg(humanRead).arg(size);
-}
-
-QString getFileTypeLabel(Aurora::FileType type) {
-    QString label = QString("%1").arg(type);
-
-    if (type != Aurora::kFileTypeNone) {
-        QString temp = TypeMan.getExtension(type).toQString();
-        label += QString(" (%1)").arg(temp);
-    }
-
-    return label;
-}
-
-QString getResTypeLabel(Aurora::ResourceType type) {
-    QString label = QString("%1").arg(type);
-
-    if (type != Aurora::kResourceNone) {
-        QString temp = getResourceTypeDescription(type).toQString();
-        label += QString(" (%1)").arg(temp);
-    }
-
-    return label;
-}
-
-void MainWindow::setLabels() {
-    QString labelName     = "Resource name: ";
-    QString labelSize     = "Size: ";
-    QString labelFileType = "File type: ";
-    QString labelResType  = "Resource type: ";
-
-    labelName += _currentSelection->getName();
-
-    if (_currentSelection->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
-
-        labelSize     += "-";
-        labelFileType += "Directory";
-        labelResType  += "Directory";
-
-    } else if ((_currentSelection->getSource() == ResourceTreeItem::Source::kSourceFile) ||
-               (_currentSelection->getSource() == ResourceTreeItem::Source::kSourceArchiveFile)) {
-
-        Aurora::FileType     fileType = _currentSelection->getFileType();
-        Aurora::ResourceType resType  = _currentSelection->getResourceType();
-
-        labelSize     += getSizeLabel(_currentSelection->getSize());
-        labelFileType += getFileTypeLabel(fileType);
-        labelResType  += getResTypeLabel(resType);
-    }
-
-    ui->resLabelName->setText(labelName);
-    ui->resLabelSize->setText(labelSize);
-    ui->resLabelFileType->setText(labelFileType);
-    ui->resLabelResType->setText(labelResType);
-}
-
 void MainWindow::showPreviewPanel(QFrame *panel) {
-    if (ui->resLayout->count()) {
-        QFrame *old = static_cast<QFrame*>(ui->resLayout->itemAt(0)->widget());
+    if (_ui.resLayout->count()) {
+        QFrame *old = static_cast<QFrame*>(_ui.resLayout->itemAt(0)->widget());
         if (old != panel) {
-            ui->resLayout->removeWidget(old);
+            _ui.resLayout->removeWidget(old);
             old->setParent(0);
             if (old == _panelPreviewSound)
                 _panelPreviewSound->stop();
-            ui->resLayout->addWidget(panel);
+            _ui.resLayout->addWidget(panel);
         }
     }
 }
@@ -317,33 +182,59 @@ void MainWindow::showPreviewPanel() {
 void MainWindow::selection(const QItemSelection &selected, const QItemSelection &deselected) {
     const QModelIndex index = selected.indexes().at(0);
     _currentSelection = _treeModel->getNode(index);
-    setLabels();
+    _resInfo->update(_currentSelection);
     showPreviewPanel();
-    showExportButtons();
 
     _panelPreviewImage->setItem(_currentSelection);
     _panelPreviewText->setItem(_currentSelection);
     _panelPreviewSound->setItem(_currentSelection);
 }
 
-void MainWindow::showExportButtons() {
-    if (!_currentSelection || _currentSelection->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
-        showExportButtons(false, false, false, false);
+void MainWindow::saveItem() {
+    if (!_currentSelection)
         return;
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save Aurora game resource file"), "",
+            tr("Aurora game resource (*.*)|*.*"));
+
+    if (fileName.isEmpty())
+        return;
+
+    try {
+        QScopedPointer<Common::SeekableReadStream> res(_currentSelection->getResourceData());
+
+        Common::WriteFile file(Common::UString(fileName.toStdString().c_str()));
+
+        file.writeStream(*res);
+        file.flush();
+
+    } catch (Common::Exception &e) {
+        Common::printException(e, "WARNING: ");
     }
-
-    bool isBMU   = _currentSelection->getFileType()     == Aurora::kFileTypeBMU;
-    bool isSound = _currentSelection->getResourceType() == Aurora::kResourceSound;
-    bool isImage = _currentSelection->getResourceType() == Aurora::kResourceImage;
-
-    showExportButtons(true, isBMU, isSound, isImage);
 }
 
-void MainWindow::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
-    ui->bSave->setEnabled(enableRaw);
-    ui->bExportTGA->setEnabled(showTGA);
-//    _buttonExportBMUMP3->Show(showMP3);
-//    _buttonExportWAV->Show(showWAV);
+void MainWindow::exportTGA() {
+    if (!_currentSelection)
+        return;
+
+    assert(_currentSelection->getResourceType() == Aurora::kResourceImage);
+
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save TGA file"), "",
+            tr("TGA file (*.tga)|*.tga"));
+
+    if (fileName.isEmpty())
+        return;
+
+    try {
+        QScopedPointer<Images::Decoder> image(_currentSelection->getImage());
+
+        image->dumpTGA(Common::UString(fileName.toStdString().c_str()));
+
+    } catch (Common::Exception &e) {
+        Common::printException(e, "WARNING: ");
+    }
 }
 
 } // End of namespace GUI

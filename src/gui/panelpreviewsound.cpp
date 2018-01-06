@@ -4,8 +4,6 @@
 
 #include "src/common/util.h"
 
-namespace GUI {
-
 W_OBJECT_IMPL(PanelPreviewSound)
 
 PanelPreviewSound::PanelPreviewSound(QWidget *parent)
@@ -24,10 +22,6 @@ PanelPreviewSound::PanelPreviewSound(QWidget *parent)
     connect(_timer, &QTimer::timeout, this, &PanelPreviewSound::update);
 
     _timer->start(50);
-}
-
-PanelPreviewSound::~PanelPreviewSound()
-{
 }
 
 void PanelPreviewSound::setItem(ResourceTreeItem *item) {
@@ -169,5 +163,3 @@ void PanelPreviewSound::update() {
 
     setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
 }
-
-} // End of namespace GUI

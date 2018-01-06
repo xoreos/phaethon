@@ -51,6 +51,9 @@ public:
 	/** Return the file type of a file name, detected by its extension. */
 	FileType getFileType(const Common::UString &path);
 
+    /** QString variant */
+    FileType getFileType(const QString &path);
+
 	/** Return the file type of a file name, detected by its hashed extension. */
 	FileType getFileType(Common::HashAlgo algo, uint64 hashedExtension);
 
@@ -66,6 +69,8 @@ public:
 	ResourceType getResourceType(FileType type);
 	/** Return the resource type of a file name, detected by its extension. */
 	ResourceType getResourceType(const Common::UString &path);
+	/** QString variant. */
+	ResourceType getResourceType(const QString &path);
 	/** Return the resource type of a file name, detected by its hashed extension. */
 	ResourceType getResourceType(Common::HashAlgo algo, uint64 hashedExtension);
 

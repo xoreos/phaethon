@@ -25,6 +25,9 @@ QT_UI_FORMS_BUILT = \
 	ui/ui_mainwindow.h \
 	ui/ui_previewsound.h \
 	ui/ui_previewimage.h \
+	ui/ui_previewempty.h \
+	ui/ui_previewtext.h \
+	ui/ui_resourceinfopanel.h \
     $(EMPTY)
 
 BUILT_SOURCES += $(QT_UI_FORMS_BUILT)

@@ -1,5 +1,5 @@
-#ifndef RESOURCETREEITEM_H
-#define RESOURCETREEITEM_H
+#ifndef TREEITEM_H
+#define TREEITEM_H
 
 #include <QFileInfo>
 #include <QString>
@@ -12,7 +12,6 @@
 
 #include "src/images/decoder.h"
 
-namespace GUI {
 
 class ResourceTreeItem {
 public:
@@ -90,6 +89,4 @@ private:
     ArchiveInfo _archiveInfo;
 };
 
-} // End of namespace GUI
-
-#endif // RESOURCETREEITEM_H
+#endif // TREEITEM_H

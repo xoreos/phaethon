@@ -24,6 +24,9 @@
 
 #include <algorithm>
 
+#include <QFileInfo>
+#include <QString>
+
 #include "src/common/util.h"
 #include "src/common/ustring.h"
 #include "src/common/filepath.h"
@@ -392,6 +395,21 @@ FileType FileTypeManager::getFileType(const Common::UString &path) {
 	return kFileTypeNone;
 }
 
+FileType FileTypeManager::getFileType(const QString &path) {
+        buildExtensionLookup();
+
+        QString ext = QFileInfo(path).completeSuffix();
+
+        ExtensionLookup::const_iterator t = _extensionLookup.find(
+                    Common::UString(
+                        QString(ext).prepend(".").toStdString()
+                    ));
+        if (t != _extensionLookup.end())
+                return t->second->type;
+
+        return kFileTypeNone;
+}
+
 Common::UString FileTypeManager::addFileType(const Common::UString &path, FileType type) {
 	return setFileType(path + ".", type);
 }
@@ -476,6 +494,10 @@ ResourceType FileTypeManager::getResourceType(FileType type) {
 
 ResourceType FileTypeManager::getResourceType(const Common::UString &path) {
 	return getResourceType(getFileType(path));
+}
+
+ResourceType FileTypeManager::getResourceType(const QString &path) {
+    return getResourceType(getFileType(path));
 }
 
 ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hashedExtension) {

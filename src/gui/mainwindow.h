@@ -16,6 +16,7 @@
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
+#include "src/gui/panelresourceinfo.h"
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 
@@ -36,14 +37,25 @@ public:
 
 private /*slots*/:
     void setTreeViewModel(const QString &path);
-    void slotOpenDir();
-    void slotCloseDir();
-    void slotQuit();
+    W_SLOT(setTreeViewModel)
 
-    void sbLoadKotorDir();
-    void sbCloseDir();
-    void sbSave();
-    void sbExportTGA();
+    void slotOpenDir();
+    W_SLOT(slotOpenDir, W_Access::Private)
+
+    void slotCloseDir();
+    W_SLOT(slotCloseDir, W_Access::Private)
+
+    void slotQuit();
+    W_SLOT(slotQuit, W_Access::Private)
+
+    void slotLogAppend(const QString& text);
+    W_SLOT(slotLogAppend, W_Access::Private)
+
+    void saveItem();
+    W_SLOT(saveItem, W_Access::Private)
+
+    void exportTGA();
+    W_SLOT(exportTGA, W_Access::Private)
 
     void selection(const QItemSelection &selected, const QItemSelection &deselected);
 
@@ -54,18 +66,18 @@ private:
     void showExportButtons();
     void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
 
-private:
-    Ui::MainWindow *ui = nullptr;
-    QLabel *_statusLabel = nullptr;
-    ResourceTreeItem *_currentSelection = nullptr;
-    ResourceTree *_treeModel = nullptr;
-    QString _rootPath = nullptr;
+    Ui::MainWindow _ui;
+    QLabel *_statusLabel;
+    ResourceTreeItem *_currentSelection;
+    ResourceTree *_treeModel;
+    QString _rootPath;
 
     // resource preview
-    PanelPreviewEmpty *_panelPreviewEmpty = nullptr;
-    PanelPreviewImage *_panelPreviewImage = nullptr;
-    PanelPreviewSound *_panelPreviewSound = nullptr;
-    PanelPreviewText *_panelPreviewText = nullptr;
+    PanelPreviewEmpty *_panelPreviewEmpty;
+    PanelPreviewImage *_panelPreviewImage;
+    PanelPreviewSound *_panelPreviewSound;
+    PanelPreviewText *_panelPreviewText;
+    ResourceInfoPanel *_resInfo;
 };
 
 } // End of namespace GUI

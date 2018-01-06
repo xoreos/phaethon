@@ -1,31 +1,158 @@
-/* Phaethon - A FLOSS resource explorer for BioWare's Aurora engine games
- *
- * Phaethon is the legal property of its developers, whose names
- * can be found in the AUTHORS file distributed with this source
- * distribution.
- *
- * Phaethon is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * Phaethon is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
- */
+#include "src/gui/panelresourceinfo.h"
 
-/** @file
- *  Panel showing general information and actions on resources.
- */
+#include <QDir>
+#include <QFileDialog>
+#include "src/common/filepath.h"
+#include "src/common/writefile.h"
+#include "verdigris/wobjectimpl.h"
 
+W_OBJECT_IMPL(ResourceInfoPanel)
 
+ResourceInfoPanel::ResourceInfoPanel(QWidget *parent)
+    : QFrame(parent)
+{
+    _ui.setupUi(this);
 
-namespace GUI {
+    _ui.resLabelName->setText("Resource name:");
+    _ui.resLabelSize->setText("Size:");
+    _ui.resLabelFileType->setText("File type:");
+    _ui.resLabelResType->setText("Resource type:");
 
+    _ui.bSave->setEnabled(false);
+    _ui.bExportTGA->setEnabled(false);
 
+    QObject::connect(_ui.bSave, &QPushButton::clicked, this, &ResourceInfoPanel::slotSave);
+    QObject::connect(_ui.bExportTGA, &QPushButton::clicked, this, &ResourceInfoPanel::slotExportTGA);
 
-} // End of namespace GUI
+    QObject::connect(_ui.bLoadKotorDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotLoadKotorDir);
+    QObject::connect(_ui.bCloseDir, &QPushButton::clicked, this, &ResourceInfoPanel::slotCloseDir);
+}
+
+Ui::ResourceInfoPanel &ResourceInfoPanel::getUi() {
+    return _ui;
+}
+
+/** SLOTS **/
+void ResourceInfoPanel::slotLoadKotorDir() {
+    QString myKotorPath("/home/mike/kotor");
+    QDir dir(myKotorPath);
+    if (dir.exists())
+        emit loadModel(myKotorPath);
+    else
+        emit logAppend("Failed: /home/mike/kotor is doesn't exist.");
+}
+
+void ResourceInfoPanel::slotCloseDir() {
+    emit closeDirClicked();
+}
+
+void ResourceInfoPanel::slotSave() {
+    emit saveClicked();
+}
+
+void ResourceInfoPanel::slotExportTGA() {
+    emit exportTGAClicked();
+}
+
+void ResourceInfoPanel::update(ResourceTreeItem *item) {
+    setLabels(item);
+    showExportButtons(item);
+}
+
+void ResourceInfoPanel::showExportButtons(ResourceTreeItem *item) {
+    if (!item || item->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
+        showExportButtons(false, false, false, false);
+        return;
+    }
+
+    bool isBMU   = item->getFileType()     == Aurora::kFileTypeBMU;
+    bool isSound = item->getResourceType() == Aurora::kResourceSound;
+    bool isImage = item->getResourceType() == Aurora::kResourceImage;
+
+    showExportButtons(true, isBMU, isSound, isImage);
+}
+
+void ResourceInfoPanel::showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA) {
+    _ui.bSave->setEnabled(enableRaw);
+    _ui.bExportTGA->setEnabled(showTGA);
+//    _buttonExportBMUMP3->Show(showMP3);
+//    _buttonExportWAV->Show(showWAV);
+}
+
+const QString getSizeLabel(size_t size) {
+    if (size == Common::kFileInvalid)
+        return "-";
+
+    if (size < 1024)
+        return QString("%1").arg(size);
+
+    QString humanRead = Common::FilePath::getHumanReadableSize(size).toQString();
+
+    return QString("%1 (%2)").arg(humanRead).arg(size);
+}
+
+const QString getFileTypeLabel(Aurora::FileType type) {
+    QString label = QString("%1").arg(type);
+
+    if (type != Aurora::kFileTypeNone) {
+        QString temp = TypeMan.getExtension(type).toQString();
+        label += QString(" (%1)").arg(temp);
+    }
+
+    return label;
+}
+
+const QString getResTypeLabel(Aurora::ResourceType type) {
+    QString label = QString("%1").arg(type);
+
+    if (type != Aurora::kResourceNone) {
+        QString temp = getResourceTypeDescription(type).toQString();
+        label += QString(" (%1)").arg(temp);
+    }
+
+    return label;
+}
+
+void ResourceInfoPanel::setLabels(ResourceTreeItem *item) {
+    QString labelName     = "Resource name: ";
+    QString labelSize     = "Size: ";
+    QString labelFileType = "File type: ";
+    QString labelResType  = "Resource type: ";
+
+    labelName += item->getName();
+
+    if (item->getSource() == ResourceTreeItem::Source::kSourceDirectory) {
+
+        labelSize     += "-";
+        labelFileType += "Directory";
+        labelResType  += "Directory";
+
+    } else if ((item->getSource() == ResourceTreeItem::Source::kSourceFile) ||
+               (item->getSource() == ResourceTreeItem::Source::kSourceArchiveFile)) {
+
+        Aurora::FileType     fileType = item->getFileType();
+        Aurora::ResourceType resType  = item->getResourceType();
+
+        labelSize     += getSizeLabel(item->getSize());
+        labelFileType += getFileTypeLabel(fileType);
+        labelResType  += getResTypeLabel(resType);
+    }
+
+    _ui.resLabelName->setText(labelName);
+    _ui.resLabelSize->setText(labelSize);
+    _ui.resLabelFileType->setText(labelFileType);
+    _ui.resLabelResType->setText(labelResType);
+}
+
+void ResourceInfoPanel::clearLabels() {
+    _ui.resLabelName->setText("Resource name:");
+    _ui.resLabelSize->setText("Size:");
+    _ui.resLabelFileType->setText("File type:");
+    _ui.resLabelResType->setText("Resource type:");
+}
+
+void ResourceInfoPanel::setButtonsForClosedDir() {
+    _ui.bCloseDir->setEnabled(false);
+    _ui.bSave->setEnabled(false);
+    _ui.bExportTGA->setEnabled(false);
+}

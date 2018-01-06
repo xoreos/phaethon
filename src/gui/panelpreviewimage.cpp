@@ -1,16 +1,14 @@
-#include "panelpreviewimage.h"
+#include "src/gui/panelpreviewimage.h"
 #include "verdigris/wobjectimpl.h"
 
 #include "src/gui/panel.h"
 
 #include <QImageReader>
 
-namespace GUI {
-
 W_OBJECT_IMPL(PanelPreviewImage)
 
 PanelPreviewImage::PanelPreviewImage(QWidget *parent)
-    : _imageLabel(new QLabel)
+    : _imageLabel(new QLabel(this))
     , _scaleFactor(1)
 {
     _ui.setupUi(this);
@@ -37,11 +35,6 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent)
     _ui.fitWidth->setEnabled(false);
     _ui.fitShrink->setEnabled(false);
     _ui.fitShrinkWidth->setEnabled(false);
-}
-
-PanelPreviewImage::~PanelPreviewImage()
-{
-    delete _imageLabel;
 }
 
 void PanelPreviewImage::setItem(ResourceTreeItem *item) {
@@ -231,5 +224,3 @@ void PanelPreviewImage::nearestToggled(bool checked) {
 
     scaleImage(1.0);
 }
-
-} // End of namespace GUI

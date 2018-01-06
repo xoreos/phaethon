@@ -13,7 +13,8 @@
 #include "src/common/ptrmap.h"
 #include "src/gui/resourcetreeitem.h"
 
-namespace GUI {
+namespace GUI
+{
 
 class MainWindow;
 
@@ -21,8 +22,8 @@ class ResourceTree : public QStandardItemModel {
     W_OBJECT(ResourceTree)
 
 private:
-    ResourceTreeItem *_root = nullptr;
-    QFileIconProvider *_iconProvider = nullptr;
+    ResourceTreeItem *_root;
+    QFileIconProvider *_iconProvider;
     MainWindow *_mainWindow;
 
     typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
@@ -32,7 +33,7 @@ private:
     KEYDataFileMap _keyDataFiles;
 
 public:
-    explicit ResourceTree(const QString &path = "", QObject *parent = 0);
+    explicit ResourceTree(QString path, QObject *parent = 0);
     ~ResourceTree();
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -51,7 +52,7 @@ public:
     void insertNodes(int position, QList<ResourceTreeItem*> &nodes, const QModelIndex &parent);
     bool hasChildren(const QModelIndex &index) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    void setRootPath(const QString& path);
+    void setRootPath(QString path);
     void populate(const QString& path, ResourceTreeItem *parentNode);
     Aurora::Archive *getArchive(const QString &path);
     Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);

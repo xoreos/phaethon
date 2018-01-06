@@ -2,6 +2,7 @@
 
 #include "verdigris/wobjectimpl.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 #include <QFileInfoList>
@@ -15,15 +16,17 @@
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
 
-namespace GUI {
+namespace GUI
+{
 
 W_OBJECT_IMPL(ResourceTree)
 
-ResourceTree::ResourceTree(const QString &rootPath, QObject *parent) : QStandardItemModel(parent) {
-    _iconProvider = new QFileIconProvider();
-
-    if (!rootPath.isEmpty())
-        setRootPath(rootPath);
+ResourceTree::ResourceTree(QString path, QObject *parent) : QStandardItemModel(parent)
+    , _iconProvider(new QFileIconProvider())
+    , _root(new ResourceTreeItem("", nullptr))
+{
+    if (!path.isEmpty())
+        setRootPath(path);
 }
 
 ResourceTree::~ResourceTree() {
@@ -31,6 +34,11 @@ ResourceTree::~ResourceTree() {
     _keyDataFiles.clear();
     delete _iconProvider;
     delete _root;
+}
+
+void ResourceTree::setRootPath(QString path) {
+    _root = new ResourceTreeItem(path, nullptr);
+    populate(path, _root);
 }
 
 void ResourceTree::populate(const QString& path, ResourceTreeItem *parentNode) {
@@ -49,13 +57,6 @@ void ResourceTree::populate(const QString& path, ResourceTreeItem *parentNode) {
             populate(e.canonicalFilePath(), curNode);
         }
     }
-}
-
-void ResourceTree::setRootPath(const QString& path) {
-    if (_root)
-        delete _root;
-    _root = new ResourceTreeItem(path, nullptr);
-    populate(path, _root);
 }
 
 ResourceTreeItem *ResourceTree::getNode(const QModelIndex &index) const {
@@ -241,7 +242,7 @@ Aurora::Archive *ResourceTree::getArchive(const QString &path) {
         return a->second;
 
     Aurora::Archive *arch = 0;
-    switch (TypeMan.getFileType(Common::UString(path.toStdString()))) {
+    switch (TypeMan.getFileType(path)) {
         case Aurora::kFileTypeZIP:
             arch = new Aurora::ZIPFile(new Common::ReadFile(path.toStdString().c_str()));
             break;

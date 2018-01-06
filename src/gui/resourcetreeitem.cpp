@@ -12,7 +12,6 @@
 #include "src/images/txb.h"
 #include "src/images/winiconimage.h"
 
-namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Resource &resource, ResourceTreeItem *parent)
     : _parent(parent)
@@ -21,8 +20,8 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, Aurora::Archive::Re
     _fileInfo.fullPath     = parent->getPath() + "/" + _fileInfo.fileName;
     _fileInfo.isDir        = false;
     _fileInfo.source       = kSourceArchiveFile;
-    _fileInfo.fileType     = TypeMan.getFileType(Common::UString(_fileInfo.fileName.toStdString()));
-    _fileInfo.resourceType = TypeMan.getResourceType(Common::UString(_fileInfo.fileName.toStdString()));
+    _fileInfo.fileType     = TypeMan.getFileType(_fileInfo.fileName);
+    _fileInfo.resourceType = TypeMan.getResourceType(_fileInfo.fileName);
     _fileInfo.size         = archive->getResourceSize(resource.index);
 
     _archiveInfo.archive             = archive;
@@ -48,8 +47,8 @@ ResourceTreeItem::ResourceTreeItem(const QString fullPath, ResourceTreeItem *par
         _fileInfo.resourceType = Aurora::kResourceNone;
     }
     else {
-        _fileInfo.fileType = TypeMan.getFileType(Common::UString(_fileInfo.fileName.toStdString()));
-        _fileInfo.resourceType = TypeMan.getResourceType(Common::UString(_fileInfo.fileName.toStdString()));
+        _fileInfo.fileType = TypeMan.getFileType(_fileInfo.fileName);
+        _fileInfo.resourceType = TypeMan.getResourceType(_fileInfo.fileName);
     }
 
     _archiveInfo.archive = 0;
@@ -61,8 +60,8 @@ ResourceTreeItem::ResourceTreeItem(const QString fullPath, ResourceTreeItem *par
 }
 
 ResourceTreeItem::~ResourceTreeItem() {
-    if (_children.count())
-        qDeleteAll(_children);
+    qDeleteAll(_children);
+    _children.clear();
 }
 
 void ResourceTreeItem::appendChild(ResourceTreeItem *child) {
@@ -266,5 +265,3 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
     res.release();
     return sound;
 }
-
-} // End of namespace GUI
