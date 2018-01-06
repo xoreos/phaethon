@@ -25,13 +25,23 @@
 #ifndef RESOURCETREE_H
 #define RESOURCETREE_H
 
-#include <wx/treectrl.h>
+#include <QAbstractItemModel>
+#include <QFileIconProvider>
+#include <QFileInfo>
+#include <QModelIndex>
+#include <QVariant>
 
-#include "src/common/ustring.h"
-#include "src/common/filetree.h"
+#include "verdigris/wobjectdefs.h"
 
-#include "src/aurora/types.h"
 #include "src/aurora/archive.h"
+#include "src/aurora/util.h"
+
+#include "src/common/filetree.h"
+#include "src/common/ptrmap.h"
+
+#include "src/gui/statusbar.h"
+
+#include "src/images/decoder.h"
 
 namespace Common {
 	class SeekableReadStream;
@@ -45,126 +55,89 @@ namespace Images {
 	class Decoder;
 }
 
+namespace Aurora {
+	class KEYFile;
+	class KEYDataFile;
+}
+
 namespace GUI {
 
+struct Archive;
 class MainWindow;
+class ResourceTreeItem;
 
-class ResourceTreeItem : public wxTreeItemData {
-public:
-	/** Where does the resource come from? */
-	enum Source {
-		kSourceDirectory   = 0, ///< It's a plain directory on the filesystem.
-		kSourceFile        = 1, ///< It's a plain file on the filesystem.
-		kSourceArchiveFile = 2  ///< It's a file contained in an archive.
-	};
-
-	/** Create a resource tree item from a raw file/directory. */
-	ResourceTreeItem(const Common::FileTree::Entry &entry);
-	/** Create a resource tree item from an archive file. */
-	ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
-	~ResourceTreeItem();
-
-	/** Return the name of the resource, without path. */
-	const Common::UString &getName() const;
-	/** Return the size of the resource's data. */
-	uint32 getSize() const;
-
-	/** Return where the resource comes from. */
-	Source getSource() const;
-
-	/** Get the Aurora file type of the resource. */
-	Aurora::FileType getFileType() const;
-	/** Get the Aurora resource type. */
-	Aurora::ResourceType getResourceType() const;
-
-	/** Return a stream of the resource file data. */
-	Common::SeekableReadStream *getResourceData() const;
-
-	/** If this is a sound resource, return an audio stream.
-	 *
-	 *  If this is not a sound resource, an Exception is thrown.
-	 */
-	Sound::AudioStream *getAudioStream() const;
-
-	/** If this is an image resource, return an image decoder.
-	 *
-	 *  If this is not an image resource, an Exception is thrown.
-	 */
-	Images::Decoder *getImage() const;
-
-	/** If this is a sound resource, return the estimated duration in milliseconds.
-	 *
-	 *  If this is not a sound resource, or the length can not be estimated,
-	 *  return Sound::RewindableAudioStream::kInvalidLength.
-	 */
-	uint64 getSoundDuration() const;
+class ResourceTree : public QAbstractItemModel {
+	W_OBJECT(ResourceTree)
 
 private:
-	/** Internal resource information. */
-	struct Data {
-		boost::filesystem::path path;
-
-		Aurora::Archive *archive;
-		bool addedArchiveMembers;
-		uint32 archiveIndex;
-	};
-
-	Common::UString _name;
-	size_t _size;
-	Source _source;
-	Data _data;
-
-	mutable bool _triedDuration;
-	mutable uint64 _duration;
-
-	Data &getData();
-
-	static Images::Decoder *getImage(Common::SeekableReadStream &res, Aurora::FileType type);
-
-	friend class ResourceTree;
-};
-
-class ResourceTree : public wxTreeCtrl {
-wxDECLARE_DYNAMIC_CLASS(ResourceTree);
-
-public:
-	ResourceTree();
-	ResourceTree(wxWindow *parent, MainWindow &mainWindow);
-	~ResourceTree();
-
-	void populate(const Common::FileTree::Entry &root);
-
-	ResourceTreeItem *getItemData(const wxTreeItemId &id) const;
-
-	ResourceTreeItem *getSelection() const;
-	ResourceTreeItem *getSelection(wxTreeItemId &id) const;
-
-	int OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2);
-
-	void onSelChanged(wxTreeEvent &event);
-	void onItemExpanding(wxTreeEvent &event);
-	void onItemActivated(wxTreeEvent &event);
-
-private:
-	enum Image {
-		kImageNone = -1,
-		kImageDir  =  0,
-		kImageFile     ,
-		kImageMAX
-	};
-
+	Common::ScopedPtr<ResourceTreeItem> _root;
 	MainWindow *_mainWindow;
 
-	static Image getImage(const ResourceTreeItem &item);
+	Common::ScopedPtr<QFileIconProvider> _iconProvider;
 
-	void populate(const Common::FileTree::Entry &e, wxTreeItemId t);
+	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
+	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
 
-	wxTreeItemId addRoot(ResourceTreeItem *item);
-	wxTreeItemId appendItem(wxTreeItemId parent, ResourceTreeItem *item);
+	ArchiveMap _archives;
+	KEYDataFileMap _keyDataFiles;
 
-	void forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id);
+public:
+	ResourceTree(MainWindow *mainWindow, QObject *parent = 0);
+	~ResourceTree();
 
-	wxDECLARE_EVENT_TABLE();
+	void populate(const Common::FileTree::Entry &rootEntry);
+	void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
+
+	/** Called in fetchMore.
+	*/
+	void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
+	void insertItems(size_t position, QList<ResourceTreeItem *> &items, const QModelIndex &parentIndex);
+
+	Aurora::Archive     *getArchive(const QString &path);
+	Aurora::KEYDataFile *getKEYDataFile(const QString &file);
+	void                loadKEYDataFiles(Aurora::KEYFile &key);
+
+	/** Return the item in the tree structure that corresponds to the given index.
+	*/
+	ResourceTreeItem *itemFromIndex(const QModelIndex &index) const;
+
+	/** Model functions. */
+
+	/** Return the index if it exists, else create it.
+	*/
+	QModelIndex index(int row, int col, const QModelIndex &parent) const override;
+
+	/** Return the parent of the given index if it exists, else create it.
+	*/
+	QModelIndex parent(const QModelIndex &index) const override;
+
+	/** Return the data for the given index.
+	*/
+	QVariant data(const QModelIndex &index, int role) const override;
+
+	/** Return the header data.
+	*/
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+	/** Define what file types should have an expand arrow in the tree.
+	*/
+	bool canFetchMore(const QModelIndex &index) const;
+
+	/** Return whether the item for index actually has children.
+	*/
+	bool hasChildren(const QModelIndex &index) const;
+
+	/** Return column count (in our case, 1 -- the filename.)
+	*/
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	/** Return row count -- how many children the given index has.
+	*/
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	/** Add children to the given index.
+	*/
+	void fetchMore(const QModelIndex &index);
 };
 
 } // End of namespace GUI

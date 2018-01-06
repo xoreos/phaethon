@@ -25,96 +25,117 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <map>
+#include <QAction>
+#include <QFileSystemModel>
+#include <QGraphicsView>
+#include <QItemSelection>
+#include <QLabel>
+#include <QLayout>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QPlainTextEdit>
+#include <QProgressBar>
+#include <QSplitter>
+#include <QTreeView>
 
-#include <wx/frame.h>
+#include "verdigris/wobjectdefs.h"
 
-#include "src/common/ptrmap.h"
-#include "src/common/ustring.h"
 #include "src/common/filetree.h"
+#include "src/common/readstream.h"
+#include "src/common/writestream.h"
 
-#include "src/aurora/types.h"
-#include "src/aurora/archive.h"
+#include "src/sound/sound.h"
 
-namespace Aurora {
-	class KEYFile;
-	class KEYDataFile;
-}
-
-class wxPanel;
-class wxSplitterWindow;
-class wxGenericStaticText;
-class wxBoxSizer;
-class wxButton;
+#include "src/gui/proxymodel.h"
+#include "src/gui/statusbar.h"
 
 namespace GUI {
 
-class ResourceTree;
-class ResourceTreeItem;
-
-class PanelResourceInfo;
-
 class PanelPreviewEmpty;
-class PanelPreviewSound;
 class PanelPreviewImage;
+class PanelPreviewSound;
+class PanelResourceInfo;
+class ResourceTreeItem;
+class ResourceTree;
 
-class MainWindow : public wxFrame {
+class MainWindow : public QMainWindow {
+	W_OBJECT(MainWindow)
+
 public:
-	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size);
+	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
 	~MainWindow();
 
-	bool open(Common::UString path);
+	void statusPush(const QString &text);
+	void statusPop();
 
-	void forceRedraw();
-	void pushStatus(const Common::UString &text);
-	void popStatus();
+	/** Called by the "populate" thread when it finishes.
+	 *  Assigns the created resource tree model to the model.
+	 */
+	void openFinish();
 
-	void resourceSelect(const ResourceTreeItem *item);
-	void resourceActivate(const ResourceTreeItem &item);
+private /*slots*/ :
+	void open(const QString &path);
+	void slotOpenDir();
+	void slotOpenFile();
+	void slotCloseDir();
+	void slotQuit();
+	void slotLog(const QString &text);
+	void saveItem();
+	void exportTGA();
+	void exportBMUMP3();
+	void exportWAV();
+	void slotAbout();
 
-	Aurora::Archive *getArchive(const boost::filesystem::path &path);
+	/** Called by the selection model to respond to changes in the tree model.
+	 */
+	void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
-	typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
-	typedef Common::PtrMap<Common::UString, Aurora::KEYDataFile> KEYDataFileMap;
+	/** Decides which type of resource preview is required and shows it.
+	 */
+	void showPreviewPanel();
+	void showPreviewPanel(QFrame *panel);
 
-	Common::UString _path;
+	// TODO: Move these to a more appropriate place.
+	void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+	void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
+
 	Common::FileTree _files;
 
-	ResourceTree *_resourceTree;
+	Common::ScopedPtr<StatusBar> _status; ///< Pointer to a wrapper of the status bar.
+	ResourceTreeItem *_currentItem; ///< Passed to preview classes to provide information on the current item.
+	Common::ScopedPtr<ResourceTree> _treeModel; 
+	Common::ScopedPtr<ProxyModel> _proxyModel; ///< Used for sorting the tree.
+	QString _rootPath;
 
-	wxSplitterWindow *_splitterInfoPreview;
+	QWidget *_centralWidget;
 
-	PanelResourceInfo *_panelResourceInfo;
+	QGridLayout *_centralLayout;
+	QVBoxLayout *_layoutVertical;
+	QSplitter *_splitterTopBottom;
+	QSplitter *_splitterLeftRight;
 
-	PanelPreviewEmpty *_panelPreviewEmpty;
-	PanelPreviewSound *_panelPreviewSound;
-	PanelPreviewImage *_panelPreviewImage;
+	QFrame *_resPreviewFrame;
 
-	ArchiveMap _archives;
-	KEYDataFileMap _keyDataFiles;
+	QTreeView *_treeView;
 
-	void onOpenDir(wxCommandEvent &event);
-	void onOpenFile(wxCommandEvent &event);
-	void onClose(wxCommandEvent &event);
-	void onQuit(wxCommandEvent &event);
-	void onAbout(wxCommandEvent &event);
+	QTextEdit *_log;
 
-	void createLayout();
+	QAction *_actionOpenDirectory;
+	QAction *_actionClose;
+	QAction *_actionQuit;
+	QAction *_actionAbout;
+	QAction *_actionOpenFile;
 
-	void close();
+	QMenuBar *_menuBar;
+	QMenu *_menuFile;
+	QMenu *_menuHelp;
 
-	void showPreviewPanel(wxPanel *panel);
-	void showPreviewPanel(Aurora::ResourceType type);
-	void showPreviewPanel(const ResourceTreeItem *item);
-
-	Common::UString dialogOpenDir(const Common::UString &title);
-	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
-
-	void loadKEYDataFiles(Aurora::KEYFile &key);
-	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
-
-	wxDECLARE_EVENT_TABLE();
+	// resource preview
+	Common::ScopedPtr<PanelPreviewEmpty> _panelPreviewEmpty;
+	Common::ScopedPtr<PanelPreviewImage> _panelPreviewImage;
+	Common::ScopedPtr<PanelPreviewSound> _panelPreviewSound;
+	Common::ScopedPtr<PanelResourceInfo> _panelResourceInfo;
 };
 
 } // End of namespace GUI

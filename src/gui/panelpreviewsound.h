@@ -25,83 +25,62 @@
 #ifndef PANELPREVIEWSOUND_H
 #define PANELPREVIEWSOUND_H
 
-#include <wx/panel.h>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSlider>
+#include <QSpacerItem>
+#include <QtMultimedia>
+#include <QWidget>
 
-#include "src/common/types.h"
-#include "src/common/scopedptr.h"
-#include "src/common/ustring.h"
+#include "verdigris/wobjectdefs.h"
 
 #include "src/sound/types.h"
-
-class wxGenericStaticText;
-class wxSlider;
-class wxButton;
-class wxTimer;
-
-class wxCommandEvent;
-class wxTimerEvent;
-class wxScrollEvent;
 
 namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewSound : public wxPanel {
+class PanelPreviewSound : public QFrame {
+	W_OBJECT(PanelPreviewSound)
+
 public:
-	PanelPreviewSound(wxWindow *parent, const Common::UString &title);
-	~PanelPreviewSound();
+	PanelPreviewSound();
 
-	void setCurrentItem(const ResourceTreeItem *item);
+	void setItem(const ResourceTreeItem *item);
 
-	bool play();
-	void pause();
 	void stop();
 
 private:
-	Sound::ChannelHandle _sound;
+	QSlider *_sliderPosition;
+	QSlider *_sliderVolume;
+
+	QLabel *_labelPosition;
+	QLabel *_labelDuration;
+	QLabel *_labelPercent;
+	QLabel *_labelVolume;
+
+	QPushButton *_buttonPlay;
+	QPushButton *_buttonPause;
+	QPushButton *_buttonStop;
 
 	const ResourceTreeItem *_currentItem;
+
+	Sound::ChannelHandle _sound;
 	uint64 _duration;
+	QTimer *_timer;
 
-	wxGenericStaticText *_textPosition;
-	wxGenericStaticText *_textPercent;
-	wxGenericStaticText *_textDuration;
-	wxGenericStaticText *_textVolume;
+	bool play();
+	void pause();
+	void changeVolume(int value);
+	void positionChanged(qint64 position);
 
-	wxSlider *_sliderPosition;
-	wxSlider *_sliderVolume;
-
-	wxButton *_buttonPlay;
-	wxButton *_buttonPause;
-	wxButton *_buttonStop;
-
-	Common::ScopedPtr<wxTimer> _timer;
-
-
-	void onPlay(wxCommandEvent &event);
-	void onPause(wxCommandEvent &event);
-	void onStop(wxCommandEvent &event);
-
-	void onTimer(wxTimerEvent &event);
-
-	void onVolumeChange(wxScrollEvent &event);
-
-
-	void update();
-
-	void setVolume();
-
-
-	void createLayout(const Common::UString &title);
-
-	void setButtons(bool enablePlay, bool enablePause, bool enableStop);
-
-	static Common::UString formatTime(uint64 t);
-	static Common::UString formatPercent(uint64 total, uint64 t);
-
-	static int getSliderPos(uint64 total, uint64 t);
-
-	wxDECLARE_EVENT_TABLE();
+	QString formatTime(uint64 t) const;
+	QString formatPercent(uint64 total, uint64 t) const;
+	int     getSliderPos(uint64 total, uint64 t) const;
+	void    setButtons(bool enablePlay, bool enablePause, bool enableStop);
+	void    update();
 };
 
 } // End of namespace GUI

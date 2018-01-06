@@ -22,27 +22,27 @@
  *  Preview panel for resources we can't do anything with.
  */
 
-#include <wx/sizer.h>
-#include <wx/statbox.h>
+#include "verdigris/wobjectimpl.h"
 
-#include "src/common/ustring.h"
+#include "src/common/system.h"
 
 #include "src/gui/panelpreviewempty.h"
 
 namespace GUI {
 
-PanelPreviewEmpty::PanelPreviewEmpty(wxWindow *parent, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY) {
+W_OBJECT_IMPL(PanelPreviewEmpty)
 
-	wxStaticBox *boxPreviewEmpty = new wxStaticBox(this, wxID_ANY, title);
-	boxPreviewEmpty->Lower();
+PanelPreviewEmpty::PanelPreviewEmpty() : QFrame(0) {
+	QHBoxLayout *layoutTop = new QHBoxLayout(this);
+	layoutTop->setContentsMargins(0, 0, 0, 0);
 
-	wxStaticBoxSizer *sizerPreviewEmpty = new wxStaticBoxSizer(boxPreviewEmpty, wxVERTICAL);
+	QLabel *label = new QLabel(tr("[No preview.]"), this);
+	label->setEnabled(false);
+	label->setAlignment(Qt::AlignCenter);
 
-	SetSizer(sizerPreviewEmpty);
-}
+	layoutTop->addWidget(label);
 
-PanelPreviewEmpty::~PanelPreviewEmpty() {
+	this->setLayout(layoutTop);
 }
 
 } // End of namespace GUI

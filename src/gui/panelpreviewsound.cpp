@@ -22,190 +22,89 @@
  *  Preview panel for sound resources.
  */
 
-#include <wx/sizer.h>
-#include <wx/gbsizer.h>
-#include <wx/statbox.h>
-#include <wx/timer.h>
-#include <wx/slider.h>
-#include <wx/button.h>
+#include "verdigris/wobjectimpl.h"
 
-#include <wx/generic/stattextg.h>
-
+#include "src/common/system.h"
 #include "src/common/util.h"
-#include "src/common/error.h"
-#include "src/common/readstream.h"
-
-#include "src/sound/sound.h"
-#include "src/sound/audiostream.h"
 
 #include "src/gui/panelpreviewsound.h"
-#include "src/gui/eventid.h"
-#include "src/gui/resourcetree.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
-wxBEGIN_EVENT_TABLE(PanelPreviewSound, wxPanel)
-	EVT_BUTTON(kEventButtonPlay , PanelPreviewSound::onPlay)
-	EVT_BUTTON(kEventButtonPause, PanelPreviewSound::onPause)
-	EVT_BUTTON(kEventButtonStop , PanelPreviewSound::onStop)
+W_OBJECT_IMPL(PanelPreviewSound)
 
-	EVT_TIMER(wxID_ANY, PanelPreviewSound::onTimer)
+PanelPreviewSound::PanelPreviewSound() : QFrame(0) {
+	QGridLayout *layoutTop = new QGridLayout(this);
+	QHBoxLayout *layoutLabels = new QHBoxLayout();
+	QHBoxLayout *layoutButtons = new QHBoxLayout();
+	QVBoxLayout *layoutVolume = new QVBoxLayout();
 
-	EVT_COMMAND_SCROLL(kEventSliderVolume, PanelPreviewSound::onVolumeChange)
-wxEND_EVENT_TABLE()
+	_timer = new QTimer(this);
 
-PanelPreviewSound::PanelPreviewSound(wxWindow *parent, const Common::UString &title) :
-	wxPanel(parent, wxID_ANY), _currentItem(0),
-	_duration(Sound::RewindableAudioStream::kInvalidLength) {
+	_labelVolume = new QLabel(this);
+	_labelPosition = new QLabel(this);
+	_labelPercent = new QLabel(this);
+	_labelPercent->setAlignment(Qt::AlignCenter);
+	_labelDuration = new QLabel(this);
 
-	createLayout(title);
+	_buttonPlay = new QPushButton(tr("Play"), this);
+	_buttonPause = new QPushButton(tr("Pause"), this);
+	_buttonStop = new QPushButton(tr("Stop"), this);
 
-	_timer.reset(new wxTimer(this, wxID_ANY));
-	_timer->Start(10);
+	_sliderPosition = new QSlider(this);
+	_sliderVolume = new QSlider(this);
+
+	_sliderPosition->setOrientation(Qt::Horizontal);
+
+	layoutLabels->addWidget(_labelPosition);
+	layoutLabels->addWidget(_labelPercent);
+	layoutLabels->addWidget(_labelDuration);
+
+	layoutButtons->addWidget(_buttonPlay);
+	layoutButtons->addWidget(_buttonPause);
+	layoutButtons->addWidget(_buttonStop);
+
+	layoutVolume->addWidget(_labelVolume);
+	layoutVolume->addWidget(_sliderVolume);
+
+	layoutTop->addWidget(_sliderPosition, 0, 0);
+	layoutTop->addLayout(layoutLabels,    1, 0);
+	layoutTop->addLayout(layoutVolume,    0, 1);
+	layoutTop->addLayout(layoutButtons,   2, 0);
+
+	layoutTop->setSizeConstraint(QLayout::SetFixedSize);
+
+	_sliderVolume->setMaximum(100);
+
+	changeVolume(5);
+
+	connect(_buttonPlay, &QPushButton::clicked, this, &PanelPreviewSound::play);
+	connect(_buttonPause, &QPushButton::clicked, this, &PanelPreviewSound::pause);
+	connect(_buttonStop, &QPushButton::clicked, this, &PanelPreviewSound::stop);
+	connect(_sliderVolume, &QSlider::valueChanged, this, &PanelPreviewSound::changeVolume);
+	connect(_timer, &QTimer::timeout, this, &PanelPreviewSound::update);
+
+	_timer->start(50);
 }
 
-PanelPreviewSound::~PanelPreviewSound() {
-}
-
-void PanelPreviewSound::createLayout(const Common::UString &title) {
-	wxStaticBox *boxPreviewSound = new wxStaticBox(this, wxID_ANY, title);
-	boxPreviewSound->Lower();
-
-	wxStaticBoxSizer *sizerPreviewSound = new wxStaticBoxSizer(boxPreviewSound, wxVERTICAL);
-
-	_textPosition = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
-	_textPercent  = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
-	_textDuration = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
-	_textVolume   = new wxGenericStaticText(this, wxID_ANY, wxEmptyString);
-
-	_sliderPosition = new wxSlider(this, wxID_ANY, 0, 0, 10000,
-	                               wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-
-	_sliderVolume = new wxSlider(this, kEventSliderVolume, 100, 0, 100,
-	                             wxDefaultPosition, wxDefaultSize, wxSL_VERTICAL | wxSL_INVERSE);
-
-	_buttonPlay  = new wxButton(this, kEventButtonPlay , wxT("Play"));
-	_buttonPause = new wxButton(this, kEventButtonPause, wxT("Pause"));
-	_buttonStop  = new wxButton(this, kEventButtonStop , wxT("Stop"));
-
-	_textPosition->SetLabelMarkup(wxT("<tt>00:00:00.000</tt>"));
-	_textPercent->SetLabelMarkup(wxT("<tt>???%</tt>"));
-	_textDuration->SetLabelMarkup(wxT("<tt>??:??:??.???""</tt>"));
-	_textVolume->SetLabelMarkup(wxT("<tt>100%</tt>"));
-
-	_sliderPosition->Disable();
-
-	wxGridBagSizer *sizerControls = new wxGridBagSizer();
-
-	sizerControls->Add(_textPosition, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxBOTTOM, 5);
-	sizerControls->Add(_textPercent , wxGBPosition(0, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxBOTTOM, 5);
-	sizerControls->Add(_textDuration, wxGBPosition(0, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxBOTTOM, 5);
-	sizerControls->Add(_buttonPlay  , wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_LEFT   | wxTOP   , 5);
-	sizerControls->Add(_buttonPause , wxGBPosition(2, 1), wxGBSpan(1, 1), wxALIGN_CENTER | wxTOP   , 5);
-	sizerControls->Add(_buttonStop  , wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_RIGHT  | wxTOP   , 5);
-
-	sizerControls->Add(_sliderPosition, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxEXPAND, 0);
-
-	sizerControls->Add(_sliderVolume, wxGBPosition(0, 3), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 10);
-
-	sizerControls->Add(_textVolume, wxGBPosition(0, 4), wxGBSpan(3, 1), wxALIGN_CENTER | wxEXPAND | wxLEFT, 5);
-
-	sizerPreviewSound->Add(sizerControls, 0, 0, 0);
-	SetSizer(sizerPreviewSound);
-}
-
-void PanelPreviewSound::setCurrentItem(const ResourceTreeItem *item) {
+void PanelPreviewSound::setItem(const ResourceTreeItem *item) {
 	if (item == _currentItem)
 		return;
 
 	stop();
 
+	if (item->getResourceType() != Aurora::kResourceSound)
+		return;
+
 	_currentItem = item;
+
 	if (!item) {
 		_duration = Sound::RewindableAudioStream::kInvalidLength;
 		return;
 	}
 
 	_duration = item->getSoundDuration();
-}
-
-void PanelPreviewSound::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
-	_buttonPlay->Enable(enablePlay);
-	_buttonPause->Enable(enablePause);
-	_buttonStop->Enable(enableStop);
-}
-
-Common::UString PanelPreviewSound::formatTime(uint64 t) {
-	if (t == Sound::RewindableAudioStream::kInvalidLength)
-		return "??:??:??.???";
-
-	uint32 ms = t % 1000;
-
-	t /= 1000;
-
-	uint32 s = t % 60;
-
-	t /= 60;
-
-	uint32 m = t % 60;
-
-	t /= 60;
-
-	uint32 h = t;
-
-	return Common::UString::format("%02u:%02u:%02u.%03u", h, m, s, ms);
-}
-
-Common::UString PanelPreviewSound::formatPercent(uint64 total, uint64 t) {
-	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
-	    (t == Sound::RewindableAudioStream::kInvalidLength))
-		return "???%";
-
-	if (t == 0)
-		return "  0%";
-
-	uint percent = CLIP<uint>((t * 100) / total, 0, 100);
-
-	return Common::UString::format("%3u%%", percent);
-}
-
-int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) {
-	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
-	    (t == Sound::RewindableAudioStream::kInvalidLength))
-		return 0;
-
-	if (t == 0)
-		return 0;
-
-	return CLIP<int>((t * 10000) / total, 0, 10000);
-}
-
-void PanelPreviewSound::update() {
-	uint64 t = SoundMan.getChannelDurationPlayed(_sound);
-
-	Common::UString played  = formatTime(t);
-	Common::UString total   = formatTime(_duration);
-	Common::UString percent = formatPercent(_duration, t);
-
-	_textPosition->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", played.c_str()));
-	_textPercent->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", percent.c_str()));
-	_textDuration->SetLabelMarkup(Common::UString::format("<tt>%s</tt>", total.c_str()));
-
-	_sliderPosition->SetValue(getSliderPos(_duration, t));
-
-	bool isPlaying = SoundMan.isPlaying(_sound);
-	bool isPaused  = SoundMan.isPaused(_sound);
-
-	setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
-}
-
-void PanelPreviewSound::setVolume() {
-	double volume = _sliderVolume->GetValue() / (double)_sliderVolume->GetMax();
-
-	Common::UString label = Common::UString::format("<tt>%3d%%</tt>", (int) (volume * 100));
-	_textVolume->SetLabelMarkup(label);
-
-	SoundMan.setListenerGain(volume);
 }
 
 bool PanelPreviewSound::play() {
@@ -238,32 +137,95 @@ bool PanelPreviewSound::play() {
 
 void PanelPreviewSound::pause() {
 	if (SoundMan.isPlaying(_sound))
-		SoundMan.pauseChannel(_sound);
+			SoundMan.pauseChannel(_sound);
 }
 
 void PanelPreviewSound::stop() {
 	if (SoundMan.isPlaying(_sound))
-		SoundMan.stopChannel(_sound);
+			SoundMan.stopChannel(_sound);
 }
 
-void PanelPreviewSound::onPlay(wxCommandEvent &UNUSED(event)) {
-	play();
+void PanelPreviewSound::changeVolume(int value) {
+	_sliderVolume->setValue(value);
+	_labelVolume->setText(QString("%1%").arg(_sliderVolume->value()));
+
+	SoundMan.setListenerGain((double) value / (double) 100);
 }
 
-void PanelPreviewSound::onPause(wxCommandEvent &UNUSED(event)) {
-	pause();
+void PanelPreviewSound::positionChanged(qint64 position) {
+	_sliderPosition->setValue(position / 100);
 }
 
-void PanelPreviewSound::onStop(wxCommandEvent &UNUSED(event)) {
-	stop();
+QString PanelPreviewSound::formatTime(uint64 t) const {
+	if (t == Sound::RewindableAudioStream::kInvalidLength)
+		return "??:??:??.???";
+
+	uint32 ms = t % 1000;
+
+	t /= 1000;
+
+	uint32 s = t % 60;
+
+	t /= 60;
+
+	uint32 m = t % 60;
+
+	t /= 60;
+
+	uint32 h = t;
+
+	QString ret;
+	return ret.sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
 }
 
-void PanelPreviewSound::onTimer(wxTimerEvent &UNUSED(event)) {
-	update();
+QString PanelPreviewSound::formatPercent(uint64 total, uint64 t) const {
+	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
+        (t == Sound::RewindableAudioStream::kInvalidLength))
+		return "???%";
+
+	if (t == 0)
+		return "  0%";
+
+	uint percent = CLIP<uint>((t * 100) / total, 0, 100);
+
+	QString ret;
+	return ret.sprintf("%3u%%", percent);
 }
 
-void PanelPreviewSound::onVolumeChange(wxScrollEvent &UNUSED(event)) {
-	setVolume();
+int PanelPreviewSound::getSliderPos(uint64 total, uint64 t) const {
+	if ((total == Sound::RewindableAudioStream::kInvalidLength) ||
+        (t == Sound::RewindableAudioStream::kInvalidLength))
+		return 0;
+
+	if (t == 0)
+		return 0;
+
+	return CLIP<uint>((t * 100) / total, 0, 100);
+}
+
+void PanelPreviewSound::setButtons(bool enablePlay, bool enablePause, bool enableStop) {
+	_buttonPlay->setEnabled(enablePlay);
+	_buttonPause->setEnabled(enablePause);
+	_buttonStop->setEnabled(enableStop);
+}
+
+void PanelPreviewSound::update() {
+	uint64 t = SoundMan.getChannelDurationPlayed(_sound);
+
+	QString played  = formatTime(t);
+	QString total   = formatTime(_duration);
+	QString percent = formatPercent(_duration, t);
+
+	_labelPosition->setText(played);
+	_labelPercent->setText(percent);
+	_labelDuration->setText(total);
+
+	_sliderPosition->setValue(getSliderPos(_duration, t));
+
+	bool isPlaying = SoundMan.isPlaying(_sound);
+	bool isPaused  = SoundMan.isPaused(_sound);
+
+	setButtons(!isPlaying || isPaused, isPlaying && !isPaused, isPlaying);
 }
 
 } // End of namespace GUI

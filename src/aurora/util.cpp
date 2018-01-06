@@ -24,6 +24,9 @@
 
 #include <algorithm>
 
+#include <QFileInfo>
+#include <QString>
+
 #include "src/common/util.h"
 #include "src/common/ustring.h"
 #include "src/common/filepath.h"

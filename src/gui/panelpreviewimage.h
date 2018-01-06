@@ -19,143 +19,95 @@
  */
 
 /** @file
- *  Preview panel for images resources.
+ *  Preview panel for image resources.
  */
 
 #ifndef PANELPREVIEWIMAGE_H
 #define PANELPREVIEWIMAGE_H
 
-#include <wx/scrolwin.h>
-#include <wx/statbox.h>
-#include <wx/panel.h>
+#include <QCheckBox>
+#include <QFrame>
+#include <QGraphicsView>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QSlider>
+#include <QWidget>
 
-#include "src/common/scopedptr.h"
+#include "verdigris/wobjectdefs.h"
 
+#include "src/common/types.h"
+
+#include "src/images/decoder.h"
 #include "src/images/types.h"
-
-namespace Common {
-	class UString;
-}
-
-class wxDC;
-class wxImage;
-class wxBitmap;
-class wxSlider;
-class wxButton;
-class wxCheckBox;
 
 namespace GUI {
 
 class ResourceTreeItem;
 
-class ImageCanvas : public wxScrolledCanvas {
+class PanelPreviewImage : public QFrame {
+	W_OBJECT(PanelPreviewImage)
+
 public:
-	enum ScaleQuality {
-		kScaleQualityNearest,
-		kScaleQualityBest
-	};
+	PanelPreviewImage();
 
-	ImageCanvas(wxWindow *parent);
-	~ImageCanvas();
+	void setItem(const GUI::ResourceTreeItem *item);
 
-	void OnDraw(wxDC &dc);
-
-	void setCurrentItem(const ResourceTreeItem *item);
-	void setColor(uint8 color);
-
-	void setScaleQuality(ScaleQuality scaleQuality);
-
-	void getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
-	void setSize(int width, int height);
+	// public slots:
+	void slotSliderBrightness(int value);
+	void slotZoomIn();
+	void slotZoomOut();
+	void slotZoomOriginal();
+	void slotFit();
+	void slotFitWidth();
+	void slotShrinkFit();
+	void slotShrinkFitWidth();
+	void slotNearest(bool checked);
 
 private:
+	QPushButton *_buttonZoomIn;
+	QPushButton *_buttonZoomOut;
+	QPushButton *_buttonZoomOriginal;
+	QPushButton *_buttonFit;
+	QPushButton *_buttonFitWidth;
+	QPushButton *_buttonShrinkFit;
+	QPushButton *_buttonShrinkFitWidth;
+
+	QLabel *_labelDimensions;
+	QLabel *_labelZoomPercent;
+	QLabel *_labelImage; ///< Label is used to display the image.
+
+	QCheckBox *_checkNearest;
+
+	QSlider *_sliderBrightness;
+
+	QScrollArea *_scrollAreaImage;
+
 	const ResourceTreeItem *_currentItem;
 
-	uint8 _color;
+	// Necessary because the way zooming is implemented modifies the pixmap.
+	QPixmap _originalPixmap; ///< To reset to default zoom level.
+	QSize _originalSize; ///< To reset to default zoom level.
 
-	ScaleQuality _scaleQuality;
+	float _zoomFactor;
 
-	Common::ScopedPtr<wxImage>  _image;
-	Common::ScopedPtr<wxBitmap> _bitmap;
+	Qt::TransformationMode _mode; ///< Linear/nearest.
 
-	void forceRedraw();
+	/** Opens the image path contained in _currentItem and displays it.
+	*/
+	void  loadImage();
 
-	void loadImage();
-
-	static void getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
-	static void convertImage(const Images::Decoder &image, byte *data_rgb, byte *data_alpha);
-	static void writePixel(const byte *&data, Images::PixelFormat format,
-			byte *&data_rgb, byte *&data_alpha);
-};
-
-class PanelPreviewImage : public wxPanel {
-public:
-	PanelPreviewImage(wxWindow *parent, const Common::UString &title);
-	~PanelPreviewImage();
-
-	void setCurrentItem(const ResourceTreeItem *item);
-
-	void getImageSize(int &width, int &height);
-
-
-private:
-	enum ZoomOperation {
-		kZoomOpLevel,
-		kZoomOpFit,
-		kZoomOpFitWidth,
-		kZoomOpShrinkFit,
-		kZoomOpShrinkFitWidth
-	};
-
-	Common::UString _title;
-
-	ImageCanvas *_canvas;
-
-	wxStaticBox *_boxPreviewImage;
-
-	wxSlider *_sliderColor;
-
-	wxGenericStaticText *_textZoomLevel;
-
-	wxButton *_buttonZoomIn;
-	wxButton *_buttonZoomOut;
-	wxButton *_buttonZoom100;
-	wxButton *_buttonZoomFit;
-	wxButton *_buttonZoomFitWidth;
-	wxButton *_buttonZoomShrinkFit;
-	wxButton *_buttonZoomShrinkFitWidth;
-
-	wxCheckBox *_checkZoomNearest;
-
-	ZoomOperation _lastZoomOperation;
-	double _lastZoomLevel;
-
-	void onColorChange(wxScrollEvent &event);
-
-	void onZoomIn(wxCommandEvent &event);
-	void onZoomOut(wxCommandEvent &event);
-	void onZoom100(wxCommandEvent &event);
-	void onZoomFit(wxCommandEvent &event);
-	void onZoomFitWidth(wxCommandEvent &event);
-	void onZoomShrinkFit(wxCommandEvent &event);
-	void onZoomShrinkFitWidth(wxCommandEvent &event);
-
-	void onZoomNearest(wxCommandEvent &event);
-
-	void zoomStep(double step);
-	void zoomTo(double zoom);
-	void zoomFit(bool onlyWidth, bool grow);
-	void zoomFitWidth(bool grow);
-
-	void zoomTo(int width, int height, double zoom);
-
-	double getCurrentZoomLevel() const;
-
-	void updateZoomLevelText();
-	void updateZoomOp(ZoomOperation op);
-	void assertZoomOp();
-
-	wxDECLARE_EVENT_TABLE();
+	void  convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
+	void  writePixel(const byte * &data, Images::PixelFormat format, byte * &data_out, QImage::Format &format_out);
+	void  getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
+	void  getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
+	void  fit(bool onlyWidth, bool grow);
+	float getCurrentZoomLevel() const;
+	void  zoomTo(int width, int height, float zoom);
+	void  zoomTo(float zoom);
+	void  zoomStep(float step);
+	void  updateButtons();
 };
 
 } // End of namespace GUI
