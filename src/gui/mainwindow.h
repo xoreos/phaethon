@@ -39,6 +39,17 @@ public:
 
 private:
 	QWidget *_centralWidget;
+
+	QAction *_actionOpenDirectory;
+	QAction *_actionOpenFile;
+	QAction *_actionClose;
+	QAction *_actionQuit;
+	QAction *_actionAbout;
+
+	QMenuBar *_menuBar;
+	QMenu *_menuFile;
+	QMenu *_menuHelp;
+
 };
 
 } // End of namespace GUI
