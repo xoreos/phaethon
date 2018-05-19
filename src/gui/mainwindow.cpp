@@ -24,6 +24,8 @@
 
 #include <QAction>
 #include <QCoreApplication>
+#include <QMenuBar>
+#include <QMenu>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -40,6 +42,36 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	setCentralWidget(_centralWidget);
 	setWindowTitle(title);
 	resize(size);
+
+	_actionOpenDirectory = new QAction(this);
+	_actionOpenFile = new QAction(this);
+	_actionClose = new QAction(this);
+	_actionQuit = new QAction(this);
+	_actionAbout = new QAction(this);
+
+	_actionOpenDirectory->setText(tr("&Open directory"));
+	_actionOpenFile->setText(tr("&Open file"));
+	_actionClose->setText(tr("&Close"));
+	_actionQuit->setText(tr("Quit"));
+	_actionAbout->setText(tr("About"));
+
+	_menuBar = new QMenuBar(this);
+	_menuFile = new QMenu(_menuBar);
+	_menuHelp = new QMenu(_menuBar);
+
+	_menuBar->addAction(_menuFile->menuAction());
+	_menuBar->addAction(_menuHelp->menuAction());
+	_menuFile->addAction(_actionOpenDirectory);
+	_menuFile->addAction(_actionOpenFile);
+	_menuFile->addSeparator();
+	_menuFile->addAction(_actionClose);
+	_menuFile->addSeparator();
+	_menuFile->addAction(_actionQuit);
+	_menuFile->setTitle("&File");
+	_menuHelp->addAction(_actionAbout);
+	_menuHelp->setTitle("&Help");
+
+	setMenuBar(_menuBar);
 }
 
 } // End of namespace GUI
