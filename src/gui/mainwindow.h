@@ -37,6 +37,22 @@ class MainWindow : public QMainWindow {
 public:
 	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
 
+private /*slots*/:
+	void slotOpenDirectory();
+	W_SLOT(slotOpenDirectory, W_Access::Private)
+
+	void slotOpenFile();
+	W_SLOT(slotOpenFile, W_Access::Private)
+
+	void slotClose();
+	W_SLOT(slotClose, W_Access::Private)
+
+	void slotQuit();
+	W_SLOT(slotQuit, W_Access::Private)
+
+	void slotAbout();
+	W_SLOT(slotAbout, W_Access::Private)
+
 private:
 	QWidget *_centralWidget;
 
@@ -49,7 +65,6 @@ private:
 	QMenuBar *_menuBar;
 	QMenu *_menuFile;
 	QMenu *_menuHelp;
-
 };
 
 } // End of namespace GUI
