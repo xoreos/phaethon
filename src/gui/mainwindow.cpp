@@ -23,15 +23,20 @@
  */
 
 #include <QAction>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QMenuBar>
 #include <QMenu>
+#include <QMessageBox>
 
 #include "verdigris/wobjectimpl.h"
 
-#include "src/gui/mainwindow.h"
+#include "src/cline.h"
 
 #include "src/common/util.h"
+
+#include "src/gui/mainwindow.h"
+
+#include "src/version/version.h"
 
 namespace GUI {
 
@@ -72,6 +77,30 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_menuHelp->setTitle("&Help");
 
 	setMenuBar(_menuBar);
+
+	QObject::connect(_actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDirectory);
+	QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
+	QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotClose);
+	QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
+	QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
+}
+
+void MainWindow::slotOpenDirectory() {
+}
+
+void MainWindow::slotOpenFile() {
+}
+
+void MainWindow::slotClose() {
+}
+
+void MainWindow::slotQuit() {
+	QApplication::quit();
+}
+
+void MainWindow::slotAbout() {
+	const QString msg = QString::fromUtf8(createVersionText().c_str());
+	QMessageBox::about(this, "About Phaethon", msg);
 }
 
 } // End of namespace GUI
