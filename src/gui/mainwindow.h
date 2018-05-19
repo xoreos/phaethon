@@ -29,6 +29,12 @@
 
 #include "verdigris/wobjectdefs.h"
 
+class QSplitter;
+class QTreeView;
+class QGridLayout;
+class QFrame;
+class QTextEdit;
+
 namespace GUI {
 
 class MainWindow : public QMainWindow {
@@ -55,6 +61,7 @@ private /*slots*/:
 
 private:
 	QWidget *_centralWidget;
+	QGridLayout *_centralLayout;
 
 	QAction *_actionOpenDirectory;
 	QAction *_actionOpenFile;
@@ -65,6 +72,13 @@ private:
 	QMenuBar *_menuBar;
 	QMenu *_menuFile;
 	QMenu *_menuHelp;
+
+	QSplitter *_splitterTopBottom;
+	QSplitter *_splitterLeftRight;
+	QTreeView *_treeView;
+
+	QFrame *_resPreviewFrame;
+	QTextEdit *_log;
 };
 
 } // End of namespace GUI
