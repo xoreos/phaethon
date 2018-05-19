@@ -27,6 +27,12 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QTreeView>
+#include <QSplitter>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QTextEdit>
+#include <QLabel>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -43,11 +49,11 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *UNUSED(path)) : QMainWindow(parent) {
-	_centralWidget = new QWidget(this);
-	setCentralWidget(_centralWidget);
+	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
 
+	/* Actions. */
 	_actionOpenDirectory = new QAction(this);
 	_actionOpenFile = new QAction(this);
 	_actionClose = new QAction(this);
@@ -60,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_actionQuit->setText(tr("Quit"));
 	_actionAbout->setText(tr("About"));
 
+	/* Menu. */
 	_menuBar = new QMenuBar(this);
 	_menuFile = new QMenu(_menuBar);
 	_menuHelp = new QMenu(_menuBar);
@@ -78,11 +85,100 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 
 	setMenuBar(_menuBar);
 
+	/* Slots. */
 	QObject::connect(_actionOpenDirectory, &QAction::triggered, this, &MainWindow::slotOpenDirectory);
 	QObject::connect(_actionOpenFile, &QAction::triggered, this, &MainWindow::slotOpenFile);
 	QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotClose);
 	QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
 	QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
+
+	/* Layout. */
+	_centralWidget = new QWidget(this);
+	_centralLayout = new QGridLayout(_centralWidget);
+	_splitterTopBottom = new QSplitter(_centralWidget);
+	_splitterLeftRight = new QSplitter(_splitterTopBottom);
+	_treeView = new QTreeView(_splitterLeftRight);
+	QGroupBox *logBox = new QGroupBox(_splitterTopBottom);
+	QWidget *previewWrapper = new QWidget(_splitterTopBottom); // Can't add a layout directly to a splitter.
+	QVBoxLayout *previewWrapperLayout = new QVBoxLayout(previewWrapper);
+	QFrame *resInfoFrame = new QFrame(previewWrapper);
+	_resPreviewFrame = new QFrame(previewWrapper);
+	_log = new QTextEdit(logBox);
+
+	// Tree
+	// 1:8 ratio; tree:preview/log
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setHorizontalStretch(1);
+		_treeView->setSizePolicy(sp);
+	}
+
+	// Preview wrapper
+	previewWrapper->setLayout(previewWrapperLayout);
+	previewWrapper->setContentsMargins(0, 0, 0, 0);
+	previewWrapperLayout->setParent(previewWrapper);
+	previewWrapperLayout->setMargin(0);
+	previewWrapperLayout->addWidget(resInfoFrame);
+	previewWrapperLayout->addWidget(_resPreviewFrame);
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setHorizontalStretch(6);
+		previewWrapper->setSizePolicy(sp);
+	}
+
+	// Log
+	logBox->setTitle(tr("Log"));
+	{
+		QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+		sp.setVerticalStretch(1);
+		logBox->setSizePolicy(sp);
+
+		QHBoxLayout *hl = new QHBoxLayout(logBox);
+		hl->addWidget(_log);
+		hl->setContentsMargins(0, 5, 0, 0);
+	}
+
+	// Left/right splitter
+	// 8:1 ratio, preview:log
+	_splitterLeftRight->addWidget(_treeView);
+	_splitterLeftRight->addWidget(previewWrapper);
+	{
+		QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		sp.setVerticalStretch(5);
+		_splitterLeftRight->setSizePolicy(sp);
+	}
+
+	// Top/bottom splitter
+	_splitterTopBottom->setOrientation(Qt::Vertical);
+	_splitterTopBottom->addWidget(_splitterLeftRight);
+	_splitterTopBottom->addWidget(logBox);
+
+	// Resource info frame
+	resInfoFrame->setFrameShape(QFrame::StyledPanel);
+	resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
+	resInfoFrame->setFixedHeight(140);
+	{
+		QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
+		QLabel *info = new QLabel(tr("Resource info"), resInfoFrame);
+		hl->addWidget(info);
+	}
+
+	// Resource preview frame
+	_resPreviewFrame->setFrameShape(QFrame::StyledPanel);
+	{
+		QFrame *previewFrame = new QFrame(_resPreviewFrame);
+		QLabel *label = new QLabel(tr("[No preview.]"), previewFrame);
+		label->setEnabled(false);
+		label->setAlignment(Qt::AlignCenter);
+
+		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
+		hl->addWidget(label);
+		hl->setMargin(0);
+		hl->addWidget(previewFrame);
+	}
+
+	setCentralWidget(_centralWidget);
+	_centralLayout->addWidget(_splitterTopBottom);
 }
 
 void MainWindow::slotOpenDirectory() {
