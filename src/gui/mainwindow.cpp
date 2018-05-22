@@ -52,6 +52,7 @@
 #include "src/gui/panelresourceinfo.h"
 #include "src/gui/resourcetreeitem.h"
 #include "src/gui/panelpreviewempty.h"
+#include "src/gui/panelpreviewimage.h"
 
 #include "src/images/dumptga.h"
 
@@ -66,7 +67,8 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)) {
+	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)),
+	_panelPreviewImage(new PanelPreviewImage(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -232,11 +234,12 @@ void MainWindow::slotOpenFile() {
 }
 
 void MainWindow::slotClose() {
+	showPreviewPanel(_panelPreviewEmpty);
 	_panelResourceInfo->setButtonsForClosedDir();
 	_panelResourceInfo->clearLabels();
 	_treeView->setModel(nullptr);
 	_treeModel.reset(nullptr);
-
+	_currentItem = nullptr;
 	_rootPath = "";
 
 	_actionClose->setEnabled(false);
@@ -307,6 +310,10 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
 	_currentItem = _treeModel->itemFromIndex(index.at(0));
 
 	_panelResourceInfo->update(_currentItem);
+
+	_panelPreviewImage->setItem(_currentItem);
+
+	showPreviewPanel();
 }
 
 QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
@@ -519,6 +526,30 @@ void MainWindow::exportWAV() {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return;
+	}
+}
+
+void MainWindow::showPreviewPanel(QFrame *panel) {
+	if (_resPreviewFrame->layout()->count()) {
+		QFrame *old = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
+		if (old != panel) {
+			old->setParent(0);
+			panel->setParent(this);
+			_resPreviewFrame->layout()->removeWidget(old);
+			_resPreviewFrame->layout()->addWidget(panel);
+		}
+	}
+}
+
+void MainWindow::showPreviewPanel() {
+	switch (_currentItem->getResourceType()) {
+		case Aurora::kResourceImage:
+			showPreviewPanel(_panelPreviewImage);
+			break;
+
+		default:
+			showPreviewPanel(_panelPreviewEmpty);
+			break;
 	}
 }
 
