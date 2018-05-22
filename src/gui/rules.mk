@@ -17,35 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-# Main Phaethon entry point.
+# GUI code using Qt5.
 
-bin_PROGRAMS += src/phaethon
-src_phaethon_SOURCES =
+noinst_LTLIBRARIES += src/gui/libgui.la
 
-src_phaethon_SOURCES += \
-    src/cline.h \
+src_gui_libgui_la_SOURCES =
+
+src_gui_libgui_la_SOURCES += \
+    src/gui/mainwindow.h \
     $(EMPTY)
 
-src_phaethon_SOURCES += \
-    src/cline.cpp \
-    src/phaethon.cpp \
+src_gui_libgui_la_SOURCES += \
+    src/gui/mainwindow.cpp \
     $(EMPTY)
-
-src_phaethon_LDADD = \
-    src/gui/libgui.la \
-    src/sound/libsound.la \
-    src/images/libimages.la \
-    src/aurora/libaurora.la \
-    src/common/libcommon.la \
-    src/version/libversion.la \
-    $(LDADD) \
-    $(EMPTY)
-
-# Subdirectories
-
-include src/version/rules.mk
-include src/common/rules.mk
-include src/aurora/rules.mk
-include src/images/rules.mk
-include src/sound/rules.mk
-include src/gui/rules.mk
