@@ -29,6 +29,7 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/resourcetreeitem.h \
 	src/gui/proxymodel.h \
 	src/gui/statusbar.h \
+	src/gui/panelresourceinfo.h \
 	$(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
@@ -37,4 +38,5 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/resourcetreeitem.cpp \
 	src/gui/proxymodel.cpp \
 	src/gui/statusbar.cpp \
+	src/gui/panelresourceinfo.cpp \
 	$(EMPTY)

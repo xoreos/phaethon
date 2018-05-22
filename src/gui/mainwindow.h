@@ -44,7 +44,9 @@ class QTextEdit;
 
 namespace GUI {
 
+class PanelResourceInfo;
 class ResourceTree;
+class ResourceTreeItem;
 class ProxyModel;
 
 class MainWindow : public QMainWindow {
@@ -69,12 +71,29 @@ private /*slots*/:
 	void slotAbout();
 	W_SLOT(slotAbout, W_Access::Private)
 
+	void saveItem();
+	W_SLOT(saveItem, W_Access::Private)
+
+	void exportTGA();
+	W_SLOT(exportTGA, W_Access::Private)
+
+	void exportBMUMP3();
+	W_SLOT(exportBMUMP3, W_Access::Private)
+
+	void exportWAV();
+	W_SLOT(exportWAV, W_Access::Private)
+
 private:
 	void open(const QString &path);
 	void openFinish();
 
 	void statusPush(const QString &text);
 	void statusPop();
+
+	void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
+
+	void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+	void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
 	StatusBar _status;
 
@@ -102,6 +121,10 @@ private:
 	Common::ScopedPtr<ResourceTree> _treeModel;
 	Common::ScopedPtr<ProxyModel> _proxyModel;
 	QString _rootPath;
+
+	ResourceTreeItem *_currentItem;
+
+	PanelResourceInfo *_panelResourceInfo;
 
 	friend class ResourceTree;
 };
