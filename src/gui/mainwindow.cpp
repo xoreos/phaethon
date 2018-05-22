@@ -181,6 +181,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
 	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
 	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::log, this, &MainWindow::slotLog);
 	resInfoFrame->setFrameShape(QFrame::StyledPanel);
 	resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
 	resInfoFrame->setFixedHeight(140);
@@ -214,6 +215,10 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 		open(qpath);
 }
 
+void MainWindow::slotLog(const QString &text) {
+	_log->append(text);
+}
+
 void MainWindow::slotOpenDirectory() {
 	QString dir = QFileDialog::getExistingDirectory(this,
 		tr("Open directory"),
@@ -241,6 +246,8 @@ void MainWindow::slotClose() {
 	_treeView->setModel(nullptr);
 	_treeModel.reset(nullptr);
 	_currentItem = nullptr;
+
+	_log->append(tr("Closed directory: %1").arg(_rootPath));
 	_rootPath = "";
 
 	_actionClose->setEnabled(false);
@@ -279,6 +286,8 @@ void MainWindow::open(const QString &path) {
 
 	// Enters populate thread in here.
 	_treeModel->populate(_files.getRoot());
+
+	_log->append(tr("Set root: %1").arg(path));
 
 	_actionClose->setEnabled(true);
 }

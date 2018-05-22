@@ -59,6 +59,9 @@ public:
 	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
 
 private /*slots*/:
+	void slotLog(const QString &text);
+	W_SLOT(slotLog, W_Access::Private)
+
 	void slotOpenDirectory();
 	W_SLOT(slotOpenDirectory, W_Access::Private)
 
