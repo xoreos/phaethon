@@ -51,6 +51,7 @@
 #include "src/gui/mainwindow.h"
 #include "src/gui/panelresourceinfo.h"
 #include "src/gui/resourcetreeitem.h"
+#include "src/gui/panelpreviewempty.h"
 
 #include "src/images/dumptga.h"
 
@@ -65,7 +66,7 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0) {
+	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -188,15 +189,9 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	// Resource preview frame
 	_resPreviewFrame->setFrameShape(QFrame::StyledPanel);
 	{
-		QFrame *previewFrame = new QFrame(_resPreviewFrame);
-		QLabel *label = new QLabel(tr("[No preview.]"), previewFrame);
-		label->setEnabled(false);
-		label->setAlignment(Qt::AlignCenter);
-
 		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
-		hl->addWidget(label);
 		hl->setMargin(0);
-		hl->addWidget(previewFrame);
+		hl->addWidget(_panelPreviewEmpty);
 	}
 
 	setCentralWidget(_centralWidget);
