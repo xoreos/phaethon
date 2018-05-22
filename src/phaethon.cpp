@@ -24,12 +24,16 @@
 
 #include <cstdio>
 
+#include <QApplication>
+
 #include "src/version/version.h"
 
 #include "src/common/util.h"
 #include "src/common/error.h"
 #include "src/common/ustring.h"
 #include "src/common/platform.h"
+
+#include "src/gui/mainwindow.h"
 
 #include "src/sound/sound.h"
 
@@ -106,9 +110,22 @@ private:
 };
 
 Phaethon::Phaethon(const Common::UString &path) : _path(path) {
+	initSubsystems();
+
+	int argc = 1; // QApplication requires argc to be at least 1
+	char empty[] = ""; // Silence -Wwrite-string warning
+	char *argv[] = {empty}; // QApplication requires argv to be at least 1
+
+	QApplication app(argc, argv);
+
+	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path.c_str());
+	mainWindow.show();
+
+	app.exec();
 }
 
 Phaethon::~Phaethon() {
+	deinitSubsystems();
 }
 
 void Phaethon::initSubsystems() {
@@ -134,5 +151,6 @@ void Phaethon::deinitSubsystems() {
 	}
 }
 
-void openGamePath(const Common::UString &UNUSED(path)) {
+void openGamePath(const Common::UString &path) {
+	Phaethon phaethon(path);
 }
