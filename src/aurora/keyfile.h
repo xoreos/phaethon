@@ -73,7 +73,11 @@ public:
 	KEYFile(Common::SeekableReadStream *key);
 	~KEYFile();
 
-	/** Add a data file that's managed by this KEY file. */
+	/** Add a data file that's managed by this KEY file.
+	 *
+	 *  The data file needs to be kept around as long as the KEYFile object
+	 *  lives, but ownership of the data file is not transferred.
+	 */
 	void addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile);
 
 	/** Return the list of data files (BIF/BZF) this KEY file indexes. */
