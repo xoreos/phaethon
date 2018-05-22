@@ -24,8 +24,6 @@
 
 #include <cstdio>
 
-#include <wx/app.h>
-
 #include "src/version/version.h"
 
 #include "src/common/util.h"
@@ -34,8 +32,6 @@
 #include "src/common/platform.h"
 
 #include "src/sound/sound.h"
-
-#include "src/gui/mainwindow.h"
 
 #include "src/cline.h"
 
@@ -85,12 +81,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#ifdef WIN32
-extern "C" int wmain(int UNUSED(argc), wchar_t **UNUSED(argv)) {
-	return main(0, 0);
-}
-#endif
-
 void initPlatform() {
 	try {
 		Common::Platform::init();
@@ -103,13 +93,10 @@ void initPlatform() {
 }
 
 
-class Phaethon : public wxApp {
+class Phaethon {
 public:
 	Phaethon(const Common::UString &path = "");
 	~Phaethon();
-
-	bool OnInit();
-	int OnExit();
 
 private:
 	Common::UString _path;
@@ -147,31 +134,5 @@ void Phaethon::deinitSubsystems() {
 	}
 }
 
-bool Phaethon::OnInit() {
-	initSubsystems();
-
-	GUI::MainWindow *mainWindow =
-		new GUI::MainWindow(Version::getProjectNameVersion(), wxDefaultPosition, wxSize(800, 600));
-
-	mainWindow->Show(true);
-	if (!_path.empty())
-		mainWindow->open(_path);
-
-	return true;
-}
-
-int Phaethon::OnExit() {
-	deinitSubsystems();
-	return 0;
-}
-
-
-void openGamePath(const Common::UString &path) {
-	wxApp *phaethon = new Phaethon(path);
-
-	wxApp::SetInstance(phaethon);
-
-	int      argc = 0;
-	wxChar **argv = 0;
-	wxEntry(argc, argv);
+void openGamePath(const Common::UString &UNUSED(path)) {
 }

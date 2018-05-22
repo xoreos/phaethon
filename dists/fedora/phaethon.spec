@@ -25,7 +25,7 @@ URL:            https://xoreos.org/
 Source0:        https://github.com/xoreos/phaethon/archive/v%{version}.tar.gz
 
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
-BuildRequires:  libxml2-devel, lzma-devel, wxGTK3-devel, libtool, gettext-devel
+BuildRequires:  libxml2-devel, lzma-devel, libtool, gettext-devel
 
 # Boost dependencies.
 BuildRequires:  boost-devel, boost-system, boost-filesystem, boost-atomic
@@ -44,11 +44,9 @@ please see the xoreos website and its GitHub repositories for details.
 %setup -q
 
 %build
-# We need to check against wx-config-3.0 for Fedora because of
-# https://bugzilla.redhat.com/show_bug.cgi?id=1077718, I think. :(
 
 ./autogen.sh
-%configure WX_CONFIG=wx-config-3.0
+%configure
 
 # When building in place we want to do a make clean.
 make clean
