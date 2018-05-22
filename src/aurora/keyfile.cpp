@@ -56,6 +56,9 @@ bool KEYFile::haveDataFile(uint32 index) const {
 }
 
 void KEYFile::addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile) {
+	if (!dataFile)
+		throw Common::Exception("KEYFile::addDataFile(): dataFile == 0");
+
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++res, ++iRes) {
