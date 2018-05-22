@@ -53,6 +53,7 @@
 #include "src/gui/resourcetreeitem.h"
 #include "src/gui/panelpreviewempty.h"
 #include "src/gui/panelpreviewimage.h"
+#include "src/gui/panelpreviewsound.h"
 
 #include "src/images/dumptga.h"
 
@@ -68,7 +69,7 @@ W_OBJECT_IMPL(MainWindow)
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
 	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)),
-	_panelPreviewImage(new PanelPreviewImage(this)) {
+	_panelPreviewImage(new PanelPreviewImage(this)), _panelPreviewSound(new PanelPreviewSound(0)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -312,6 +313,7 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
 	_panelResourceInfo->update(_currentItem);
 
 	_panelPreviewImage->setItem(_currentItem);
+	_panelPreviewSound->setItem(_currentItem);
 
 	showPreviewPanel();
 }
@@ -545,6 +547,10 @@ void MainWindow::showPreviewPanel() {
 	switch (_currentItem->getResourceType()) {
 		case Aurora::kResourceImage:
 			showPreviewPanel(_panelPreviewImage);
+			break;
+
+		case Aurora::kResourceSound:
+			showPreviewPanel(_panelPreviewSound);
 			break;
 
 		default:

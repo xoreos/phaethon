@@ -50,6 +50,7 @@ class ResourceTreeItem;
 class ProxyModel;
 class PanelPreviewEmpty;
 class PanelPreviewImage;
+class PanelPreviewSound;
 
 class MainWindow : public QMainWindow {
 	W_OBJECT(MainWindow)
@@ -132,6 +133,7 @@ private:
 	PanelResourceInfo *_panelResourceInfo;
 	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewImage *_panelPreviewImage;
+	PanelPreviewSound *_panelPreviewSound;
 
 	friend class ResourceTree;
 };
