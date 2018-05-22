@@ -22,6 +22,8 @@
  *  Phaethon's main window.
  */
 
+#include <deque>
+
 #include <QAction>
 #include <QApplication>
 #include <QMenuBar>
@@ -44,8 +46,16 @@
 #include "src/cline.h"
 
 #include "src/common/util.h"
+#include "src/common/writefile.h"
 
 #include "src/gui/mainwindow.h"
+#include "src/gui/panelresourceinfo.h"
+#include "src/gui/resourcetreeitem.h"
+
+#include "src/images/dumptga.h"
+
+#include "src/sound/sound.h"
+#include "src/sound/audiostream.h"
 
 #include "src/version/version.h"
 
@@ -54,7 +64,8 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
-	QMainWindow(parent), _status(statusBar()), _treeModel(0), _proxyModel(0), _rootPath("") {
+	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
+	_rootPath(""), _panelResourceInfo(0) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -160,13 +171,18 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_splitterTopBottom->addWidget(logBox);
 
 	// Resource info frame
+	_panelResourceInfo = new PanelResourceInfo(this);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotClose);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportTGAClicked, this, &MainWindow::exportTGA);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportBMUMP3Clicked, this, &MainWindow::exportBMUMP3);
+	QObject::connect(_panelResourceInfo, &PanelResourceInfo::exportWAVClicked, this, &MainWindow::exportWAV);
 	resInfoFrame->setFrameShape(QFrame::StyledPanel);
 	resInfoFrame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
 	resInfoFrame->setFixedHeight(140);
 	{
 		QHBoxLayout *hl = new QHBoxLayout(resInfoFrame);
-		QLabel *info = new QLabel(tr("Resource info"), resInfoFrame);
-		hl->addWidget(info);
+		hl->addWidget(_panelResourceInfo);
 	}
 
 	// Resource preview frame
@@ -221,6 +237,8 @@ void MainWindow::slotOpenFile() {
 }
 
 void MainWindow::slotClose() {
+	_panelResourceInfo->setButtonsForClosedDir();
+	_panelResourceInfo->clearLabels();
 	_treeView->setModel(nullptr);
 	_treeModel.reset(nullptr);
 
@@ -275,6 +293,9 @@ void MainWindow::openFinish() {
 	_treeView->show();
 	_treeView->resizeColumnToContents(0);
 
+	QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+		this, &MainWindow::resourceSelect);
+
 	_status.pop();
 }
 
@@ -284,6 +305,226 @@ void MainWindow::statusPush(const QString &text) {
 
 void MainWindow::statusPop() {
 	_status.pop();
+}
+
+void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelection &UNUSED(deselected)) {
+	const QModelIndexList index = _proxyModel->mapSelectionToSource(selected).indexes();
+	_currentItem = _treeModel->itemFromIndex(index.at(0));
+
+	_panelResourceInfo->update(_currentItem);
+}
+
+QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
+	return _action + " \"" + name + "\" to \"" + destination + "\"...";
+}
+
+void MainWindow::saveItem() {
+	if (!_currentItem)
+		return;
+
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save Aurora game resource file"), "",
+		tr("Aurora game resource (*.*)|*.*"));
+
+	if (fileName.isEmpty())
+		return;
+
+	_status.push(constructStatus("Saving", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status.pop();
+	} BOOST_SCOPE_EXIT_END
+
+	try {
+		QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
+
+		Common::WriteFile file(fileName.toStdString());
+
+		file.writeStream(*res);
+		file.flush();
+
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+	}
+}
+
+void MainWindow::exportTGA() {
+	if (!_currentItem)
+		return;
+
+	assert(_currentItem->getResourceType() == Aurora::kResourceImage);
+
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save TGA file"), "",
+		tr("TGA file (*.tga)|*.tga"));
+
+	if (fileName.isEmpty())
+		return;
+
+	_status.push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status.pop();
+	} BOOST_SCOPE_EXIT_END
+
+	try {
+		QScopedPointer<Images::Decoder> image(_currentItem->getImage());
+
+		image->dumpTGA(fileName.toStdString());
+
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+	}
+}
+
+struct SoundBuffer {
+	static const size_t kBufferSize = 4096;
+
+	int16 buffer[kBufferSize];
+	int samples;
+
+	SoundBuffer() : samples(0) {
+	}
+};
+
+void MainWindow::exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3) {
+	if ((bmu.size() <= 8) ||
+		(bmu.readUint32BE() != MKTAG('B', 'M', 'U', ' ')) ||
+		(bmu.readUint32BE() != MKTAG('V', '1', '.', '0')))
+		throw Common::Exception("Not a valid BMU file");
+
+	mp3.writeStream(bmu);
+}
+
+void MainWindow::exportBMUMP3() {
+	if (!_currentItem)
+		return;
+
+	assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
+
+	const QString title = "Save MP3 file";
+	const QString mask  = "MP3 file (*.mp3)|*.mp3";
+	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3).c_str();
+	const QString def   = QString::fromUtf8(defCstr);
+
+	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
+
+	if (fileName.isEmpty())
+		return;
+
+	_status.push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status.pop();
+	} BOOST_SCOPE_EXIT_END
+
+	try {
+		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
+
+		Common::WriteFile file(fileName.toStdString());
+
+		exportBMUMP3Impl(*res, file);
+		file.flush();
+
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
+}
+
+uint64 getSoundLength(Sound::AudioStream *sound) {
+	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
+	if (!rewSound)
+		return Sound::RewindableAudioStream::kInvalidLength;
+
+	return rewSound->getLength();
+}
+
+void MainWindow::exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav) {
+	assert(sound);
+
+	const uint16 channels = sound->getChannels();
+	const uint32 rate     = sound->getRate();
+
+	std::deque<SoundBuffer> buffers;
+
+	uint64 length = getSoundLength(sound);
+	if (length != Sound::RewindableAudioStream::kInvalidLength)
+		buffers.resize((length / (SoundBuffer::kBufferSize / channels)) + 1);
+
+	uint32 samples = 0;
+	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
+	while (!sound->endOfStream()) {
+		if (buffer == buffers.end()) {
+			buffers.push_back(SoundBuffer());
+			buffer = --buffers.end();
+		}
+
+		buffer->samples = sound->readBuffer(buffer->buffer, SoundBuffer::kBufferSize);
+
+		if (buffer->samples > 0)
+			samples += buffer->samples;
+
+		++buffer;
+	}
+
+	samples /= channels;
+
+	const uint32 dataSize   = samples * channels * 2;
+	const uint32 byteRate   = rate * channels * 2;
+	const uint16 blockAlign = channels * 2;
+
+	wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
+	wav.writeUint32LE(36 + dataSize);
+	wav.writeUint32BE(MKTAG('W', 'A', 'V', 'E'));
+
+	wav.writeUint32BE(MKTAG('f', 'm', 't', ' '));
+	wav.writeUint32LE(16);
+	wav.writeUint16LE(1);
+	wav.writeUint16LE(channels);
+	wav.writeUint32LE(rate);
+	wav.writeUint32LE(byteRate);
+	wav.writeUint16LE(blockAlign);
+	wav.writeUint16LE(16);
+
+	wav.writeUint32BE(MKTAG('d', 'a', 't', 'a'));
+	wav.writeUint32LE(dataSize);
+
+	for (std::deque<SoundBuffer>::const_iterator b = buffers.begin(); b != buffers.end(); ++b)
+		for (int i = 0; i < b->samples; i++)
+			wav.writeUint16LE(b->buffer[i]);
+}
+
+void MainWindow::exportWAV() {
+	if (!_currentItem)
+		return;
+
+	assert(_currentItem->getResourceType() == Aurora::kResourceSound);
+
+	const QString title = "Save PCM WAV file";
+	const QString mask  = "WAV file (*.wav)|*.wav";
+	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV).c_str();
+	const QString def   = QString::fromUtf8(defCstr);
+
+	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
+
+	if (fileName.isEmpty())
+		return;
+
+	_status.push(constructStatus("Exporting", _currentItem->getName(), fileName));
+	BOOST_SCOPE_EXIT((&_status)) {
+		_status.pop();
+	} BOOST_SCOPE_EXIT_END
+
+	try {
+		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
+
+		Common::WriteFile file(fileName.toStdString());
+
+		exportWAVImpl(sound.get(), file);
+		file.flush();
+
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
 }
 
 } // End of namespace GUI
