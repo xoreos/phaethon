@@ -25,96 +25,120 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <map>
+#include <QMainWindow>
 
-#include <wx/frame.h>
-
-#include "src/common/ptrmap.h"
-#include "src/common/ustring.h"
 #include "src/common/filetree.h"
+#include "src/common/scopedptr.h"
 
-#include "src/aurora/types.h"
-#include "src/aurora/archive.h"
+#include "src/gui/resourcetree.h"
+#include "src/gui/proxymodel.h"
+#include "src/gui/statusbar.h"
 
-namespace Aurora {
-	class KEYFile;
-	class KEYDataFile;
-}
+#include "verdigris/wobjectdefs.h"
 
-class wxPanel;
-class wxSplitterWindow;
-class wxGenericStaticText;
-class wxBoxSizer;
-class wxButton;
+class QSplitter;
+class QTreeView;
+class QGridLayout;
+class QFrame;
+class QTextEdit;
 
 namespace GUI {
 
+class PanelResourceInfo;
 class ResourceTree;
 class ResourceTreeItem;
-
-class PanelResourceInfo;
-
+class ProxyModel;
 class PanelPreviewEmpty;
-class PanelPreviewSound;
 class PanelPreviewImage;
+class PanelPreviewSound;
 
-class MainWindow : public wxFrame {
+class MainWindow : public QMainWindow {
+	W_OBJECT(MainWindow)
+
 public:
-	MainWindow(const wxString &title, const wxPoint &pos, const wxSize &size);
-	~MainWindow();
+	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
 
-	bool open(Common::UString path);
+private /*slots*/:
+	void slotLog(const QString &text);
+	W_SLOT(slotLog, W_Access::Private)
 
-	void forceRedraw();
-	void pushStatus(const Common::UString &text);
-	void popStatus();
+	void slotOpenDirectory();
+	W_SLOT(slotOpenDirectory, W_Access::Private)
 
-	void resourceSelect(const ResourceTreeItem *item);
-	void resourceActivate(const ResourceTreeItem &item);
+	void slotOpenFile();
+	W_SLOT(slotOpenFile, W_Access::Private)
 
-	Aurora::Archive *getArchive(const boost::filesystem::path &path);
+	void slotClose();
+	W_SLOT(slotClose, W_Access::Private)
+
+	void slotQuit();
+	W_SLOT(slotQuit, W_Access::Private)
+
+	void slotAbout();
+	W_SLOT(slotAbout, W_Access::Private)
+
+	void saveItem();
+	W_SLOT(saveItem, W_Access::Private)
+
+	void exportTGA();
+	W_SLOT(exportTGA, W_Access::Private)
+
+	void exportBMUMP3();
+	W_SLOT(exportBMUMP3, W_Access::Private)
+
+	void exportWAV();
+	W_SLOT(exportWAV, W_Access::Private)
 
 private:
-	typedef Common::PtrMap<Common::UString, Aurora::Archive> ArchiveMap;
-	typedef Common::PtrMap<Common::UString, Aurora::KEYDataFile> KEYDataFileMap;
+	void open(const QString &path);
+	void openFinish();
 
-	Common::UString _path;
+	void statusPush(const QString &text);
+	void statusPop();
+
+	void resourceSelect(const QItemSelection &selected, const QItemSelection &deselected);
+
+	void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
+	void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
+
+	void showPreviewPanel(QFrame *panel);
+	void showPreviewPanel();
+
+	StatusBar _status;
+
+	QWidget *_centralWidget;
+	QGridLayout *_centralLayout;
+
+	QAction *_actionOpenDirectory;
+	QAction *_actionOpenFile;
+	QAction *_actionClose;
+	QAction *_actionQuit;
+	QAction *_actionAbout;
+
+	QMenuBar *_menuBar;
+	QMenu *_menuFile;
+	QMenu *_menuHelp;
+
+	QSplitter *_splitterTopBottom;
+	QSplitter *_splitterLeftRight;
+	QTreeView *_treeView;
+
+	QFrame *_resPreviewFrame;
+	QTextEdit *_log;
+
 	Common::FileTree _files;
+	Common::ScopedPtr<ResourceTree> _treeModel;
+	Common::ScopedPtr<ProxyModel> _proxyModel;
+	QString _rootPath;
 
-	ResourceTree *_resourceTree;
-
-	wxSplitterWindow *_splitterInfoPreview;
+	ResourceTreeItem *_currentItem;
 
 	PanelResourceInfo *_panelResourceInfo;
-
 	PanelPreviewEmpty *_panelPreviewEmpty;
-	PanelPreviewSound *_panelPreviewSound;
 	PanelPreviewImage *_panelPreviewImage;
+	PanelPreviewSound *_panelPreviewSound;
 
-	ArchiveMap _archives;
-	KEYDataFileMap _keyDataFiles;
-
-	void onOpenDir(wxCommandEvent &event);
-	void onOpenFile(wxCommandEvent &event);
-	void onClose(wxCommandEvent &event);
-	void onQuit(wxCommandEvent &event);
-	void onAbout(wxCommandEvent &event);
-
-	void createLayout();
-
-	void close();
-
-	void showPreviewPanel(wxPanel *panel);
-	void showPreviewPanel(Aurora::ResourceType type);
-	void showPreviewPanel(const ResourceTreeItem *item);
-
-	Common::UString dialogOpenDir(const Common::UString &title);
-	Common::UString dialogOpenFile(const Common::UString &title, const Common::UString &mask);
-
-	void loadKEYDataFiles(Aurora::KEYFile &key);
-	Aurora::KEYDataFile *getKEYDataFile(const Common::UString &file);
-
-	wxDECLARE_EVENT_TABLE();
+	friend class ResourceTree;
 };
 
 } // End of namespace GUI

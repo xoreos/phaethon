@@ -22,425 +22,296 @@
  *  Phaethon's tree of game resource files.
  */
 
-#include <wx/artprov.h>
-#include <wx/imaglist.h>
+#include <QDir>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtConcurrentRun>
 
-#include "src/common/error.h"
-#include "src/common/readstream.h"
-#include "src/common/readfile.h"
+#include <boost/scope_exit.hpp>
+
+#include "verdigris/wobjectimpl.h"
+
+#include "src/aurora/biffile.h"
+#include "src/aurora/bzffile.h"
+#include "src/aurora/erffile.h"
+#include "src/aurora/keyfile.h"
+#include "src/aurora/rimfile.h"
+#include "src/aurora/zipfile.h"
+
 #include "src/common/filepath.h"
+#include "src/common/readfile.h"
+#include "src/common/system.h"
 
-#include "src/sound/sound.h"
-#include "src/sound/audiostream.h"
-
-#include "src/images/winiconimage.h"
-#include "src/images/tga.h"
-#include "src/images/dds.h"
-#include "src/images/tpc.h"
-#include "src/images/txb.h"
-#include "src/images/sbm.h"
-
-#include "src/aurora/util.h"
-
-#include "src/gui/resourcetree.h"
-#include "src/gui/eventid.h"
 #include "src/gui/mainwindow.h"
+#include "src/gui/resourcetree.h"
+#include "src/gui/resourcetreeitem.h"
 
 namespace GUI {
 
-ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-	_name(entry.name), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
+W_OBJECT_IMPL(ResourceTree)
 
-	_data.path = entry.path;
-
-	_data.archive = 0;
-	_data.addedArchiveMembers = false;
-	_data.archiveIndex = 0xFFFFFFFF;
-
-	_size = Common::kFileInvalid;
-	if (_source == kSourceFile)
-		_size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
-
-	_triedDuration = getResourceType() != Aurora::kResourceSound;
-	_duration = Sound::RewindableAudioStream::kInvalidLength;
+ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent) : QAbstractItemModel(parent),
+	_mainWindow(mainWindow) {
+	_root.reset(new ResourceTreeItem("Filename"));
+	_iconProvider.reset(new QFileIconProvider());
 }
 
-ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
-	_name(TypeMan.setFileType(resource.name, resource.type)), _source(kSourceArchiveFile) {
+void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
+	ResourceTreeItem *treeRoot = new ResourceTreeItem(rootEntry);
+	_root->addChild(treeRoot);
 
-	_data.archive = archive;
-	_data.addedArchiveMembers = false;
-	_data.archiveIndex = resource.index;
-
-	_size = archive->getResourceSize(resource.index);
-
-	_triedDuration = getResourceType() != Aurora::kResourceSound;
-	_duration = Sound::RewindableAudioStream::kInvalidLength;
+	QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
+	connect(watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::openFinish);
+	QFuture<void> future = QtConcurrent::run(this, &ResourceTree::populate, rootEntry, treeRoot);
+	watcher->setFuture(future);
 }
 
-ResourceTreeItem::~ResourceTreeItem() {
-}
+void ResourceTree::populate(const Common::FileTree::Entry &entry, ResourceTreeItem *parent) {
+	for (std::list<Common::FileTree::Entry>::const_iterator childIter = entry.children.begin();
+		 childIter != entry.children.end(); ++childIter) {
 
-const Common::UString &ResourceTreeItem::getName() const {
-	return _name;
-}
-
-uint32 ResourceTreeItem::getSize() const {
-	return _size;
-}
-
-ResourceTreeItem::Source ResourceTreeItem::getSource() const {
-	return _source;
-}
-
-ResourceTreeItem::Data &ResourceTreeItem::getData() {
-	return _data;
-}
-
-Aurora::FileType ResourceTreeItem::getFileType() const {
-	if (_source == kSourceDirectory)
-		return Aurora::kFileTypeNone;
-
-	return TypeMan.getFileType(_name);
-}
-
-Aurora::ResourceType ResourceTreeItem::getResourceType() const {
-	if (_source == kSourceDirectory)
-		return Aurora::kResourceNone;
-
-	return TypeMan.getResourceType(_name);
-}
-
-Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
-	try {
-		switch (_source) {
-			case kSourceDirectory:
-				throw Common::Exception("Can't get file data of a directory");
-
-			case kSourceFile:
-				return new Common::ReadFile(_data.path.generic_string().c_str());
-
-			case kSourceArchiveFile:
-				if (!_data.archive)
-					throw Common::Exception("No archive opened");
-
-				return _data.archive->getResource(_data.archiveIndex);
-		}
-	} catch (Common::Exception &e) {
-		e.add("Failed to get resource data for resource \"%s\"", _name.c_str());
-		throw;
+		ResourceTreeItem *child = new ResourceTreeItem(*childIter);
+		parent->addChild(child);
+		populate(*childIter, child);
 	}
-
-	assert(false);
-	return 0;
-}
-
-Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
-	if (getResourceType() != Aurora::kResourceSound)
-		throw Common::Exception("\"%s\" is not a sound resource", getName().c_str());
-
-	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
-
-	Sound::AudioStream *sound = 0;
-	try {
-		sound = SoundMan.makeAudioStream(res.get());
-	} catch (Common::Exception &e) {
-		e.add("Failed to get audio stream from \"%s\"", getName().c_str());
-		throw;
-	}
-
-	res.release();
-	return sound;
-}
-
-Images::Decoder *ResourceTreeItem::getImage() const {
-	if (getResourceType() != Aurora::kResourceImage)
-		throw Common::Exception("\"%s\" is not an image resource", getName().c_str());
-
-	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
-
-	Images::Decoder *img = 0;
-	try {
-		img = getImage(*res, getFileType());
-	} catch (Common::Exception &e) {
-		e.add("Failed to get image from \"%s\"", getName().c_str());
-		throw;
-	}
-
-	return img;
-}
-
-Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) {
-	Images::Decoder *img = 0;
-	switch (type) {
-		case Aurora::kFileTypeDDS:
-			img = new Images::DDS(res);
-			break;
-
-		case Aurora::kFileTypeTPC:
-			img = new Images::TPC(res);
-			break;
-
-		// TXB may be actually TPC
-		case Aurora::kFileTypeTXB:
-		case Aurora::kFileTypeTXB2:
-			try {
-				img = new Images::TXB(res);
-			} catch (Common::Exception &e1) {
-
-				try {
-					res.seek(0);
-					img = new Images::TPC(res);
-
-				} catch (Common::Exception &e2) {
-					e1.add(e2);
-
-					throw e1;
-				}
-			}
-			break;
-
-		case Aurora::kFileTypeTGA:
-			img = new Images::TGA(res);
-			break;
-
-		case Aurora::kFileTypeSBM:
-			img = new Images::SBM(res);
-			break;
-
-		case Aurora::kFileTypeCUR:
-		case Aurora::kFileTypeCURS:
-			img = new Images::WinIconImage(res);
-			break;
-
-		default:
-			throw Common::Exception("Unsupported image type %d", type);
-	}
-
-	return img;
-}
-
-uint64 ResourceTreeItem::getSoundDuration() const {
-	if (_triedDuration)
-		return _duration;
-
-	_triedDuration = true;
-
-	try {
-		Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
-
-		Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
-		_duration = rewSound.getDuration();
-
-	} catch (...) {
-	}
-
-	return _duration;
-}
-
-
-wxBEGIN_EVENT_TABLE(ResourceTree, wxTreeCtrl)
-	EVT_TREE_SEL_CHANGED(kEventResourceTree, ResourceTree::onSelChanged)
-	EVT_TREE_ITEM_EXPANDING(kEventResourceTree, ResourceTree::onItemExpanding)
-	EVT_TREE_ITEM_ACTIVATED(kEventResourceTree, ResourceTree::onItemActivated)
-wxEND_EVENT_TABLE()
-
-wxIMPLEMENT_DYNAMIC_CLASS(ResourceTree, wxTreeCtrl);
-ResourceTree::ResourceTree() : _mainWindow(0) {
-}
-
-ResourceTree::ResourceTree(wxWindow *parent, MainWindow &mainWindow) :
-	wxTreeCtrl(parent, kEventResourceTree, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS | wxTR_SINGLE),
-	_mainWindow(&mainWindow) {
-
-	wxIcon icon[kImageMAX];
-
-	icon[kImageDir]  = wxArtProvider::GetIcon(wxART_FOLDER     , wxART_LIST);
-	icon[kImageFile] = wxArtProvider::GetIcon(wxART_NORMAL_FILE, wxART_LIST);
-
-	wxImageList *images = new wxImageList(icon[0].GetWidth(), icon[0].GetHeight(), true);
-
-	for (int i = 0; i < kImageMAX; i++)
-		images->Add(icon[i]);
-
-	AssignImageList(images);
 }
 
 ResourceTree::~ResourceTree() {
+	_archives.clear();
+	_keyDataFiles.clear();
 }
 
-void ResourceTree::populate(const Common::FileTree::Entry &root) {
-	wxTreeItemId treeRoot = addRoot(new ResourceTreeItem(root));
+ResourceTreeItem *ResourceTree::itemFromIndex(const QModelIndex &index) const {
+	if (!index.isValid())
+		return _root.get();
 
-	populate(root, treeRoot);
-	Expand(treeRoot);
-
-	_mainWindow->resourceSelect(getItemData(treeRoot));
+	return static_cast<ResourceTreeItem *>(index.internalPointer());
 }
 
-void ResourceTree::populate(const Common::FileTree::Entry &e, wxTreeItemId t) {
-	for (std::list<Common::FileTree::Entry>::const_iterator c = e.children.begin();
-	     c != e.children.end(); ++c) {
+QModelIndex ResourceTree::index(int row, int col, const QModelIndex &parent) const {
+	ResourceTreeItem *item = itemFromIndex(parent)->childAt(row);
 
-		wxTreeItemId cT = appendItem(t, new ResourceTreeItem(*c));
-		populate(*c, cT);
+	if (!item)
+		return QModelIndex();
+
+	return createIndex(row, col, item);
+}
+
+QModelIndex ResourceTree::parent(const QModelIndex &index) const {
+	ResourceTreeItem *parent = itemFromIndex(index)->getParent();
+	if (parent == _root.get())
+		return QModelIndex();
+
+	return createIndex(parent->row(), 0, parent);
+}
+
+int ResourceTree::rowCount(const QModelIndex &parent) const {
+	return itemFromIndex(parent)->childCount();
+}
+
+int ResourceTree::columnCount(const QModelIndex &UNUSED(parent)) const {
+	return 1;
+}
+
+QVariant ResourceTree::data(const QModelIndex &index, int role) const {
+	if (!index.isValid())
+		return QVariant();
+
+	ResourceTreeItem *item = itemFromIndex(index);
+
+	if (role == Qt::DecorationRole) {
+		switch (item->getSource()) {
+			case Source::kSourceFile:
+			case Source::kSourceArchiveFile:
+				switch (item->getResourceType()) {
+					case Aurora::kResourceSound:
+						return QIcon::fromTheme("audio-x-generic");
+					case Aurora::kResourceImage:
+						return QIcon::fromTheme("image");
+					case Aurora::kResourceArchive:
+						return QIcon::fromTheme("package-x-generic");
+					default:
+						return _iconProvider->icon(QFileIconProvider::File);
+				}
+				break;
+			default:
+				return _iconProvider->icon(QFileInfo(item->getPath()));
+		}
 	}
 
-	SortChildren(t);
+	if (role == Qt::DisplayRole)
+		return item->getName();
+
+	return QVariant();
 }
 
-int ResourceTree::OnCompareItems(const wxTreeItemId &item1, const wxTreeItemId &item2) {
-	ResourceTreeItem *d1 = getItemData(item1);
-	ResourceTreeItem *d2 = getItemData(item2);
+QVariant ResourceTree::headerData(int UNUSED(section), Qt::Orientation orientation, int role) const {
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return _root->getName();
 
-	// No data sorts before data
-	if (!d1)
-		return -1;
-	if (!d2)
-		return 1;
-
-	// Sort by source first
-	if (d1->getSource() < d2->getSource())
-		return -1;
-	if (d1->getSource() > d2->getSource())
-		return  1;
-
-	// Sort case insensitively by name
-	return Common::UString(d1->getName().c_str()).stricmp(Common::UString(d2->getName().c_str()));
+	return QVariant();
 }
 
-void ResourceTree::onSelChanged(wxTreeEvent &event) {
-	assert(_mainWindow);
-
-	_mainWindow->resourceSelect(getItemData(event.GetItem()));
+bool ResourceTree::canFetchMore(const QModelIndex &index) const {
+	return itemFromIndex(index)->isArchive();
 }
 
-void ResourceTree::onItemExpanding(wxTreeEvent &event) {
-	ResourceTreeItem *item = getItemData(event.GetItem());
-	if (!item)
+void ResourceTree::fetchMore(const QModelIndex &index) {
+	if (!index.isValid())
 		return;
 
-	// We only need special treatment for these archives
-	if ((item->getFileType() != Aurora::kFileTypeZIP) &&
-	    (item->getFileType() != Aurora::kFileTypeERF) &&
-	    (item->getFileType() != Aurora::kFileTypeMOD) &&
-	    (item->getFileType() != Aurora::kFileTypeNWM) &&
-	    (item->getFileType() != Aurora::kFileTypeSAV) &&
-	    (item->getFileType() != Aurora::kFileTypeHAK) &&
-	    (item->getFileType() != Aurora::kFileTypeRIM) &&
-	    (item->getFileType() != Aurora::kFileTypeKEY))
-		return;
+	ResourceTreeItem *item = itemFromIndex(index);
 
 	// We already added the archive members. Nothing to do
-	ResourceTreeItem::Data &data = item->getData();
-	if (data.addedArchiveMembers)
+	Archive &archive = item->getArchive();
+	if (archive.addedMembers)
 		return;
 
-	_mainWindow->pushStatus(Common::UString("Loading archive ") + item->getName() + "...");
+	_mainWindow->statusPush(tr("Loading archive") + item->getName() + "...");
+	BOOST_SCOPE_EXIT((&_mainWindow)) {
+		_mainWindow->statusPop();
+	} BOOST_SCOPE_EXIT_END
 
 	// Load the archive, if necessary
-	if (!data.archive) {
+	if (!archive.data) {
 		try {
-			data.archive = _mainWindow->getArchive(data.path);
+			archive.data = getArchive(item->getPath());
 		} catch (Common::Exception &e) {
 			// If that fails, print the error and treat this archive as empty
 
-			_mainWindow->popStatus();
-
-			e.add("Failed to load archive \"%s\"", item->getName().c_str());
+			e.add("Failed to load archive \"%s\"", itemFromIndex(index)->getName().toStdString().c_str());
 			Common::printException(e, "WARNING: ");
 
-			event.Veto();
-			SetItemHasChildren(event.GetItem(), false);
 			return;
 		}
 	}
 
-	const Aurora::Archive::ResourceList &resources = data.archive->getResources();
-	for (Aurora::Archive::ResourceList::const_iterator r = resources.begin(); r != resources.end(); ++r)
-		appendItem(event.GetItem(), new ResourceTreeItem(data.archive, *r));
+	insertItemsFromArchive(archive, index);
 
-	_mainWindow->popStatus();
-	data.addedArchiveMembers = true;
+	archive.addedMembers = true;
 }
 
-void ResourceTree::onItemActivated(wxTreeEvent &event) {
-	assert(_mainWindow);
+bool ResourceTree::hasChildren(const QModelIndex &index) const {
+	if (!index.isValid())
+		return true;
 
-	const ResourceTreeItem *item = getItemData(event.GetItem());
-	if (!item)
-		return;
+	if (itemFromIndex(index)->isArchive())
+		return true;
 
-	_mainWindow->resourceActivate(*item);
+	return itemFromIndex(index)->hasChildren();
 }
 
-ResourceTree::Image ResourceTree::getImage(const ResourceTreeItem &item) {
-	switch (item.getSource()) {
-		case ResourceTreeItem::kSourceDirectory:
-			return kImageDir;
+void ResourceTree::insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex) {
+	QList<ResourceTreeItem *> items;
 
-		case ResourceTreeItem::kSourceFile:
-			return kImageFile;
-
-		case ResourceTreeItem::kSourceArchiveFile:
-			return kImageFile;
-
-		default:
-			break;
+	auto resources = archive.data->getResources();
+	for (auto r = resources.begin(); r != resources.end(); ++r)
+	{
+		items.push_back(new ResourceTreeItem(archive.data, *r));
 	}
 
-	return kImageNone;
+	insertItems(0, items, parentIndex);
 }
 
-ResourceTreeItem *ResourceTree::getItemData(const wxTreeItemId &id) const {
-	return dynamic_cast<ResourceTreeItem *>(GetItemData(id));
+void ResourceTree::insertItems(size_t position, QList<ResourceTreeItem*> &items, const QModelIndex &parent) {
+	ResourceTreeItem *parentItem = itemFromIndex(parent);
+
+	beginInsertRows(parent, position, position + items.size() - 1);
+
+	for (const auto &item : items)
+	{
+		parentItem->addChild(item);
+	}
+
+	endInsertRows();
 }
 
-ResourceTreeItem *ResourceTree::getSelection() const {
-	wxTreeItemId id;
-	return getSelection(id);
+Aurora::Archive *ResourceTree::getArchive(const QString &path) {
+	ArchiveMap::iterator a = _archives.find(path);
+	if (a != _archives.end())
+		return a->second;
+
+	Aurora::Archive *arch = 0;
+	switch (TypeMan.getFileType(path.toStdString().c_str())) {
+		case Aurora::kFileTypeZIP:
+			arch = new Aurora::ZIPFile(new Common::ReadFile(path.toStdString().c_str()));
+			break;
+
+		case Aurora::kFileTypeERF:
+		case Aurora::kFileTypeMOD:
+		case Aurora::kFileTypeNWM:
+		case Aurora::kFileTypeSAV:
+		case Aurora::kFileTypeHAK:
+			arch = new Aurora::ERFFile(new Common::ReadFile(path.toStdString().c_str()));
+			break;
+
+		case Aurora::kFileTypeRIM:
+			arch = new Aurora::RIMFile(new Common::ReadFile(path.toStdString().c_str()));
+			break;
+
+		case Aurora::kFileTypeKEY: {
+			Aurora::KEYFile *key = new Aurora::KEYFile(new Common::ReadFile(path.toStdString().c_str()));
+			loadKEYDataFiles(*key);
+
+			arch = key;
+			break;
+		}
+
+		default:
+			throw Common::Exception("Invalid archive file \"%s\"", path.toStdString().c_str());
+	}
+
+	_archives.insert(std::make_pair(path.toStdString().c_str(), arch));
+	return arch;
 }
 
-ResourceTreeItem *ResourceTree::getSelection(wxTreeItemId &id) const {
-	id = GetSelection();
-	if (!id.IsOk())
-		return 0;
+#define USTR(x) (Common::UString((x).toStdString()))
 
-	return getItemData(id);
+Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
+	KEYDataFileMap::iterator d = _keyDataFiles.find(file);
+	if (d != _keyDataFiles.end())
+		return d->second;
+
+	Common::UString path = Common::FilePath::normalize(USTR(_root->childAt(0)->getPath() + "/" + file));
+	if (path.empty())
+		throw Common::Exception("No such file or directory \"%s\"", (_root->getPath() + "/" + file).toStdString().c_str());
+
+	Aurora::FileType type = TypeMan.getFileType(file.toStdString().c_str());
+
+	Aurora::KEYDataFile *dataFile = 0;
+	switch (type) {
+		case Aurora::kFileTypeBIF:
+			dataFile = new Aurora::BIFFile(new Common::ReadFile(path));
+			break;
+
+		case Aurora::kFileTypeBZF:
+			dataFile = new Aurora::BZFFile(new Common::ReadFile(path));
+			break;
+
+		default:
+			throw Common::Exception("Unknown KEY data file type %d\n", type);
+	}
+
+	_keyDataFiles.insert(std::make_pair(file, dataFile));
+	return dataFile;
 }
 
-void ResourceTree::forceArchiveChildren(const ResourceTreeItem &item, wxTreeItemId id) {
-	// We want archive to be expandable
-	if ((item.getSource() == ResourceTreeItem::kSourceFile) &&
-	    ((item.getFileType() == Aurora::kFileTypeZIP) ||
-	     (item.getFileType() == Aurora::kFileTypeERF) ||
-	     (item.getFileType() == Aurora::kFileTypeMOD) ||
-	     (item.getFileType() == Aurora::kFileTypeNWM) ||
-	     (item.getFileType() == Aurora::kFileTypeSAV) ||
-	     (item.getFileType() == Aurora::kFileTypeHAK) ||
-	     (item.getFileType() == Aurora::kFileTypeRIM) ||
-	     (item.getFileType() == Aurora::kFileTypeKEY)))
-		SetItemHasChildren(id, true);
-}
+void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
+	const std::vector<Common::UString> dataFiles = key.getDataFileList();
+	for (size_t i = 0; i < dataFiles.size(); i++) {
+		try {
+			_mainWindow->statusPush(tr("Loading data file") + QString::fromUtf8(dataFiles[i].c_str()) + "...");
 
-wxTreeItemId ResourceTree::addRoot(ResourceTreeItem *item) {
-	assert(item);
+			Aurora::KEYDataFile *dataFile = getKEYDataFile(QString::fromUtf8(dataFiles[i].c_str()));
+			key.addDataFile(i, dataFile);
 
-	wxTreeItemId id = AddRoot(item->getName(), getImage(*item), getImage(*item), item);
-
-	forceArchiveChildren(*item, id);
-
-	return id;
-}
-
-wxTreeItemId ResourceTree::appendItem(wxTreeItemId parent, ResourceTreeItem *item) {
-	assert(item);
-
-	wxTreeItemId id = AppendItem(parent, item->getName(), getImage(*item), getImage(*item), item);
-
-	forceArchiveChildren(*item, id);
-
-	return id;
+			_mainWindow->statusPop();
+		} catch (Common::Exception &e) {
+			e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());
+			_mainWindow->statusPop();
+			Common::printException(e, "WARNING: ");
+		}
+	}
 }
 
 } // End of namespace GUI

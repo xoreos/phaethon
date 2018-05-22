@@ -19,29 +19,29 @@
  */
 
 /** @file
- *  Preview panel for resources we can't do anything with.
+ *  Wrapper class for status bar in order to
+ *  have identical functionality to Phaethon (wx version.)
  */
 
-#ifndef PANELPREVIEWEMPTY_H
-#define PANELPREVIEWEMPTY_H
-
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QSpacerItem>
-#include <QWidget>
-
-#include "verdigris/wobjectdefs.h"
+#include "statusbar.h"
 
 namespace GUI {
 
-class PanelPreviewEmpty : public QFrame {
-	W_OBJECT(PanelPreviewEmpty)
+StatusBar::StatusBar(QStatusBar *statusBar) {
+	_statusBar = statusBar;
+}
 
-public:
-	PanelPreviewEmpty(QWidget *parent);
-};
+void StatusBar::setText(const QString &text) {
+	_statusBar->showMessage(text);
+	_text = text;
+}
+
+void StatusBar::push(const QString &text, int timeout) {
+	_statusBar->showMessage(text, timeout);
+}
+
+void StatusBar::pop() {
+	_statusBar->showMessage(_text);
+}
 
 } // End of namespace GUI
-
-#endif // PANELPREVIEWEMPTY_H

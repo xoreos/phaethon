@@ -64,7 +64,9 @@ else()
 endif()
 
 # C++ standard we're compiling against
-# set_check_compiler_flag_cxx("-std=c++03")
+#set_check_compiler_flag_cxx("-std=c++14")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Compiler warning flags, not for MSVC
 if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -262,14 +264,12 @@ find_package(LibLZMA REQUIRED)
 include_directories(${LIBLZMA_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${LIBLZMA_LIBRARIES})
 
-find_package(wxWidgets COMPONENTS core base REQUIRED)
-include_directories(${wxWidgets_INCLUDE_DIRS})
-add_compile_options(${wxWidgets_CXX_FLAGS})
-list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
-
-find_package(wxWidgets REQUIRED core base)
-include(${wxWidgets_USE_FILE})
-list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5MultimediaWidgets REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5MultimediaWidgets_INCLUDE_DIRS} ${Qt5Concurrent_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::MultimediaWidgets Qt5::Concurrent)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 find_package(Iconv REQUIRED)
 include_directories(${ICONV_INCLUDE_DIRS})
@@ -289,6 +289,7 @@ endif()
 set(HAVE_PTHREAD ${CMAKE_USE_PTHREADS_INIT})
 if(CMAKE_USE_PTHREADS_INIT)
   set(PTHREAD_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  list(APPEND PHAETHON_LIBRARIES ${PTHREAD_LIBS})
 endif()
 
 

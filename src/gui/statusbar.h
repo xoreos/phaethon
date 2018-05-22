@@ -19,29 +19,31 @@
  */
 
 /** @file
- *  About dialog.
+ *  Wrapper class for status bar in order to
+ *  have identical functionality to Phaethon (wx version.)
  */
 
-#ifndef ABOUT_H
-#define ABOUT_H
+#ifndef STATUSBAR_H
+#define STATUSBAR_H
 
-#include <wx/dialog.h>
+#include <QMainWindow>
+#include <QStatusBar>
+#include <QWidget>
 
 namespace GUI {
 
-class AboutDialog : public wxDialog {
+class StatusBar {
 public:
-	AboutDialog(wxWindow *parent);
-	~AboutDialog();
-
-	void show();
+	StatusBar(QStatusBar *statusBar);
+	void setText(const QString &text);
+	void push(const QString &text, int timeout = 0);
+	void pop();
 
 private:
-	void onClose(wxCommandEvent &event);
-
-	wxDECLARE_EVENT_TABLE();
+	QStatusBar *_statusBar;
+	QString _text;
 };
 
 } // End of namespace GUI
 
-#endif // ABOUT_H
+#endif // STATUSBAR_H

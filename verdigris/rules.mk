@@ -17,32 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-# GUI code using Qt5.
+# Verdigris so we don't need moc (<https://github.com/woboq/verdigris>).
 
-noinst_LTLIBRARIES += src/gui/libgui.la
-
-src_gui_libgui_la_SOURCES =
-
-src_gui_libgui_la_SOURCES += \
-    src/gui/mainwindow.h \
-	src/gui/resourcetree.h \
-	src/gui/resourcetreeitem.h \
-	src/gui/proxymodel.h \
-	src/gui/statusbar.h \
-	src/gui/panelresourceinfo.h \
-	src/gui/panelpreviewempty.h \
-	src/gui/panelpreviewimage.h \
-	src/gui/panelpreviewsound.h \
-	$(EMPTY)
-
-src_gui_libgui_la_SOURCES += \
-    src/gui/mainwindow.cpp \
-	src/gui/resourcetree.cpp \
-	src/gui/resourcetreeitem.cpp \
-	src/gui/proxymodel.cpp \
-	src/gui/statusbar.cpp \
-	src/gui/panelresourceinfo.cpp \
-	src/gui/panelpreviewempty.cpp \
-	src/gui/panelpreviewimage.cpp \
-	src/gui/panelpreviewsound.cpp \
-	$(EMPTY)
+noinst_HEADERS += \
+    verdigris/wobjectdefs.h \
+    verdigris/wobjectimpl.h \
+    $(EMPTY)

@@ -24,7 +24,7 @@
 
 #include <cstdio>
 
-#include <wx/app.h>
+#include <QApplication>
 
 #include "src/version/version.h"
 
@@ -33,9 +33,9 @@
 #include "src/common/ustring.h"
 #include "src/common/platform.h"
 
-#include "src/sound/sound.h"
-
 #include "src/gui/mainwindow.h"
+
+#include "src/sound/sound.h"
 
 #include "src/cline.h"
 
@@ -85,12 +85,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#ifdef WIN32
-extern "C" int wmain(int UNUSED(argc), wchar_t **UNUSED(argv)) {
-	return main(0, 0);
-}
-#endif
-
 void initPlatform() {
 	try {
 		Common::Platform::init();
@@ -103,13 +97,10 @@ void initPlatform() {
 }
 
 
-class Phaethon : public wxApp {
+class Phaethon {
 public:
 	Phaethon(const Common::UString &path = "");
 	~Phaethon();
-
-	bool OnInit();
-	int OnExit();
 
 private:
 	Common::UString _path;
@@ -119,9 +110,22 @@ private:
 };
 
 Phaethon::Phaethon(const Common::UString &path) : _path(path) {
+	initSubsystems();
+
+	int argc = 1; // QApplication requires argc to be at least 1
+	char empty[] = ""; // Silence -Wwrite-string warning
+	char *argv[] = {empty}; // QApplication requires argv to be at least 1
+
+	QApplication app(argc, argv);
+
+	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path.c_str());
+	mainWindow.show();
+
+	app.exec();
 }
 
 Phaethon::~Phaethon() {
+	deinitSubsystems();
 }
 
 void Phaethon::initSubsystems() {
@@ -147,31 +151,6 @@ void Phaethon::deinitSubsystems() {
 	}
 }
 
-bool Phaethon::OnInit() {
-	initSubsystems();
-
-	GUI::MainWindow *mainWindow =
-		new GUI::MainWindow(Version::getProjectNameVersion(), wxDefaultPosition, wxSize(800, 600));
-
-	mainWindow->Show(true);
-	if (!_path.empty())
-		mainWindow->open(_path);
-
-	return true;
-}
-
-int Phaethon::OnExit() {
-	deinitSubsystems();
-	return 0;
-}
-
-
 void openGamePath(const Common::UString &path) {
-	wxApp *phaethon = new Phaethon(path);
-
-	wxApp::SetInstance(phaethon);
-
-	int      argc = 0;
-	wxChar **argv = 0;
-	wxEntry(argc, argv);
+	Phaethon phaethon(path);
 }

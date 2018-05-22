@@ -25,94 +25,75 @@
 #ifndef PANELRESOURCEINFO_H
 #define PANELRESOURCEINFO_H
 
-#include <wx/panel.h>
+#include <QFrame>
+#include <QLabel>
+#include <QLayout>
+#include <QWidget>
 
-#include "src/common/ustring.h"
-
-#include "src/aurora/types.h"
-
-namespace Common {
-	class SeekableReadStream;
-	class WriteStream;
-}
-
-namespace Sound {
-	class AudioStream;
-}
-
-class wxBoxSizer;
-class wxGenericStaticText;
-class wxButton;
-
-class wxCommandEvent;
+#include "verdigris/wobjectdefs.h"
 
 namespace GUI {
 
-class MainWindow;
 class ResourceTreeItem;
 
-class PanelResourceInfo : public wxPanel {
+class PanelResourceInfo : public QFrame {
+	W_OBJECT(PanelResourceInfo)
+
 public:
-	PanelResourceInfo(wxWindow *parent, MainWindow &mainWindow, const Common::UString &title);
-	~PanelResourceInfo();
+	PanelResourceInfo(QWidget* parent);
 
-	void setCurrentItem(const ResourceTreeItem *item);
-
-private:
-	MainWindow *_mainWindow;
-
-	const ResourceTreeItem *_currentItem;
-
-	wxGenericStaticText *_textName;
-	wxGenericStaticText *_textSize;
-	wxGenericStaticText *_textFileType;
-	wxGenericStaticText *_textResType;
-
-	wxBoxSizer *_sizerExport;
-
-	wxButton *_buttonExportRaw;
-	wxButton *_buttonExportBMUMP3;
-	wxButton *_buttonExportWAV;
-	wxButton *_buttonExportTGA;
-
-
-	void onExportRaw(wxCommandEvent &event);
-	void onExportBMUMP3(wxCommandEvent &event);
-	void onExportWAV(wxCommandEvent &event);
-	void onExportTGA(wxCommandEvent &event);
-
-
-	void createLayout(const Common::UString &title);
-
-
-	bool exportRaw(const Common::UString &path);
-	bool exportBMUMP3(const Common::UString &path);
-	bool exportWAV(const Common::UString &path);
-	bool exportTGA(const Common::UString &path);
-
-	void exportBMUMP3(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
-	void exportWAV(Sound::AudioStream *sound, Common::WriteStream &wav);
-
-
-	void update();
-	void setLabels();
-	void showExportButtons();
+	/** Decides which of the export buttons are required and shows them. */
+	void showExportButtons(const GUI::ResourceTreeItem *item);
 	void showExportButtons(bool enableRaw, bool showMP3, bool showWAV, bool showTGA);
 
+	/** Updates the labels which display information about the resource. */
+	void setLabels(const GUI::ResourceTreeItem *item);
 
-	static uint64 getLength(Sound::AudioStream *sound);
+	/** Calls showExportButtons and setLabels. */
+	void update(const GUI::ResourceTreeItem *item);
 
-	static Common::UString constructStatus(const Common::UString &action,
-			const Common::UString &name, const Common::UString &destination);
+	/** Used when a directory is closed. */
+	void clearLabels();
+	void setButtonsForClosedDir();
 
-	static Common::UString getSizeLabel(size_t size);
-	static Common::UString getFileTypeLabel(Aurora::FileType type);
-	static Common::UString getResTypeLabel(Aurora::ResourceType type);
+public /*signals*/ :
+	void loadModel(const QString &path)
+	W_SIGNAL(loadModel, path)
 
-	Common::UString dialogSaveFile(const Common::UString &title, const Common::UString &mask,
-	                               const Common::UString &def = "");
+	void log(const QString &text)
+	W_SIGNAL(log,       text)
 
-	wxDECLARE_EVENT_TABLE();
+	void closeDirClicked()
+	W_SIGNAL(closeDirClicked)
+
+	void saveClicked()
+	W_SIGNAL(saveClicked)
+
+	void exportTGAClicked()
+	W_SIGNAL(exportTGAClicked)
+
+	void exportBMUMP3Clicked()
+	W_SIGNAL(exportBMUMP3Clicked)
+
+	void exportWAVClicked()
+	W_SIGNAL(exportWAVClicked)
+
+public /*slots*/ :
+	void slotSave();
+	void slotExportTGA();
+	void slotExportBMUMP3();
+	void slotExportWAV();
+
+private:
+	QPushButton *_buttonExportRaw;
+	QPushButton *_buttonExportBMUMP3;
+	QPushButton *_buttonExportTGA;
+	QPushButton *_buttonExportWAV;
+
+	QLabel *_labelName;
+	QLabel *_labelSize;
+	QLabel *_labelFileType;
+	QLabel *_labelResType;
 };
 
 } // End of namespace GUI

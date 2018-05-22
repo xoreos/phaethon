@@ -58,6 +58,14 @@ UTF-8 CPP
    UTF-8 CPP is licensed under the Boost Software License. See utf8cpp/utf8.h
    for details.
 
+Verdigris
+*********
+   Phaethon uses and includes the header-only library Verdigris
+   (<https://github.com/woboq/verdigris>) to use Qt5 without moc. Verdigris
+   is licensed under version 3 or later of the Lesser GNU General Public
+   License. For the full license texts, see LICENSE.LGPLv3 or
+   <https://gnu.org/licenses/lgpl-3.0.html>.
+
 ScummVM code
 ************
    Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
