@@ -35,6 +35,9 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QStatusBar>
+
+#include <boost/scope_exit.hpp>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -51,7 +54,7 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
-	QMainWindow(parent), _treeModel(0), _proxyModel(0), _rootPath("") {
+	QMainWindow(parent), _status(statusBar()), _treeModel(0), _proxyModel(0), _rootPath("") {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -189,6 +192,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_treeModel.reset(new ResourceTree(this, _treeView));
 	_proxyModel.reset(new ProxyModel(this));
 
+	_status.setText("Idle...");
+
 	if (qpath.isEmpty())
 		_actionClose->setEnabled(false);
 	else
@@ -222,6 +227,8 @@ void MainWindow::slotClose() {
 	_rootPath = "";
 
 	_actionClose->setEnabled(false);
+
+	_status.pop();
 }
 
 void MainWindow::slotQuit() {
@@ -239,9 +246,14 @@ void MainWindow::open(const QString &path) {
 
 	_rootPath = path;
 
+	// popped in openFinish
+	_status.push("Populating resource tree...");
+
 	try {
 		_files.readPath(Common::UString(path.toStdString()), -1);
 	} catch (Common::Exception &e) {
+		_status.pop();
+
 		Common::printException(e, "WARNING: ");
 		return;
 	}
@@ -262,6 +274,16 @@ void MainWindow::openFinish() {
 	_treeView->expandToDepth(0);
 	_treeView->show();
 	_treeView->resizeColumnToContents(0);
+
+	_status.pop();
+}
+
+void MainWindow::statusPush(const QString &text) {
+	_status.push(text);
+}
+
+void MainWindow::statusPop() {
+	_status.pop();
 }
 
 } // End of namespace GUI
