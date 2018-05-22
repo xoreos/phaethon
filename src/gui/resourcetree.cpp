@@ -167,6 +167,11 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
 	if (archive.addedMembers)
 		return;
 
+	_mainWindow->statusPush(tr("Loading archive") + item->getName() + "...");
+	BOOST_SCOPE_EXIT((&_mainWindow)) {
+		_mainWindow->statusPop();
+	} BOOST_SCOPE_EXIT_END
+
 	// Load the archive, if necessary
 	if (!archive.data) {
 		try {
@@ -295,10 +300,15 @@ void ResourceTree::loadKEYDataFiles(Aurora::KEYFile &key) {
 	const std::vector<Common::UString> dataFiles = key.getDataFileList();
 	for (size_t i = 0; i < dataFiles.size(); i++) {
 		try {
+			_mainWindow->statusPush(tr("Loading data file") + QString::fromUtf8(dataFiles[i].c_str()) + "...");
+
 			Aurora::KEYDataFile *dataFile = getKEYDataFile(QString::fromUtf8(dataFiles[i].c_str()));
 			key.addDataFile(i, dataFile);
+
+			_mainWindow->statusPop();
 		} catch (Common::Exception &e) {
 			e.add("Failed to load KEY data file \"%s\"", dataFiles[i].c_str());
+			_mainWindow->statusPop();
 			Common::printException(e, "WARNING: ");
 		}
 	}

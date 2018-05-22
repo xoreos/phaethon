@@ -32,6 +32,7 @@
 
 #include "src/gui/resourcetree.h"
 #include "src/gui/proxymodel.h"
+#include "src/gui/statusbar.h"
 
 #include "verdigris/wobjectdefs.h"
 
@@ -71,6 +72,11 @@ private /*slots*/:
 private:
 	void open(const QString &path);
 	void openFinish();
+
+	void statusPush(const QString &text);
+	void statusPop();
+
+	StatusBar _status;
 
 	QWidget *_centralWidget;
 	QGridLayout *_centralLayout;
