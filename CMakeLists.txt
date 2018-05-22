@@ -266,15 +266,6 @@ find_package(LibLZMA REQUIRED)
 include_directories(${LIBLZMA_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${LIBLZMA_LIBRARIES})
 
-find_package(wxWidgets COMPONENTS core base REQUIRED)
-include_directories(${wxWidgets_INCLUDE_DIRS})
-add_compile_options(${wxWidgets_CXX_FLAGS})
-list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
-
-find_package(wxWidgets REQUIRED core base)
-include(${wxWidgets_USE_FILE})
-list(APPEND PHAETHON_LIBRARIES ${wxWidgets_LIBRARIES})
-
 find_package(Iconv REQUIRED)
 include_directories(${ICONV_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ICONV_LIBRARIES})

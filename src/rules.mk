@@ -32,7 +32,6 @@ src_phaethon_SOURCES += \
     $(EMPTY)
 
 src_phaethon_LDADD = \
-    src/gui/libgui.la \
     src/sound/libsound.la \
     src/images/libimages.la \
     src/aurora/libaurora.la \
@@ -48,4 +47,3 @@ include src/common/rules.mk
 include src/aurora/rules.mk
 include src/images/rules.mk
 include src/sound/rules.mk
-include src/gui/rules.mk

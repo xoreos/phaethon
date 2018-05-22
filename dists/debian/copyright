@@ -86,11 +86,6 @@ Files: m4/ax_check_iconv.m4
 Copyright: 2013 Sven Hesse <drmccoy@drmccoy.de>
 License: CC0-1.0
 
-Files: m4/ax_check_wx.m4
-Copyright: 2013, 2016 Sven Hesse <drmccoy@drmccoy.de>
-Sven Hesse <drmccoy@drmccoy.de>
-License: CC0-1.0
-
 Files: m4/ax_check_lzma.m4
 Copyright: 2014 Sven Hesse <drmccoy@drmccoy.de>
 License: CC0-1.0
