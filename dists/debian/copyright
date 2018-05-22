@@ -73,6 +73,10 @@ License:
  gives unlimited permission to copy and/or distribute it,
  with or without modifications, as long as this notice is preserved.
 
+Files: m4/ax_check_qt5.m4
+Copyright: 2017 Sven Hesse <drmccoy@drmccoy.de>
+License: CC0-1.0
+
 Files: m4/ax_check_al.m4
 Copyright: 2013 Sven Hesse <drmccoy@drmccoy.de>
            2013 Matthew Hoops <clone2727@gmail.com>

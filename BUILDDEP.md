@@ -24,6 +24,8 @@ Build-time library dependencies
   - Boost.Locale
   - Boost.Thread
 
+- Qt (>= 5.7.1)
+
 - OpenAL Soft (>= 1.12)
 - MAD (>= 0.15.1b)
 - libogg (>= 1.2.0)
