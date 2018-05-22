@@ -133,11 +133,13 @@ GTEST_TEST(BZFFile, getResource) {
 GTEST_TEST(BZFFile, mergeKEY) {
 	Aurora::KEYFile key(new Common::MemoryReadStream(kKEYFile));
 
-	Common::MemoryReadStream *stream =
-		new Common::MemoryReadStream(kBZFFile);
+	Aurora::BZFFile *bzf =
+		new Aurora::BZFFile(new Common::MemoryReadStream(kBZFFile));
 
-	key.addDataFile(0, new Aurora::BZFFile(stream));
+	key.addDataFile(0, bzf);
 
 	EXPECT_TRUE(key.haveDataFile(0));
 	EXPECT_EQ(key.getResourceSize(0), strlen(kFileData));
+
+	delete bzf;
 }
