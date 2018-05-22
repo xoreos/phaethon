@@ -27,6 +27,12 @@
 
 #include <QMainWindow>
 
+#include "src/common/filetree.h"
+#include "src/common/scopedptr.h"
+
+#include "src/gui/resourcetree.h"
+#include "src/gui/proxymodel.h"
+
 #include "verdigris/wobjectdefs.h"
 
 class QSplitter;
@@ -36,6 +42,9 @@ class QFrame;
 class QTextEdit;
 
 namespace GUI {
+
+class ResourceTree;
+class ProxyModel;
 
 class MainWindow : public QMainWindow {
 	W_OBJECT(MainWindow)
@@ -60,6 +69,9 @@ private /*slots*/:
 	W_SLOT(slotAbout, W_Access::Private)
 
 private:
+	void open(const QString &path);
+	void openFinish();
+
 	QWidget *_centralWidget;
 	QGridLayout *_centralLayout;
 
@@ -79,6 +91,13 @@ private:
 
 	QFrame *_resPreviewFrame;
 	QTextEdit *_log;
+
+	Common::FileTree _files;
+	Common::ScopedPtr<ResourceTree> _treeModel;
+	Common::ScopedPtr<ProxyModel> _proxyModel;
+	QString _rootPath;
+
+	friend class ResourceTree;
 };
 
 } // End of namespace GUI

@@ -33,6 +33,8 @@
 #include <QGroupBox>
 #include <QTextEdit>
 #include <QLabel>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -48,7 +50,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(MainWindow)
 
-MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *UNUSED(path)) : QMainWindow(parent) {
+MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
+	QMainWindow(parent), _treeModel(0), _proxyModel(0), _rootPath("") {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -179,15 +182,46 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 
 	setCentralWidget(_centralWidget);
 	_centralLayout->addWidget(_splitterTopBottom);
+
+	/* Open path. */
+	const QString qpath = QString::fromUtf8(path);
+
+	_treeModel.reset(new ResourceTree(this, _treeView));
+	_proxyModel.reset(new ProxyModel(this));
+
+	if (qpath.isEmpty())
+		_actionClose->setEnabled(false);
+	else
+		open(qpath);
 }
 
 void MainWindow::slotOpenDirectory() {
+	QString dir = QFileDialog::getExistingDirectory(this,
+		tr("Open directory"),
+		QString(QStandardPaths::HomeLocation),
+		QFileDialog::ShowDirsOnly);
+
+	if (!dir.isEmpty())
+		open(dir);
 }
 
 void MainWindow::slotOpenFile() {
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Aurora game resource file"),
+		QString(QStandardPaths::HomeLocation),
+		tr("Aurora game resource (*.*)"));
+
+	if (!fileName.isEmpty())
+		open(fileName);
 }
 
 void MainWindow::slotClose() {
+	_treeView->setModel(nullptr);
+	_treeModel.reset(nullptr);
+
+	_rootPath = "";
+
+	_actionClose->setEnabled(false);
 }
 
 void MainWindow::slotQuit() {
@@ -197,6 +231,37 @@ void MainWindow::slotQuit() {
 void MainWindow::slotAbout() {
 	const QString msg = QString::fromUtf8(createVersionText().c_str());
 	QMessageBox::about(this, "About Phaethon", msg);
+}
+
+void MainWindow::open(const QString &path) {
+	if (_rootPath == path)
+		return;
+
+	_rootPath = path;
+
+	try {
+		_files.readPath(Common::UString(path.toStdString()), -1);
+	} catch (Common::Exception &e) {
+		Common::printException(e, "WARNING: ");
+		return;
+	}
+
+	_treeModel.reset(new ResourceTree(this, _treeView));
+
+	// Enters populate thread in here.
+	_treeModel->populate(_files.getRoot());
+
+	_actionClose->setEnabled(true);
+}
+
+void MainWindow::openFinish() {
+	_proxyModel->setSourceModel(_treeModel.get());
+	_proxyModel->sort(0);
+
+	_treeView->setModel(_proxyModel.get());
+	_treeView->expandToDepth(0);
+	_treeView->show();
+	_treeView->resizeColumnToContents(0);
 }
 
 } // End of namespace GUI
