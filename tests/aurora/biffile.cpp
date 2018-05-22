@@ -147,13 +147,15 @@ GTEST_TEST(BIFFile10, getResource) {
 GTEST_TEST(BIFFile10, mergeKEY) {
 	Aurora::KEYFile key(new Common::MemoryReadStream(kKEYFile));
 
-	Common::MemoryReadStream *stream =
-		new Common::MemoryReadStream(kBIF10File);
+	Aurora::BIFFile *bif =
+		new Aurora::BIFFile(new Common::MemoryReadStream(kBIF10File));
 
-	key.addDataFile(0, new Aurora::BIFFile(stream));
+	key.addDataFile(0, bif);
 
 	EXPECT_TRUE(key.haveDataFile(0));
 	EXPECT_EQ(key.getResourceSize(0), strlen(kFileData));
+
+	delete bif;
 }
 
 // --- BIF V1.1 ---
@@ -246,11 +248,13 @@ GTEST_TEST(BIFFile11, getResource) {
 GTEST_TEST(BIFFile11, mergeKEY) {
 	Aurora::KEYFile key(new Common::MemoryReadStream(kKEYFile));
 
-	Common::MemoryReadStream *stream =
-		new Common::MemoryReadStream(kBIF11File);
+	Aurora::BIFFile *bif =
+		new Aurora::BIFFile(new Common::MemoryReadStream(kBIF11File));
 
-	key.addDataFile(0, new Aurora::BIFFile(stream));
+	key.addDataFile(0, bif);
 
 	EXPECT_TRUE(key.haveDataFile(0));
 	EXPECT_EQ(key.getResourceSize(0), strlen(kFileData));
+
+	delete bif;
 }
