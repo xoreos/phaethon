@@ -31,6 +31,7 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/statusbar.h \
 	src/gui/panelresourceinfo.h \
 	src/gui/panelpreviewempty.h \
+	src/gui/panelpreviewimage.h \
 	$(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
@@ -41,4 +42,5 @@ src_gui_libgui_la_SOURCES += \
 	src/gui/statusbar.cpp \
 	src/gui/panelresourceinfo.cpp \
 	src/gui/panelpreviewempty.cpp \
+	src/gui/panelpreviewimage.cpp \
 	$(EMPTY)
