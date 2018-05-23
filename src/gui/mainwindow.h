@@ -57,6 +57,7 @@ class MainWindow : public QMainWindow {
 
 public:
 	MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path);
+	~MainWindow();
 
 private /*slots*/:
 	void slotLog(const QString &text);

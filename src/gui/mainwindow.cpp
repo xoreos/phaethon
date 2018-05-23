@@ -68,8 +68,8 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)),
-	_panelPreviewImage(new PanelPreviewImage(this)), _panelPreviewSound(new PanelPreviewSound(0)) {
+	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(0)),
+	_panelPreviewImage(new PanelPreviewImage(0)), _panelPreviewSound(new PanelPreviewSound(0)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -213,6 +213,17 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 		_actionClose->setEnabled(false);
 	else
 		open(qpath);
+}
+
+MainWindow::~MainWindow() {
+	if (!_panelPreviewEmpty->parent())
+		delete _panelPreviewEmpty;
+
+	if (!_panelPreviewImage->parent())
+		delete _panelPreviewImage;
+
+	if (!_panelPreviewSound->parent())
+		delete _panelPreviewSound;
 }
 
 void MainWindow::slotLog(const QString &text) {
@@ -544,10 +555,9 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
 	if (_resPreviewFrame->layout()->count()) {
 		QFrame *old = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
 		if (old != panel) {
-			old->setParent(0);
-			panel->setParent(this);
-			_resPreviewFrame->layout()->removeWidget(old);
-			_resPreviewFrame->layout()->addWidget(panel);
+			old->hide();
+			panel->show();
+			_resPreviewFrame->layout()->replaceWidget(old, panel);
 		}
 	}
 }
