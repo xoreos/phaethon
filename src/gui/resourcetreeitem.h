@@ -46,10 +46,11 @@
 namespace GUI {
 
 enum Source {
-	kSourceDirectory   = 0,
-	kSourceFile        = 1,
-	kSourceArchive     = 2,
-	kSourceArchiveFile = 3
+	kSourceNone        = 0,
+	kSourceDirectory   = 1,
+	kSourceFile        = 2,
+	kSourceArchive     = 3,
+	kSourceArchiveFile = 4
 };
 
 struct Archive {
