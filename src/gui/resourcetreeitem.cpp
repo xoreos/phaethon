@@ -30,7 +30,8 @@
 namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-	_name(QString::fromUtf8(entry.name.c_str())), _source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
+	_parent(0), _name(QString::fromUtf8(entry.name.c_str())),
+	_source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
 	_path = QString::fromUtf8(entry.path.string().c_str());
 
@@ -57,7 +58,8 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 }
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
-	_name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())), _source(kSourceArchiveFile) {
+	_parent(0), _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
+	_source(kSourceArchiveFile) {
 
 	_archive.data = archive;
 	_archive.addedMembers = false;
@@ -79,7 +81,7 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archi
 	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-ResourceTreeItem::ResourceTreeItem(const QString &data) {
+ResourceTreeItem::ResourceTreeItem(const QString &data) : _parent(0) {
 	_name = data;
 }
 
