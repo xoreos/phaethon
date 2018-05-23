@@ -8,6 +8,8 @@ Someday, ????-??-?? (Version 0.0.5)
 		- Changed our autotools setup to be non-recursive
 		- Added support for SOURCE_DATE_EPOCH when building, which
 		  is necessary for reproducible builds
+	- GUI:
+		- Moved from wxWidgets to Qt 5
 	- COMMON:
 		- Added missing kEncodingCP1251 handling in several functions
 		- Moved DEFLATE and LZMA decompression into their own files
