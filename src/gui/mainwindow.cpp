@@ -415,8 +415,8 @@ void MainWindow::exportBMUMP3() {
 
 	const QString title = "Save MP3 file";
 	const QString mask  = "MP3 file (*.mp3)|*.mp3";
-	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3).c_str();
-	const QString def   = QString::fromUtf8(defCstr);
+	Common::UString defUString = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3);
+	const QString def   = QString::fromUtf8(defUString.c_str());
 
 	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
 
@@ -513,8 +513,8 @@ void MainWindow::exportWAV() {
 
 	const QString title = "Save PCM WAV file";
 	const QString mask  = "WAV file (*.wav)|*.wav";
-	const char *defCstr = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV).c_str();
-	const QString def   = QString::fromUtf8(defCstr);
+	Common::UString defUString = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV);
+	const QString def   = QString::fromUtf8(defUString.c_str());
 
 	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
 
