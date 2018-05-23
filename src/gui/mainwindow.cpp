@@ -69,7 +69,8 @@ W_OBJECT_IMPL(MainWindow)
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
 	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(0)),
-	_panelPreviewImage(new PanelPreviewImage(0)), _panelPreviewSound(new PanelPreviewSound(0)) {
+	_panelPreviewImage(new PanelPreviewImage(0)), _panelPreviewSound(new PanelPreviewSound(0)),
+	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);

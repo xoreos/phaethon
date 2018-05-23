@@ -60,10 +60,9 @@ void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
 	ResourceTreeItem *treeRoot = new ResourceTreeItem(rootEntry);
 	_root->addChild(treeRoot);
 
-	QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-	connect(watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::openFinish);
+	connect(_mainWindow->_watcher, &QFutureWatcher<void>::finished, _mainWindow, &MainWindow::openFinish);
 	QFuture<void> future = QtConcurrent::run(this, &ResourceTree::populate, rootEntry, treeRoot);
-	watcher->setFuture(future);
+	_mainWindow->_watcher->setFuture(future);
 }
 
 void ResourceTree::populate(const Common::FileTree::Entry &entry, ResourceTreeItem *parent) {

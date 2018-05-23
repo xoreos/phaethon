@@ -26,6 +26,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFutureWatcher>
 
 #include "src/common/filetree.h"
 #include "src/common/scopedptr.h"
@@ -138,6 +139,8 @@ private:
 	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewImage *_panelPreviewImage;
 	PanelPreviewSound *_panelPreviewSound;
+
+	QFutureWatcher<void> *_watcher;
 
 	friend class ResourceTree;
 };
