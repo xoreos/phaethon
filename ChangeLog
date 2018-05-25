@@ -10,6 +10,7 @@ Someday, ????-??-?? (Version 0.0.5)
 		  is necessary for reproducible builds
 	- GUI:
 		- Moved from wxWidgets to Qt 5
+		- Added text viewing
 	- COMMON:
 		- Added missing kEncodingCP1251 handling in several functions
 		- Moved DEFLATE and LZMA decompression into their own files

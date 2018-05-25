@@ -52,6 +52,7 @@ class ProxyModel;
 class PanelPreviewEmpty;
 class PanelPreviewImage;
 class PanelPreviewSound;
+class PanelPreviewText;
 
 class MainWindow : public QMainWindow {
 	W_OBJECT(MainWindow)
@@ -139,6 +140,7 @@ private:
 	PanelPreviewEmpty *_panelPreviewEmpty;
 	PanelPreviewImage *_panelPreviewImage;
 	PanelPreviewSound *_panelPreviewSound;
+	PanelPreviewText *_panelPreviewText;
 
 	QFutureWatcher<void> *_watcher;
 
