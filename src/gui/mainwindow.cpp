@@ -338,10 +338,6 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
 
 	_panelResourceInfo->update(_currentItem);
 
-	_panelPreviewImage->setItem(_currentItem);
-	_panelPreviewSound->setItem(_currentItem);
-	_panelPreviewText->setItem(_currentItem);
-
 	showPreviewPanel();
 }
 
@@ -572,14 +568,17 @@ void MainWindow::showPreviewPanel(QFrame *panel) {
 void MainWindow::showPreviewPanel() {
 	switch (_currentItem->getResourceType()) {
 		case Aurora::kResourceImage:
+			_panelPreviewImage->setItem(_currentItem);
 			showPreviewPanel(_panelPreviewImage);
 			break;
 
 		case Aurora::kResourceSound:
+			_panelPreviewSound->setItem(_currentItem);
 			showPreviewPanel(_panelPreviewSound);
 			break;
 
 		case Aurora::kResourceText:
+			_panelPreviewText->setItem(_currentItem);
 			showPreviewPanel(_panelPreviewText);
 			break;
 
