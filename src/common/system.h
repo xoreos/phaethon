@@ -401,9 +401,9 @@
 
 // Compatibility macro for dealing with the explicit bool cast problem.
 #if __cplusplus < 201103L
-	#define XOREOS_EXPLICIT_OPERATOR_CONV
+	#define PHAETHON_EXPLICIT_OPERATOR_CONV
 #else
-	#define XOREOS_EXPLICIT_OPERATOR_CONV explicit
+	#define PHAETHON_EXPLICIT_OPERATOR_CONV explicit
 #endif
 
 //

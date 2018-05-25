@@ -76,7 +76,7 @@ public:
 	/** Implicit conversion operator to bool for convenience, to make
 	 *  checks like "if (disposablePtr) ..." possible.
 	 */
-	XOREOS_EXPLICIT_OPERATOR_CONV operator bool() const { return _pointer != 0; }
+	PHAETHON_EXPLICIT_OPERATOR_CONV operator bool() const { return _pointer != 0; }
 
 	~DisposablePtrBase() {
 		if (_dispose)

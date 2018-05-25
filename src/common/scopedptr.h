@@ -77,7 +77,7 @@ public:
 	/** Implicit conversion operator to bool for convenience, to make
 	 *  checks like "if (scopedPtr) ..." possible.
 	 */
-	XOREOS_EXPLICIT_OPERATOR_CONV operator bool() const { return _pointer != 0; }
+	PHAETHON_EXPLICIT_OPERATOR_CONV operator bool() const { return _pointer != 0; }
 
 	~ScopedPtrBase() {
 		Deallocator::destroy(_pointer);
