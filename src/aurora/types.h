@@ -391,6 +391,7 @@ enum ResourceType {
 	kResourceVideo       ,  ///< A video resource.
 	kResourceSound       ,  ///< A sound resource.
 	kResourceArchive     ,  ///< An archive resource.
+	kResourceText        ,  ///< A plaintext resource.
 	kResourceMAX
 };
 

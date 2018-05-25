@@ -375,6 +375,10 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceArchive].push_back(kFileTypeNWM);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeSAV);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeHAK);
+
+	_resourceTypes[kResourceText].push_back(kFileTypeINI);
+	_resourceTypes[kResourceText].push_back(kFileTypeTXT);
+	_resourceTypes[kResourceText].push_back(kFileTypeNSS);
 }
 
 FileTypeManager::~FileTypeManager() {
@@ -491,7 +495,7 @@ Common::UString getPlatformDescription(Platform platform) {
 }
 
 Common::UString getResourceTypeDescription(ResourceType type) {
-	static const char * const names[kResourceMAX] = { "Image", "Video", "Sound", "Archive" };
+	static const char * const names[kResourceMAX] = { "Image", "Video", "Sound", "Archive", "Text" };
 
 	if ((type < 0) || (type >= kResourceMAX))
 			return "";
