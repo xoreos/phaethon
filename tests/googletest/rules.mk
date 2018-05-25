@@ -120,5 +120,5 @@ EXTRA_DIST += \
     tests/googletest/src/gtest.cc \
     tests/googletest/CONTRIBUTORS \
     tests/googletest/LICENSE \
-    tests/googletest/README.xoreos \
+    tests/googletest/README.Phaethon \
     $(EMPTY)
