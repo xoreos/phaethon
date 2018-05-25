@@ -26,6 +26,9 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QtConcurrentRun>
+#include <QFileInfo>
+#include <QModelIndex>
+#include <QVariant>
 
 #include <boost/scope_exit.hpp>
 

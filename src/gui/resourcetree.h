@@ -27,9 +27,6 @@
 
 #include <QAbstractItemModel>
 #include <QFileIconProvider>
-#include <QFileInfo>
-#include <QModelIndex>
-#include <QVariant>
 
 #include "verdigris/wobjectdefs.h"
 

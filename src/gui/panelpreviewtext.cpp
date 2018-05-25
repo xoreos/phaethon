@@ -22,6 +22,10 @@
  *  Preview panel for text files.
  */
 
+#include <QFrame>
+#include <QPlainTextEdit>
+#include <QTextStream>
+#include <QWidget>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>

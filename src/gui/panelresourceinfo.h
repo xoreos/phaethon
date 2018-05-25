@@ -25,11 +25,6 @@
 #ifndef GUI_PANELRESOURCEINFO_H
 #define GUI_PANELRESOURCEINFO_H
 
-#include <QFrame>
-#include <QLabel>
-#include <QLayout>
-#include <QWidget>
-
 #include "verdigris/wobjectdefs.h"
 
 namespace GUI {

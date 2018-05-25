@@ -26,9 +26,9 @@
 #ifndef GUI_STATUSBAR_H
 #define GUI_STATUSBAR_H
 
-#include <QMainWindow>
-#include <QStatusBar>
-#include <QWidget>
+#include <QString>
+
+class QStatusBar;
 
 namespace GUI {
 
