@@ -165,7 +165,7 @@ void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *data_ou
 }
 
 void PanelPreviewImage::writePixel(const byte *&data_in, Images::PixelFormat format,
-								   byte *&data_out, QImage::Format &format_out) {
+                                   byte *&data_out, QImage::Format &format_out) {
 	if (format == Images::kPixelFormatR8G8B8) {
 		format_out = QImage::Format_RGB888;
 		*data_out++   = data_in[0];

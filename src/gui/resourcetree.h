@@ -42,7 +42,7 @@
 #include "src/images/decoder.h"
 
 namespace Common {
-    class SeekableReadStream;
+	class SeekableReadStream;
 }
 
 namespace Sound {
