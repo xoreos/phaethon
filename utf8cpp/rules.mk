@@ -27,6 +27,6 @@ noinst_HEADERS += \
     $(EMPTY)
 
 EXTRA_DIST += \
-    utf8cpp/README.xoreos \
+    utf8cpp/README.Phaethon \
     utf8cpp/utf8cpp.patch \
     $(EMPTY)
