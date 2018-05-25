@@ -22,8 +22,8 @@
  *  Panel showing general information and actions on resources.
  */
 
-#ifndef PANELRESOURCEINFO_H
-#define PANELRESOURCEINFO_H
+#ifndef GUI_PANELRESOURCEINFO_H
+#define GUI_PANELRESOURCEINFO_H
 
 #include <QFrame>
 #include <QLabel>
@@ -98,4 +98,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // PANELRESOURCEINFO_H
+#endif // GUI_PANELRESOURCEINFO_H

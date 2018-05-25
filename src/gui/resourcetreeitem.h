@@ -22,8 +22,8 @@
  *  Items that make up Phaethon's resource tree.
  */
 
-#ifndef RESOURCETREEITEM_H
-#define RESOURCETREEITEM_H
+#ifndef GUI_RESOURCETREEITEM_H
+#define GUI_RESOURCETREEITEM_H
 
 #include <QFileInfo>
 #include <QString>
@@ -132,4 +132,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // RESOURCETREEITEM_H
+#endif // GUI_RESOURCETREEITEM_H

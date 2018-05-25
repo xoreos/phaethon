@@ -22,8 +22,8 @@
  *  Preview panel for text files.
  */
 
-#ifndef PANELPREVIEWTEXT_H
-#define PANELPREVIEWTEXT_H
+#ifndef GUI_PANELPREVIEWTEXT_H
+#define GUI_PANELPREVIEWTEXT_H
 
 #include <QFrame>
 #include <QPlainTextEdit>
@@ -65,4 +65,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // PANELPREVIEWTEXT_H
+#endif // GUI_PANELPREVIEWTEXT_H

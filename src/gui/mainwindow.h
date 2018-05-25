@@ -22,8 +22,8 @@
  *  Phaethon's main window.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef GUI_MAINWINDOW_H
+#define GUI_MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QFutureWatcher>
@@ -149,4 +149,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // MAINWINDOW_H
+#endif // GUI_MAINWINDOW_H

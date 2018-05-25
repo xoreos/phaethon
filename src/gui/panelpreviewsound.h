@@ -22,8 +22,8 @@
  *  Preview panel for sound resources.
  */
 
-#ifndef PANELPREVIEWSOUND_H
-#define PANELPREVIEWSOUND_H
+#ifndef GUI_PANELPREVIEWSOUND_H
+#define GUI_PANELPREVIEWSOUND_H
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -85,4 +85,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // PANELPREVIEWSOUND_H
+#endif // GUI_PANELPREVIEWSOUND_H

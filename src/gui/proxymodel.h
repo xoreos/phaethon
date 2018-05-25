@@ -1,5 +1,5 @@
-#ifndef PROXYMODEL_H
-#define PROXYMODEL_H
+#ifndef GUI_PROXYMODEL_H
+#define GUI_PROXYMODEL_H
 
 #include <QSortFilterProxyModel>
 
@@ -19,4 +19,4 @@ protected:
 
 } // End of namespace GUI
 
-#endif // PROXYMODEL_H
+#endif // GUI_PROXYMODEL_H

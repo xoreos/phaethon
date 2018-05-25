@@ -23,8 +23,8 @@
  *  have identical functionality to Phaethon (wx version.)
  */
 
-#ifndef STATUSBAR_H
-#define STATUSBAR_H
+#ifndef GUI_STATUSBAR_H
+#define GUI_STATUSBAR_H
 
 #include <QMainWindow>
 #include <QStatusBar>
@@ -46,4 +46,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // STATUSBAR_H
+#endif // GUI_STATUSBAR_H

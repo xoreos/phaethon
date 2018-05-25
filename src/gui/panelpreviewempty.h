@@ -22,8 +22,8 @@
  *  Preview panel for resources we can't do anything with.
  */
 
-#ifndef PANELPREVIEWEMPTY_H
-#define PANELPREVIEWEMPTY_H
+#ifndef GUI_PANELPREVIEWEMPTY_H
+#define GUI_PANELPREVIEWEMPTY_H
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -44,4 +44,4 @@ public:
 
 } // End of namespace GUI
 
-#endif // PANELPREVIEWEMPTY_H
+#endif // GUI_PANELPREVIEWEMPTY_H

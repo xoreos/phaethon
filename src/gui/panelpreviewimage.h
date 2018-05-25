@@ -22,8 +22,8 @@
  *  Preview panel for image resources.
  */
 
-#ifndef PANELPREVIEWIMAGE_H
-#define PANELPREVIEWIMAGE_H
+#ifndef GUI_PANELPREVIEWIMAGE_H
+#define GUI_PANELPREVIEWIMAGE_H
 
 #include <QCheckBox>
 #include <QFrame>
@@ -111,4 +111,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // PANELPREVIEWIMAGE_H
+#endif // GUI_PANELPREVIEWIMAGE_H

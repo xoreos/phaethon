@@ -22,8 +22,8 @@
  *  Phaethon's tree of game resource files.
  */
 
-#ifndef RESOURCETREE_H
-#define RESOURCETREE_H
+#ifndef GUI_RESOURCETREE_H
+#define GUI_RESOURCETREE_H
 
 #include <QAbstractItemModel>
 #include <QFileIconProvider>
@@ -128,4 +128,4 @@ private:
 
 } // End of namespace GUI
 
-#endif // RESOURCETREE_H
+#endif // GUI_RESOURCETREE_H
