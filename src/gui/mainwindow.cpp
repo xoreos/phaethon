@@ -285,6 +285,8 @@ void MainWindow::open(const QString &path) {
 	if (_rootPath == path)
 		return;
 
+	slotClose();
+
 	_rootPath = path;
 
 	// popped in openFinish
