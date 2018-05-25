@@ -264,7 +264,7 @@ void MainWindow::slotClose() {
 	_treeModel.reset(nullptr);
 	_currentItem = nullptr;
 
-	_log->append(tr("Closed directory: %1").arg(_rootPath));
+	_log->append(tr("Closed: %1").arg(_rootPath));
 	_rootPath = "";
 
 	_actionClose->setEnabled(false);
