@@ -25,22 +25,14 @@
 #ifndef GUI_PANELPREVIEWIMAGE_H
 #define GUI_PANELPREVIEWIMAGE_H
 
-#include <QCheckBox>
-#include <QFrame>
-#include <QGraphicsView>
-#include <QGridLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QScrollBar>
-#include <QSlider>
-#include <QWidget>
-
 #include "verdigris/wobjectdefs.h"
 
 #include "src/common/types.h"
 
 #include "src/images/decoder.h"
 #include "src/images/types.h"
+
+class QScrollArea;
 
 namespace GUI {
 

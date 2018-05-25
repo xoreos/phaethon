@@ -23,7 +23,9 @@
  *  have identical functionality to Phaethon (wx version.)
  */
 
-#include "statusbar.h"
+#include <QStatusBar>
+
+#include "src/gui/statusbar.h"
 
 namespace GUI {
 

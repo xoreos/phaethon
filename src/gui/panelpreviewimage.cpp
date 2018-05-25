@@ -23,6 +23,15 @@
  */
 
 #include <QImageReader>
+#include <QCheckBox>
+#include <QFrame>
+#include <QGraphicsView>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QSlider>
+#include <QWidget>
 
 #include "verdigris/wobjectimpl.h"
 

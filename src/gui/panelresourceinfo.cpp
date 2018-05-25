@@ -22,6 +22,10 @@
  *  Panel showing general information and actions on resources.
  */
 
+#include <QFrame>
+#include <QLabel>
+#include <QLayout>
+#include <QWidget>
 #include <QDir>
 #include <QFileDialog>
 #include <QPushButton>

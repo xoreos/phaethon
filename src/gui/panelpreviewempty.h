@@ -25,12 +25,6 @@
 #ifndef GUI_PANELPREVIEWEMPTY_H
 #define GUI_PANELPREVIEWEMPTY_H
 
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QSpacerItem>
-#include <QWidget>
-
 #include "verdigris/wobjectdefs.h"
 
 namespace GUI {

@@ -22,6 +22,11 @@
  *  Preview panel for resources we can't do anything with.
  */
 
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QWidget>
+
 #include "verdigris/wobjectimpl.h"
 
 #include "src/common/system.h"

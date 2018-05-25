@@ -22,6 +22,15 @@
  *  Preview panel for sound resources.
  */
 
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSlider>
+#include <QSpacerItem>
+#include <QtMultimedia>
+#include <QWidget>
+
 #include "verdigris/wobjectimpl.h"
 
 #include "src/common/system.h"

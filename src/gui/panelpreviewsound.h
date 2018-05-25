@@ -25,15 +25,6 @@
 #ifndef GUI_PANELPREVIEWSOUND_H
 #define GUI_PANELPREVIEWSOUND_H
 
-#include <QFrame>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QSlider>
-#include <QSpacerItem>
-#include <QtMultimedia>
-#include <QWidget>
-
 #include "verdigris/wobjectdefs.h"
 
 #include "src/sound/types.h"

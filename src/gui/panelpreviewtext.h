@@ -25,11 +25,6 @@
 #ifndef GUI_PANELPREVIEWTEXT_H
 #define GUI_PANELPREVIEWTEXT_H
 
-#include <QFrame>
-#include <QPlainTextEdit>
-#include <QTextStream>
-#include <QWidget>
-
 #include "verdigris/wobjectdefs.h"
 
 class QComboBox;
