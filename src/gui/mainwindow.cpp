@@ -128,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	QFrame *resInfoFrame = new QFrame(previewWrapper);
 	_resPreviewFrame = new QFrame(previewWrapper);
 	_log = new QTextEdit(logBox);
+	_log->setReadOnly(true);
 
 	// Tree
 	// 1:8 ratio; tree:preview/log
