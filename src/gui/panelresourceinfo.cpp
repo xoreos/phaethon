@@ -57,6 +57,8 @@ PanelResourceInfo::PanelResourceInfo(QWidget *parent) : QFrame(parent) {
 	_labelFileType = new QLabel(tr("File type:"), this);
 	_labelResType = new QLabel(tr("Resource type:"), this);
 
+	_labelName->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+
 	layoutLabels->addWidget(_labelName);
 	layoutLabels->addWidget(_labelSize);
 	layoutLabels->addWidget(_labelFileType);
