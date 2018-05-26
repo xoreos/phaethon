@@ -96,6 +96,8 @@ private:
 	void open(const QString &path);
 	void openFinish();
 
+	void close();
+
 	void statusPush(const QString &text);
 	void statusPop();
 

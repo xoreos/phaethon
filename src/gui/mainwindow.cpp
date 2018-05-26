@@ -258,19 +258,8 @@ void MainWindow::slotOpenFile() {
 }
 
 void MainWindow::slotClose() {
-	showPreviewPanel(_panelPreviewEmpty);
-	_panelResourceInfo->setButtonsForClosedDir();
-	_panelResourceInfo->clearLabels();
-	_treeView->setModel(nullptr);
-	_treeModel.reset(nullptr);
-	_currentItem = nullptr;
-
 	_log->append(tr("Closed: %1").arg(_rootPath));
-	_rootPath = "";
-
-	_actionClose->setEnabled(false);
-
-	_status.pop();
+	close();
 }
 
 void MainWindow::slotQuit() {
@@ -286,7 +275,7 @@ void MainWindow::open(const QString &path) {
 	if (_rootPath == path)
 		return;
 
-	slotClose();
+	close();
 
 	_rootPath = path;
 
@@ -323,6 +312,21 @@ void MainWindow::openFinish() {
 
 	QObject::connect(_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
 		this, &MainWindow::resourceSelect);
+
+	_status.pop();
+}
+
+void MainWindow::close() {
+	showPreviewPanel(_panelPreviewEmpty);
+	_panelResourceInfo->setButtonsForClosedDir();
+	_panelResourceInfo->clearLabels();
+	_treeView->setModel(nullptr);
+	_treeModel.reset(nullptr);
+	_currentItem = nullptr;
+
+	_rootPath = "";
+
+	_actionClose->setEnabled(false);
 
 	_status.pop();
 }
