@@ -15,8 +15,16 @@ env:
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
     #   via the "travis encrypt" command using the project repo's public key
     - secure: "dn5Irr/svB2d/iouvSxxoe2SEAWlPUlkNlGWScngWhqSp+kEJ8p3ubQG0ogCK0vGGHPwUYXfIQvHQ8oSc2Z4na8rIwZqvkJnxYYKvPLZpweKhb+xQbpjPwDwEycFDxT+y7mPnRLKRDtdmcuRqMQh8gnxb6TMY9xqlCCvnTfwTmI="
-    - coverity_scan_run_condition='\( "$CC" = gcc \) -a \( $USECMAKE -eq 0 \) -a \( "$TRAVIS_OS_NAME" = linux \)'
+    - coverity_scan_run_condition='\( "$CC" = "gcc" \) -a \( $USECMAKE -eq 0 \) -a \( "$TRAVIS_OS_NAME" = "linux" \)'
     - coverity_scan_script_test_mode=false
+    # Various conditions where the Travis CI scripts should behave differently
+    - is_coverity_branch='\( "$TRAVIS_BRANCH" = "coverity_scan" \)'
+    - is_valid_config='\( ! '"$is_coverity_branch"' \) -o \( '"$coverity_scan_run_condition"' \)'
+    - is_valid_osx='\( "$TRAVIS_OS_NAME" = "osx" \) -a \( '"$is_valid_config"' \)'
+    - is_valid_linux='\( "$TRAVIS_OS_NAME" = "linux" \) -a \( '"$is_valid_config"' \)'
+    - is_notcoverity_autot='\( ! '"$is_coverity_branch"' \) -a \( $USECMAKE -eq 0 \)'
+    - is_notcoverity_cmake='\( ! '"$is_coverity_branch"' \) -a \( $USECMAKE -eq 1 \)'
+
   matrix:
     # Let's test both our autoconf and CMake build system
     - USECMAKE=0
@@ -35,8 +43,8 @@ matrix:
 
 # If building on osx, use brew to install dependencies
 before_install:
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew install qt openal-soft mad faad2 libvorbis zlib xz libxml2; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew link --force qt; fi
+  - if eval [ $is_valid_osx ]; then brew install qt openal-soft mad faad2 libvorbis zlib xz libxml2; fi
+  - if eval [ $is_valid_osx ]; then brew link --force qt; fi
 
 # Install a new gcc and our library dependencies.
 # This is a bit of a complicated setup, because:
@@ -50,26 +58,26 @@ before_install:
 # 2) We add the Artful repos, and upgrade the libc, gcc and binutils
 # 3) We install our library dependencies
 before_script:
-  - if [ $TRAVIS_OS_NAME = linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu xenial main universe restricted multiverse"; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update -qq; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu artful main universe restricted multiverse"; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update -qq; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg gcc g++ libc6-dev libc6 binutils binutils-dev; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5; fi
+  - if eval [ $is_valid_linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu xenial main universe restricted multiverse"; fi
+  - if eval [ $is_valid_linux ]; then sudo apt-get update -qq; fi
+  - if eval [ $is_valid_linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg; fi
+  - if eval [ $is_valid_linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu artful main universe restricted multiverse"; fi
+  - if eval [ $is_valid_linux ]; then sudo apt-get update -qq; fi
+  - if eval [ $is_valid_linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg gcc g++ libc6-dev libc6 binutils binutils-dev; fi
+  - if eval [ $is_valid_linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5; fi
 
 script:
   # Configure, autotools
-  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 0 \) ]; then ./autogen.sh; fi
-  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 0 \) ]; then ./configure || cat config.log; fi
+  - if eval [ $is_notcoverity_autot ]; then ./autogen.sh; fi
+  - if eval [ $is_notcoverity_autot ]; then ./configure || cat config.log; fi
   # Configure, CMake
-  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 1 \) ]; then cmake .; fi
+  - if eval [ $is_notcoverity_cmake ]; then cmake .; fi
   # Compile
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then make -j4; fi
+  - if eval [ \! $is_coverity_branch ]; then make -j4; fi
   # Unit tests, autotools
-  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 0 \) ]; then echo "" > test-suite.log; make -j4 check || cat test-suite.log; fi
+  - if eval [ $is_notcoverity_autot ]; then echo "" > test-suite.log; make -j4 check || cat test-suite.log; fi
   # Unit tests, CMake
-  - if [ \( "$COVERITY_SCAN_BRANCH" != 1 \) -a \( $USECMAKE -eq 1 \) ]; then make -j4 check; fi
+  - if eval [ $is_notcoverity_cmake ]; then make -j4 check; fi
 
 addons:
   coverity_scan:
