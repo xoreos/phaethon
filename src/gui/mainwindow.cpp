@@ -84,10 +84,14 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_actionAbout = new QAction(this);
 
 	_actionOpenDirectory->setText(tr("&Open directory"));
-	_actionOpenFile->setText(tr("&Open file"));
+	_actionOpenDirectory->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+	_actionOpenFile->setText(tr("Open &file"));
 	_actionClose->setText(tr("&Close"));
-	_actionQuit->setText(tr("Quit"));
-	_actionAbout->setText(tr("About"));
+	_actionClose->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_W));
+	_actionQuit->setText(tr("&Quit"));
+	_actionQuit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+	_actionAbout->setText(tr("&About"));
+	_actionAbout->setShortcut(QKeySequence(Qt::Key_F1));
 
 	/* Menu. */
 	_menuBar = new QMenuBar(this);
