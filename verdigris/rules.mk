@@ -23,3 +23,8 @@ noinst_HEADERS += \
     verdigris/wobjectdefs.h \
     verdigris/wobjectimpl.h \
     $(EMPTY)
+
+EXTRA_DIST += \
+    verdigris/LICENSE.LGPLv3 \
+    verdigris/README.Phaethon \
+    $(EMPTY)
