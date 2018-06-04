@@ -6,12 +6,16 @@ compiler:
   - gcc
   - clang
 
+os:
+  - linux
+  - osx
+
 env:
   global:
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
     #   via the "travis encrypt" command using the project repo's public key
     - secure: "dn5Irr/svB2d/iouvSxxoe2SEAWlPUlkNlGWScngWhqSp+kEJ8p3ubQG0ogCK0vGGHPwUYXfIQvHQ8oSc2Z4na8rIwZqvkJnxYYKvPLZpweKhb+xQbpjPwDwEycFDxT+y7mPnRLKRDtdmcuRqMQh8gnxb6TMY9xqlCCvnTfwTmI="
-    - coverity_scan_run_condition='\( "$CC" = gcc \) -a \( $USECMAKE -eq 0 \)'
+    - coverity_scan_run_condition='\( "$CC" = gcc \) -a \( $USECMAKE -eq 0 \) -a \( "$TRAVIS_OS_NAME" = linux \)'
     - coverity_scan_script_test_mode=false
   matrix:
     # Let's test both our autoconf and CMake build system
@@ -23,7 +27,16 @@ env:
 matrix:
   exclude:
     - compiler: clang
+      os: linux
       env: USECMAKE=1
+    # Exclude gcc build for osx
+    - compiler: gcc
+      os: osx
+
+# If building on osx, use brew to install dependencies
+before_install:
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew install qt openal-soft mad faad2 libvorbis zlib xz libxml2; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew link --force qt; fi
 
 # Install a new gcc and our library dependencies.
 # This is a bit of a complicated setup, because:
@@ -37,13 +50,13 @@ matrix:
 # 2) We add the Artful repos, and upgrade the libc, gcc and binutils
 # 3) We install our library dependencies
 before_script:
-  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu xenial main universe restricted multiverse"
-  - sudo apt-get update -qq
-  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg
-  - echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu artful main universe restricted multiverse"
-  - sudo apt-get update -qq
-  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg gcc g++ libc6-dev libc6 binutils binutils-dev
-  - sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5
+  - if [ $TRAVIS_OS_NAME = linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu xenial main universe restricted multiverse"; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update -qq; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then echo "yes" | sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu artful main universe restricted multiverse"; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update -qq; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install dpkg gcc g++ libc6-dev libc6 binutils binutils-dev; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5; fi
 
 script:
   # Configure, autotools
