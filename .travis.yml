@@ -66,16 +66,14 @@ before_install:
   - if eval [ $is_valid_linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5; fi
 
 script:
-  # Configure, autotools
+  # autotools build system: ./autogen.sh && ./configure && make && make check
   - if eval [ $is_notcoverity_autot ]; then ./autogen.sh; fi
   - if eval [ $is_notcoverity_autot ]; then ./configure || cat config.log; fi
-  # Configure, CMake
-  - if eval [ $is_notcoverity_cmake ]; then cmake .; fi
-  # Compile
-  - if eval [ \! $is_coverity_branch ]; then make -j4; fi
-  # Unit tests, autotools
+  - if eval [ $is_notcoverity_autot ]; then make -j4; fi
   - if eval [ $is_notcoverity_autot ]; then echo "" > test-suite.log; make -j4 check || cat test-suite.log; fi
-  # Unit tests, CMake
+  # CMake build system: cmake . && make && make check
+  - if eval [ $is_notcoverity_cmake ]; then cmake .; fi
+  - if eval [ $is_notcoverity_cmake ]; then make -j4; fi
   - if eval [ $is_notcoverity_cmake ]; then make -j4 check; fi
 
 addons:
