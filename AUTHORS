@@ -48,7 +48,7 @@ of Electronic Arts, Inc. All rights reserved.
 boost.m4
 ********
    Phaethon uses Benoit Sigoure's boost.m4 autoconf macros
-   (<http://github.com/tsuna/boost.m4>) to check for the needed Boost
+   (<https://github.com/tsuna/boost.m4>) to check for the needed Boost
    libraries. boost.m4 is licensed under version 3 or later of the GNU General
    Public License. For the full license text, see COPYING or
    <https://gnu.org/licenses/gpl-3.0.html>.
@@ -70,15 +70,15 @@ Verdigris
 
 ScummVM code
 ************
-   Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
-   endian, singleton, stream and audio stream code. ScummVM is licensed under
-   version 2 or later of the GNU General Public License. For the full license
-   text, see doc/COPYING.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
+   Phaethon uses some ScummVM (<https://scummvm.org/>) code, most prominently
+   the endian, singleton and stream code. ScummVM is licensed under version 2
+   or later of the GNU General Public License. For the full license text, see
+   doc/LICENSE.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
 
 WMA
 ***
    The WMA decoder used in Phaethon is based (heavily) on the WMA decoder in
-   FFmpeg (<http://ffmpeg.org/>), licensed under the GNU Lesser General Public
+   FFmpeg (<https://ffmpeg.org/>), licensed under the GNU Lesser General Public
    License (LGPL) version 2.1 or later. For the full license text, see
    doc/COPYING.LGPLv2.1 or <https://gnu.org/licenses/lgpl-2.1.html>.
 
