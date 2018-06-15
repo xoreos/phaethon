@@ -62,7 +62,7 @@ rm %{buildroot}%{_pkgdocdir}/*
 %files
 %{_bindir}/phaethon
 %doc *.md AUTHORS ChangeLog TODO
-%license COPYING*
+%license COPYING
 
 %changelog
 * Mon Feb 15 2016 Ben Rosser <rosser.bjr@gmail.com> 0.0.4-1

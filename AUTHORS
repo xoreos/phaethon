@@ -65,7 +65,7 @@ Verdigris
    Phaethon uses and includes the header-only library Verdigris
    (<https://github.com/woboq/verdigris>) to use Qt5 without moc. Verdigris
    is licensed under version 3 or later of the Lesser GNU General Public
-   License. For the full license texts, see LICENSE.LGPLv3 or
+   License. For the full license texts, see verdigris/LICENSE.LGPLv3 or
    <https://gnu.org/licenses/lgpl-3.0.html>.
 
 ScummVM code
@@ -73,14 +73,14 @@ ScummVM code
    Phaethon uses some ScummVM (<http://scummvm.org/>) code, most prominently the
    endian, singleton, stream and audio stream code. ScummVM is licensed under
    version 2 or later of the GNU General Public License. For the full license
-   text, see COPYING.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
+   text, see doc/COPYING.GPLv2 or <https://gnu.org/licenses/gpl-2.0.html>.
 
 WMA
 ***
    The WMA decoder used in Phaethon is based (heavily) on the WMA decoder in
    FFmpeg (<http://ffmpeg.org/>), licensed under the GNU Lesser General Public
    License (LGPL) version 2.1 or later. For the full license text, see
-   COPYING.LGPLv2.1 or <https://gnu.org/licenses/lgpl-2.1.html>.
+   doc/COPYING.LGPLv2.1 or <https://gnu.org/licenses/lgpl-2.1.html>.
 
 Google Test
 ***********
