@@ -27,6 +27,9 @@ Source0:        https://github.com/xoreos/phaethon/archive/v%{version}.tar.gz
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
 BuildRequires:  libxml2-devel, lzma-devel, libtool, gettext-devel
 
+BuildRequires:  qt5-devel qt5-qtbase-devel
+BuildRequires:  qt5-qtbase-gui qt5-qtmultimedia-devel
+
 # Boost dependencies.
 BuildRequires:  boost-devel, boost-system, boost-filesystem, boost-atomic
 BuildRequires:  boost-regex, boost-locale, boost-date-time boost-chrono
