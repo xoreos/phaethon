@@ -191,7 +191,7 @@ dnl Graphic libraries
 AX_CHECK_QT5(5.7.1, , AC_MSG_ERROR([Qt5 (>= 5.7.1, modules Core, Gui, Widgets) is required and could not be found!]))
 
 dnl Sound libraries
-AX_CHECK_AL( , AC_MSG_ERROR([OpenAL or OpenAL Soft (>= 1.12) is required and could not be found!]))
+AX_CHECK_AL([1.12],  , AC_MSG_ERROR([OpenAL Soft (>= 1.12) is required and could not be found!]))
 AX_CHECK_MAD(0, 15, 1, , AC_MSG_ERROR([libMAD (>= 0.15.1) is required and could not be found!]))
 AX_CHECK_OGG(, AC_MSG_ERROR([libOgg (>= 1.2.0) is required and could not be found!]))
 AX_CHECK_VORBIS(, AC_MSG_ERROR([libVorbisFile (>= 1.3.1) is required and could not be found!]))
