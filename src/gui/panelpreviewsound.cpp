@@ -28,7 +28,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QSpacerItem>
-#include <QtMultimedia>
+#include <QTimer>
 #include <QWidget>
 
 #include "verdigris/wobjectimpl.h"

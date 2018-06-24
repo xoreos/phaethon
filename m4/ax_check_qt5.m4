@@ -11,7 +11,7 @@ dnl @version 2017-02-02
 dnl @license Creative Commons CC0 1.0 Universal Public Domain Dedication
 
 AC_DEFUN([AX_CHECK_QT5], [
-	PKG_CHECK_MODULES([QT5], [Qt5Core >= $1 Qt5Gui >= $1 Qt5Widgets >= $1 Qt5Multimedia >= $1 Qt5Concurrent >= $1], [$2], [$3])
+	PKG_CHECK_MODULES([QT5], [Qt5Core >= $1 Qt5Gui >= $1 Qt5Widgets >= $1 Qt5Concurrent >= $1], [$2], [$3])
 
 	# Qt5 needs -fPIC...
 	QT5_CFLAGS="$QT5_CFLAGS -fPIC"

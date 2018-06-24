@@ -283,10 +283,9 @@ include_directories(${LIBLZMA_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${LIBLZMA_LIBRARIES})
 
 find_package(Qt5Widgets REQUIRED)
-find_package(Qt5MultimediaWidgets REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5MultimediaWidgets_INCLUDE_DIRS} ${Qt5Concurrent_INCLUDE_DIRS})
-list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::MultimediaWidgets Qt5::Concurrent)
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Concurrent_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::Concurrent)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 find_package(Iconv REQUIRED)
