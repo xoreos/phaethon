@@ -22,6 +22,12 @@
  *  The project's main entry point.
  */
 
+#include "src/common/platform.h"
+
+#ifdef WIN32
+	#include <windows.h>
+#endif
+
 #include <cstdio>
 
 #include <QApplication>
@@ -31,7 +37,6 @@
 #include "src/common/util.h"
 #include "src/common/error.h"
 #include "src/common/ustring.h"
-#include "src/common/platform.h"
 
 #include "src/gui/mainwindow.h"
 
@@ -154,3 +159,15 @@ void Phaethon::deinitSubsystems() {
 void openGamePath(const Common::UString &path) {
 	Phaethon phaethon(path);
 }
+
+#ifdef WIN32
+#ifdef UNICODE
+	int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+		return main(0, 0);
+	}
+#else
+	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
+		return main(0, 0);
+	}
+#endif
+#endif

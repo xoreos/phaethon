@@ -228,7 +228,7 @@ case "$target" in
 		AM_CONDITIONAL(WIN32, false)
 		;;
 	*mingw*)
-		PHAETHON_CFLAGS="-mconsole -municode"
+		PHAETHON_CFLAGS="-mwindows -municode"
 		PHAETHON_LIBS=""
 		AM_CONDITIONAL(WIN32, true)
 		;;
