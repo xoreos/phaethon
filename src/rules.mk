@@ -19,6 +19,10 @@
 
 # Main Phaethon entry point.
 
+# Windows resources
+.rc.o:
+	$(AM_V_GEN)$(RC) -DHAVE_CONFIG_H -I$(srcdir) -o $@ $<
+
 bin_PROGRAMS += src/phaethon
 src_phaethon_SOURCES =
 
@@ -30,6 +34,10 @@ src_phaethon_SOURCES += \
     src/cline.cpp \
     src/phaethon.cpp \
     $(EMPTY)
+
+if WIN32
+src_phaethon_SOURCES += dists/win32/phaethon.rc
+endif
 
 src_phaethon_LDADD = \
     src/gui/libgui.la \

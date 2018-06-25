@@ -40,3 +40,9 @@ EXTRA_DIST += \
     dists/fedora/build-from-git.sh \
     dists/fedora/phaethon.spec \
     $(EMPTY)
+
+# Windows
+EXTRA_DIST += \
+    dists/win32/phaethon.ico \
+    dists/win32/phaethon.rc \
+    $(EMPTY)

@@ -228,6 +228,11 @@ case "$target" in
 		AM_CONDITIONAL(WIN32, false)
 		;;
 	*mingw*)
+		AC_CHECK_TOOL([RC], [windres], [:])
+		if test "x$RC" = "x:"; then
+			AC_MSG_ERROR([A Windows resource compiler (windres) is required and could not be found!])
+		fi
+
 		PHAETHON_CFLAGS="-mwindows -municode"
 		PHAETHON_LIBS=""
 		AM_CONDITIONAL(WIN32, true)
