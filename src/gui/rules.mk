@@ -24,6 +24,7 @@ noinst_LTLIBRARIES += src/gui/libgui.la
 src_gui_libgui_la_SOURCES =
 
 src_gui_libgui_la_SOURCES += \
+    src/gui/icons.h \
     src/gui/mainwindow.h \
     src/gui/resourcetree.h \
     src/gui/resourcetreeitem.h \
@@ -37,6 +38,7 @@ src_gui_libgui_la_SOURCES += \
     $(EMPTY)
 
 src_gui_libgui_la_SOURCES += \
+    src/gui/icons.cpp \
     src/gui/mainwindow.cpp \
     src/gui/resourcetree.cpp \
     src/gui/resourcetreeitem.cpp \

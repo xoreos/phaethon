@@ -38,6 +38,7 @@
 #include "src/common/error.h"
 #include "src/common/ustring.h"
 
+#include "src/gui/icons.h"
 #include "src/gui/mainwindow.h"
 
 #include "src/sound/sound.h"
@@ -122,6 +123,8 @@ Phaethon::Phaethon(const Common::UString &path) : _path(path) {
 	char *argv[] = {empty}; // QApplication requires argv to be at least 1
 
 	QApplication app(argc, argv);
+
+	app.setWindowIcon(GUI::createWindowIcon());
 
 	GUI::MainWindow mainWindow(0, Version::getProjectNameVersion(), QSize(800, 600), path.c_str());
 	mainWindow.show();
