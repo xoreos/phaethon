@@ -1,0 +1,68 @@
+.Dd June 26, 2018
+.Dt PHAETHON 1
+.Os
+.Sh NAME
+.Nm Phaethon
+.Nd resource explorer for BioWare's Aurora engine games
+.Sh SYNOPSIS
+phaethon
+.Op Ar options
+.Op Ar path
+.Sh DESCRIPTION
+.Nm
+is an open source, graphical resource explorer for games using BioWare's Aurora
+engine and its derivatives, licensed under the terms of the GNU General Public
+License version 3 (or later).
+.Pp
+.Sy The following games can be explored in Phaethon:
+.Bl -bullet -compact
+.It
+Neverwinter Nights
+.It
+Neverwinter Nights 2
+.It
+Knights of the Old Republic
+.It
+Knights of the Old Republic II: The Sith Lords
+.It
+Jade Empire
+.It
+Sonic Chronicles: The Dark Brotherhood
+.It
+The Witcher
+.It
+Dragon Age: Origins
+.It
+Dragon Age II
+.El
+.Sh OPTIONS
+.Bl -tag -width xxxx -compact
+.It Fl h
+.It Fl Fl help
+Show a help text and exit.
+.It Fl Fl version
+Show version information and exit.
+.El
+.Sh EXAMPLES
+Start
+.Nm
+with an empty main window:
+.Dl $ phaethon
+.Pp
+Start
+.Nm
+and automatically load the resources found in a given path:
+.Dl $ phaethon /path/to/nwn/
+.Sh SEE ALSO
+.Xr xoreos 6
+.Pp
+More information about the xoreos project can be found on
+.Lk https://xoreos.org/ "its website"
+and
+.Lk https://wiki.xoreos.org/ "its wiki" .
+.Sh AUTHORS
+This program is part of the xoreos projects, and was written by
+the xoreos team.
+Please see the
+.Pa AUTHORS
+file for details.

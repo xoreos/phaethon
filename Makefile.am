@@ -42,8 +42,9 @@ TESTS             =
 
 CLEANFILES =
 
-EXTRA_DIST    =
-dist_doc_DATA =
+EXTRA_DIST     =
+dist_doc_DATA  =
+dist_man1_MANS =
 
 # Library compile flags
 

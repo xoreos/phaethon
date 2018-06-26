@@ -89,6 +89,7 @@ doxygen-clean:
 # Subdirectories
 
 include dists/rules.mk
+include man/rules.mk
 
 include utf8cpp/rules.mk
 
