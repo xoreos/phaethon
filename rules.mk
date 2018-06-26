@@ -45,30 +45,6 @@ EXTRA_DIST += \
     cmake/toolchain/x86_64-windows-mingw.cmake \
     $(EMPTY)
 
-# Licenses and credits
-dist_doc_DATA += \
-    COPYING \
-    AUTHORS \
-    $(EMPTY)
-
-EXTRA_DIST += \
-    doc/LICENSE.GPLv2 \
-    doc/LICENSE.LGPLv2.1 \
-    $(EMPTY)
-
-# User documentation
-dist_doc_DATA += \
-    ChangeLog \
-    TODO \
-    README.md \
-    $(EMPTY)
-
-# Documents for contributors
-dist_doc_DATA += \
-    CONTRIBUTING.md \
-    CODE_OF_CONDUCT.md \
-    $(EMPTY)
-
 # Doxygen
 
 EXTRA_DIST += \
@@ -90,6 +66,7 @@ doxygen-clean:
 
 include dists/rules.mk
 include man/rules.mk
+include doc/rules.mk
 
 include utf8cpp/rules.mk
 
