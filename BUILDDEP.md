@@ -25,6 +25,10 @@ Build-time library dependencies
   - Boost.Thread
 
 - Qt (>= 5.7.1)
+  - Qt5Core
+  - Qt5Gui
+  - Qt5Widgets
+  - Qt5Concurrent
 
 - OpenAL Soft (>= 1.12)
 - MAD (>= 0.15.1b)
