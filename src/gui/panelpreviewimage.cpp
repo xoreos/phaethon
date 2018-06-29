@@ -130,12 +130,17 @@ void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
 	}
 }
 
-void PanelPreviewImage::loadImage() {
-	QScopedPointer<Images::Decoder> image(_currentItem->getImage());
+static void cleanupImage(void *info) {
+	byte *image = static_cast<byte *>(info);
 
-	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0)) {
+	delete[] image;
+}
+
+void PanelPreviewImage::loadImage() {
+	Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());
+
+	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0))
 		return;
-	}
 
 	int32 width = 0, height = 0;
 	getImageDimensions(*image, width, height);
@@ -144,22 +149,24 @@ void PanelPreviewImage::loadImage() {
 
 	_labelDimensions->setText(QString("(%1x%2)").arg(width).arg(height));
 
-	Common::ScopedArray<byte, Common::DeallocatorFree> rgbData ((byte *) malloc(width * height * 4));
-	std::memset(rgbData.get(), 0, width * height * 4);
+	Common::ScopedArray<byte> rgbaData(new byte[width * height * 4]);
+	std::memset(rgbaData.get(), 0, width * height * 4);
 
-	QImage::Format format;
-	convertImage(*image, rgbData.get(), format);
+	convertImage(*image, rgbaData.get());
 
-	_originalPixmap = QPixmap::fromImage(QImage(rgbData.get(), width, height, format).mirrored());
+	QImage qImage(rgbaData.get(), width, height, QImage::Format_RGBA8888, cleanupImage, rgbaData.get());
+	rgbaData.release();
+
+	_originalPixmap = QPixmap::fromImage(qImage.mirrored());
 	_originalSize = _originalPixmap.size();
+
 	_labelImage->setPixmap(_originalPixmap);
 	_labelImage->adjustSize();
 	_labelImage->setFixedSize(_originalSize);
 
-	rgbData.release();
 }
 
-void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *data_out, QImage::Format &format) {
+void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *dataOut) {
 	int32 width, height;
 	getImageDimensions(image, width, height);
 
@@ -169,58 +176,71 @@ void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *data_ou
 
 		uint32 count = mipMap.width * mipMap.height;
 		while (count-- > 0)
-			writePixel(mipMapData, image.getFormat(), data_out, format);
+			writePixel(mipMapData, image.getFormat(), dataOut);
 	}
 }
 
-void PanelPreviewImage::writePixel(const byte *&data_in, Images::PixelFormat format,
-                                   byte *&data_out, QImage::Format &format_out) {
-	if (format == Images::kPixelFormatR8G8B8) {
-		format_out = QImage::Format_RGB888;
-		*data_out++   = data_in[0];
-		*data_out++   = data_in[1];
-		*data_out++   = data_in[2];
-		*data_out++ = 0xFF;
-		data_in += 3;
-	} else if (format == Images::kPixelFormatB8G8R8) {
-		format_out = QImage::Format_RGB888;
-		*data_out++   = data_in[2];
-		*data_out++   = data_in[1];
-		*data_out++   = data_in[0];
-		*data_out++ = 0xFF;
-		data_in += 3;
-	} else if (format == Images::kPixelFormatR8G8B8A8) {
-		format_out = QImage::Format_RGBA8888;
-		*data_out++   = data_in[0];
-		*data_out++   = data_in[1];
-		*data_out++   = data_in[2];
-		*data_out++ = data_in[3];
-		data_in += 4;
-	} else if (format == Images::kPixelFormatB8G8R8A8) {
-		format_out = QImage::Format_RGBA8888;
-		*data_out++   = data_in[2];
-		*data_out++   = data_in[1];
-		*data_out++   = data_in[0];
-		*data_out++ = data_in[3];
-		data_in += 4;
-	} else if (format == Images::kPixelFormatR5G6B5) {
-		format_out = QImage::Format_RGB555;
-		uint16 color = READ_LE_UINT16(data_in);
-		*data_out++   =  color & 0x001F;
-		*data_out++   = (color & 0x07E0) >>  5;
-		*data_out++   = (color & 0xF800) >> 11;
-		*data_out++ = 0xFF;
-		data_in += 2;
-	} else if (format == Images::kPixelFormatA1R5G5B5) {
-		format_out = QImage::Format_ARGB8555_Premultiplied;
-		uint16 color = READ_LE_UINT16(data_in);
-		*data_out++   =  color & 0x001F;
-		*data_out++   = (color & 0x03E0) >>  5;
-		*data_out++   = (color & 0x7C00) >> 10;
-		*data_out++ = (color & 0x8000) ? 0xFF : 0x00;
-		data_in += 2;
-	} else
-		throw Common::Exception("Unsupported pixel format: %d", (int) format);
+void PanelPreviewImage::writePixel(const byte *&dataIn, Images::PixelFormat format, byte *&dataOut) {
+	switch (format) {
+		case Images::kPixelFormatR8G8B8:
+			*dataOut++ = dataIn[0];
+			*dataOut++ = dataIn[1];
+			*dataOut++ = dataIn[2];
+			*dataOut++ = 0xFF;
+			dataIn    += 3;
+			break;
+
+		case Images::kPixelFormatB8G8R8:
+			*dataOut++ = dataIn[2];
+			*dataOut++ = dataIn[1];
+			*dataOut++ = dataIn[0];
+			*dataOut++ = 0xFF;
+			dataIn    += 3;
+			break;
+
+		case Images::kPixelFormatR8G8B8A8:
+			*dataOut++ = dataIn[0];
+			*dataOut++ = dataIn[1];
+			*dataOut++ = dataIn[2];
+			*dataOut++ = dataIn[3];
+			dataIn    += 4;
+			break;
+
+		case Images::kPixelFormatB8G8R8A8:
+			*dataOut++ = dataIn[2];
+			*dataOut++ = dataIn[1];
+			*dataOut++ = dataIn[0];
+			*dataOut++ = dataIn[3];
+			dataIn    += 4;
+			break;
+
+		case Images::kPixelFormatR5G6B5:
+			{
+				const uint16 color = READ_LE_UINT16(dataIn);
+
+				*dataOut++ =  color & 0x001F;
+				*dataOut++ = (color & 0x07E0) >>  5;
+				*dataOut++ = (color & 0xF800) >> 11;
+				*dataOut++ = 0xFF;
+				dataIn    += 2;
+			}
+			break;
+
+		case Images::kPixelFormatA1R5G5B5:
+			{
+				const uint16 color = READ_LE_UINT16(dataIn);
+
+				*dataOut++ =  color & 0x001F;
+				*dataOut++ = (color & 0x03E0) >>  5;
+				*dataOut++ = (color & 0x7C00) >> 10;
+				*dataOut++ = (color & 0x8000) ? 0xFF : 0x00;
+				dataIn    += 2;
+			}
+			break;
+
+		default:
+			throw Common::Exception("Unsupported pixel format: %d", (int) format);
+	}
 }
 
 void PanelPreviewImage::getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height) {

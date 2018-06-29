@@ -89,8 +89,8 @@ private:
 	/** Opens the image path contained in _currentItem and displays it. */
 	void  loadImage();
 
-	void  convertImage(const Images::Decoder &image, byte *data, QImage::Format &format);
-	void  writePixel(const byte * &data, Images::PixelFormat format, byte * &data_out, QImage::Format &format_out);
+	void  convertImage(const Images::Decoder &image, byte *dataOut);
+	void  writePixel(const byte *&dataIn, Images::PixelFormat format, byte *&dataOut);
 	void  getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
 	void  getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
 	void  fit(bool onlyWidth, bool grow);
