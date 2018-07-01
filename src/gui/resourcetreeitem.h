@@ -74,14 +74,7 @@ public:
 	~ResourceTreeItem();
 
 	inline bool isArchive() {
-		return _fileType == Aurora::kFileTypeZIP ||
-		       _fileType == Aurora::kFileTypeERF ||
-		       _fileType == Aurora::kFileTypeMOD ||
-		       _fileType == Aurora::kFileTypeNWM ||
-		       _fileType == Aurora::kFileTypeSAV ||
-		       _fileType == Aurora::kFileTypeHAK ||
-		       _fileType == Aurora::kFileTypeRIM ||
-		       _fileType == Aurora::kFileTypeKEY;
+		return TypeMan.getResourceType(_fileType) == Aurora::kResourceArchive;
 	}
 
 	// Model structure
