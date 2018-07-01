@@ -392,6 +392,7 @@ enum ResourceType {
 	kResourceSound       ,  ///< A sound resource.
 	kResourceArchive     ,  ///< An archive resource.
 	kResourceText        ,  ///< A plaintext resource.
+	kResourceTable       ,  ///< A tabular data resource.
 	kResourceMAX
 };
 
@@ -422,6 +423,10 @@ enum Platform {
 static const uint32 kObjectIDInvalid = 0xFFFFFFFF;
 static const uint32 kFieldIDInvalid  = 0xFFFFFFFF;
 static const uint32 kStrRefInvalid   = 0xFFFFFFFF;
+
+class GFF4Struct;
+typedef std::vector<const GFF4Struct *> GFF4List;
+class GFF4File;
 
 } // End of namespace Aurora
 

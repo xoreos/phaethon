@@ -26,6 +26,7 @@
 
 #include "src/common/util.h"
 
+#include <cassert>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -141,4 +142,29 @@ uint64 convertIEEEDouble(double value) {
 	conv.dDouble = value;
 
 	return conv.dInt;
+}
+
+double readNintendoFixedPoint(uint32 value, bool sign, uint8 iBits, uint8 fBits) {
+	/* The Nintendo DS uses fixed point values of various formats. This method can
+	 * convert them all into a usual floating point double. */
+
+	assert((iBits + fBits + (sign ? 1 : 0)) <= 32);
+
+	// Masks for the integer, fractional and sign parts
+	const uint32 fMask =  (UINT64_C(1) <<          fBits)  - 1;
+	const uint32 iMask = ((UINT64_C(1) << (iBits + fBits)) - 1) - fMask;
+	const uint32 sMask =   UINT64_C(1) << (iBits + fBits);
+
+	// Step of a fractional unit
+	const uint32 fDiv  =  (1 <<          fBits);
+
+	// The fractional and integer parts themselves
+	int32 fPart =  value & fMask;
+	int32 iPart = (value & iMask) >> fBits;
+
+	// If this is a negative value, negate the integer part (which is a two's complement)
+	if (sign && ((value & sMask) != 0))
+		iPart = -((int32) ((~iPart & (iMask >> fBits)) + 1));
+
+	return (double)iPart + ((double) fPart) / ((double) fDiv);
 }
