@@ -177,7 +177,7 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
 	// Load the archive, if necessary
 	if (!archive.data) {
 		try {
-			archive.data = getArchive(item->getPath());
+			archive.data = getArchive(*item);
 		} catch (Common::Exception &e) {
 			// If that fails, print the error and treat this archive as empty
 
@@ -188,7 +188,7 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
 		}
 	}
 
-	insertItemsFromArchive(archive, index);
+	insertItemsFromArchive(archive, item->getPath(), index);
 
 	archive.addedMembers = true;
 }
@@ -203,13 +203,14 @@ bool ResourceTree::hasChildren(const QModelIndex &index) const {
 	return itemFromIndex(index)->hasChildren();
 }
 
-void ResourceTree::insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex) {
+void ResourceTree::insertItemsFromArchive(Archive &archive, const QString &path,
+                                          const QModelIndex &parentIndex) {
 	QList<ResourceTreeItem *> items;
 
 	auto resources = archive.data->getResources();
 	for (auto r = resources.begin(); r != resources.end(); ++r)
 	{
-		items.push_back(new ResourceTreeItem(archive.data, *r));
+		items.push_back(new ResourceTreeItem(archive.data, path, *r));
 	}
 
 	insertItems(0, items, parentIndex);
@@ -228,15 +229,17 @@ void ResourceTree::insertItems(size_t position, QList<ResourceTreeItem*> &items,
 	endInsertRows();
 }
 
-Aurora::Archive *ResourceTree::getArchive(const QString &path) {
-	ArchiveMap::iterator a = _archives.find(path);
+Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
+	ArchiveMap::iterator a = _archives.find(item.getPath());
 	if (a != _archives.end())
 		return a->second;
 
+	Common::ScopedPtr<Common::SeekableReadStream> stream(item.getResourceData());
+
 	Aurora::Archive *arch = 0;
-	switch (TypeMan.getFileType(path.toStdString().c_str())) {
+	switch (item.getFileType()) {
 		case Aurora::kFileTypeZIP:
-			arch = new Aurora::ZIPFile(new Common::ReadFile(path.toStdString().c_str()));
+			arch = new Aurora::ZIPFile(stream.release());
 			break;
 
 		case Aurora::kFileTypeERF:
@@ -244,15 +247,15 @@ Aurora::Archive *ResourceTree::getArchive(const QString &path) {
 		case Aurora::kFileTypeNWM:
 		case Aurora::kFileTypeSAV:
 		case Aurora::kFileTypeHAK:
-			arch = new Aurora::ERFFile(new Common::ReadFile(path.toStdString().c_str()));
+			arch = new Aurora::ERFFile(stream.release());
 			break;
 
 		case Aurora::kFileTypeRIM:
-			arch = new Aurora::RIMFile(new Common::ReadFile(path.toStdString().c_str()));
+			arch = new Aurora::RIMFile(stream.release());
 			break;
 
 		case Aurora::kFileTypeKEY: {
-			Aurora::KEYFile *key = new Aurora::KEYFile(new Common::ReadFile(path.toStdString().c_str()));
+			Aurora::KEYFile *key = new Aurora::KEYFile(stream.release());
 			loadKEYDataFiles(*key);
 
 			arch = key;
@@ -260,10 +263,10 @@ Aurora::Archive *ResourceTree::getArchive(const QString &path) {
 		}
 
 		default:
-			throw Common::Exception("Invalid archive file \"%s\"", path.toStdString().c_str());
+			throw Common::Exception("Invalid archive file \"%s\"", item.getPath().toStdString().c_str());
 	}
 
-	_archives.insert(std::make_pair(path.toStdString().c_str(), arch));
+	_archives.insert(std::make_pair(item.getPath().toStdString().c_str(), arch));
 	return arch;
 }
 

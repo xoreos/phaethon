@@ -53,6 +53,7 @@ enum Source {
 };
 
 struct Archive {
+	Aurora::Archive *owner;
 	Aurora::Archive *data;
 	bool   addedMembers;
 	uint32 index;
@@ -64,7 +65,8 @@ public:
 	ResourceTreeItem(const Common::FileTree::Entry &entry);
 
 	/** Archive item constructor */
-	ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource);
+	ResourceTreeItem(Aurora::Archive *archive, const QString &archivePath,
+	                 const Aurora::Archive::Resource &resource);
 
 	/** Root item constructor. */
 	ResourceTreeItem(const QString &data);

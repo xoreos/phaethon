@@ -71,10 +71,10 @@ public:
 	void populate(const Common::FileTree::Entry &rootEntry);
 	void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
 
-	void insertItemsFromArchive(Archive &archive, const QModelIndex &parentIndex);
+	void insertItemsFromArchive(Archive &archive, const QString &path, const QModelIndex &parentIndex);
 	void insertItems(size_t position, QList<ResourceTreeItem *> &items, const QModelIndex &parentIndex);
 
-	Aurora::Archive     *getArchive(const QString &path);
+	Aurora::Archive     *getArchive(ResourceTreeItem &item);
 	Aurora::KEYDataFile *getKEYDataFile(const QString &file);
 	void                loadKEYDataFiles(Aurora::KEYFile &key);
 

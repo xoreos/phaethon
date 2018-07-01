@@ -22,6 +22,7 @@
  *  Items that make up Phaethon's resource tree.
  */
 
+#include "src/common/strutil.h"
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
 
@@ -36,6 +37,7 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 	_path = QString::fromUtf8(entry.path.string().c_str());
 
 	_archive.data = 0;
+	_archive.owner = 0;
 	_archive.addedMembers = false;
 	_archive.index = 0xFFFFFFFF;
 
@@ -57,13 +59,24 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const Aurora::Archive::Resource &resource) :
+ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &archivePath,
+                                   const Aurora::Archive::Resource &resource) :
 	_parent(0), _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
 	_source(kSourceArchiveFile) {
 
-	_archive.data = archive;
+	Common::UString resName = resource.name;
+	if (resName.empty())
+		resName = Common::composeString(resource.hash);
+
+	resName = TypeMan.setFileType(resName, resource.type);
+	_name = QString::fromUtf8(resName.c_str());
+
+	_archive.data = 0;
+	_archive.owner = archive;
 	_archive.addedMembers = false;
 	_archive.index = resource.index;
+
+	_path = archivePath + "/" + _name;
 
 	_size = archive->getResourceSize(resource.index);
 
@@ -86,6 +99,7 @@ ResourceTreeItem::ResourceTreeItem(const QString &data) : _parent(0), _name(data
 	_fileType(Aurora::kFileTypeNone), _resourceType(Aurora::kResourceNone) {
 
 	_archive.data = 0;
+	_archive.owner = 0;
 	_archive.addedMembers = false;
 	_archive.index = 0xFFFFFFFF;
 }
@@ -175,10 +189,10 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 				return new Common::ReadFile(_path.toStdString().c_str());
 
 			case kSourceArchiveFile:
-				if (!_archive.data)
+				if (!_archive.owner)
 					throw Common::Exception("No archive opened");
 
-				return _archive.data->getResource(_archive.index);
+				return _archive.owner->getResource(_archive.index);
 			default:
 				throw Common::Exception("kSourceArchive is not handled by getResourceData");
 		}
