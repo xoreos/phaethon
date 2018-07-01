@@ -37,6 +37,7 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/keydatafile.h \
     src/aurora/biffile.h \
     src/aurora/bzffile.h \
+    src/aurora/herffile.h \
     src/aurora/ndsrom.h \
     $(EMPTY)
 
@@ -53,5 +54,6 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/keydatafile.cpp \
     src/aurora/biffile.cpp \
     src/aurora/bzffile.cpp \
+    src/aurora/herffile.cpp \
     src/aurora/ndsrom.cpp \
     $(EMPTY)

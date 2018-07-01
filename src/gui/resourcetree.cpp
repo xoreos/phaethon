@@ -40,6 +40,7 @@
 #include "src/aurora/keyfile.h"
 #include "src/aurora/rimfile.h"
 #include "src/aurora/zipfile.h"
+#include "src/aurora/herffile.h"
 #include "src/aurora/ndsrom.h"
 
 #include "src/common/filepath.h"
@@ -269,6 +270,10 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 			arch = key;
 			break;
 		}
+
+		case Aurora::kFileTypeHERF:
+			arch = new Aurora::HERFFile(stream.release());
+			break;
 
 		case Aurora::kFileTypeNDS:
 			arch = new Aurora::NDSFile(stream.release());
