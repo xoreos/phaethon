@@ -375,6 +375,7 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceArchive].push_back(kFileTypeNWM);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeSAV);
 	_resourceTypes[kResourceArchive].push_back(kFileTypeHAK);
+	_resourceTypes[kResourceArchive].push_back(kFileTypeNDS);
 
 	_resourceTypes[kResourceText].push_back(kFileTypeINI);
 	_resourceTypes[kResourceText].push_back(kFileTypeTXT);

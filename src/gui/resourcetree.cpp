@@ -40,6 +40,7 @@
 #include "src/aurora/keyfile.h"
 #include "src/aurora/rimfile.h"
 #include "src/aurora/zipfile.h"
+#include "src/aurora/ndsrom.h"
 
 #include "src/common/filepath.h"
 #include "src/common/readfile.h"
@@ -268,6 +269,10 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 			arch = key;
 			break;
 		}
+
+		case Aurora::kFileTypeNDS:
+			arch = new Aurora::NDSFile(stream.release());
+			break;
 
 		default:
 			throw Common::Exception("Invalid archive file \"%s\"", item.getPath().toStdString().c_str());
