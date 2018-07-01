@@ -37,6 +37,11 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/keydatafile.h \
     src/aurora/biffile.h \
     src/aurora/bzffile.h \
+    src/aurora/2dafile.h \
+    src/aurora/gdafile.h \
+    src/aurora/gdaheaders.h \
+    src/aurora/gff4file.h \
+    src/aurora/gff4fields.h \
     $(EMPTY)
 
 src_aurora_libaurora_la_SOURCES += \
@@ -52,4 +57,8 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/keydatafile.cpp \
     src/aurora/biffile.cpp \
     src/aurora/bzffile.cpp \
+    src/aurora/2dafile.cpp \
+    src/aurora/gdafile.cpp \
+    src/aurora/gdaheaders.cpp \
+    src/aurora/gff4file.cpp \
     $(EMPTY)
