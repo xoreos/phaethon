@@ -250,9 +250,16 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 			arch = new Aurora::ERFFile(stream.release());
 			break;
 
-		case Aurora::kFileTypeRIM:
-			arch = new Aurora::RIMFile(stream.release());
+		case Aurora::kFileTypeRIM: {
+			const bool isERF = Aurora::ERFFile::isERFID(stream->readUint32BE());
+			stream->seek(0);
+
+			if (isERF)
+				arch = new Aurora::ERFFile(stream.release());
+			else
+				arch = new Aurora::RIMFile(stream.release());
 			break;
+		}
 
 		case Aurora::kFileTypeKEY: {
 			Aurora::KEYFile *key = new Aurora::KEYFile(stream.release());

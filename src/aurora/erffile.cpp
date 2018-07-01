@@ -810,4 +810,11 @@ LocString ERFFile::getDescription(const Common::UString &fileName) {
 	return getDescription(erf);
 }
 
+bool ERFFile::isERFID(uint32 id) {
+	return id == kERFID ||
+	       id == kMODID ||
+	       id == kHAKID ||
+	       id == kSAVID;
+}
+
 } // End of namespace Aurora

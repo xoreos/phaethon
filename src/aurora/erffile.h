@@ -138,6 +138,9 @@ public:
 	static LocString getDescription(Common::SeekableReadStream &erf);
 	static LocString getDescription(const Common::UString &fileName);
 
+	/** Is this an ID used by ERF files? */
+	static bool isERFID(uint32 id);
+
 private:
 	enum Encryption {
 		kEncryptionNone        =  0, ///< No encryption at all.
