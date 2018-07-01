@@ -66,6 +66,7 @@ src_common_libcommon_la_SOURCES += \
     src/common/atomic.h \
     src/common/mutex.h \
     src/common/thread.h \
+    src/common/streamtokenizer.h \
     $(EMPTY)
 
 src_common_libcommon_la_SOURCES += \
@@ -97,4 +98,5 @@ src_common_libcommon_la_SOURCES += \
     src/common/mdct.cpp \
     src/common/mutex.cpp \
     src/common/thread.cpp \
+    src/common/streamtokenizer.cpp \
     $(EMPTY)

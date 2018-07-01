@@ -55,6 +55,7 @@
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
+#include "src/gui/panelpreviewtable.h"
 
 #include "src/images/dumptga.h"
 
@@ -71,7 +72,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
 	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(0)),
 	_panelPreviewImage(new PanelPreviewImage(0)), _panelPreviewSound(new PanelPreviewSound(0)),
-	_panelPreviewText(new PanelPreviewText(0)), _watcher(new QFutureWatcher<void>(this)) {
+	_panelPreviewText(new PanelPreviewText(0)), _panelPreviewTable(new PanelPreviewTable(0)),
+	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
 	resize(size);
@@ -119,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
 	QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
 	QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
+	QObject::connect(_panelPreviewTable, &PanelPreviewTable::log, this, &MainWindow::slotLog);
 
 	/* Layout. */
 	_centralWidget = new QWidget(this);
@@ -235,6 +238,9 @@ MainWindow::~MainWindow() {
 
 	if (!_panelPreviewText->parent())
 		delete _panelPreviewText;
+
+	if (!_panelPreviewTable->parent())
+		delete _panelPreviewTable;
 }
 
 void MainWindow::slotLog(const QString &text) {
@@ -591,6 +597,11 @@ void MainWindow::showPreviewPanel() {
 		case Aurora::kResourceText:
 			_panelPreviewText->setItem(_currentItem);
 			showPreviewPanel(_panelPreviewText);
+			break;
+
+		case Aurora::kResourceTable:
+			_panelPreviewTable->setItem(_currentItem);
+			showPreviewPanel(_panelPreviewTable);
 			break;
 
 		default:

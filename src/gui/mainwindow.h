@@ -53,6 +53,7 @@ class PanelPreviewEmpty;
 class PanelPreviewImage;
 class PanelPreviewSound;
 class PanelPreviewText;
+class PanelPreviewTable;
 
 class MainWindow : public QMainWindow {
 	W_OBJECT(MainWindow)
@@ -143,6 +144,7 @@ private:
 	PanelPreviewImage *_panelPreviewImage;
 	PanelPreviewSound *_panelPreviewSound;
 	PanelPreviewText *_panelPreviewText;
+	PanelPreviewTable *_panelPreviewTable;
 
 	QFutureWatcher<void> *_watcher;
 
