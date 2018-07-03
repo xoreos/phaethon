@@ -33,6 +33,7 @@ EXTRA_DIST += \
 # User documentation
 dist_doc_DATA += \
     ChangeLog \
+    NEWS.md \
     TODO \
     README.md \
     $(EMPTY)
