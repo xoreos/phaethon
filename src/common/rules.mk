@@ -66,6 +66,7 @@ src_common_libcommon_la_SOURCES += \
     src/common/atomic.h \
     src/common/mutex.h \
     src/common/thread.h \
+    src/common/binsearch.h \
     src/common/streamtokenizer.h \
     $(EMPTY)
 
