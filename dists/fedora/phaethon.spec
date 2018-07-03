@@ -64,6 +64,7 @@ rm %{buildroot}%{_pkgdocdir}/*
 
 %files
 %{_bindir}/phaethon
+%{_mandir}/man1/phaethon.1*
 %doc *.md AUTHORS ChangeLog TODO
 %license COPYING
 
