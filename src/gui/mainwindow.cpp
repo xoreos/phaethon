@@ -367,7 +367,7 @@ void MainWindow::saveItem() {
 		return;
 
 	QString fileName = QFileDialog::getSaveFileName(this,
-		tr("Save Aurora game resource file"), "",
+		tr("Save Aurora game resource file"), _currentItem->getName(),
 		tr("Aurora game resource (*.*)|*.*"));
 
 	if (fileName.isEmpty())
