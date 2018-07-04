@@ -70,9 +70,9 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(0)),
-	_panelPreviewImage(new PanelPreviewImage(0)), _panelPreviewSound(new PanelPreviewSound(0)),
-	_panelPreviewText(new PanelPreviewText(0)), _panelPreviewTable(new PanelPreviewTable(0)),
+	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)),
+	_panelPreviewImage(new PanelPreviewImage(this)), _panelPreviewSound(new PanelPreviewSound(this)),
+	_panelPreviewText(new PanelPreviewText(this)), _panelPreviewTable(new PanelPreviewTable(this)),
 	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
@@ -202,11 +202,20 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	}
 
 	// Resource preview frame
+	_panelPreviewEmpty->hide();
+	_panelPreviewImage->hide();
+	_panelPreviewSound->hide();
+	_panelPreviewText->hide();
+	_panelPreviewTable->hide();
+
 	_resPreviewFrame->setFrameShape(QFrame::StyledPanel);
 	{
 		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
+
 		hl->setMargin(0);
 		hl->addWidget(_panelPreviewEmpty);
+
+		_panelPreviewEmpty->show();
 	}
 
 	setCentralWidget(_centralWidget);
@@ -227,20 +236,6 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 }
 
 MainWindow::~MainWindow() {
-	if (!_panelPreviewEmpty->parent())
-		delete _panelPreviewEmpty;
-
-	if (!_panelPreviewImage->parent())
-		delete _panelPreviewImage;
-
-	if (!_panelPreviewSound->parent())
-		delete _panelPreviewSound;
-
-	if (!_panelPreviewText->parent())
-		delete _panelPreviewText;
-
-	if (!_panelPreviewTable->parent())
-		delete _panelPreviewTable;
 }
 
 void MainWindow::slotLog(const QString &text) {
@@ -573,12 +568,14 @@ void MainWindow::exportWAV() {
 
 void MainWindow::showPreviewPanel(QFrame *panel) {
 	if (_resPreviewFrame->layout()->count()) {
-		QFrame *old = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
-		if (old != panel) {
-			old->hide();
-			panel->show();
-			_resPreviewFrame->layout()->replaceWidget(old, panel);
-		}
+		QFrame *oldPanel = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
+		if (oldPanel == panel)
+			return;
+
+		Common::ScopedPtr<QLayoutItem> oldItem(_resPreviewFrame->layout()->replaceWidget(oldPanel, panel));
+
+		oldPanel->hide();
+		panel->show();
 	}
 }
 
