@@ -28,7 +28,6 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QTableView>
-#include <QStandardItemModel>
 
 #include "verdigris/wobjectimpl.h"
 
@@ -51,7 +50,7 @@ PanelPreviewTable::PanelPreviewTable(QWidget *parent) :
 	QVBoxLayout *layoutTop = new QVBoxLayout(this);
 
 	layoutTop->addWidget(_tableView);
-	_tableView->setModel(_model);
+	_tableView->setModel(_model.get());
 
 	_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 

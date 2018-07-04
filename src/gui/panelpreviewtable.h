@@ -26,10 +26,13 @@
 #ifndef GUI_PANELPREVIEWTABLE_H
 #define GUI_PANELPREVIEWTABLE_H
 
+#include <QStandardItemModel>
+
+#include "src/common/scopedptr.h"
+
 #include "verdigris/wobjectdefs.h"
 
 class QComboBox;
-class QStandardItemModel;
 class QTableView;
 
 namespace GUI {
@@ -50,7 +53,7 @@ public /*signals*/:
 
 private:
 	const ResourceTreeItem *_currentItem;
-	QStandardItemModel *_model;
+	Common::ScopedPtr<QStandardItemModel> _model;
 	QTableView *_tableView;
 
 	void setTableData(bool isGDA);
