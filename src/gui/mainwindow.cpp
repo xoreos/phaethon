@@ -362,7 +362,8 @@ void MainWindow::saveItem() {
 		return;
 
 	QString fileName = QFileDialog::getSaveFileName(this,
-		tr("Save Aurora game resource file"), _currentItem->getName(),
+		tr("Save Aurora game resource file"),
+		_currentItem->getName(),
 		tr("Aurora game resource (*.*)|*.*"));
 
 	if (fileName.isEmpty())
@@ -386,6 +387,11 @@ void MainWindow::saveItem() {
 	}
 }
 
+QString replaceExtension(const QString &fileName, Aurora::FileType type) {
+	Common::UString replaced = TypeMan.setFileType(fileName.toStdString(), type);
+	return QString::fromUtf8(replaced.c_str());
+}
+
 void MainWindow::exportTGA() {
 	if (!_currentItem)
 		return;
@@ -393,7 +399,8 @@ void MainWindow::exportTGA() {
 	assert(_currentItem->getResourceType() == Aurora::kResourceImage);
 
 	QString fileName = QFileDialog::getSaveFileName(this,
-		tr("Save TGA file"), "",
+		tr("Save TGA file"),
+		"",
 		tr("TGA file (*.tga)|*.tga"));
 
 	if (fileName.isEmpty())
@@ -439,12 +446,10 @@ void MainWindow::exportBMUMP3() {
 
 	assert(_currentItem->getFileType() == Aurora::kFileTypeBMU);
 
-	const QString title = "Save MP3 file";
-	const QString mask  = "MP3 file (*.mp3)|*.mp3";
-	Common::UString defUString = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeMP3);
-	const QString def   = QString::fromUtf8(defUString.c_str());
-
-	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save MP3 file"),
+		replaceExtension(_currentItem->getName(), Aurora::kFileTypeMP3),
+		tr("MP3 file (*.mp3)|*.mp3"));
 
 	if (fileName.isEmpty())
 		return;
@@ -537,12 +542,10 @@ void MainWindow::exportWAV() {
 
 	assert(_currentItem->getResourceType() == Aurora::kResourceSound);
 
-	const QString title = "Save PCM WAV file";
-	const QString mask  = "WAV file (*.wav)|*.wav";
-	Common::UString defUString = TypeMan.setFileType(_currentItem->getName().toStdString(), Aurora::kFileTypeWAV);
-	const QString def   = QString::fromUtf8(defUString.c_str());
-
-	QString fileName = QFileDialog::getSaveFileName(this, title, def, mask);
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save PCM WAV file"),
+		replaceExtension(_currentItem->getName(), Aurora::kFileTypeWAV),
+		tr("WAV file (*.wav)|*.wav"));
 
 	if (fileName.isEmpty())
 		return;
