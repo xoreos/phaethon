@@ -400,7 +400,7 @@ void MainWindow::exportTGA() {
 
 	QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save TGA file"),
-		"",
+		replaceExtension(_currentItem->getName(), Aurora::kFileTypeTGA),
 		tr("TGA file (*.tga)|*.tga"));
 
 	if (fileName.isEmpty())
