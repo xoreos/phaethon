@@ -364,7 +364,7 @@ void MainWindow::saveItem() {
 	QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save Aurora game resource file"),
 		_currentItem->getName(),
-		tr("Aurora game resource (*.*)|*.*"));
+		tr("Aurora game resource (*.*)"));
 
 	if (fileName.isEmpty())
 		return;
@@ -401,7 +401,7 @@ void MainWindow::exportTGA() {
 	QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save TGA file"),
 		"",
-		tr("TGA file (*.tga)|*.tga"));
+		tr("TGA file (*.tga)"));
 
 	if (fileName.isEmpty())
 		return;
@@ -449,7 +449,7 @@ void MainWindow::exportBMUMP3() {
 	QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save MP3 file"),
 		replaceExtension(_currentItem->getName(), Aurora::kFileTypeMP3),
-		tr("MP3 file (*.mp3)|*.mp3"));
+		tr("MP3 file (*.mp3)"));
 
 	if (fileName.isEmpty())
 		return;
@@ -545,7 +545,7 @@ void MainWindow::exportWAV() {
 	QString fileName = QFileDialog::getSaveFileName(this,
 		tr("Save PCM WAV file"),
 		replaceExtension(_currentItem->getName(), Aurora::kFileTypeWAV),
-		tr("WAV file (*.wav)|*.wav"));
+		tr("WAV file (*.wav)"));
 
 	if (fileName.isEmpty())
 		return;
