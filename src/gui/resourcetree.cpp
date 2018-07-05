@@ -283,7 +283,7 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 			throw Common::Exception("Invalid archive file \"%s\"", item.getPath().toStdString().c_str());
 	}
 
-	_archives.insert(std::make_pair(item.getPath().toStdString().c_str(), arch));
+	_archives.insert(std::make_pair(item.getPath(), arch));
 	return arch;
 }
 
