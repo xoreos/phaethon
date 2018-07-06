@@ -202,4 +202,18 @@ Common::SeekableReadStream *KEYFile::getResource(uint32 index, bool UNUSED(tryNo
 	return iRes.dataFile->getResource(iRes.resIndex);
 }
 
+std::vector<const Archive::Resource *> KEYFile::getResourceListForDataFile(const Common::UString &dataFile) const {
+	std::vector<const Archive::Resource *> list;
+
+	uint32 i = 0;
+	for (auto it = _resources.begin(); it != _resources.end(); ++it, i++) {
+		if (_dataFiles[getIResource(i).dataFileIndex] != dataFile)
+			continue;
+
+		list.push_back(&(*it));
+	}
+
+	return list;
+}
+
 } // End of namespace Aurora

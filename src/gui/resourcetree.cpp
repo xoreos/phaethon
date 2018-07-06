@@ -51,6 +51,8 @@
 #include "src/gui/resourcetree.h"
 #include "src/gui/resourcetreeitem.h"
 
+#define USTR(x) (Common::UString((x).toStdString()))
+
 namespace GUI {
 
 W_OBJECT_IMPL(ResourceTree)
@@ -75,6 +77,11 @@ void ResourceTree::populate(const Common::FileTree::Entry &entry, ResourceTreeIt
 		 childIter != entry.children.end(); ++childIter) {
 
 		ResourceTreeItem *child = new ResourceTreeItem(*childIter);
+
+		if (child->getFileType() == Aurora::kFileTypeKEY) {
+			_keys.push_back(child);
+		}
+
 		parent->addChild(child);
 		populate(*childIter, child);
 	}
@@ -176,6 +183,20 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
 		_mainWindow->statusPop();
 	} BOOST_SCOPE_EXIT_END
 
+	if (item->getFileType() == Aurora::kFileTypeBIF) {
+		for (ResourceTreeItem *keyItem : _keys) {
+			Aurora::KEYFile *keyFile = static_cast<Aurora::KEYFile *>(getArchive(*keyItem));
+			const auto &dataFiles = keyFile->getDataFileList();
+			for (const Common::UString &dataFile : dataFiles) {
+				if (dataFile.endsWith(USTR(item->getName()))) {
+					archive.data = keyFile;
+					insertItemsFromArchive(archive, *item, index);
+				}
+			}
+		}
+		return;
+	}
+
 	// Load the archive, if necessary
 	if (!archive.data) {
 		try {
@@ -183,14 +204,14 @@ void ResourceTree::fetchMore(const QModelIndex &index) {
 		} catch (Common::Exception &e) {
 			// If that fails, print the error and treat this archive as empty
 
-			e.add("Failed to load archive \"%s\"", itemFromIndex(index)->getName().toStdString().c_str());
+			e.add("Failed to load archive \"%s\"", item->getName().toStdString().c_str());
 			Common::printException(e, "WARNING: ");
 
 			return;
 		}
 	}
 
-	insertItemsFromArchive(archive, item->getPath(), index);
+	insertItemsFromArchive(archive, *item, index);
 
 	archive.addedMembers = true;
 }
@@ -205,15 +226,23 @@ bool ResourceTree::hasChildren(const QModelIndex &index) const {
 	return itemFromIndex(index)->hasChildren();
 }
 
-void ResourceTree::insertItemsFromArchive(Archive &archive, const QString &path,
+void ResourceTree::insertItemsFromArchive(Archive &archive, const ResourceTreeItem &item,
                                           const QModelIndex &parentIndex) {
 	QList<ResourceTreeItem *> items;
 
-	auto resources = archive.data->getResources();
-	for (auto r = resources.begin(); r != resources.end(); ++r)
-	{
-		items.push_back(new ResourceTreeItem(archive.data, path, *r));
+	if (item.getFileType() == Aurora::kFileTypeBIF) {
+		const QString localArchivePath = item.getParent()->getName() + "/" + item.getName();
+		auto resList = static_cast<Aurora::KEYFile *>(archive.data)->getResourceListForDataFile(localArchivePath.toStdString().c_str());
+		for (auto res : resList) {
+			items.push_back(new ResourceTreeItem(archive.data, localArchivePath, *res));
+		}
+	} else {
+		auto &resources = archive.data->getResources();
+		for (auto r = resources.begin(); r != resources.end(); ++r) {
+			items.push_back(new ResourceTreeItem(archive.data, item.getPath(), *r));
+		}
 	}
+	archive.addedMembers = true;
 
 	insertItems(0, items, parentIndex);
 }
@@ -286,8 +315,6 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 	_archives.insert(std::make_pair(item.getPath(), arch));
 	return arch;
 }
-
-#define USTR(x) (Common::UString((x).toStdString()))
 
 Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
 	KEYDataFileMap::iterator d = _keyDataFiles.find(file);

@@ -106,6 +106,8 @@ public:
 	 */
 	Common::SeekableReadStream *getResource(uint32 index, bool tryNoCopy = false) const;
 
+	std::vector<const Archive::Resource *> getResourceListForDataFile(const Common::UString &dataFile) const;
+
 private:
 	/** Internal resource information. */
 	struct IResource {

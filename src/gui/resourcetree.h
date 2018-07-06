@@ -71,7 +71,7 @@ public:
 	void populate(const Common::FileTree::Entry &rootEntry);
 	void populate(const Common::FileTree::Entry &rootEntry, ResourceTreeItem *parent);
 
-	void insertItemsFromArchive(Archive &archive, const QString &path, const QModelIndex &parentIndex);
+	void insertItemsFromArchive(Archive &archive, const ResourceTreeItem &item, const QModelIndex &parentIndex);
 	void insertItems(size_t position, QList<ResourceTreeItem *> &items, const QModelIndex &parentIndex);
 
 	Aurora::Archive     *getArchive(ResourceTreeItem &item);
@@ -118,6 +118,7 @@ private:
 
 	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
 	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
+	std::vector<ResourceTreeItem *> _keys;
 
 	ArchiveMap _archives;
 	KEYDataFileMap _keyDataFiles;
