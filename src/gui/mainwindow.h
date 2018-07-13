@@ -49,11 +49,8 @@ class PanelResourceInfo;
 class ResourceTree;
 class ResourceTreeItem;
 class ProxyModel;
-class PanelPreviewEmpty;
-class PanelPreviewImage;
-class PanelPreviewSound;
-class PanelPreviewText;
-class PanelPreviewTable;
+class PanelManager;
+class PanelBase;
 
 class MainWindow : public QMainWindow {
 	W_OBJECT(MainWindow)
@@ -107,9 +104,6 @@ private:
 	void exportBMUMP3Impl(Common::SeekableReadStream &bmu, Common::WriteStream &mp3);
 	void exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav);
 
-	void showPreviewPanel(QFrame *panel);
-	void showPreviewPanel();
-
 	StatusBar _status;
 
 	QWidget *_centralWidget;
@@ -140,11 +134,8 @@ private:
 	ResourceTreeItem *_currentItem;
 
 	PanelResourceInfo *_panelResourceInfo;
-	PanelPreviewEmpty *_panelPreviewEmpty;
-	PanelPreviewImage *_panelPreviewImage;
-	PanelPreviewSound *_panelPreviewSound;
-	PanelPreviewText *_panelPreviewText;
-	PanelPreviewTable *_panelPreviewTable;
+
+	PanelManager *_panelManager;
 
 	QFutureWatcher<void> *_watcher;
 

@@ -25,11 +25,11 @@
 #ifndef GUI_PANELPREVIEWEMPTY_H
 #define GUI_PANELPREVIEWEMPTY_H
 
-#include "verdigris/wobjectdefs.h"
+#include "src/gui/panelbase.h"
 
 namespace GUI {
 
-class PanelPreviewEmpty : public QFrame {
+class PanelPreviewEmpty : public PanelBase {
 	W_OBJECT(PanelPreviewEmpty)
 
 public:

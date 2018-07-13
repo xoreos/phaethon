@@ -25,9 +25,9 @@
 #ifndef GUI_PANELPREVIEWIMAGE_H
 #define GUI_PANELPREVIEWIMAGE_H
 
-#include "verdigris/wobjectdefs.h"
-
 #include "src/common/types.h"
+
+#include "src/gui/panelbase.h"
 
 #include "src/images/decoder.h"
 #include "src/images/types.h"
@@ -38,13 +38,13 @@ namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewImage : public QFrame {
+class PanelPreviewImage : public PanelBase {
 	W_OBJECT(PanelPreviewImage)
 
 public:
 	PanelPreviewImage(QWidget *parent);
 
-	void setItem(const GUI::ResourceTreeItem *item);
+	virtual void show(const ResourceTreeItem *item);
 
 	// public slots:
 	void slotSliderBrightness(int value);

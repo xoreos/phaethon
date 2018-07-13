@@ -45,7 +45,7 @@ namespace GUI {
 W_OBJECT_IMPL(PanelPreviewTable)
 
 PanelPreviewTable::PanelPreviewTable(QWidget *parent) :
-	QFrame(parent), _model(new QStandardItemModel(0)),
+	PanelBase(parent), _model(new QStandardItemModel(0)),
 	_tableView(new QTableView(0)) {
 	QVBoxLayout *layoutTop = new QVBoxLayout(this);
 
@@ -57,9 +57,8 @@ PanelPreviewTable::PanelPreviewTable(QWidget *parent) :
 	layoutTop->setContentsMargins(0, 0, 0, 0);
 }
 
-void PanelPreviewTable::setItem(const ResourceTreeItem *item) {
-	if (item == _currentItem)
-		return;
+void PanelPreviewTable::show(const ResourceTreeItem *item) {
+	PanelBase::show(item);
 
 	if (item->getResourceType() != Aurora::kResourceTable)
 		return;

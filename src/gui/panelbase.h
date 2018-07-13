@@ -19,45 +19,35 @@
  */
 
 /** @file
- *  Preview panel for text files.
+ *  Base class for panels which show resource previews.
  */
 
-#ifndef GUI_PANELPREVIEWTEXT_H
-#define GUI_PANELPREVIEWTEXT_H
+#ifndef GUI_PANELBASE_H
+#define GUI_PANELBASE_H
 
-#include "src/gui/panelbase.h"
+#include <QFrame>
+#include <QString>
 
-class QComboBox;
+#include "verdigris/wobjectdefs.h"
+
+class QLayout;
+class QObject;
+class QWidget;
 
 namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewText : public PanelBase {
-	W_OBJECT(PanelPreviewText)
-
+class PanelBase : public QFrame {
 public:
-	PanelPreviewText(QWidget *parent);
+	PanelBase(QWidget *parent);
 
 	virtual void show(const ResourceTreeItem *item);
+	virtual void hide();
 
-public /*signals*/:
-	void log(const QString &text)
-	W_SIGNAL(log, text)
-
-private /*slots*/:
-	void slotEncodingChanged(int index);
-	W_SLOT(slotEncodingChanged, W_Access::Private)
-
-private:
-	QTextEdit *_textEdit;
-	QComboBox *_encodingBox;
-	const ResourceTreeItem *_currentItem;
-
-	void setText(const QString &text);
-	QString getEncodedText(Common::Encoding encoding);
+	void setParent(QLayout *layout);
 };
 
 } // End of namespace GUI
 
-#endif // GUI_PANELPREVIEWTEXT_H
+#endif // PANEL_BASE_H

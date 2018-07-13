@@ -43,7 +43,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewSound)
 
-PanelPreviewSound::PanelPreviewSound(QWidget *parent) : QFrame(parent) {
+PanelPreviewSound::PanelPreviewSound(QWidget *parent) :
+	PanelBase(parent) {
 	QGridLayout *layoutTop = new QGridLayout(this);
 	QHBoxLayout *layoutLabels = new QHBoxLayout();
 	QHBoxLayout *layoutButtons = new QHBoxLayout();
@@ -97,9 +98,8 @@ PanelPreviewSound::PanelPreviewSound(QWidget *parent) : QFrame(parent) {
 	_timer->start(50);
 }
 
-void PanelPreviewSound::setItem(const ResourceTreeItem *item) {
-	if (item == _currentItem)
-		return;
+void PanelPreviewSound::show(const ResourceTreeItem *item) {
+	PanelBase::show(item);
 
 	stop();
 

@@ -25,7 +25,7 @@
 #ifndef GUI_PANELPREVIEWSOUND_H
 #define GUI_PANELPREVIEWSOUND_H
 
-#include "verdigris/wobjectdefs.h"
+#include "src/gui/panelbase.h"
 
 #include "src/sound/types.h"
 
@@ -33,13 +33,13 @@ namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewSound : public QFrame {
+class PanelPreviewSound : public PanelBase {
 	W_OBJECT(PanelPreviewSound)
 
 public:
 	PanelPreviewSound(QWidget *parent);
 
-	void setItem(const ResourceTreeItem *item);
+	virtual void show(const ResourceTreeItem *item);
 
 	void stop();
 

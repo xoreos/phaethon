@@ -44,7 +44,8 @@ namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewImage)
 
-PanelPreviewImage::PanelPreviewImage(QWidget *parent) : QFrame(parent) {
+PanelPreviewImage::PanelPreviewImage(QWidget *parent) :
+	PanelBase(parent) {
 	_zoomFactor = 1.0f;
 
 	_mode = Qt::SmoothTransformation;
@@ -113,7 +114,9 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent) : QFrame(parent) {
 	connect(_checkNearest, &QCheckBox::toggled, this, &PanelPreviewImage::slotNearest);
 }
 
-void PanelPreviewImage::setItem(const ResourceTreeItem *item) {
+void PanelPreviewImage::show(const ResourceTreeItem *item) {
+	PanelBase::show(item);
+
 	_zoomFactor = 1.0f;
 	_originalPixmap = QPixmap();
 	_labelImage->setPixmap(_originalPixmap);

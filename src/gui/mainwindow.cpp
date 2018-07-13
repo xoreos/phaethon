@@ -56,6 +56,7 @@
 #include "src/gui/panelpreviewsound.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/panelpreviewtable.h"
+#include "src/gui/panelmanager.h"
 
 #include "src/images/dumptga.h"
 
@@ -70,9 +71,7 @@ W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
 	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0), _panelPreviewEmpty(new PanelPreviewEmpty(this)),
-	_panelPreviewImage(new PanelPreviewImage(this)), _panelPreviewSound(new PanelPreviewSound(this)),
-	_panelPreviewText(new PanelPreviewText(this)), _panelPreviewTable(new PanelPreviewTable(this)),
+	_rootPath(""), _panelResourceInfo(0), _panelManager(new PanelManager()),
 	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
@@ -120,8 +119,6 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	QObject::connect(_actionClose, &QAction::triggered, this, &MainWindow::slotClose);
 	QObject::connect(_actionQuit, &QAction::triggered, this, &MainWindow::slotQuit);
 	QObject::connect(_actionAbout, &QAction::triggered, this, &MainWindow::slotAbout);
-	QObject::connect(_panelPreviewText, &PanelPreviewText::log, this, &MainWindow::slotLog);
-	QObject::connect(_panelPreviewTable, &PanelPreviewTable::log, this, &MainWindow::slotLog);
 
 	/* Layout. */
 	_centralWidget = new QWidget(this);
@@ -186,6 +183,18 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_splitterTopBottom->addWidget(logBox);
 
 	// Resource info frame
+	_panelManager->registerPanel(new PanelPreviewEmpty(0), Aurora::kResourceNone);
+	_panelManager->registerPanel(new PanelPreviewSound(0), Aurora::kResourceSound);
+	_panelManager->registerPanel(new PanelPreviewImage(0), Aurora::kResourceImage);
+	_panelManager->registerPanel(new PanelPreviewText(0), Aurora::kResourceText);
+	_panelManager->registerPanel(new PanelPreviewTable(0), Aurora::kResourceTable);
+	_panelManager->setItem(0);
+
+	PanelPreviewText *textPanel = static_cast<PanelPreviewText *>(_panelManager->getPanelByType(Aurora::kResourceText));
+	PanelPreviewTable *tablePanel = static_cast<PanelPreviewTable *>(_panelManager->getPanelByType(Aurora::kResourceTable));
+	QObject::connect(textPanel, &PanelPreviewText::log, this, &MainWindow::slotLog);
+	QObject::connect(tablePanel, &PanelPreviewTable::log, this, &MainWindow::slotLog);
+
 	_panelResourceInfo = new PanelResourceInfo(this);
 	QObject::connect(_panelResourceInfo, &PanelResourceInfo::closeDirClicked, this, &MainWindow::slotClose);
 	QObject::connect(_panelResourceInfo, &PanelResourceInfo::saveClicked, this, &MainWindow::saveItem);
@@ -202,20 +211,12 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	}
 
 	// Resource preview frame
-	_panelPreviewEmpty->hide();
-	_panelPreviewImage->hide();
-	_panelPreviewSound->hide();
-	_panelPreviewText->hide();
-	_panelPreviewTable->hide();
-
 	_resPreviewFrame->setFrameShape(QFrame::StyledPanel);
 	{
 		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
 
 		hl->setMargin(0);
-		hl->addWidget(_panelPreviewEmpty);
-
-		_panelPreviewEmpty->show();
+		_panelManager->setLayout(hl);
 	}
 
 	setCentralWidget(_centralWidget);
@@ -227,6 +228,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_treeModel.reset(new ResourceTree(this, _treeView));
 	_proxyModel.reset(new ProxyModel(this));
 
+	_panelManager->setItem(0);
+
 	_status.setText("Idle...");
 
 	if (qpath.isEmpty())
@@ -236,6 +239,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 }
 
 MainWindow::~MainWindow() {
+	delete _panelManager;
 }
 
 void MainWindow::slotLog(const QString &text) {
@@ -322,7 +326,8 @@ void MainWindow::openFinish() {
 }
 
 void MainWindow::close() {
-	showPreviewPanel(_panelPreviewEmpty);
+	_panelManager->setItem(0);
+
 	_panelResourceInfo->setButtonsForClosedDir();
 	_panelResourceInfo->clearLabels();
 	_treeView->setModel(nullptr);
@@ -350,7 +355,8 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
 
 	_panelResourceInfo->update(_currentItem);
 
-	showPreviewPanel();
+	if (!_currentItem->isDir() && !_currentItem->isArchive())
+		_panelManager->setItem(_currentItem);
 }
 
 QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
@@ -566,47 +572,6 @@ void MainWindow::exportWAV() {
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 		return;
-	}
-}
-
-void MainWindow::showPreviewPanel(QFrame *panel) {
-	if (_resPreviewFrame->layout()->count()) {
-		QFrame *oldPanel = static_cast<QFrame *>(_resPreviewFrame->layout()->itemAt(0)->widget());
-		if (oldPanel == panel)
-			return;
-
-		Common::ScopedPtr<QLayoutItem> oldItem(_resPreviewFrame->layout()->replaceWidget(oldPanel, panel));
-
-		oldPanel->hide();
-		panel->show();
-	}
-}
-
-void MainWindow::showPreviewPanel() {
-	switch (_currentItem->getResourceType()) {
-		case Aurora::kResourceImage:
-			_panelPreviewImage->setItem(_currentItem);
-			showPreviewPanel(_panelPreviewImage);
-			break;
-
-		case Aurora::kResourceSound:
-			_panelPreviewSound->setItem(_currentItem);
-			showPreviewPanel(_panelPreviewSound);
-			break;
-
-		case Aurora::kResourceText:
-			_panelPreviewText->setItem(_currentItem);
-			showPreviewPanel(_panelPreviewText);
-			break;
-
-		case Aurora::kResourceTable:
-			_panelPreviewTable->setItem(_currentItem);
-			showPreviewPanel(_panelPreviewTable);
-			break;
-
-		default:
-			showPreviewPanel(_panelPreviewEmpty);
-			break;
 	}
 }
 

@@ -37,13 +37,14 @@
 
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/resourcetreeitem.h"
+#include "src/gui/panelbase.h"
 
 namespace GUI {
 
 W_OBJECT_IMPL(PanelPreviewText)
 
 PanelPreviewText::PanelPreviewText(QWidget *parent) :
-	QFrame(parent), _encodingBox(0) {
+	PanelBase(parent), _encodingBox(0) {
 	QVBoxLayout *layoutTop = new QVBoxLayout(this);
 
 	_textEdit = new QTextEdit(this);
@@ -67,9 +68,8 @@ PanelPreviewText::PanelPreviewText(QWidget *parent) :
 	QObject::connect(_encodingBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PanelPreviewText::slotEncodingChanged);
 }
 
-void PanelPreviewText::setItem(const ResourceTreeItem *item) {
-	if (item == _currentItem)
-		return;
+void PanelPreviewText::show(const ResourceTreeItem *item) {
+	PanelBase::show(item);
 
 	if (item->getResourceType() != Aurora::kResourceText)
 		return;

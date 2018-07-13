@@ -19,45 +19,43 @@
  */
 
 /** @file
- *  Preview panel for text files.
+ *  Manager class for resource preview panels.
  */
 
-#ifndef GUI_PANELPREVIEWTEXT_H
-#define GUI_PANELPREVIEWTEXT_H
+#ifndef GUI_PANELMANAGER_H
+#define GUI_PANELMANAGER_H
 
-#include "src/gui/panelbase.h"
+#include <memory>
+#include <map>
 
-class QComboBox;
+#include "src/aurora/types.h"
+
+class QLayout;
 
 namespace GUI {
 
+class PanelBase;
 class ResourceTreeItem;
 
-class PanelPreviewText : public PanelBase {
-	W_OBJECT(PanelPreviewText)
-
+class PanelManager {
 public:
-	PanelPreviewText(QWidget *parent);
+	PanelManager();
+	~PanelManager();
 
-	virtual void show(const ResourceTreeItem *item);
-
-public /*signals*/:
-	void log(const QString &text)
-	W_SIGNAL(log, text)
-
-private /*slots*/:
-	void slotEncodingChanged(int index);
-	W_SLOT(slotEncodingChanged, W_Access::Private)
+	void registerPanel(PanelBase *panel, Aurora::ResourceType type);
+	void setLayout(QLayout *layout);
+	void setItem(const ResourceTreeItem *item);
+	PanelBase *getPanelByType(Aurora::ResourceType type);
 
 private:
-	QTextEdit *_textEdit;
-	QComboBox *_encodingBox;
-	const ResourceTreeItem *_currentItem;
+	void showPanel(Aurora::ResourceType type, const ResourceTreeItem *item);
 
-	void setText(const QString &text);
-	QString getEncodedText(Common::Encoding encoding);
+private:
+	QLayout *_layout;
+	PanelBase *_currentPanel;
+	std::map<Aurora::ResourceType, PanelBase *> _panels;
 };
 
 } // End of namespace GUI
 
-#endif // GUI_PANELPREVIEWTEXT_H
+#endif // PANEL_MANAGER_H

@@ -30,7 +30,7 @@
 
 #include "src/common/scopedptr.h"
 
-#include "verdigris/wobjectdefs.h"
+#include "src/gui/panelbase.h"
 
 class QComboBox;
 class QTableView;
@@ -39,13 +39,13 @@ namespace GUI {
 
 class ResourceTreeItem;
 
-class PanelPreviewTable : public QFrame {
+class PanelPreviewTable : public PanelBase {
 	W_OBJECT(PanelPreviewTable)
 
 public:
 	PanelPreviewTable(QWidget *parent);
 
-	void setItem(const ResourceTreeItem *item);
+	virtual void show(const ResourceTreeItem *item);
 
 public /*signals*/:
 	void log(const QString &text)
