@@ -267,7 +267,7 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 
 	Common::ScopedPtr<Common::SeekableReadStream> stream(item.getResourceData());
 
-	Aurora::Archive *arch = 0;
+	Aurora::Archive *arch = nullptr;
 	switch (item.getFileType()) {
 		case Aurora::kFileTypeZIP:
 			arch = new Aurora::ZIPFile(stream.release());

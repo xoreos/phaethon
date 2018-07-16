@@ -33,7 +33,7 @@
 namespace GUI {
 
 PanelManager::PanelManager() :
-	_layout(0), _currentPanel(0) {
+	_layout(nullptr), _currentPanel(nullptr) {
 }
 
 PanelManager::~PanelManager() {

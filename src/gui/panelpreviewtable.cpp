@@ -45,8 +45,8 @@ namespace GUI {
 W_OBJECT_IMPL(PanelPreviewTable)
 
 PanelPreviewTable::PanelPreviewTable(QWidget *parent) :
-	PanelBase(parent), _model(new QStandardItemModel(0)),
-	_tableView(new QTableView(0)) {
+	PanelBase(parent), _model(new QStandardItemModel(nullptr)),
+	_tableView(new QTableView(nullptr)) {
 	QVBoxLayout *layoutTop = new QVBoxLayout(this);
 
 	layoutTop->addWidget(_tableView);

@@ -31,13 +31,13 @@
 namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-	_parent(0), _name(QString::fromUtf8(entry.name.c_str())),
+	_parent(nullptr), _name(QString::fromUtf8(entry.name.c_str())),
 	_source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
 	_path = QString::fromUtf8(entry.path.string().c_str());
 
-	_archive.data = 0;
-	_archive.owner = 0;
+	_archive.data = nullptr;
+	_archive.owner = nullptr;
 	_archive.addedMembers = false;
 	_archive.index = 0xFFFFFFFF;
 
@@ -61,7 +61,7 @@ ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &archivePath,
                                    const Aurora::Archive::Resource &resource) :
-	_parent(0), _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
+	_parent(nullptr), _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
 	_source(kSourceArchiveFile) {
 
 	Common::UString resName = resource.name;
@@ -71,7 +71,7 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &arch
 	resName = TypeMan.setFileType(resName, resource.type);
 	_name = QString::fromUtf8(resName.c_str());
 
-	_archive.data = 0;
+	_archive.data = nullptr;
 	_archive.owner = archive;
 	_archive.addedMembers = false;
 	_archive.index = resource.index;
@@ -94,7 +94,7 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &arch
 	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-ResourceTreeItem::ResourceTreeItem(const QString &data) : _parent(0), _name(data), _size(0),
+ResourceTreeItem::ResourceTreeItem(const QString &data) : _parent(nullptr), _name(data), _size(0),
 	_triedDuration(0), _duration(0), _source(kSourceNone),
 	_fileType(Aurora::kFileTypeNone), _resourceType(Aurora::kResourceNone) {
 
@@ -202,7 +202,7 @@ Common::SeekableReadStream *ResourceTreeItem::getResourceData() const {
 	}
 
 	assert(false);
-	return 0;
+	return nullptr;
 }
 
 Images::Decoder *ResourceTreeItem::getImage() const {
@@ -211,7 +211,7 @@ Images::Decoder *ResourceTreeItem::getImage() const {
 
 	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
-	Images::Decoder *img = 0;
+	Images::Decoder *img = nullptr;
 	try {
 		img = getImage(*res, _fileType);
 	} catch (Common::Exception &e) {
@@ -223,7 +223,7 @@ Images::Decoder *ResourceTreeItem::getImage() const {
 }
 
 Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aurora::FileType type) const {
-	Images::Decoder *img = 0;
+	Images::Decoder *img = nullptr;
 	switch (type) {
 		case Aurora::kFileTypeDDS:
 			img = new Images::DDS(res);
@@ -300,7 +300,7 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
 
 	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
 
-	Sound::AudioStream *sound = 0;
+	Sound::AudioStream *sound = nullptr;
 	try {
 		sound = SoundMan.makeAudioStream(res.get());
 	} catch (Common::Exception &e) {

@@ -44,7 +44,7 @@ namespace GUI {
 W_OBJECT_IMPL(PanelPreviewText)
 
 PanelPreviewText::PanelPreviewText(QWidget *parent) :
-	PanelBase(parent), _encodingBox(0) {
+	PanelBase(parent), _encodingBox(nullptr) {
 	QVBoxLayout *layoutTop = new QVBoxLayout(this);
 
 	_textEdit = new QTextEdit(this);

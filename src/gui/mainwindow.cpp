@@ -70,8 +70,8 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
-	QMainWindow(parent), _status(statusBar()), _treeView(0), _treeModel(0), _proxyModel(0),
-	_rootPath(""), _panelResourceInfo(0), _panelManager(new PanelManager()),
+	QMainWindow(parent), _status(statusBar()), _treeView(nullptr), _treeModel(nullptr), _proxyModel(nullptr),
+	_rootPath(""), _panelResourceInfo(nullptr), _panelManager(new PanelManager()),
 	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);
@@ -183,12 +183,12 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_splitterTopBottom->addWidget(logBox);
 
 	// Resource info frame
-	_panelManager->registerPanel(new PanelPreviewEmpty(0), Aurora::kResourceNone);
-	_panelManager->registerPanel(new PanelPreviewSound(0), Aurora::kResourceSound);
-	_panelManager->registerPanel(new PanelPreviewImage(0), Aurora::kResourceImage);
-	_panelManager->registerPanel(new PanelPreviewText(0), Aurora::kResourceText);
-	_panelManager->registerPanel(new PanelPreviewTable(0), Aurora::kResourceTable);
-	_panelManager->setItem(0);
+	_panelManager->registerPanel(new PanelPreviewEmpty(nullptr), Aurora::kResourceNone);
+	_panelManager->registerPanel(new PanelPreviewSound(nullptr), Aurora::kResourceSound);
+	_panelManager->registerPanel(new PanelPreviewImage(nullptr), Aurora::kResourceImage);
+	_panelManager->registerPanel(new PanelPreviewText(nullptr), Aurora::kResourceText);
+	_panelManager->registerPanel(new PanelPreviewTable(nullptr), Aurora::kResourceTable);
+	_panelManager->setItem(nullptr);
 
 	PanelPreviewText *textPanel = static_cast<PanelPreviewText *>(_panelManager->getPanelByType(Aurora::kResourceText));
 	PanelPreviewTable *tablePanel = static_cast<PanelPreviewTable *>(_panelManager->getPanelByType(Aurora::kResourceTable));
@@ -228,7 +228,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_treeModel.reset(new ResourceTree(this, _treeView));
 	_proxyModel.reset(new ProxyModel(this));
 
-	_panelManager->setItem(0);
+	_panelManager->setItem(nullptr);
 
 	_status.setText("Idle...");
 
@@ -326,7 +326,7 @@ void MainWindow::openFinish() {
 }
 
 void MainWindow::close() {
-	_panelManager->setItem(0);
+	_panelManager->setItem(nullptr);
 
 	_panelResourceInfo->setButtonsForClosedDir();
 	_panelResourceInfo->clearLabels();
