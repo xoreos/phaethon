@@ -30,6 +30,7 @@
 #include "src/aurora/archive.h"
 #include "src/aurora/util.h"
 
+#include "src/common/filepath.h"
 #include "src/common/filetree.h"
 
 #include "src/images/dds.h"
@@ -53,10 +54,10 @@ enum Source {
 };
 
 struct Archive {
-	Aurora::Archive *owner;
-	Aurora::Archive *data;
-	bool   addedMembers;
-	uint32 index;
+	Aurora::Archive *owner { nullptr };
+	Aurora::Archive *data { nullptr };
+	bool addedMembers { false };
+	uint32 index { 0xFFFFFFFF };
 };
 
 class ResourceTreeItem {
@@ -70,8 +71,6 @@ public:
 
 	/** Root item constructor. */
 	ResourceTreeItem(const QString &data);
-
-	~ResourceTreeItem();
 
 	inline bool isArchive() {
 		return TypeMan.getResourceType(_fileType) == Aurora::kResourceArchive;
@@ -107,21 +106,21 @@ public:
 	uint64                      getSoundDuration() const;
 
 private:
-	ResourceTreeItem *_parent;
+	ResourceTreeItem *_parent { nullptr };
 	std::vector<std::unique_ptr<ResourceTreeItem> > _children;
 	QString _name; ///< The filename. This is what the tree view displays.
 
 	QString _path;
-	qint64 _size;
+	size_t _size { Common::kFileInvalid };
 
-	mutable bool _triedDuration;
-	mutable uint64 _duration;
+	mutable bool _triedDuration { false };
+	mutable uint64 _duration { Sound::RewindableAudioStream::kInvalidLength };
 
 	Archive _archive;
 
-	Source _source;
-	Aurora::FileType _fileType;
-	Aurora::ResourceType _resourceType;
+	Source _source { kSourceNone };
+	Aurora::FileType _fileType { Aurora::kFileTypeNone };
+	Aurora::ResourceType _resourceType { Aurora::kResourceNone };
 };
 
 } // End of namespace GUI

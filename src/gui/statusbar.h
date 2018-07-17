@@ -40,7 +40,7 @@ public:
 	void pop();
 
 private:
-	QStatusBar *_statusBar;
+	QStatusBar *_statusBar { nullptr };
 	QString _text;
 };
 

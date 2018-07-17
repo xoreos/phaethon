@@ -32,10 +32,6 @@
 
 namespace GUI {
 
-PanelManager::PanelManager() :
-	_layout(nullptr), _currentPanel(nullptr) {
-}
-
 PanelManager::~PanelManager() {
 	for (auto pair : _panels) {
 		delete pair.second;

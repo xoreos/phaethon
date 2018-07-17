@@ -70,8 +70,7 @@ namespace GUI {
 W_OBJECT_IMPL(MainWindow)
 
 MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, const char *path) :
-	QMainWindow(parent), _status(statusBar()), _treeView(nullptr), _treeModel(nullptr), _proxyModel(nullptr),
-	_rootPath(""), _panelResourceInfo(nullptr), _panelManager(new PanelManager()),
+	QMainWindow(parent), _status(statusBar()), _panelManager(new PanelManager()),
 	_watcher(new QFutureWatcher<void>(this)) {
 	/* Window setup. */
 	setWindowTitle(title);

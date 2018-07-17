@@ -46,10 +46,6 @@ W_OBJECT_IMPL(PanelPreviewImage)
 
 PanelPreviewImage::PanelPreviewImage(QWidget *parent) :
 	PanelBase(parent) {
-	_zoomFactor = 1.0f;
-
-	_mode = Qt::SmoothTransformation;
-
 	QGridLayout *layoutTop = new QGridLayout(this);
 	QVBoxLayout *layoutLeft = new QVBoxLayout();
 

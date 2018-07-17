@@ -36,6 +36,8 @@
 #include "src/common/filetree.h"
 #include "src/common/ptrmap.h"
 
+#include "src/gui/resourcetreeitem.h"
+
 #include "src/images/decoder.h"
 
 namespace Common {
@@ -59,7 +61,6 @@ namespace GUI {
 
 struct Archive;
 class MainWindow;
-class ResourceTreeItem;
 
 class ResourceTree : public QAbstractItemModel {
 	W_OBJECT(ResourceTree)
@@ -111,10 +112,10 @@ public:
 	void fetchMore(const QModelIndex &index);
 
 private:
-	Common::ScopedPtr<ResourceTreeItem> _root;
-	MainWindow *_mainWindow;
+	Common::ScopedPtr<ResourceTreeItem> _root { nullptr };
+	MainWindow *_mainWindow { nullptr };
 
-	Common::ScopedPtr<QFileIconProvider> _iconProvider;
+	Common::ScopedPtr<QFileIconProvider> _iconProvider { nullptr };
 
 	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
 	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;

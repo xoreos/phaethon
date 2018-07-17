@@ -44,23 +44,23 @@ public:
 	void stop();
 
 private:
-	QSlider *_sliderPosition;
-	QSlider *_sliderVolume;
+	QSlider *_sliderPosition { nullptr };
+	QSlider *_sliderVolume { nullptr };
 
-	QLabel *_labelPosition;
-	QLabel *_labelDuration;
-	QLabel *_labelPercent;
-	QLabel *_labelVolume;
+	QLabel *_labelPosition { nullptr };
+	QLabel *_labelDuration { nullptr };
+	QLabel *_labelPercent { nullptr };
+	QLabel *_labelVolume { nullptr };
 
-	QPushButton *_buttonPlay;
-	QPushButton *_buttonPause;
-	QPushButton *_buttonStop;
+	QPushButton *_buttonPlay { nullptr };
+	QPushButton *_buttonPause { nullptr };
+	QPushButton *_buttonStop { nullptr };
 
-	const ResourceTreeItem *_currentItem;
+	const ResourceTreeItem *_currentItem { nullptr };
 
 	Sound::ChannelHandle _sound;
-	uint64 _duration;
-	QTimer *_timer;
+	uint64 _duration { 0 };
+	QTimer *_timer { nullptr };
 
 	bool play();
 	void pause();

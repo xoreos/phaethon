@@ -23,7 +23,6 @@
  */
 
 #include "src/common/strutil.h"
-#include "src/common/filepath.h"
 #include "src/common/readfile.h"
 
 #include "src/gui/resourcetreeitem.h"
@@ -31,37 +30,25 @@
 namespace GUI {
 
 ResourceTreeItem::ResourceTreeItem(const Common::FileTree::Entry &entry) :
-	_parent(nullptr), _name(QString::fromUtf8(entry.name.c_str())),
+	_name(QString::fromUtf8(entry.name.c_str())),
 	_source(entry.isDirectory() ? kSourceDirectory : kSourceFile) {
 
 	_path = QString::fromUtf8(entry.path.string().c_str());
 
-	_archive.data = nullptr;
-	_archive.owner = nullptr;
-	_archive.addedMembers = false;
-	_archive.index = 0xFFFFFFFF;
-
-	_size = Common::kFileInvalid;
 	if (_source == kSourceFile)
 		_size = Common::FilePath::getFileSize(entry.path.generic_string().c_str());
 
-	if (_source == kSourceDirectory)
-		_fileType = Aurora::kFileTypeNone;
-	else
+	if (_source != kSourceDirectory) {
 		_fileType = TypeMan.getFileType(_name.toStdString());
-
-	if (_source == kSourceDirectory)
-		_resourceType = Aurora::kResourceNone;
-	else
 		_resourceType = TypeMan.getResourceType(_name.toStdString());
+	}
 
 	_triedDuration = getResourceType() != Aurora::kResourceSound;
-	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
 ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &archivePath,
                                    const Aurora::Archive::Resource &resource) :
-	_parent(nullptr), _name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
+	_name(QString::fromUtf8(TypeMan.setFileType(resource.name, resource.type).c_str())),
 	_source(kSourceArchiveFile) {
 
 	Common::UString resName = resource.name;
@@ -71,40 +58,22 @@ ResourceTreeItem::ResourceTreeItem(Aurora::Archive *archive, const QString &arch
 	resName = TypeMan.setFileType(resName, resource.type);
 	_name = QString::fromUtf8(resName.c_str());
 
-	_archive.data = nullptr;
 	_archive.owner = archive;
-	_archive.addedMembers = false;
 	_archive.index = resource.index;
 
 	_path = archivePath + "/" + _name;
 
 	_size = archive->getResourceSize(resource.index);
 
-	if (_source == kSourceDirectory)
-		_fileType = Aurora::kFileTypeNone;
-	else
+	if (_source != kSourceDirectory) {
 		_fileType = TypeMan.getFileType(_name.toStdString());
-
-	if (_source == kSourceDirectory)
-		_resourceType = Aurora::kResourceNone;
-	else
 		_resourceType = TypeMan.getResourceType(_name.toStdString());
+	}
 
 	_triedDuration = getResourceType() != Aurora::kResourceSound;
-	_duration = Sound::RewindableAudioStream::kInvalidLength;
 }
 
-ResourceTreeItem::ResourceTreeItem(const QString &data) : _parent(nullptr), _name(data), _size(0),
-	_triedDuration(0), _duration(0), _source(kSourceNone),
-	_fileType(Aurora::kFileTypeNone), _resourceType(Aurora::kResourceNone) {
-
-	_archive.data = 0;
-	_archive.owner = 0;
-	_archive.addedMembers = false;
-	_archive.index = 0xFFFFFFFF;
-}
-
-ResourceTreeItem::~ResourceTreeItem() {
+ResourceTreeItem::ResourceTreeItem(const QString &data) : _name(data) {
 }
 
 void ResourceTreeItem::addChild(ResourceTreeItem *child) {

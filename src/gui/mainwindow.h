@@ -106,38 +106,38 @@ private:
 
 	StatusBar _status;
 
-	QWidget *_centralWidget;
-	QGridLayout *_centralLayout;
+	QWidget *_centralWidget { nullptr };
+	QGridLayout *_centralLayout { nullptr };
 
-	QAction *_actionOpenDirectory;
-	QAction *_actionOpenFile;
-	QAction *_actionClose;
-	QAction *_actionQuit;
-	QAction *_actionAbout;
+	QAction *_actionOpenDirectory { nullptr };
+	QAction *_actionOpenFile { nullptr };
+	QAction *_actionClose { nullptr };
+	QAction *_actionQuit { nullptr };
+	QAction *_actionAbout { nullptr };
 
-	QMenuBar *_menuBar;
-	QMenu *_menuFile;
-	QMenu *_menuHelp;
+	QMenuBar *_menuBar { nullptr };
+	QMenu *_menuFile { nullptr };
+	QMenu *_menuHelp { nullptr };
 
-	QSplitter *_splitterTopBottom;
-	QSplitter *_splitterLeftRight;
-	QTreeView *_treeView;
+	QSplitter *_splitterTopBottom { nullptr };
+	QSplitter *_splitterLeftRight { nullptr };
+	QTreeView *_treeView { nullptr };
 
-	QFrame *_resPreviewFrame;
-	QTextEdit *_log;
+	QFrame *_resPreviewFrame { nullptr };
+	QTextEdit *_log { nullptr };
 
 	Common::FileTree _files;
-	Common::ScopedPtr<ResourceTree> _treeModel;
-	Common::ScopedPtr<ProxyModel> _proxyModel;
+	Common::ScopedPtr<ResourceTree> _treeModel { nullptr };
+	Common::ScopedPtr<ProxyModel> _proxyModel { nullptr };
 	QString _rootPath;
 
-	ResourceTreeItem *_currentItem;
+	ResourceTreeItem *_currentItem { nullptr };
 
-	PanelResourceInfo *_panelResourceInfo;
+	PanelResourceInfo *_panelResourceInfo { nullptr };
 
-	PanelManager *_panelManager;
+	PanelManager *_panelManager { nullptr };
 
-	QFutureWatcher<void> *_watcher;
+	QFutureWatcher<void> *_watcher { nullptr };
 
 	friend class ResourceTree;
 };

@@ -58,33 +58,33 @@ public:
 	void slotNearest(bool checked);
 
 private:
-	QPushButton *_buttonZoomIn;
-	QPushButton *_buttonZoomOut;
-	QPushButton *_buttonZoomOriginal;
-	QPushButton *_buttonFit;
-	QPushButton *_buttonFitWidth;
-	QPushButton *_buttonShrinkFit;
-	QPushButton *_buttonShrinkFitWidth;
+	QPushButton *_buttonZoomIn { nullptr };
+	QPushButton *_buttonZoomOut { nullptr };
+	QPushButton *_buttonZoomOriginal { nullptr };
+	QPushButton *_buttonFit { nullptr };
+	QPushButton *_buttonFitWidth { nullptr };
+	QPushButton *_buttonShrinkFit { nullptr };
+	QPushButton *_buttonShrinkFitWidth { nullptr };
 
-	QLabel *_labelDimensions;
-	QLabel *_labelZoomPercent;
-	QLabel *_labelImage; ///< Label is used to display the image.
+	QLabel *_labelDimensions { nullptr };
+	QLabel *_labelZoomPercent { nullptr };
+	QLabel *_labelImage { nullptr }; ///< Label is used to display the image.
 
-	QCheckBox *_checkNearest;
+	QCheckBox *_checkNearest { nullptr };
 
-	QSlider *_sliderBrightness;
+	QSlider *_sliderBrightness { nullptr };
 
-	QScrollArea *_scrollAreaImage;
+	QScrollArea *_scrollAreaImage { nullptr };
 
-	const ResourceTreeItem *_currentItem;
+	const ResourceTreeItem *_currentItem { nullptr };
 
 	// Necessary because the way zooming is implemented modifies the pixmap.
 	QPixmap _originalPixmap; ///< To reset to default zoom level.
 	QSize _originalSize; ///< To reset to default zoom level.
 
-	float _zoomFactor;
+	float _zoomFactor { 1.0f };
 
-	Qt::TransformationMode _mode; ///< Linear/nearest.
+	Qt::TransformationMode _mode { Qt::SmoothTransformation }; ///< Linear/nearest.
 
 	/** Opens the image path contained in _currentItem and displays it. */
 	void  loadImage();

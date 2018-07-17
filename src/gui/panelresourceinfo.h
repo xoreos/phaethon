@@ -80,15 +80,15 @@ public /*slots*/ :
 	void slotExportWAV();
 
 private:
-	QPushButton *_buttonExportRaw;
-	QPushButton *_buttonExportBMUMP3;
-	QPushButton *_buttonExportTGA;
-	QPushButton *_buttonExportWAV;
+	QPushButton *_buttonExportRaw { nullptr };
+	QPushButton *_buttonExportBMUMP3 { nullptr };
+	QPushButton *_buttonExportTGA { nullptr };
+	QPushButton *_buttonExportWAV { nullptr };
 
-	QLabel *_labelName;
-	QLabel *_labelSize;
-	QLabel *_labelFileType;
-	QLabel *_labelResType;
+	QLabel *_labelName { nullptr };
+	QLabel *_labelSize { nullptr };
+	QLabel *_labelFileType { nullptr };
+	QLabel *_labelResType { nullptr };
 };
 
 } // End of namespace GUI

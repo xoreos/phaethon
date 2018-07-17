@@ -49,7 +49,6 @@
 
 #include "src/gui/mainwindow.h"
 #include "src/gui/resourcetree.h"
-#include "src/gui/resourcetreeitem.h"
 
 #define USTR(x) (Common::UString((x).toStdString()))
 

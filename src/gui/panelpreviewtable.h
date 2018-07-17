@@ -52,9 +52,9 @@ public /*signals*/:
 	W_SIGNAL(log, text)
 
 private:
-	const ResourceTreeItem *_currentItem;
-	Common::ScopedPtr<QStandardItemModel> _model;
-	QTableView *_tableView;
+	const ResourceTreeItem *_currentItem { nullptr };
+	Common::ScopedPtr<QStandardItemModel> _model { nullptr };
+	QTableView *_tableView { nullptr };
 
 	void setTableData(bool isGDA);
 };

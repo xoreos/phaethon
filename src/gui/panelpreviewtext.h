@@ -50,9 +50,9 @@ private /*slots*/:
 	W_SLOT(slotEncodingChanged, W_Access::Private)
 
 private:
-	QTextEdit *_textEdit;
-	QComboBox *_encodingBox;
-	const ResourceTreeItem *_currentItem;
+	QTextEdit *_textEdit { nullptr };
+	QComboBox *_encodingBox { nullptr };
+	const ResourceTreeItem *_currentItem { nullptr };
 
 	void setText(const QString &text);
 	QString getEncodedText(Common::Encoding encoding);

@@ -39,7 +39,6 @@ class ResourceTreeItem;
 
 class PanelManager {
 public:
-	PanelManager();
 	~PanelManager();
 
 	void registerPanel(PanelBase *panel, Aurora::ResourceType type);
@@ -51,8 +50,8 @@ private:
 	void showPanel(Aurora::ResourceType type, const ResourceTreeItem *item);
 
 private:
-	QLayout *_layout;
-	PanelBase *_currentPanel;
+	QLayout *_layout { nullptr };
+	PanelBase *_currentPanel { nullptr };
 	std::map<Aurora::ResourceType, PanelBase *> _panels;
 };
 
