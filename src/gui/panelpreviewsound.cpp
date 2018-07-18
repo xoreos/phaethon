@@ -130,7 +130,7 @@ bool PanelPreviewSound::play() {
 	}
 
 	try {
-		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
+		std::unique_ptr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
 		_sound = SoundMan.playAudioStream(sound.get(), Sound::kSoundTypeUnknown);
 		sound.release();

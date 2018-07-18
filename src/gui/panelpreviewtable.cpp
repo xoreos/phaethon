@@ -35,7 +35,6 @@
 #include "src/aurora/gdafile.h"
 
 #include "src/common/readfile.h"
-#include "src/common/scopedptr.h"
 
 #include "src/gui/panelpreviewtable.h"
 #include "src/gui/resourcetreeitem.h"
@@ -80,15 +79,15 @@ void PanelPreviewTable::show(const ResourceTreeItem *item) {
 void PanelPreviewTable::setTableData(bool isGDA) {
 	_model->clear();
 
-	Common::ScopedPtr<Aurora::TwoDAFile> twoDA;
+	std::unique_ptr<Aurora::TwoDAFile> twoDA;
 
-	Common::ScopedPtr<Common::SeekableReadStream> stream(_currentItem->getResourceData());
+	std::unique_ptr<Common::SeekableReadStream> stream(_currentItem->getResourceData());
 
 	if (isGDA) {
-		Common::ScopedPtr<Aurora::GDAFile> gda(new Aurora::GDAFile(stream.release()));
-		twoDA.reset(new Aurora::TwoDAFile(*gda));
+		std::unique_ptr<Aurora::GDAFile> gda(new Aurora::GDAFile(stream.release()));
+		twoDA = std::make_unique<Aurora::TwoDAFile>(*gda);
 	} else {
-		twoDA.reset(new Aurora::TwoDAFile(*stream));
+		twoDA = std::make_unique<Aurora::TwoDAFile>(*stream);
 	}
 
 	const std::vector<Common::UString> &headers = twoDA->getHeaders();

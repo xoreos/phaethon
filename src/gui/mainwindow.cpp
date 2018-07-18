@@ -224,8 +224,8 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	/* Open path. */
 	const QString qpath = QString::fromUtf8(path);
 
-	_treeModel.reset(new ResourceTree(this, _treeView));
-	_proxyModel.reset(new ProxyModel(this));
+	_treeModel = std::make_unique<ResourceTree>(this, _treeView);
+	_proxyModel = std::make_unique<ProxyModel>(this);
 
 	_panelManager->setItem(nullptr);
 
@@ -299,7 +299,7 @@ void MainWindow::open(const QString &path) {
 		return;
 	}
 
-	_treeModel.reset(new ResourceTree(this, _treeView));
+	_treeModel = std::make_unique<ResourceTree>(this, _treeView);
 
 	// Enters populate thread in here.
 	_treeModel->populate(_files.getRoot());
@@ -382,7 +382,7 @@ void MainWindow::saveItem() {
 	} BOOST_SCOPE_EXIT_END
 
 	try {
-		QScopedPointer<Common::SeekableReadStream> res(_currentItem->getResourceData());
+		std::unique_ptr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
 		Common::WriteFile file(fileName.toStdString());
 
@@ -419,7 +419,7 @@ void MainWindow::exportTGA() {
 	} BOOST_SCOPE_EXIT_END
 
 	try {
-		QScopedPointer<Images::Decoder> image(_currentItem->getImage());
+		std::unique_ptr<Images::Decoder> image(_currentItem->getImage());
 
 		image->dumpTGA(fileName.toStdString());
 
@@ -467,7 +467,7 @@ void MainWindow::exportBMUMP3() {
 	} BOOST_SCOPE_EXIT_END
 
 	try {
-		Common::ScopedPtr<Common::SeekableReadStream> res(_currentItem->getResourceData());
+		std::unique_ptr<Common::SeekableReadStream> res(_currentItem->getResourceData());
 
 		Common::WriteFile file(fileName.toStdString());
 
@@ -563,7 +563,7 @@ void MainWindow::exportWAV() {
 	} BOOST_SCOPE_EXIT_END
 
 	try {
-		Common::ScopedPtr<Sound::AudioStream> sound(_currentItem->getAudioStream());
+		std::unique_ptr<Sound::AudioStream> sound(_currentItem->getAudioStream());
 
 		Common::WriteFile file(fileName.toStdString());
 

@@ -28,8 +28,6 @@
 
 #include <QStandardItemModel>
 
-#include "src/common/scopedptr.h"
-
 #include "src/gui/panelbase.h"
 
 class QComboBox;
@@ -53,7 +51,7 @@ public /*signals*/:
 
 private:
 	const ResourceTreeItem *_currentItem { nullptr };
-	Common::ScopedPtr<QStandardItemModel> _model { nullptr };
+	std::unique_ptr<QStandardItemModel> _model { nullptr };
 	QTableView *_tableView { nullptr };
 
 	void setTableData(bool isGDA);

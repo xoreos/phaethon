@@ -136,7 +136,7 @@ static void cleanupImage(void *info) {
 }
 
 void PanelPreviewImage::loadImage() {
-	Common::ScopedPtr<Images::Decoder> image(_currentItem->getImage());
+	std::unique_ptr<Images::Decoder> image(_currentItem->getImage());
 
 	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0))
 		return;
@@ -148,7 +148,7 @@ void PanelPreviewImage::loadImage() {
 
 	_labelDimensions->setText(QString("(%1x%2)").arg(width).arg(height));
 
-	Common::ScopedArray<byte> rgbaData(new byte[width * height * 4]);
+	std::unique_ptr<byte> rgbaData(new byte[width * height * 4]);
 	std::memset(rgbaData.get(), 0, width * height * 4);
 
 	convertImage(*image, rgbaData.get());
@@ -162,7 +162,6 @@ void PanelPreviewImage::loadImage() {
 	_labelImage->setPixmap(_originalPixmap);
 	_labelImage->adjustSize();
 	_labelImage->setFixedSize(_originalSize);
-
 }
 
 void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *dataOut) {

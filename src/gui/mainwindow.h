@@ -25,11 +25,12 @@
 #ifndef GUI_MAINWINDOW_H
 #define GUI_MAINWINDOW_H
 
+#include <memory>
+
 #include <QMainWindow>
 #include <QFutureWatcher>
 
 #include "src/common/filetree.h"
-#include "src/common/scopedptr.h"
 
 #include "src/gui/resourcetree.h"
 #include "src/gui/proxymodel.h"
@@ -127,8 +128,10 @@ private:
 	QTextEdit *_log { nullptr };
 
 	Common::FileTree _files;
-	Common::ScopedPtr<ResourceTree> _treeModel { nullptr };
-	Common::ScopedPtr<ProxyModel> _proxyModel { nullptr };
+
+	std::unique_ptr<ResourceTree> _treeModel { nullptr };
+	std::unique_ptr<ProxyModel> _proxyModel { nullptr };
+
 	QString _rootPath;
 
 	ResourceTreeItem *_currentItem { nullptr };

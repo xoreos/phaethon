@@ -58,8 +58,8 @@ W_OBJECT_IMPL(ResourceTree)
 
 ResourceTree::ResourceTree(MainWindow *mainWindow, QObject *parent) : QAbstractItemModel(parent),
 	_mainWindow(mainWindow) {
-	_root.reset(new ResourceTreeItem("Filename"));
-	_iconProvider.reset(new QFileIconProvider());
+	_root = std::make_unique<ResourceTreeItem>("Filename");
+	_iconProvider = std::make_unique<QFileIconProvider>();
 }
 
 void ResourceTree::populate(const Common::FileTree::Entry &rootEntry) {
@@ -264,7 +264,7 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 	if (a != _archives.end())
 		return a->second;
 
-	Common::ScopedPtr<Common::SeekableReadStream> stream(item.getResourceData());
+	std::unique_ptr<Common::SeekableReadStream> stream(item.getResourceData());
 
 	Aurora::Archive *arch = nullptr;
 	switch (item.getFileType()) {
