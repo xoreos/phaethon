@@ -178,7 +178,7 @@ Images::Decoder *ResourceTreeItem::getImage() const {
 	if (getResourceType() != Aurora::kResourceImage)
 		throw Common::Exception("\"%s\" is not an image resource", getName().toStdString().c_str());
 
-	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+	std::unique_ptr<Common::SeekableReadStream> res(getResourceData());
 
 	Images::Decoder *img = nullptr;
 	try {
@@ -252,7 +252,7 @@ uint64 ResourceTreeItem::getSoundDuration() const {
 	_triedDuration = true;
 
 	try {
-		Common::ScopedPtr<Sound::AudioStream> sound(getAudioStream());
+		std::unique_ptr<Sound::AudioStream> sound(getAudioStream());
 
 		Sound::RewindableAudioStream &rewSound = dynamic_cast<Sound::RewindableAudioStream &>(*sound);
 		_duration = rewSound.getDuration();
@@ -267,7 +267,7 @@ Sound::AudioStream *ResourceTreeItem::getAudioStream() const {
 	if (_resourceType != Aurora::kResourceSound)
 		throw Common::Exception("\"%s\" is not a sound resource", _name.toStdString().c_str());
 
-	Common::ScopedPtr<Common::SeekableReadStream> res(getResourceData());
+	std::unique_ptr<Common::SeekableReadStream> res(getResourceData());
 
 	Sound::AudioStream *sound = nullptr;
 	try {

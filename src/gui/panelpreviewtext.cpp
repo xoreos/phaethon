@@ -86,7 +86,7 @@ void PanelPreviewText::slotEncodingChanged(int index) {
 }
 
 QString PanelPreviewText::getEncodedText(Common::Encoding encoding) {
-	Common::ScopedPtr<Common::SeekableReadStream> stream(_currentItem->getResourceData());
+	std::unique_ptr<Common::SeekableReadStream> stream(_currentItem->getResourceData());
 	Common::UString converted;
 
 	try {

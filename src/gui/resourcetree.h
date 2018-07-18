@@ -25,6 +25,8 @@
 #ifndef GUI_RESOURCETREE_H
 #define GUI_RESOURCETREE_H
 
+#include <memory>
+
 #include <QAbstractItemModel>
 #include <QFileIconProvider>
 
@@ -112,10 +114,10 @@ public:
 	void fetchMore(const QModelIndex &index);
 
 private:
-	Common::ScopedPtr<ResourceTreeItem> _root { nullptr };
+	std::unique_ptr<ResourceTreeItem> _root { nullptr };
 	MainWindow *_mainWindow { nullptr };
 
-	Common::ScopedPtr<QFileIconProvider> _iconProvider { nullptr };
+	std::unique_ptr<QFileIconProvider> _iconProvider { nullptr };
 
 	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
 	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;

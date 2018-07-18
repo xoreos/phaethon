@@ -81,7 +81,7 @@ void PanelManager::showPanel(Aurora::ResourceType type, const ResourceTreeItem *
 		}
 		else {
 			_currentPanel->hide();
-			Common::ScopedPtr<QLayoutItem> layoutItem(_layout->replaceWidget(
+			std::unique_ptr<QLayoutItem> layoutItem(_layout->replaceWidget(
 				static_cast<QWidget *>(_currentPanel),
 				static_cast<QWidget *>(result->second)
 			));
