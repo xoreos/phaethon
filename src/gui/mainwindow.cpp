@@ -357,6 +357,8 @@ void MainWindow::resourceSelect(const QItemSelection &selected, const QItemSelec
 
 	if (!_currentItem->isDir() && !_currentItem->isArchive())
 		_panelManager->setItem(_currentItem);
+	else
+		_panelManager->setItem(nullptr);
 }
 
 QString constructStatus(const QString &_action, const QString &name, const QString &destination) {
