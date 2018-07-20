@@ -36,7 +36,6 @@
 #include "src/aurora/util.h"
 
 #include "src/common/filetree.h"
-#include "src/common/ptrmap.h"
 
 #include "src/gui/resourcetreeitem.h"
 
@@ -119,12 +118,10 @@ private:
 
 	std::unique_ptr<QFileIconProvider> _iconProvider { nullptr };
 
-	typedef Common::PtrMap<QString, Aurora::Archive>     ArchiveMap;
-	typedef Common::PtrMap<QString, Aurora::KEYDataFile> KEYDataFileMap;
 	std::vector<ResourceTreeItem *> _keys;
 
-	ArchiveMap _archives;
-	KEYDataFileMap _keyDataFiles;
+	std::map<QString, std::unique_ptr<Aurora::Archive> > _archives;
+	std::map<QString, std::unique_ptr<Aurora::KEYDataFile> > _keyDataFiles;
 };
 
 } // End of namespace GUI

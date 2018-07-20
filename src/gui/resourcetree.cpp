@@ -260,9 +260,9 @@ void ResourceTree::insertItems(size_t position, QList<ResourceTreeItem*> &items,
 }
 
 Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
-	ArchiveMap::iterator a = _archives.find(item.getPath());
-	if (a != _archives.end())
-		return a->second;
+	auto archiveIter = _archives.find(item.getPath());
+	if (archiveIter != _archives.end())
+		return archiveIter->second.get();
 
 	std::unique_ptr<Common::SeekableReadStream> stream(item.getResourceData());
 
@@ -311,14 +311,14 @@ Aurora::Archive *ResourceTree::getArchive(ResourceTreeItem &item) {
 			throw Common::Exception("Invalid archive file \"%s\"", item.getPath().toStdString().c_str());
 	}
 
-	_archives.insert(std::make_pair(item.getPath(), arch));
+	_archives.insert(std::make_pair(item.getPath(), std::unique_ptr<Aurora::Archive>(arch)));
 	return arch;
 }
 
 Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
-	KEYDataFileMap::iterator d = _keyDataFiles.find(file);
-	if (d != _keyDataFiles.end())
-		return d->second;
+	auto keyDataFileIter = _keyDataFiles.find(file);
+	if (keyDataFileIter != _keyDataFiles.end())
+		return keyDataFileIter->second.get();
 
 	Common::UString path = Common::FilePath::normalize(USTR(_root->childAt(0)->getPath() + "/" + file));
 	if (path.empty())
@@ -326,7 +326,7 @@ Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
 
 	Aurora::FileType type = TypeMan.getFileType(file.toStdString().c_str());
 
-	Aurora::KEYDataFile *dataFile = 0;
+	Aurora::KEYDataFile *dataFile = nullptr;
 	switch (type) {
 		case Aurora::kFileTypeBIF:
 			dataFile = new Aurora::BIFFile(new Common::ReadFile(path));
@@ -340,7 +340,7 @@ Aurora::KEYDataFile *ResourceTree::getKEYDataFile(const QString &file) {
 			throw Common::Exception("Unknown KEY data file type %d\n", type);
 	}
 
-	_keyDataFiles.insert(std::make_pair(file, dataFile));
+	_keyDataFiles.insert(std::make_pair(file, std::unique_ptr<Aurora::KEYDataFile>(dataFile)));
 	return dataFile;
 }
 
