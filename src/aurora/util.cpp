@@ -336,6 +336,13 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 
 	{kFileTypeADV,            ".adv"},
 
+	{kFileTypeJSON,           ".json"},
+	{kFileTypeTLK_EXPERT,     ".tlk_expert"},
+	{kFileTypeTLK_MOBILE,     ".tlk_mobile"},
+	{kFileTypeTLK_TOUCH,      ".tlk_touch"},
+	{kFileTypeOTF,            ".otf"},
+	{kFileTypePAR,            ".par"},
+
 	{kFileTypeXEOSITEX,       ".xoreositex"}
 };
 
