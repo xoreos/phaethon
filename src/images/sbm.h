@@ -36,13 +36,18 @@ namespace Images {
 /** SBM font bitmap data. */
 class SBM : public Decoder {
 public:
-	SBM(Common::SeekableReadStream &sbm);
+	/** Read an SBM image out of a stream.
+	 *
+	 *  @param The stream to read out of.
+	 *  @param deswizzle This is an Xbox SBM that has swizzled data.
+	 */
+	SBM(Common::SeekableReadStream &sbm, bool deswizzle = false);
 	~SBM();
 
 private:
 	// Loading helpers
-	void load(Common::SeekableReadStream &sbm);
-	void readData(Common::SeekableReadStream &sbm);
+	void load(Common::SeekableReadStream &sbm, bool deswizzle);
+	void readData(Common::SeekableReadStream &sbm, bool deswizzle);
 };
 
 } // End of namespace Images
