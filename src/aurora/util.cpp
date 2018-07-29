@@ -500,7 +500,8 @@ ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hash
 
 Common::UString getPlatformDescription(Platform platform) {
 	static const char * const names[] = {
-		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "GNU/Linux", "Unknown"
+		"Windows", "Nintendo DS", "Mac OS X", "Xbox", "PlayStation 3", "Xbox 360", "GNU/Linux",
+		"Android", "Unknown"
 	};
 
 	return names[platform];
