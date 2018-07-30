@@ -343,6 +343,9 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeOTF,            ".otf"},
 	{kFileTypePAR,            ".par"},
 
+	{kFileTypeXWB,            ".xwb"},
+	{kFileTypeXSB,            ".xsb"},
+
 	{kFileTypeXEOSITEX,       ".xoreositex"}
 };
 
