@@ -204,6 +204,36 @@ private:
  */
 AudioStream *makeLoopingAudioStream(RewindableAudioStream *stream, size_t loops);
 
+class QueuingAudioStream : public AudioStream {
+public:
+
+	/**
+	 * Queue an audio stream for playback. This stream plays all queued
+	 * streams, in the order they were queued. If disposeAfterUse is set to
+	 * DisposeAfterUse::YES, then the queued stream is deleted after all data
+	 * contained in it has been played.
+	 */
+	virtual void queueAudioStream(AudioStream *audStream, bool disposeAfterUse = true) = 0;
+
+	/**
+	 * Mark this stream as finished. That is, signal that no further data
+	 * will be queued to it. Only after this has been done can this
+	 * stream ever 'end'.
+	 */
+	virtual void finish() = 0;
+
+	/**
+	 * Return the number of streams still queued for playback (including
+	 * the currently playing stream).
+	 */
+	virtual size_t numQueuedStreams() const = 0;
+};
+
+/**
+ * Factory function for an QueuingAudioStream.
+ */
+QueuingAudioStream *makeQueuingAudioStream(int rate, int channels);
+
 } // End of namespace Sound
 
 #endif // SOUND_AUDIOSTREAM_H

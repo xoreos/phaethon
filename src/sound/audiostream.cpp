@@ -143,4 +143,120 @@ uint64 LoopingAudioStream::getDurationOnce() const {
 	return _parent->getDuration();
 }
 
+class QueuingAudioStreamImpl : public QueuingAudioStream {
+private:
+	/**
+	 * We queue a number of (pointers to) audio stream objects.
+	 * In addition, we need to remember for each stream whether
+	 * to dispose it after all data has been read from it.
+	 * Hence, we don't store pointers to stream objects directly,
+	 * but rather StreamHolder structs.
+	 */
+	struct StreamHolder {
+		AudioStream *_stream;
+		bool _disposeAfterUse;
+		StreamHolder(AudioStream *stream, bool disposeAfterUse)
+		    : _stream(stream),
+		      _disposeAfterUse(disposeAfterUse) {}
+	};
+
+	/**
+	 * The sampling rate of this audio stream.
+	 */
+	const int _rate;
+
+	/**
+	 * The number of channels in this audio stream.
+	 */
+	const int _channels;
+
+	/**
+	 * This flag is set by the finish() method only. See there for more details.
+	 */
+	bool _finished;
+
+	/**
+	 * A mutex to avoid access problems (causing e.g. corruption of
+	 * the linked list) in thread aware environments.
+	 */
+	Common::Mutex _mutex;
+
+	/**
+	 * The queue of audio streams.
+	 */
+	std::queue<StreamHolder> _queue;
+
+public:
+	QueuingAudioStreamImpl(int rate, int channels)
+	    : _rate(rate), _channels(channels), _finished(false) {}
+	~QueuingAudioStreamImpl();
+
+	// Implement the AudioStream API
+	virtual size_t readBuffer(int16 *buffer, const size_t numSamples);
+	virtual int getChannels() const { return _channels; }
+	virtual int getRate() const { return _rate; }
+	virtual bool endOfData() const {
+		//Common::StackLock lock(_mutex);
+		return _queue.empty();
+	}
+	virtual bool endOfStream() const { return _finished && _queue.empty(); }
+
+	// Implement the QueuingAudioStream API
+	virtual void queueAudioStream(AudioStream *stream, bool disposeAfterUse);
+	virtual void finish() { _finished = true; }
+
+	size_t numQueuedStreams() const {
+		//Common::StackLock lock(_mutex);
+		return _queue.size();
+	}
+};
+
+QueuingAudioStreamImpl::~QueuingAudioStreamImpl() {
+	while (!_queue.empty()) {
+		StreamHolder tmp = _queue.front();
+		_queue.pop();
+		if (tmp._disposeAfterUse)
+			delete tmp._stream;
+	}
+}
+
+void QueuingAudioStreamImpl::queueAudioStream(AudioStream *stream, bool disposeAfterUse) {
+	if (_finished)
+		throw Common::Exception("QueuingAudioStreamImpl::queueAudioStream(): Trying to queue another audio stream, but the QueuingAudioStream is finished.");
+
+	if ((stream->getRate() != getRate()) || (stream->getChannels() != getChannels()))
+		throw Common::Exception("QueuingAudioStreamImpl::queueAudioStream(): stream has mismatched parameters");
+
+	Common::StackLock lock(_mutex);
+	_queue.push(StreamHolder(stream, disposeAfterUse));
+}
+
+size_t QueuingAudioStreamImpl::readBuffer(int16 *buffer, const size_t numSamples) {
+	Common::StackLock lock(_mutex);
+	size_t samplesDecoded = 0;
+
+	while (samplesDecoded < numSamples && !_queue.empty()) {
+		AudioStream *stream = _queue.front()._stream;
+
+		const size_t n = stream->readBuffer(buffer + samplesDecoded, numSamples - samplesDecoded);
+		if (n == kSizeInvalid)
+			return kSizeInvalid;
+
+		samplesDecoded += n;
+
+		if (stream->endOfData()) {
+			StreamHolder tmp = _queue.front();
+			_queue.pop();
+			if (tmp._disposeAfterUse)
+				delete stream;
+		}
+	}
+
+	return samplesDecoded;
+}
+
+QueuingAudioStream *makeQueuingAudioStream(int rate, int channels) {
+	return new QueuingAudioStreamImpl(rate, channels);
+}
+
 } // End of namespace Sound
