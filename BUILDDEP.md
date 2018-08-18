@@ -33,4 +33,5 @@ Build-time library dependencies
 - OpenAL Soft (>= 1.12)
 - MAD (>= 0.15.1b)
 - libogg (>= 1.2.0)
+- libvorbis (>= 1.3.1)
 - libvorbisfile (>= 1.3.1)
