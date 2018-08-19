@@ -346,6 +346,9 @@ const FileTypeManager::Type FileTypeManager::types[] = {
 	{kFileTypeXWB,            ".xwb"},
 	{kFileTypeXSB,            ".xsb"},
 
+	{kFileTypeXDS,            ".xds"},
+	{kFileTypeWND,            ".wnd"},
+
 	{kFileTypeXEOSITEX,       ".xoreositex"}
 };
 
