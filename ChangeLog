@@ -1,6 +1,10 @@
 Someday, ????-??-?? (Version 0.0.6)
 	- GUI:
 		- Implemented directly opening BIF files
+	- AURORA:
+		- Added support for ERF V2.1
+	- IMAGES:
+		- Added support for swizzled Xbox SBM images
 
 Tuesday, 2018-07-03 (Version 0.0.5)
 	- DOCS:
