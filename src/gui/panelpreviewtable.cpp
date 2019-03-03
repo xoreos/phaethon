@@ -29,7 +29,7 @@
 #include <QLabel>
 #include <QTableView>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/aurora/2dafile.h"
 #include "src/aurora/gdafile.h"

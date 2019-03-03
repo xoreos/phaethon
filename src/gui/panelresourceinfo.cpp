@@ -30,7 +30,7 @@
 #include <QFileDialog>
 #include <QPushButton>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/common/filepath.h"
 #include "src/common/system.h"

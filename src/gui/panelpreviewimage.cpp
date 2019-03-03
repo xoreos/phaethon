@@ -33,7 +33,7 @@
 #include <QSlider>
 #include <QWidget>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"

@@ -41,7 +41,7 @@
 
 #include <boost/scope_exit.hpp>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/cline.h"
 

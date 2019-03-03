@@ -30,7 +30,7 @@
 #include <QAbstractItemModel>
 #include <QFileIconProvider>
 
-#include "verdigris/wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 
 #include "src/aurora/archive.h"
 #include "src/aurora/util.h"

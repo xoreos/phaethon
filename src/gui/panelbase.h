@@ -28,7 +28,7 @@
 #include <QFrame>
 #include <QString>
 
-#include "verdigris/wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 
 class QLayout;
 class QObject;

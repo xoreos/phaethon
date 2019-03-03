@@ -24,7 +24,7 @@
 
 #include <QString>
 
-#include "verdigris/wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 
 #include "src/gui/proxymodel.h"
 #include "src/gui/resourcetree.h"

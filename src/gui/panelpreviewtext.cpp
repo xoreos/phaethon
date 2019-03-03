@@ -30,7 +30,7 @@
 #include <QFormLayout>
 #include <QLabel>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/common/encoding.h"
 #include "src/common/system.h"

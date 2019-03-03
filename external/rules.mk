@@ -17,14 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-# Verdigris so we don't need moc (<https://github.com/woboq/verdigris>).
+# Third-party code.
 
-noinst_HEADERS += \
-    verdigris/wobjectdefs.h \
-    verdigris/wobjectimpl.h \
-    $(EMPTY)
+include external/utf8cpp/rules.mk
 
-EXTRA_DIST += \
-    verdigris/LICENSE.LGPLv3 \
-    verdigris/README.Phaethon \
-    $(EMPTY)
+include external/verdigris/rules.mk

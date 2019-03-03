@@ -27,7 +27,7 @@
 
 #include <QSortFilterProxyModel>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 namespace GUI {
 

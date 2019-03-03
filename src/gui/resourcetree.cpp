@@ -32,7 +32,7 @@
 
 #include <boost/scope_exit.hpp>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/aurora/biffile.h"
 #include "src/aurora/bzffile.h"

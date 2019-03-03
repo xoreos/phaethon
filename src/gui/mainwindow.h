@@ -36,7 +36,7 @@
 #include "src/gui/proxymodel.h"
 #include "src/gui/statusbar.h"
 
-#include "verdigris/wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 
 class QSplitter;
 class QTreeView;

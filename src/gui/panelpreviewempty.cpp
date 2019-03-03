@@ -27,7 +27,7 @@
 #include <QLabel>
 #include <QWidget>
 
-#include "verdigris/wobjectimpl.h"
+#include "external/verdigris/wobjectimpl.h"
 
 #include "src/common/system.h"
 

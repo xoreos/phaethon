@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 #include <QtCore/qobject.h>
 
 namespace w_internal {

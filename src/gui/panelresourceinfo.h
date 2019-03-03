@@ -25,7 +25,7 @@
 #ifndef GUI_PANELRESOURCEINFO_H
 #define GUI_PANELRESOURCEINFO_H
 
-#include "verdigris/wobjectdefs.h"
+#include "external/verdigris/wobjectdefs.h"
 
 namespace GUI {
 

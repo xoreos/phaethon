@@ -69,9 +69,7 @@ include dists/rules.mk
 include man/rules.mk
 include doc/rules.mk
 
-include utf8cpp/rules.mk
-
-include verdigris/rules.mk
+include external/rules.mk
 
 include src/rules.mk
 
