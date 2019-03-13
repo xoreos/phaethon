@@ -146,7 +146,7 @@ bool SoundManager::ready() const {
 void SoundManager::triggerUpdate() {
 	checkReady();
 
-	_needUpdate.signal();
+	_needUpdate.notify_one();
 }
 
 bool SoundManager::isValidChannel(const ChannelHandle &handle) const {
@@ -160,7 +160,7 @@ bool SoundManager::isValidChannel(const ChannelHandle &handle) const {
 }
 
 bool SoundManager::isPlaying(const ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	if ((handle.channel >= kChannelCount) || (handle.id == 0) || !_channels[handle.channel])
 		return false;
@@ -218,7 +218,7 @@ bool SoundManager::isPlaying(size_t channel) const {
 }
 
 bool SoundManager::isPaused(const ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	if ((handle.channel == 0) || (handle.id == 0) || !_channels[handle.channel])
 		return false;
@@ -315,7 +315,7 @@ ChannelHandle SoundManager::playAudioStream(AudioStream *audStream, SoundType ty
 	if (!audStream)
 		throw Common::Exception("No audio stream");
 
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	ChannelHandle handle = newChannel();
 
@@ -424,7 +424,7 @@ SoundManager::Channel *SoundManager::getChannel(const ChannelHandle &handle) {
 }
 
 void SoundManager::startChannel(ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -436,7 +436,7 @@ void SoundManager::startChannel(ChannelHandle &handle) {
 }
 
 void SoundManager::pauseChannel(ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -446,7 +446,7 @@ void SoundManager::pauseChannel(ChannelHandle &handle) {
 }
 
 void SoundManager::pauseChannel(ChannelHandle &handle, bool pause) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -456,20 +456,20 @@ void SoundManager::pauseChannel(ChannelHandle &handle, bool pause) {
 }
 
 void SoundManager::stopChannel(ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	freeChannel(handle);
 }
 
 void SoundManager::pauseAll(bool pause) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	for (size_t i = 0; i < kChannelCount; i++)
 		pauseChannel(_channels[i].get(), pause);
 }
 
 void SoundManager::stopAll() {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	for (size_t i = 0; i < kChannelCount; i++)
 		freeChannel(i);
@@ -478,14 +478,14 @@ void SoundManager::stopAll() {
 void SoundManager::setListenerGain(float gain) {
 	checkReady();
 
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	if (_hasSound)
 		alListenerf(AL_GAIN, gain);
 }
 
 void SoundManager::setChannelPosition(const ChannelHandle &handle, float x, float y, float z) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -500,7 +500,7 @@ void SoundManager::setChannelPosition(const ChannelHandle &handle, float x, floa
 }
 
 void SoundManager::getChannelPosition(const ChannelHandle &handle, float &x, float &y, float &z) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -515,7 +515,7 @@ void SoundManager::getChannelPosition(const ChannelHandle &handle, float &x, flo
 }
 
 void SoundManager::setChannelGain(const ChannelHandle &handle, float gain) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -528,7 +528,7 @@ void SoundManager::setChannelGain(const ChannelHandle &handle, float gain) {
 }
 
 void SoundManager::setChannelPitch(const ChannelHandle &handle, float pitch) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -539,7 +539,7 @@ void SoundManager::setChannelPitch(const ChannelHandle &handle, float pitch) {
 }
 
 uint64 SoundManager::getChannelSamplesPlayed(const ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -560,7 +560,7 @@ uint64 SoundManager::getChannelSamplesPlayed(const ChannelHandle &handle) {
 }
 
 uint64 SoundManager::getChannelDurationPlayed(const ChannelHandle &handle) {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	Channel *channel = getChannel(handle);
 	if (!channel || !channel->stream)
@@ -572,7 +572,7 @@ uint64 SoundManager::getChannelDurationPlayed(const ChannelHandle &handle) {
 void SoundManager::setTypeGain(SoundType type, float gain) {
 	assert((type >= 0) && (type < kSoundTypeMAX));
 
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	// Set the new type gain
 	_types[type].gain = gain;
@@ -710,7 +710,7 @@ void SoundManager::checkReady() {
 }
 
 void SoundManager::update() {
-	Common::StackLock lock(_mutex);
+	std::lock_guard<std::recursive_mutex> lock(_mutex);
 
 	for (size_t i = 0; i < kChannelCount; i++) {
 		if (!_channels[i])
@@ -823,7 +823,8 @@ void SoundManager::freeChannel(size_t channel) {
 void SoundManager::threadMethod() {
 	while (!_killThread.load(std::memory_order_relaxed)) {
 		update();
-		_needUpdate.wait(100);
+		std::unique_lock<std::recursive_mutex> lock(_needUpdateMutex);
+		_needUpdate.wait_for(lock, std::chrono::duration<int, std::milli>(100));
 	}
 }
 

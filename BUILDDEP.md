@@ -21,7 +21,6 @@ Build-time library dependencies
   - Boost.Smart_Ptr
   - Boost.ScopeExit
   - Boost.Locale
-  - Boost.Thread
 
 - Qt (>= 5.7.1)
   - Qt5Core

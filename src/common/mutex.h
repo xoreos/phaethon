@@ -19,69 +19,18 @@
  */
 
 /** @file
- *  Thread mutex classes.
+ *  Helper header to include C++11 mutexes and friends.
  */
 
 #ifndef COMMON_MUTEX_H
 #define COMMON_MUTEX_H
 
-#include <boost/noncopyable.hpp>
-
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
-
-#include "src/common/types.h"
-
-namespace Common {
-
-/** A mutex. */
-class Mutex : boost::noncopyable {
-public:
-	Mutex();
-	~Mutex();
-
-	void lock();
-	void unlock();
-
-private:
-	boost::recursive_mutex _mutex;
-
-	friend class Condition;
-};
-
-/** Convenience class that locks a mutex on creation and unlocks it on destruction. */
-class StackLock : boost::noncopyable {
-public:
-	StackLock(Mutex &mutex);
-	~StackLock();
-
-private:
-	Mutex *_mutex;
-};
-
-/** A condition. */
-class Condition : boost::noncopyable {
-public:
-	Condition();
-	Condition(Mutex &mutex);
-	~Condition();
-
-	/** Wait for this condition to be signaled or the timeout to expire.
-	 *
-	 *  @param  timeout Time to wait for a signal in ms.
-	 *  @return true If the timeout expired without a signal occurring, false otherwise.
-	 */
-	bool wait(uint32 timeout = 0);
-	void signal();
-
-private:
-	bool _ownMutex;
-
-	Mutex *_mutex;
-
-	boost::condition_variable_any _condition;
-};
-
-} // End of namespace Common
+#if defined(__MINGW32__ ) && !defined(_GLIBCXX_HAS_GTHREADS)
+	#include "external/mingw-std-threads/mingw.mutex.h"
+	#include "external/mingw-std-threads/mingw.condition_variable.h"
+#else
+	#include <mutex>
+	#include <condition_variable>
+#endif
 
 #endif // COMMON_MUTEX_H

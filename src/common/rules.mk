@@ -96,7 +96,6 @@ src_common_libcommon_la_SOURCES += \
     src/common/cosinetables.cpp \
     src/common/fft.cpp \
     src/common/mdct.cpp \
-    src/common/mutex.cpp \
     src/common/thread.cpp \
     src/common/streamtokenizer.cpp \
     $(EMPTY)

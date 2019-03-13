@@ -227,10 +227,11 @@ private:
 
 	uint32 _curID; ///< The ID the next sound will get.
 
-	Common::Mutex _mutex;
+	std::recursive_mutex _mutex;
 
 	/** Condition to signal that an update is needed. */
-	Common::Condition _needUpdate;
+	std::condition_variable_any _needUpdate;
+	std::recursive_mutex _needUpdateMutex;
 
 	ALCdevice *_dev;
 	ALCcontext *_ctx;
