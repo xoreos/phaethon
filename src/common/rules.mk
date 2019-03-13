@@ -63,7 +63,6 @@ src_common_libcommon_la_SOURCES += \
     src/common/cosinetables.h \
     src/common/fft.h \
     src/common/mdct.h \
-    src/common/atomic.h \
     src/common/mutex.h \
     src/common/thread.h \
     src/common/binsearch.h \

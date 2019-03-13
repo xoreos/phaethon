@@ -31,7 +31,7 @@ BuildRequires:  qt5-devel qt5-qtbase-devel
 BuildRequires:  qt5-qtbase-gui
 
 # Boost dependencies.
-BuildRequires:  boost-devel, boost-system, boost-filesystem, boost-atomic
+BuildRequires:  boost-devel, boost-system, boost-filesystem
 BuildRequires:  boost-regex, boost-locale, boost-date-time boost-chrono
 BuildRequires:  boost-thread
 
