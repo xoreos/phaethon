@@ -17,9 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-# Third-party code.
+# mingw-std-threads (<https://github.com/meganz/mingw-std-threads/>).
 
-include external/utf8cpp/rules.mk
+noinst_HEADERS += \
+    external/mingw-std-threads/mingw.condition_variable.h \
+    external/mingw-std-threads/mingw.future.h \
+    external/mingw-std-threads/mingw.mutex.h \
+    external/mingw-std-threads/mingw.shared_mutex.h \
+    external/mingw-std-threads/mingw.thread.h \
+    $(EMPTY)
 
-include external/mingw-std-threads/rules.mk
-include external/verdigris/rules.mk
+EXTRA_DIST += \
+    external/mingw-std-threads/README.md \
+    external/mingw-std-threads/LICENSE \
+    $(EMPTY)
