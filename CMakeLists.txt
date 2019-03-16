@@ -298,7 +298,7 @@ else(ICONV_SECOND_ARGUMENT_IS_CONST)
   add_definitions(-DICONV_CONST=)
 endif(ICONV_SECOND_ARGUMENT_IS_CONST)
 
-# pthreads, for our unit tests
+# pthreads
 if(NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "MinGW")
   find_package(Threads)
 endif()

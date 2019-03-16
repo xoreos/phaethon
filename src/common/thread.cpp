@@ -22,38 +22,93 @@
  *  Threading helpers.
  */
 
+#include <system_error>
+
 #include "src/common/thread.h"
+#include "src/common/util.h"
 
 namespace Common {
 
-Thread::Thread() : _shouldQuit(false) {
+Thread::Thread() : _killThread(false), _threadRunning(false) {
 }
 
 Thread::~Thread() {
-	try {
-		destroyThread();
-	} catch (...) {
+	destroyThread();
+}
+
+bool Thread::createThread(const UString &name) {
+	if (_threadRunning.load(boost::memory_order_relaxed)) {
+		if (_name == name) {
+			warning("Thread::createThread(): Thread \"%s\" already running", _name.c_str());
+			return true;
+		}
+
+		warning("Thread::createThread(): Thread \"%s\" already running and trying to rename to \"%s\"", _name.c_str(), name.c_str());
+		return false;
 	}
+
+	_name = name;
+
+	// Try to create the thread
+	try {
+		_thread = std::thread(threadHelper, static_cast<void *>(this));
+	} catch (const std::system_error &) {
+		return false;
+	}
+
+	return true;
 }
 
-void Thread::createThread() {
-	// Make sure the boost::thread is a not-a-thread (not already running)
-	assert(_thread.get_id() == boost::thread::id());
+bool Thread::destroyThread() {
+	if (!_threadRunning.load(boost::memory_order_seq_cst)) {
+		if (_thread.joinable())
+			_thread.join();
 
-	_shouldQuit = false;
+		return true;
+	}
 
-	// Create the thread using the ThreadHelper and give it this instance to work on
-	_thread = boost::thread(ThreadHelper(), this);
+	// Signal the thread that it should die
+	_killThread.store(true, boost::memory_order_seq_cst);
+
+	// Wait a whole second for the thread to finish on its own
+	for (int i = 0; _threadRunning.load(boost::memory_order_seq_cst) && (i < 100); i++)
+		std::this_thread::sleep_for(std::chrono::duration<int, std::milli>(10));
+
+	_killThread.store(false, boost::memory_order_seq_cst);
+
+	const bool stillRunning = _threadRunning.load(boost::memory_order_seq_cst);
+
+	/* Clean up the thread if it's not still running. If the thread is still running,
+	 * this would block, potentially indefinitely, so we leak instead in that case.
+	 */
+	if (!stillRunning)
+		_thread.join();
+	else
+		_thread.detach();
+
+	/* TODO:: If we get threads that we start and stop multiple times within the runtime
+	 *        of xoreos, we might need to do something more aggressive here, like throw. */
+	if (stillRunning) {
+		warning("Thread::destroyThread(): Thread \"%s\" still running", _name.c_str());
+		return false;
+	}
+
+	return true;
 }
 
-void Thread::destroyThread() {
-	_shouldQuit = true;
+int Thread::threadHelper(void *obj) {
+	Thread *thread = static_cast<Thread *>(obj);
 
-	_thread.join();
-}
+	// The thread is running.
+	thread->_threadRunning.store(true, boost::memory_order_relaxed);
 
-bool Thread::shouldQuitThread() const {
-	return _shouldQuit;
+	// Run the thread
+	thread->threadMethod();
+
+	// Thread thread is not running.
+	thread->_threadRunning.store(false, boost::memory_order_relaxed);
+
+	return 0;
 }
 
 } // End of namespace Common

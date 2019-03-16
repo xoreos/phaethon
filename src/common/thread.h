@@ -25,11 +25,16 @@
 #ifndef COMMON_THREAD_H
 #define COMMON_THREAD_H
 
-#include "src/common/atomic.h"
+#if defined(__MINGW32__ ) && !defined(_GLIBCXX_HAS_GTHREADS)
+	#include "external/mingw-std-threads/mingw.thread.h"
+#else
+	#include <thread>
+#endif
 
 #include <boost/noncopyable.hpp>
 
-#include <boost/thread/thread.hpp>
+#include "src/common/atomic.h"
+#include "src/common/ustring.h"
 
 namespace Common {
 
@@ -39,28 +44,21 @@ public:
 	Thread();
 	virtual ~Thread();
 
-protected:
-	/** Create and run the thread. */
-	void createThread();
-	/** Request the thread to quit and wait for it to finish. */
-	void destroyThread();
+	bool createThread(const UString &name = "");
+	bool destroyThread();
 
-	/** The thread method should call this periodically to query if it should quit. */
-	bool shouldQuitThread() const;
+protected:
+	boost::atomic<bool> _killThread;
 
 private:
-	struct ThreadHelper {
-		void operator()(Thread *thread) {
-			thread->threadMethod();
-		}
-	};
+	std::thread _thread;
+	Common::UString _name;
 
-	boost::thread _thread;
-	boost::atomic<bool> _shouldQuit;
+	boost::atomic<bool> _threadRunning;
 
 	virtual void threadMethod() = 0;
 
-	friend struct ThreadHelper;
+	static int threadHelper(void *obj);
 };
 
 } // End of namespace Common
