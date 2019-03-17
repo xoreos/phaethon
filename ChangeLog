@@ -1,10 +1,15 @@
 Someday, ????-??-?? (Version 0.0.6)
 	- GUI:
 		- Implemented directly opening BIF files
+	- COMMON:
+		- Cleaned up threading, now using C++11 threads
+		- Changed atomics to use C++11 atomics instead of Boost
 	- AURORA:
 		- Added support for ERF V2.1
 	- IMAGES:
 		- Added support for swizzled Xbox SBM images
+	- MISC:
+		- Moved third-party code into external/
 
 Tuesday, 2018-07-03 (Version 0.0.5)
 	- DOCS:
