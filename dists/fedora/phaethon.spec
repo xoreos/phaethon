@@ -32,7 +32,7 @@ BuildRequires:  qt5-qtbase-gui
 
 # Boost dependencies.
 BuildRequires:  boost-devel, boost-system, boost-filesystem
-BuildRequires:  boost-regex, boost-locale, boost-date-time boost-chrono
+BuildRequires:  boost-locale, boost-date-time boost-chrono
 
 # rpmfusion-free dependencies.
 BuildRequires:  libmad-devel
