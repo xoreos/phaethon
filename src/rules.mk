@@ -21,7 +21,7 @@
 
 # Windows resources
 .rc.o:
-	$(AM_V_GEN)$(RC) -DHAVE_CONFIG_H -I$(srcdir) -o $@ $<
+	$(AM_V_GEN)$(RC) -DHAVE_CONFIG_H -I$(srcdir) -I. -o $@ $<
 
 bin_PROGRAMS += src/phaethon
 src_phaethon_SOURCES =
