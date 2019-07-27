@@ -102,17 +102,13 @@ void PanelPreviewSound::show(const ResourceTreeItem *item) {
 	PanelBase::show(item);
 
 	stop();
+	_currentItem = nullptr;
+	_duration = Sound::RewindableAudioStream::kInvalidLength;
 
-	if (item->getResourceType() != Aurora::kResourceSound)
+	if (!item || (item->getResourceType() != Aurora::kResourceSound))
 		return;
 
 	_currentItem = item;
-
-	if (!item) {
-		_duration = Sound::RewindableAudioStream::kInvalidLength;
-		return;
-	}
-
 	_duration = item->getSoundDuration();
 }
 
