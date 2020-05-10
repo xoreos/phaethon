@@ -15,7 +15,6 @@ Build-time library dependencies
   - Boost.Date_Time
   - Boost.Chrono
   - Boost.Function
-  - Boost.Bind
   - Boost.Uuid
   - Boost.Smart_Ptr
   - Boost.ScopeExit
