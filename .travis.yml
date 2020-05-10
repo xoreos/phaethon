@@ -10,6 +10,8 @@ os:
   - linux
   - osx
 
+osx_image: xcode11.4
+
 env:
   global:
     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
@@ -42,10 +44,6 @@ matrix:
       os: osx
 
 before_install:
-  # Installing macOS dependencies, using brew
-  - if eval [ $is_valid_osx ]; then brew update; fi
-  - if eval [ $is_valid_osx ]; then brew install qt openal-soft mad faad2 libvorbis zlib xz libxml2; fi
-  - if eval [ $is_valid_osx ]; then brew link --force qt; fi
   # Installing Linux dependencies, using apt-get
   #
   # Here, we're also installing a new gcc, for C++14 support.
@@ -64,6 +62,8 @@ before_install:
   - if eval [ $is_valid_linux ]; then sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" -o APT::Force-LoopBreak=1 install libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev zlib1g-dev liblzma-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5 libgl1 libgl-dev libglu-dev; fi
 
 script:
+  # Set environment variables for macOS
+  - if eval [ $is_valid_osx -a $is_notcoverity_autot ]; then export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/opt/qt/lib/pkgconfig"; fi
   # autotools build system: ./autogen.sh && ./configure && make && make check
   - if eval [ $is_notcoverity_autot ]; then ./autogen.sh; fi
   - if eval [ $is_notcoverity_autot ]; then ./configure || (cat config.log; exit 1); fi
@@ -75,6 +75,15 @@ script:
   - if eval [ $is_notcoverity_cmake ]; then make -j4 check; fi
 
 addons:
+  homebrew:
+    packages:
+    - zlib
+    - xz
+    - qt
+    - openal-soft
+    - mad
+    - faad2
+    - libvorbis
   coverity_scan:
     build_script_url: https://raw.githubusercontent.com/$TRAVIS_REPO_SLUG/$TRAVIS_BRANCH/.travis_coverity.sh
     project:
