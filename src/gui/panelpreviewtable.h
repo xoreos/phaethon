@@ -26,6 +26,8 @@
 #ifndef GUI_PANELPREVIEWTABLE_H
 #define GUI_PANELPREVIEWTABLE_H
 
+#include <memory>
+
 #include <QStandardItemModel>
 
 #include "src/gui/panelbase.h"

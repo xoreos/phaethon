@@ -25,6 +25,7 @@
 #include <cassert>
 
 #include <deque>
+#include <memory>
 
 #include <QAction>
 #include <QApplication>

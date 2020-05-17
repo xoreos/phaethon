@@ -22,6 +22,8 @@
  *  Preview panel for text files.
  */
 
+#include <memory>
+
 #include <QFrame>
 #include <QPlainTextEdit>
 #include <QTextStream>

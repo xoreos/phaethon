@@ -23,6 +23,8 @@
  *  2DA and GDA.
  */
 
+#include <memory>
+
 #include <QFrame>
 #include <QWidget>
 #include <QFormLayout>

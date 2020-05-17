@@ -25,6 +25,8 @@
 #ifndef GUI_RESOURCETREEITEM_H
 #define GUI_RESOURCETREEITEM_H
 
+#include <memory>
+
 #include <QString>
 
 #include "src/aurora/archive.h"

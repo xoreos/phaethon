@@ -22,6 +22,8 @@
  *  Manager class for resource preview panels.
  */
 
+#include <memory>
+
 #include <QLayout>
 
 #include "src/common/error.h"

@@ -22,6 +22,8 @@
  *  Preview panel for sound resources.
  */
 
+#include <memory>
+
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>

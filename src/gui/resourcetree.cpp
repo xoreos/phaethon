@@ -22,6 +22,8 @@
  *  Phaethon's tree of game resource files.
  */
 
+#include <memory>
+
 #include <QDir>
 #include <QFuture>
 #include <QFutureWatcher>

@@ -22,6 +22,8 @@
  *  Preview panel for image resources.
  */
 
+#include <memory>
+
 #include <QImageReader>
 #include <QCheckBox>
 #include <QFrame>

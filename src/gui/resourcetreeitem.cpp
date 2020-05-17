@@ -24,6 +24,8 @@
 
 #include <cassert>
 
+#include <memory>
+
 #include "src/common/strutil.h"
 #include "src/common/readfile.h"
 
