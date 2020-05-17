@@ -22,6 +22,8 @@
  *  Phaethon's main window.
  */
 
+#include <cassert>
+
 #include <deque>
 
 #include <QAction>

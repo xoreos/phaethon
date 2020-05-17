@@ -22,6 +22,8 @@
  *  Items that make up Phaethon's resource tree.
  */
 
+#include <cassert>
+
 #include "src/common/strutil.h"
 #include "src/common/readfile.h"
 
