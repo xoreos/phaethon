@@ -11,7 +11,6 @@ Build-time library dependencies
   - Boost.System
   - Boost.Filesystem
   - Boost.Unordered
-  - Boost.Hash
   - Boost.Date_Time
   - Boost.Chrono
   - Boost.Uuid
