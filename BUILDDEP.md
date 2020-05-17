@@ -10,7 +10,6 @@ Build-time library dependencies
   - Boost.StringAlgo
   - Boost.System
   - Boost.Filesystem
-  - Boost.Unordered
   - Boost.Date_Time
   - Boost.Chrono
   - Boost.Uuid
