@@ -126,6 +126,7 @@ License: BSL-1.0
 
 Files: external/verdigris/wobjectdefs.h
        external/verdigris/wobjectimpl.h
+       external/verdigris/wobjectcpp.h
 Copyright: 2016-2018 Woboq GmbH
 License: LGPL-3.0+
 

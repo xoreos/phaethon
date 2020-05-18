@@ -22,6 +22,7 @@
 noinst_HEADERS += \
     external/verdigris/wobjectdefs.h \
     external/verdigris/wobjectimpl.h \
+    external/verdigris/wobjectcpp.h \
     $(EMPTY)
 
 EXTRA_DIST += \
