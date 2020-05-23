@@ -3,7 +3,7 @@ Someday, ????-??-?? (Version 0.0.6)
 		- Implemented directly opening BIF files
 	- COMMON:
 		- Cleaned up threading, now using C++11 threads
-		- Changed atomics to use C++11 atomics instead of Boost
+		- Replaced a few Boost libraries with C++11 features
 	- AURORA:
 		- Added support for ERF V2.1
 	- IMAGES:
