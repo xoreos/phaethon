@@ -2,8 +2,8 @@
 
 pkgname=phaethon-git
 _gitname=phaethon
-pkgver=0.0.5.r0.g5020409
-pkgrel=2
+pkgver=0.0.6.r0.g5020409
+pkgrel=1
 pkgdesc="A resource explorer for BioWare's Aurora engine games"
 arch=('i686' 'x86_64')
 url="https://xoreos.org/"

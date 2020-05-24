@@ -1,3 +1,15 @@
+Changes in Phaethon version 0.0.6
+=================================
+
+This release of Phaethon is mostly a "maintenance release", keeping the
+foundation in sync with xoreos. There are no major new features.
+
+There are, however, a number of smaller bug fixes. Also, Phaethon can now open
+ERF V2.1 files and display swizzled Xbox SBM images. Additionally, BIF files
+can be inspected directly, even when no corresponding KEY file can be found
+(this does mean, though, that the filenames are missing).
+
+
 Changes in Phaethon version 0.0.5
 =================================
 
