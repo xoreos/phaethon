@@ -436,9 +436,19 @@ constexpr void handleArgTypes(State& ss, const TypeNames& typeNames, index_seque
 }
 
 template<size_t ArgCount, class State, size_t NameCount>
-constexpr void handleArgNames(State& ss, const StringViewArray<NameCount>& paramNames) {
+constexpr typename std::enable_if<(ArgCount > 0 && NameCount > 0), void>::type handleArgNames(State& ss, const StringViewArray<NameCount>& paramNames) {
     auto i = size_t{};
     for (; i < ArgCount && i < NameCount; ++i) ss.addString(paramNames[i]);
+    for (; i < ArgCount; ++i) ss.addInts(1);
+}
+
+template<size_t ArgCount, class State, size_t NameCount>
+constexpr typename std::enable_if<(ArgCount == 0), void>::type handleArgNames(State&, const StringViewArray<NameCount>&) {
+}
+
+template<size_t ArgCount, class State, size_t NameCount>
+constexpr typename std::enable_if<(ArgCount > 0 && NameCount == 0), void>::type handleArgNames(State& ss, const StringViewArray<NameCount>&) {
+    auto i = size_t{};
     for (; i < ArgCount; ++i) ss.addInts(1);
 }
 
