@@ -25,7 +25,7 @@ URL:            https://xoreos.org/
 Source0:        https://github.com/xoreos/phaethon/archive/v%{version}.tar.gz
 
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
-BuildRequires:  libxml2-devel, lzma-devel, libtool, gettext-devel
+BuildRequires:  libxml2-devel, xz-devel, libtool, gettext-devel
 
 BuildRequires:  qt5-devel qt5-qtbase-devel
 BuildRequires:  qt5-qtbase-gui
