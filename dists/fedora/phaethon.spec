@@ -24,6 +24,7 @@ URL:            https://xoreos.org/
 # This URL is sad, because of the lack of a named release archive.
 Source0:        https://github.com/xoreos/phaethon/archive/v%{version}.tar.gz
 
+BuildRequires:  gcc-c++, make
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
 BuildRequires:  libxml2-devel, xz-devel, libtool, gettext-devel
 
