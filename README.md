@@ -10,7 +10,7 @@ Phaethon is licensed under the terms of the [GNU General Public License
 version 3](https://www.gnu.org/licenses/agpl-3.0.html) (or later).
 
 
-Status [![Build Status](https://travis-ci.org/xoreos/phaethon.svg?branch=master)](https://travis-ci.org/xoreos/phaethon) [![Coverity Status](https://scan.coverity.com/projects/3295/badge.svg)](https://scan.coverity.com/projects/3295)
+Status [![Build Status](https://travis-ci.org/xoreos/phaethon.svg?branch=master)](https://travis-ci.org/xoreos/phaethon) [![Build status (AppVeyor)](https://ci.appveyor.com/api/projects/status/e6lj9qp4av6hbptt?svg=true)](https://ci.appveyor.com/project/DrMcCoy/phaethon/branch/master) [![Coverity Status](https://scan.coverity.com/projects/3295/badge.svg)](https://scan.coverity.com/projects/3295)
 ------
 
 
