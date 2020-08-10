@@ -28,10 +28,10 @@
 #include <iconv.h>
 
 #include <vector>
+#include <memory>
 
 #include "src/common/encoding.h"
 #include "src/common/error.h"
-#include "src/common/scopedptr.h"
 #include "src/common/singleton.h"
 #include "src/common/ustring.h"
 #include "src/common/memreadstream.h"
@@ -120,7 +120,7 @@ private:
 		size_t inBytes  = nIn;
 		size_t outBytes = nOut;
 
-		ScopedArray<byte> convData(new byte[outBytes]);
+		std::unique_ptr<byte[]> convData = std::make_unique<byte[]>(outBytes);
 
 		byte *outBuf = convData.get();
 
@@ -145,7 +145,7 @@ private:
 			return "[!!!]";
 
 		size_t size;
-		ScopedArray<byte> dataOut(doConvert(ctx, data, n, n * growth + termSize, size));
+		std::unique_ptr<byte[]> dataOut(doConvert(ctx, data, n, n * growth + termSize, size));
 		if (!dataOut)
 			return "[!?!]";
 
@@ -164,7 +164,7 @@ private:
 		size_t nOut   = nIn * growth + termSize;
 
 		size_t size;
-		ScopedArray<byte> dataOut(doConvert(ctx, dataIn, nIn, nOut, size));
+		std::unique_ptr<byte[]> dataOut(doConvert(ctx, dataIn, nIn, nOut, size));
 		if (!dataOut)
 			return 0;
 
@@ -337,7 +337,7 @@ UString readString(const byte *data, size_t size, Encoding encoding) {
 }
 
 size_t writeString(WriteStream &stream, const Common::UString &str, Encoding encoding, bool terminate) {
-	ScopedPtr<MemoryReadStream> data(convertString(str, encoding, terminate));
+	std::unique_ptr<MemoryReadStream> data(convertString(str, encoding, terminate));
 
 	const size_t n = stream.writeStream(*data);
 
@@ -348,7 +348,7 @@ void writeStringFixed(WriteStream &stream, const Common::UString &str, Encoding 
 	if (length == 0)
 		return;
 
-	ScopedPtr<MemoryReadStream> data(convertString(str, encoding, false));
+	std::unique_ptr<MemoryReadStream> data(convertString(str, encoding, false));
 
 	size_t n = stream.writeStream(*data, length);
 	while (n++ < length)
