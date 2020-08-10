@@ -25,7 +25,6 @@ src_common_libcommon_la_SOURCES =
 src_common_libcommon_la_SOURCES += \
     src/common/endianness.h \
     src/common/deallocator.h \
-    src/common/scopedptr.h \
     src/common/disposableptr.h \
     src/common/ptrlist.h \
     src/common/ptrvector.h \
