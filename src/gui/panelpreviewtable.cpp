@@ -86,7 +86,7 @@ void PanelPreviewTable::setTableData(bool isGDA) {
 	std::unique_ptr<Common::SeekableReadStream> stream(_currentItem->getResourceData());
 
 	if (isGDA) {
-		std::unique_ptr<Aurora::GDAFile> gda(new Aurora::GDAFile(stream.release()));
+		std::unique_ptr<Aurora::GDAFile> gda = std::make_unique<Aurora::GDAFile>(stream.release());
 		twoDA = std::make_unique<Aurora::TwoDAFile>(*gda);
 	} else {
 		twoDA = std::make_unique<Aurora::TwoDAFile>(*stream);

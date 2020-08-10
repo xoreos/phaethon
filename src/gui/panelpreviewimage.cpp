@@ -150,7 +150,7 @@ void PanelPreviewImage::loadImage() {
 
 	_labelDimensions->setText(QString("(%1x%2)").arg(width).arg(height));
 
-	std::unique_ptr<byte> rgbaData(new byte[width * height * 4]);
+	std::unique_ptr<byte[]> rgbaData = std::make_unique<byte[]>(width * height * 4);
 	std::memset(rgbaData.get(), 0, width * height * 4);
 
 	convertImage(*image, rgbaData.get());
