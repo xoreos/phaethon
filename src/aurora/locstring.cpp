@@ -26,8 +26,9 @@
  * (<https://github.com/xoreos/xoreos-docs/tree/master/specs/bioware>)
  */
 
+#include <memory>
+
 #include "src/common/util.h"
-#include "src/common/scopedptr.h"
 #include "src/common/memreadstream.h"
 #include "src/common/encoding.h"
 
@@ -143,8 +144,8 @@ void LocString::readString(uint32 languageID, Common::SeekableReadStream &stream
 
 	s.first->second = "[???]";
 
-	Common::ScopedPtr<Common::MemoryReadStream> data(stream.readStream(length));
-	Common::ScopedPtr<Common::MemoryReadStream> parsed(LangMan.preParseColorCodes(*data));
+	std::unique_ptr<Common::MemoryReadStream> data(stream.readStream(length));
+	std::unique_ptr<Common::MemoryReadStream> parsed(LangMan.preParseColorCodes(*data));
 
 	Common::Encoding encoding = LangMan.getEncodingLocString(LangMan.getLanguageGendered(languageID));
 	if (encoding == Common::kEncodingInvalid)

@@ -27,11 +27,11 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <boost/noncopyable.hpp>
 
 #include "src/common/types.h"
-#include "src/common/scopedptr.h"
 #include "src/common/ustring.h"
 #include "src/common/encoding.h"
 
@@ -155,8 +155,8 @@ private:
 
 
 
-	Common::ScopedPtr<Common::SeekableReadStream> _origStream;
-	Common::ScopedPtr<Common::SeekableSubReadStreamEndian> _stream;
+	std::unique_ptr<Common::SeekableReadStream> _origStream;
+	std::unique_ptr<Common::SeekableSubReadStreamEndian> _stream;
 
 	/** This GFF4's header. */
 	Header          _header;

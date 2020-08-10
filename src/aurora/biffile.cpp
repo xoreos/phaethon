@@ -103,7 +103,7 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 
 	_bif->seek(res.offset);
 
-	Common::ScopedPtr<Common::SeekableReadStream> resStream(_bif->readStream(res.size));
+	std::unique_ptr<Common::SeekableReadStream> resStream(_bif->readStream(res.size));
 
 	if (!resStream || (((uint32) resStream->size()) != res.size))
 		throw Common::Exception(Common::kReadError);
