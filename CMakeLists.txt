@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Phaethon. If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.1.0)
 
 project(phaethon CXX)
 set(phaethon_VERSION 0.0.6)
@@ -75,9 +75,14 @@ else()
 endif()
 
 # C++ standard we're compiling against
-#set_check_compiler_flag_cxx("-std=c++14")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+if(CMAKE_HOST_WIN32 AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"))
+  # Needed by _wfopen in src/common/platform.cpp for mingw32 (but technically not for mingw-w64)
+	set(CMAKE_CXX_EXTENSIONS ON)
+endif()
 
 # Compiler warning flags, not for MSVC
 if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
