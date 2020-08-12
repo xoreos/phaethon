@@ -192,8 +192,8 @@ int UString::stricmp(const UString &str) const {
 	UString::iterator it1 = begin();
 	UString::iterator it2 = str.begin();
 	for (; (it1 != end()) && (it2 != str.end()); ++it1, ++it2) {
-		uint32_t c1 = toLower(*it1);
-		uint32_t c2 = toLower(*it2);
+		uint32_t c1 = String::toLower(*it1);
+		uint32_t c2 = String::toLower(*it2);
 
 		if (c1 < c2)
 			return -1;
@@ -482,7 +482,7 @@ UString UString::toLower() const {
 
 	str._string.reserve(_string.size());
 	for (iterator it = begin(); it != end(); ++it)
-		str += toLower(*it);
+		str += String::toLower(*it);
 
 	return str;
 }
@@ -492,7 +492,7 @@ UString UString::toUpper() const {
 
 	str._string.reserve(_string.size());
 	for (iterator it = begin(); it != end(); ++it)
-		str += toUpper(*it);
+		str += String::toUpper(*it);
 
 	return str;
 }
@@ -749,49 +749,6 @@ void UString::recalculateSize() {
 		Exception e(se);
 		throw e;
 	}
-}
-
-// NOTE: If we ever need uppercase<->lowercase mappings for non-ASCII
-//       characters: http://www.unicode.org/reports/tr21/tr21-5.html
-
-uint32_t UString::toLower(uint32_t c) {
-	if (!isASCII(c))
-		// We don't know how to lowercase that
-		return c;
-
-	return std::tolower(c);
-}
-
-uint32_t UString::toUpper(uint32_t c) {
-	if (!isASCII(c))
-		// We don't know how to uppercase that
-		return c;
-
-	return std::toupper(c);
-}
-
-bool UString::isASCII(uint32_t c) {
-	return (c & 0xFFFFFF80) == 0;
-}
-
-bool UString::isSpace(uint32_t c) {
-	return isASCII(c) && std::isspace(c);
-}
-
-bool UString::isDigit(uint32_t c) {
-	return isASCII(c) && std::isdigit(c);
-}
-
-bool UString::isAlpha(uint32_t c) {
-	return isASCII(c) && std::isalpha(c);
-}
-
-bool UString::isAlNum(uint32_t c) {
-	return isASCII(c) && std::isalnum(c);
-}
-
-bool UString::isCntrl(uint32_t c) {
-	return isASCII(c) && std::iscntrl(c);
 }
 
 uint32_t UString::fromUTF16(uint16_t c) {
