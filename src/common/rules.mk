@@ -62,6 +62,7 @@ src_common_libcommon_la_SOURCES += \
     src/common/thread.h \
     src/common/binsearch.h \
     src/common/streamtokenizer.h \
+    src/common/string.h \
     $(EMPTY)
 
 src_common_libcommon_la_SOURCES += \
@@ -93,4 +94,5 @@ src_common_libcommon_la_SOURCES += \
     src/common/mdct.cpp \
     src/common/thread.cpp \
     src/common/streamtokenizer.cpp \
+    src/common/string.cpp \
     $(EMPTY)
