@@ -30,7 +30,6 @@ src_common_libcommon_la_SOURCES += \
     src/common/ptrvector.h \
     src/common/ptrmap.h \
     src/common/system.h \
-    src/common/noreturn.h \
     src/common/fallthrough.h \
     src/common/types.h \
     src/common/util.h \
