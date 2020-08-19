@@ -59,7 +59,7 @@ struct Archive {
 	Aurora::Archive *owner { nullptr };
 	Aurora::Archive *data { nullptr };
 	bool addedMembers { false };
-	uint32 index { 0xFFFFFFFF };
+	uint32_t index { 0xFFFFFFFF };
 };
 
 class ResourceTreeItem {
@@ -105,7 +105,7 @@ public:
 	Images::Decoder            *getImage() const;
 	Images::Decoder            *getImage(Common::SeekableReadStream &res, Aurora::FileType type) const;
 	Sound::AudioStream         *getAudioStream() const;
-	uint64                      getSoundDuration() const;
+	uint64_t                    getSoundDuration() const;
 
 private:
 	ResourceTreeItem *_parent { nullptr };
@@ -116,7 +116,7 @@ private:
 	size_t _size { Common::kFileInvalid };
 
 	mutable bool _triedDuration { false };
-	mutable uint64 _duration { Sound::RewindableAudioStream::kInvalidLength };
+	mutable uint64_t _duration { Sound::RewindableAudioStream::kInvalidLength };
 
 	Archive _archive;
 

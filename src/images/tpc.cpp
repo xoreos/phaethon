@@ -76,13 +76,13 @@ Common::SeekableReadStream *TPC::getTXI() const {
 
 void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 	// Number of bytes for the pixel data in one full image
-	uint32 dataSize = tpc.readUint32LE();
+	uint32_t dataSize = tpc.readUint32LE();
 
 	tpc.skip(4); // Some float
 
 	// Image dimensions
-	uint32 width  = tpc.readUint16LE();
-	uint32 height = tpc.readUint16LE();
+	uint32_t width  = tpc.readUint16LE();
+	uint32_t height = tpc.readUint16LE();
 
 	if ((width >= 0x8000) || (height >= 0x8000))
 		throw Common::Exception("Unsupported image dimensions (%ux%u)", width, height);
@@ -95,7 +95,7 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 
 	tpc.skip(114); // Reserved
 
-	uint32 minDataSize = 0;
+	uint32_t minDataSize = 0;
 	if (dataSize == 0) {
 		// Uncompressed
 
@@ -176,17 +176,17 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 
 	size_t layerCount;
 	for (layerCount = 0; layerCount < _layerCount; layerCount++) {
-		uint32 layerWidth  = width;
-		uint32 layerHeight = height;
-		uint32 layerSize   = dataSize;
+		uint32_t layerWidth  = width;
+		uint32_t layerHeight = height;
+		uint32_t layerSize   = dataSize;
 
 		for (size_t i = 0; i < mipMapCount; i++) {
 			std::unique_ptr<MipMap> mipMap = std::make_unique<MipMap>();
 
-			mipMap->width  = MAX<uint32>(layerWidth,  1);
-			mipMap->height = MAX<uint32>(layerHeight, 1);
+			mipMap->width  = MAX<uint32_t>(layerWidth,  1);
+			mipMap->height = MAX<uint32_t>(layerHeight, 1);
 
-			mipMap->size = MAX<uint32>(layerSize, minDataSize);
+			mipMap->size = MAX<uint32_t>(layerSize, minDataSize);
 
 			const size_t mipMapDataSize = getDataSize(_format, mipMap->width, mipMap->height);
 
@@ -213,7 +213,7 @@ void TPC::readHeader(Common::SeekableReadStream &tpc, byte &encoding) {
 		                        (uint) layerCount, (uint) _mipMaps.size());
 }
 
-bool TPC::checkCubeMap(uint32 &width, uint32 &height) {
+bool TPC::checkCubeMap(uint32_t &width, uint32_t &height) {
 	/* Check if this texture is a cube map by looking if height equals to six
 	 * times width. This means that there are 6 sides of width * (height / 6)
 	 * images in this texture, making it a cube map.
@@ -250,10 +250,10 @@ bool TPC::checkCubeMap(uint32 &width, uint32 &height) {
 	return true;
 }
 
-void TPC::deSwizzle(byte *dst, const byte *src, uint32 width, uint32 height) {
-	for (uint32 y = 0; y < height; y++) {
-		for (uint32 x = 0; x < width; x++) {
-			const uint32 offset = deSwizzleOffset(x, y, width, height) * 4;
+void TPC::deSwizzle(byte *dst, const byte *src, uint32_t width, uint32_t height) {
+	for (uint32_t y = 0; y < height; y++) {
+		for (uint32_t x = 0; x < width; x++) {
+			const uint32_t offset = deSwizzleOffset(x, y, width, height) * 4;
 
 			*dst++ = src[offset + 0];
 			*dst++ = src[offset + 1];
@@ -326,9 +326,9 @@ void TPC::fixupCubeMap() {
 		const size_t index0 = 0 * getMipMapCount() + j;
 		assert(index0 < _mipMaps.size());
 
-		const  int32 width  = _mipMaps[index0]->width;
-		const  int32 height = _mipMaps[index0]->height;
-		const uint32 size   = _mipMaps[index0]->size;
+		const  int32_t width  = _mipMaps[index0]->width;
+		const  int32_t height = _mipMaps[index0]->height;
+		const uint32_t size   = _mipMaps[index0]->size;
 
 		for (size_t i = 1; i < getLayerCount(); i++) {
 			const size_t index = i * getMipMapCount() + j;

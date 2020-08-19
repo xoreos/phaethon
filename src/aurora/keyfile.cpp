@@ -27,6 +27,7 @@
  */
 
 #include <memory>
+#include <cstddef>
 
 #include "src/common/util.h"
 #include "src/common/strutil.h"
@@ -37,9 +38,9 @@
 #include "src/aurora/keyfile.h"
 #include "src/aurora/keydatafile.h"
 
-static const uint32 kKEYID     = MKTAG('K', 'E', 'Y', ' ');
-static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
-static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
+static const uint32_t kKEYID     = MKTAG('K', 'E', 'Y', ' ');
+static const uint32_t kVersion1  = MKTAG('V', '1', ' ', ' ');
+static const uint32_t kVersion11 = MKTAG('V', '1', '.', '1');
 
 namespace Aurora {
 
@@ -52,11 +53,11 @@ KEYFile::KEYFile(Common::SeekableReadStream *key) {
 KEYFile::~KEYFile() {
 }
 
-bool KEYFile::haveDataFile(uint32 index) const {
+bool KEYFile::haveDataFile(uint32_t index) const {
 	return getIResource(index).dataFile != 0;
 }
 
-void KEYFile::addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile) {
+void KEYFile::addDataFile(uint32_t dataFileIndex, KEYDataFile *dataFile) {
 	if (!dataFile)
 		throw Common::Exception("KEYFile::addDataFile(): dataFile == 0");
 
@@ -89,15 +90,15 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 	if ((_version != kVersion1) && (_version != kVersion11))
 		throw Common::Exception("Unsupported KEY file version %s", Common::debugTag(_version).c_str());
 
-	uint32 dataFileCount = key.readUint32LE();
-	uint32 resCount      = key.readUint32LE();
+	uint32_t dataFileCount = key.readUint32LE();
+	uint32_t resCount      = key.readUint32LE();
 
 	// Version 1.1 has some NULL bytes here
 	if (_version == kVersion11)
 		key.skip(4);
 
-	uint32 offFileTable     = key.readUint32LE();
-	uint32 offResTable      = key.readUint32LE();
+	uint32_t offFileTable     = key.readUint32LE();
+	uint32_t offResTable      = key.readUint32LE();
 
 	key.skip( 8); // Build year and day
 	key.skip(32); // Reserved
@@ -118,7 +119,7 @@ void KEYFile::load(Common::SeekableReadStream &key) {
 
 }
 
-void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
+void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32_t offset) {
 	key.seek(offset);
 
 	for (std::vector<Common::UString>::iterator d = _dataFiles.begin(); d != _dataFiles.end(); ++d) {
@@ -147,10 +148,10 @@ void KEYFile::readDataFileList(Common::SeekableReadStream &key, uint32 offset) {
 	}
 }
 
-void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
+void KEYFile::readResList(Common::SeekableReadStream &key, uint32_t offset) {
 	key.seek(offset);
 
-	uint32 index = 0;
+	uint32_t index = 0;
 	ResourceList::iterator   res = _resources.begin();
 	IResourceList::iterator iRes = _iResources.begin();
 	for (; (res != _resources.end()) && (iRes != _iResources.end()); ++index, ++res, ++iRes) {
@@ -160,12 +161,12 @@ void KEYFile::readResList(Common::SeekableReadStream &key, uint32 offset) {
 		res->type  = (FileType) key.readUint16LE();
 		res->index = index;
 
-		uint32 id = key.readUint32LE();
+		uint32_t id = key.readUint32LE();
 
 		// The new flags field holds the data file index now. The rest contains fixed
 		// resource info.
 		if (_version == kVersion11) {
-			uint32 flags = key.readUint32LE();
+			uint32_t flags = key.readUint32LE();
 			iRes->dataFileIndex = (flags & 0xFFF00000) >> 20;
 		} else
 			iRes->dataFileIndex = id >> 20;
@@ -179,14 +180,14 @@ const Archive::ResourceList &KEYFile::getResources() const {
 	return _resources;
 }
 
-const KEYFile::IResource &KEYFile::getIResource(uint32 index) const {
+const KEYFile::IResource &KEYFile::getIResource(uint32_t index) const {
 	if (index >= _iResources.size())
 		throw Common::Exception("Resource index out of range (%u/%u)", index, (uint)_iResources.size());
 
 	return _iResources[index];
 }
 
-uint32 KEYFile::getResourceSize(uint32 index) const {
+uint32_t KEYFile::getResourceSize(uint32_t index) const {
 	const IResource &iRes = getIResource(index);
 	if (!iRes.dataFile)
 		return 0xFFFFFFFF;
@@ -194,7 +195,7 @@ uint32 KEYFile::getResourceSize(uint32 index) const {
 	return iRes.dataFile->getResourceSize(iRes.resIndex);
 }
 
-Common::SeekableReadStream *KEYFile::getResource(uint32 index, bool UNUSED(tryNoCopy)) const {
+Common::SeekableReadStream *KEYFile::getResource(uint32_t index, bool UNUSED(tryNoCopy)) const {
 	const IResource &iRes = getIResource(index);
 	if (!iRes.dataFile)
 		throw Common::Exception("Data files for resource %d (\"%s\") missing", index,
@@ -206,7 +207,7 @@ Common::SeekableReadStream *KEYFile::getResource(uint32 index, bool UNUSED(tryNo
 std::vector<const Archive::Resource *> KEYFile::getResourceListForDataFile(const Common::UString &dataFile) const {
 	std::vector<const Archive::Resource *> list;
 
-	uint32 i = 0;
+	uint32_t i = 0;
 	for (auto it = _resources.begin(); it != _resources.end(); ++it, i++) {
 		if (_dataFiles[getIResource(i).dataFileIndex] != dataFile)
 			continue;

@@ -143,7 +143,7 @@ void PanelPreviewImage::loadImage() {
 	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0))
 		return;
 
-	int32 width = 0, height = 0;
+	int32_t width = 0, height = 0;
 	getImageDimensions(*image, width, height);
 	if ((width <= 0) || (height <= 0))
 		throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
@@ -167,14 +167,14 @@ void PanelPreviewImage::loadImage() {
 }
 
 void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *dataOut) {
-	int32 width, height;
+	int32_t width, height;
 	getImageDimensions(image, width, height);
 
 	for (size_t i = 0; i < image.getLayerCount(); i++) {
 		const Images::Decoder::MipMap &mipMap = image.getMipMap(0, i);
 		const byte *mipMapData = mipMap.data.get();
 
-		uint32 count = mipMap.width * mipMap.height;
+		uint32_t count = mipMap.width * mipMap.height;
 		while (count-- > 0)
 			writePixel(mipMapData, image.getFormat(), dataOut);
 	}
@@ -216,7 +216,7 @@ void PanelPreviewImage::writePixel(const byte *&dataIn, Images::PixelFormat form
 
 		case Images::kPixelFormatR5G6B5:
 			{
-				const uint16 color = READ_LE_UINT16(dataIn);
+				const uint16_t color = READ_LE_UINT16(dataIn);
 
 				*dataOut++ =  color & 0x001F;
 				*dataOut++ = (color & 0x07E0) >>  5;
@@ -228,7 +228,7 @@ void PanelPreviewImage::writePixel(const byte *&dataIn, Images::PixelFormat form
 
 		case Images::kPixelFormatA1R5G5B5:
 			{
-				const uint16 color = READ_LE_UINT16(dataIn);
+				const uint16_t color = READ_LE_UINT16(dataIn);
 
 				*dataOut++ =  color & 0x001F;
 				*dataOut++ = (color & 0x03E0) >>  5;
@@ -243,7 +243,7 @@ void PanelPreviewImage::writePixel(const byte *&dataIn, Images::PixelFormat form
 	}
 }
 
-void PanelPreviewImage::getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height) {
+void PanelPreviewImage::getImageDimensions(const Images::Decoder &image, int32_t &width, int32_t &height) {
 	width  = image.getMipMap(0, 0).width;
 	height = 0;
 

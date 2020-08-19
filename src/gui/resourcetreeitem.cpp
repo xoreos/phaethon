@@ -249,7 +249,7 @@ Archive &ResourceTreeItem::getArchive() {
 	return _archive;
 }
 
-uint64 ResourceTreeItem::getSoundDuration() const {
+uint64_t ResourceTreeItem::getSoundDuration() const {
 	if (_triedDuration)
 		return _duration;
 

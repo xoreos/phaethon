@@ -52,14 +52,14 @@ public:
 	~BZFFile();
 
 	/** Return a stream of the resource's contents. */
-	Common::SeekableReadStream *getResource(uint32 index) const;
+	Common::SeekableReadStream *getResource(uint32_t index) const;
 
 private:
 	std::unique_ptr<Common::SeekableReadStream> _bzf;
 
 	void load(Common::SeekableReadStream &bzf);
 
-	void readVarResTable(Common::SeekableReadStream &bzf, uint32 offset);
+	void readVarResTable(Common::SeekableReadStream &bzf, uint32_t offset);
 };
 
 } // End of namespace Aurora

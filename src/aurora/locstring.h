@@ -43,10 +43,10 @@ namespace Aurora {
 class LocString {
 public:
 	struct SubLocString {
-		uint32 language;
+		uint32_t language;
 		Common::UString str;
 
-		SubLocString(uint32 l = 0, const Common::UString &s = "") : language(l), str(s) { }
+		SubLocString(uint32_t l = 0, const Common::UString &s = "") : language(l), str(s) { }
 	};
 
 	LocString() = default;
@@ -61,9 +61,9 @@ public:
 	void swap(LocString &str);
 
 	/** Return the string ID / StrRef. */
-	uint32 getID() const;
+	uint32_t getID() const;
 	/** Set the string ID / StrRef. */
-	void setID(uint32 id);
+	void setID(uint32_t id);
 
 	/** Does the LocString have a string of this language? */
 	bool hasString(Language language, LanguageGender gender = kLanguageGenderCurrent) const;
@@ -89,27 +89,27 @@ public:
 	void getStrings(std::vector<SubLocString> &str) const;
 
 	/** Read a string out of a stream. */
-	void readString(uint32 languageID, Common::SeekableReadStream &stream);
+	void readString(uint32_t languageID, Common::SeekableReadStream &stream);
 	/** Read a LocSubString (substring of a LocString in game data) out of a stream. */
 	void readLocSubString(Common::SeekableReadStream &stream);
 	/** Read a LocString out of a stream. */
-	void readLocString(Common::SeekableReadStream &stream, uint32 id, uint32 count);
+	void readLocString(Common::SeekableReadStream &stream, uint32_t id, uint32_t count);
 	/** Read a LocString out of a stream. */
 	void readLocString(Common::SeekableReadStream &stream);
 
 private:
-	typedef std::map<uint32, Common::UString> StringMap;
+	typedef std::map<uint32_t, Common::UString> StringMap;
 
-	uint32 _id { kStrRefInvalid }; ///< The string's ID / StrRef.
+	uint32_t _id { kStrRefInvalid }; ///< The string's ID / StrRef.
 
 	StringMap _strings;
 
 
-	bool hasString(uint32 languageID) const;
+	bool hasString(uint32_t languageID) const;
 
-	const Common::UString &getString(uint32 languageID) const;
+	const Common::UString &getString(uint32_t languageID) const;
 
-	void setString(uint32 languageID, const Common::UString &str);
+	void setString(uint32_t languageID, const Common::UString &str);
 };
 
 } // End of namespace Aurora

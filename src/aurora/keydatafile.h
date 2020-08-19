@@ -46,23 +46,23 @@ public:
 	virtual ~KEYDataFile();
 
 	/** Return the type of a resource. */
-	FileType getResourceType(uint32 index) const;
+	FileType getResourceType(uint32_t index) const;
 
 	/** Return the size of a resource. */
-	uint32 getResourceSize(uint32 index) const;
+	uint32_t getResourceSize(uint32_t index) const;
 
 	/** Return a stream of the resource's contents. */
-	virtual Common::SeekableReadStream *getResource(uint32 index) const = 0;
+	virtual Common::SeekableReadStream *getResource(uint32_t index) const = 0;
 
 protected:
 	/** Resource information. */
 	struct Resource {
 		FileType type; ///< The resource's type.
 
-		uint32 offset; ///< The offset of the resource within the BIF.
-		uint32 size;   ///< The resource's size.
+		uint32_t offset; ///< The offset of the resource within the BIF.
+		uint32_t size;   ///< The resource's size.
 
-		uint32 packedSize; ///< Raw, uncompressed data size.
+		uint32_t packedSize; ///< Raw, uncompressed data size.
 	};
 
 	typedef std::vector<Resource> ResourceList;
@@ -70,7 +70,7 @@ protected:
 	/** External list of resource names and types. */
 	ResourceList _resources;
 
-	const Resource &getRes(uint32 index) const;
+	const Resource &getRes(uint32_t index) const;
 };
 
 } // End of namespace Aurora

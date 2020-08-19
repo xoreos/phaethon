@@ -78,13 +78,13 @@ public:
 	 *  The data file needs to be kept around as long as the KEYFile object
 	 *  lives, but ownership of the data file is not transferred.
 	 */
-	void addDataFile(uint32 dataFileIndex, KEYDataFile *dataFile);
+	void addDataFile(uint32_t dataFileIndex, KEYDataFile *dataFile);
 
 	/** Return the list of data files (BIF/BZF) this KEY file indexes. */
 	const std::vector<Common::UString> &getDataFileList() const;
 
 	/** Do we have a data file associated for this resource? */
-	bool haveDataFile(uint32 index) const;
+	bool haveDataFile(uint32_t index) const;
 
 	/** Return the list of resources. */
 	const ResourceList &getResources() const;
@@ -96,7 +96,7 @@ public:
 	 *        was not added first with addDataFile(), this method
 	 *        will return 0xFFFFFFFF.
 	 */
-	uint32 getResourceSize(uint32 index) const;
+	uint32_t getResourceSize(uint32_t index) const;
 
 	/** Return a stream of the resource's contents.
 	 *
@@ -104,15 +104,15 @@ public:
 	 *        this method will throw an error if the respective
 	 *        data file was not added first with addDataFile().
 	 */
-	Common::SeekableReadStream *getResource(uint32 index, bool tryNoCopy = false) const;
+	Common::SeekableReadStream *getResource(uint32_t index, bool tryNoCopy = false) const;
 
 	std::vector<const Archive::Resource *> getResourceListForDataFile(const Common::UString &dataFile) const;
 
 private:
 	/** Internal resource information. */
 	struct IResource {
-		uint32 dataFileIndex; ///< Index into the data file list.
-		uint32 resIndex;      ///< Index into the data file's resource table.
+		uint32_t dataFileIndex; ///< Index into the data file list.
+		uint32_t resIndex;      ///< Index into the data file's resource table.
 
 		KEYDataFile *dataFile; ///< The actual data file containing this resource.
 	};
@@ -130,10 +130,10 @@ private:
 
 	void load(Common::SeekableReadStream &key);
 
-	void readDataFileList(Common::SeekableReadStream &key, uint32 offset);
-	void readResList(Common::SeekableReadStream &key, uint32 offset);
+	void readDataFileList(Common::SeekableReadStream &key, uint32_t offset);
+	void readResList(Common::SeekableReadStream &key, uint32_t offset);
 
-	const IResource &getIResource(uint32 index) const;
+	const IResource &getIResource(uint32_t index) const;
 };
 
 } // End of namespace Aurora

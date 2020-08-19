@@ -54,10 +54,10 @@ private:
 	void readData(Common::SeekableReadStream &tpc, byte encoding);
 	void readTXIData(Common::SeekableReadStream &tpc);
 
-	bool checkCubeMap(uint32 &width, uint32 &height);
+	bool checkCubeMap(uint32_t &width, uint32_t &height);
 	void fixupCubeMap();
 
-	static void deSwizzle(byte *dst, const byte *src, uint32 width, uint32 height);
+	static void deSwizzle(byte *dst, const byte *src, uint32_t width, uint32_t height);
 };
 
 } // End of namespace Images

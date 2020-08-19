@@ -35,8 +35,8 @@
 
 #include "src/aurora/bzffile.h"
 
-static const uint32 kBZFID     = MKTAG('B', 'I', 'F', 'F');
-static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
+static const uint32_t kBZFID     = MKTAG('B', 'I', 'F', 'F');
+static const uint32_t kVersion1  = MKTAG('V', '1', ' ', ' ');
 
 namespace Aurora {
 
@@ -58,13 +58,13 @@ void BZFFile::load(Common::SeekableReadStream &bzf) {
 	if (_version != kVersion1)
 		throw Common::Exception("Unsupported BZF file version %08X", _version);
 
-	uint32 varResCount = bzf.readUint32LE();
-	uint32 fixResCount = bzf.readUint32LE();
+	uint32_t varResCount = bzf.readUint32LE();
+	uint32_t fixResCount = bzf.readUint32LE();
 
 	if (fixResCount != 0)
 		throw Common::Exception("TODO: Fixed BZF resources");
 
-	uint32 offVarResTable = bzf.readUint32LE();
+	uint32_t offVarResTable = bzf.readUint32LE();
 
 	try {
 
@@ -78,7 +78,7 @@ void BZFFile::load(Common::SeekableReadStream &bzf) {
 
 }
 
-void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32 offset) {
+void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32_t offset) {
 	bzf.seek(offset);
 
 	for (uint32_t i = 0; i < _resources.size(); i++) {
@@ -96,7 +96,7 @@ void BZFFile::readVarResTable(Common::SeekableReadStream &bzf, uint32 offset) {
 		_resources.back().packedSize = bzf.size() - _resources.back().offset;
 }
 
-Common::SeekableReadStream *BZFFile::getResource(uint32 index) const {
+Common::SeekableReadStream *BZFFile::getResource(uint32_t index) const {
 	const Resource &res = getRes(index);
 	if ((res.packedSize == 0) || (res.size == 0))
 		return new Common::MemoryReadStream(static_cast<const byte *>(0), 0);

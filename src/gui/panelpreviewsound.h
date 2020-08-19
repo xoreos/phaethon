@@ -59,7 +59,7 @@ private:
 	const ResourceTreeItem *_currentItem { nullptr };
 
 	Sound::ChannelHandle _sound;
-	uint64 _duration { 0 };
+	uint64_t _duration { 0 };
 	QTimer *_timer { nullptr };
 
 	bool play();
@@ -67,9 +67,9 @@ private:
 	void changeVolume(int value);
 	void positionChanged(qint64 position);
 
-	QString formatTime(uint64 t) const;
-	QString formatPercent(uint64 total, uint64 t) const;
-	int     getSliderPos(uint64 total, uint64 t) const;
+	QString formatTime(uint64_t t) const;
+	QString formatPercent(uint64_t total, uint64_t t) const;
+	int     getSliderPos(uint64_t total, uint64_t t) const;
 	void    setButtons(bool enablePlay, bool enablePause, bool enableStop);
 	void    update();
 };

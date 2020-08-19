@@ -430,7 +430,7 @@ Common::UString FileTypeManager::setFileType(const Common::UString &path, FileTy
 	return Common::FilePath::changeExtension(path, ext);
 }
 
-FileType FileTypeManager::getFileType(Common::HashAlgo algo, uint64 hashedExtension) {
+FileType FileTypeManager::getFileType(Common::HashAlgo algo, uint64_t hashedExtension) {
 	if ((algo < 0) || (algo >= Common::kHashMAX))
 		return kFileTypeNone;
 
@@ -501,7 +501,7 @@ ResourceType FileTypeManager::getResourceType(const Common::UString &path) {
 	return getResourceType(getFileType(path));
 }
 
-ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64 hashedExtension) {
+ResourceType FileTypeManager::getResourceType(Common::HashAlgo algo, uint64_t hashedExtension) {
 	return getResourceType(getFileType(algo, hashedExtension));
 }
 

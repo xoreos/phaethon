@@ -68,14 +68,14 @@ public:
 	~BIFFile();
 
 	/** Return a stream of the resource's contents. */
-	Common::SeekableReadStream *getResource(uint32 index) const;
+	Common::SeekableReadStream *getResource(uint32_t index) const;
 
 private:
 	std::unique_ptr<Common::SeekableReadStream> _bif;
 
 	void load(Common::SeekableReadStream &bif);
 
-	void readVarResTable(Common::SeekableReadStream &bif, uint32 offset);
+	void readVarResTable(Common::SeekableReadStream &bif, uint32_t offset);
 };
 
 } // End of namespace Aurora

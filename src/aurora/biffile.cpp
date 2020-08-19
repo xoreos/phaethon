@@ -35,9 +35,9 @@
 
 #include "src/aurora/biffile.h"
 
-static const uint32 kBIFID     = MKTAG('B', 'I', 'F', 'F');
-static const uint32 kVersion1  = MKTAG('V', '1', ' ', ' ');
-static const uint32 kVersion11 = MKTAG('V', '1', '.', '1');
+static const uint32_t kBIFID     = MKTAG('B', 'I', 'F', 'F');
+static const uint32_t kVersion1  = MKTAG('V', '1', ' ', ' ');
+static const uint32_t kVersion11 = MKTAG('V', '1', '.', '1');
 
 namespace Aurora {
 
@@ -59,13 +59,13 @@ void BIFFile::load(Common::SeekableReadStream &bif) {
 	if ((_version != kVersion1) && (_version != kVersion11))
 		throw Common::Exception("Unsupported BIF file version %s", Common::debugTag(_version).c_str());
 
-	uint32 varResCount = bif.readUint32LE();
-	uint32 fixResCount = bif.readUint32LE();
+	uint32_t varResCount = bif.readUint32LE();
+	uint32_t fixResCount = bif.readUint32LE();
 
 	if (fixResCount != 0)
 		throw Common::Exception("TODO: Fixed BIF resources");
 
-	uint32 offVarResTable = bif.readUint32LE();
+	uint32_t offVarResTable = bif.readUint32LE();
 
 	try {
 
@@ -79,7 +79,7 @@ void BIFFile::load(Common::SeekableReadStream &bif) {
 
 }
 
-void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
+void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32_t offset) {
 	bif.seek(offset);
 
 	for (ResourceList::iterator res = _resources.begin(); res != _resources.end(); ++res) {
@@ -96,7 +96,7 @@ void BIFFile::readVarResTable(Common::SeekableReadStream &bif, uint32 offset) {
 	}
 }
 
-Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
+Common::SeekableReadStream *BIFFile::getResource(uint32_t index) const {
 	const Resource &res = getRes(index);
 	if (res.size == 0)
 		return new Common::MemoryReadStream(static_cast<const byte *>(0), 0);
@@ -105,7 +105,7 @@ Common::SeekableReadStream *BIFFile::getResource(uint32 index) const {
 
 	std::unique_ptr<Common::SeekableReadStream> resStream(_bif->readStream(res.size));
 
-	if (!resStream || (((uint32) resStream->size()) != res.size))
+	if (!resStream || (((uint32_t) resStream->size()) != res.size))
 		throw Common::Exception(Common::kReadError);
 
 	return resStream.release();

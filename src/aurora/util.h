@@ -52,7 +52,7 @@ public:
 	FileType getFileType(const Common::UString &path);
 
 	/** Return the file type of a file name, detected by its hashed extension. */
-	FileType getFileType(Common::HashAlgo algo, uint64 hashedExtension);
+	FileType getFileType(Common::HashAlgo algo, uint64_t hashedExtension);
 
 	/** Return the file name with an added extensions according to the specified file type. */
 	Common::UString addFileType(const Common::UString &path, FileType type);
@@ -67,7 +67,7 @@ public:
 	/** Return the resource type of a file name, detected by its extension. */
 	ResourceType getResourceType(const Common::UString &path);
 	/** Return the resource type of a file name, detected by its hashed extension. */
-	ResourceType getResourceType(Common::HashAlgo algo, uint64 hashedExtension);
+	ResourceType getResourceType(Common::HashAlgo algo, uint64_t hashedExtension);
 
 
 private:
@@ -81,7 +81,7 @@ private:
 
 	typedef std::map<Common::UString, const Type *> ExtensionLookup;
 	typedef std::map<FileType       , const Type *> TypeLookup;
-	typedef std::map<uint64         , const Type *> HashLookup;
+	typedef std::map<uint64_t         , const Type *> HashLookup;
 
 	typedef std::list<FileType> ResourceTypes;
 

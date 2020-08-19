@@ -34,15 +34,15 @@ KEYDataFile::KEYDataFile() {
 KEYDataFile::~KEYDataFile() {
 }
 
-FileType KEYDataFile::getResourceType(uint32 index) const {
+FileType KEYDataFile::getResourceType(uint32_t index) const {
 	return getRes(index).type;
 }
 
-uint32 KEYDataFile::getResourceSize(uint32 index) const {
+uint32_t KEYDataFile::getResourceSize(uint32_t index) const {
 	return getRes(index).size;
 }
 
-const KEYDataFile::Resource &KEYDataFile::getRes(uint32 index) const {
+const KEYDataFile::Resource &KEYDataFile::getRes(uint32_t index) const {
 	if (index >= _resources.size())
 		throw Common::Exception("Resource index out of range (%u/%u)", index, (uint)_resources.size());
 

@@ -434,7 +434,7 @@ void MainWindow::exportTGA() {
 struct SoundBuffer {
 	static const size_t kBufferSize = 4096;
 
-	int16 buffer[kBufferSize];
+	int16_t buffer[kBufferSize];
 	int samples;
 
 	SoundBuffer() : samples(0) {
@@ -483,7 +483,7 @@ void MainWindow::exportBMUMP3() {
 	}
 }
 
-uint64 getSoundLength(Sound::AudioStream *sound) {
+uint64_t getSoundLength(Sound::AudioStream *sound) {
 	Sound::RewindableAudioStream *rewSound = dynamic_cast<Sound::RewindableAudioStream *>(sound);
 	if (!rewSound)
 		return Sound::RewindableAudioStream::kInvalidLength;
@@ -494,16 +494,16 @@ uint64 getSoundLength(Sound::AudioStream *sound) {
 void MainWindow::exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &wav) {
 	assert(sound);
 
-	const uint16 channels = sound->getChannels();
-	const uint32 rate     = sound->getRate();
+	const uint16_t channels = sound->getChannels();
+	const uint32_t rate     = sound->getRate();
 
 	std::deque<SoundBuffer> buffers;
 
-	uint64 length = getSoundLength(sound);
+	uint64_t length = getSoundLength(sound);
 	if (length != Sound::RewindableAudioStream::kInvalidLength)
 		buffers.resize((length / (SoundBuffer::kBufferSize / channels)) + 1);
 
-	uint32 samples = 0;
+	uint32_t samples = 0;
 	std::deque<SoundBuffer>::iterator buffer = buffers.begin();
 	while (!sound->endOfStream()) {
 		if (buffer == buffers.end()) {
@@ -521,9 +521,9 @@ void MainWindow::exportWAVImpl(Sound::AudioStream *sound, Common::WriteStream &w
 
 	samples /= channels;
 
-	const uint32 dataSize   = samples * channels * 2;
-	const uint32 byteRate   = rate * channels * 2;
-	const uint16 blockAlign = channels * 2;
+	const uint32_t dataSize   = samples * channels * 2;
+	const uint32_t byteRate   = rate * channels * 2;
+	const uint16_t blockAlign = channels * 2;
 
 	wav.writeUint32BE(MKTAG('R', 'I', 'F', 'F'));
 	wav.writeUint32LE(36 + dataSize);

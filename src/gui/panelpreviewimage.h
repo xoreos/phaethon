@@ -91,7 +91,7 @@ private:
 
 	void  convertImage(const Images::Decoder &image, byte *dataOut);
 	void  writePixel(const byte *&dataIn, Images::PixelFormat format, byte *&dataOut);
-	void  getImageDimensions(const Images::Decoder &image, int32 &width, int32 &height);
+	void  getImageDimensions(const Images::Decoder &image, int32_t &width, int32_t &height);
 	void  getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
 	void  fit(bool onlyWidth, bool grow);
 	float getCurrentZoomLevel() const;
