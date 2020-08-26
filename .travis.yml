@@ -51,7 +51,9 @@ jobs:
       os: osx
 
 script:
-  # Set environment variables for macOS
+  # environment
+  - export CXXFLAGS="$CXXFLAGS -O2 -ggdb"
+  - if eval [ $is_valid_osx ]; then export CXXFLAGS="$CXXFLAGS -isystem /usr/local/include"; fi
   - if eval [ $is_valid_osx -a $is_notcoverity_autot ]; then export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/opt/qt/lib/pkgconfig"; fi
   # autotools build system: ./autogen.sh && ./configure && make && make check
   - if eval [ $is_notcoverity_autot ]; then ./autogen.sh; fi
