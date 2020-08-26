@@ -165,11 +165,11 @@ void openGamePath(const Common::UString &path) {
 
 #ifdef WIN32
 #ifdef UNICODE
-	int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+	int WINAPI wWinMain(HINSTANCE UNUSED(hInstance), HINSTANCE UNUSED(hPrevInstance), PWSTR UNUSED(pCmdLine), int UNUSED(nCmdShow)) {
 		return main(0, 0);
 	}
 #else
-	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
+	int WINAPI WinMain(HINSTANCE UNUSED(hInstance), HINSTANCE UNUSED(hPrevInstance), PSTR UNUSED(pCmdLine), int UNUSED(nCmdShow)) {
 		return main(0, 0);
 	}
 #endif
