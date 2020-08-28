@@ -113,7 +113,7 @@ void SoundManager::init() {
 		_hasMultiChannel = alIsExtensionPresent("AL_EXT_MCFORMATS") != 0;
 		_format51        = alGetEnumValue("AL_FORMAT_51CHN16");
 
-		createThread();
+		createThread("SoundManager");
 
 		_hasSound = true;
 
