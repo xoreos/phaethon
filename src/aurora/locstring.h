@@ -50,6 +50,7 @@ public:
 	};
 
 	LocString() = default;
+	LocString(const LocString &) = default;
 	~LocString() = default;
 
 	void clear();
