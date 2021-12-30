@@ -25,13 +25,15 @@
 #ifndef COMMON_ENCODING_H
 #define COMMON_ENCODING_H
 
+#include <cstddef>
+#include <memory>
+
 #include "src/common/types.h"
 
 namespace Common {
 
 class UString;
 class SeekableReadStream;
-class MemoryReadStream;
 class WriteStream;
 
 enum Encoding {
@@ -131,9 +133,9 @@ void writeStringFixed(WriteStream &stream, const Common::UString &str, Encoding 
  *  @param  encoding The encoding to convert the string into.
  *  @param  terminateString Should the result contain a terminating end-of-
  *                          string sequence?
- *  @return A newly created MemoryReadStream of the converted string.
+ *  @return A newly created SeekableReadStream of the converted string.
  */
-MemoryReadStream *convertString(const UString &str, Encoding encoding, bool terminateString = true);
+std::unique_ptr<SeekableReadStream> convertString(const UString &str, Encoding encoding, bool terminateString = true);
 
 /** Return the number of bytes per codepoint in this encoding.
  *
