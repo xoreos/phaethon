@@ -23,3 +23,5 @@ include external/utf8cpp/rules.mk
 
 include external/mingw-std-threads/rules.mk
 include external/verdigris/rules.mk
+
+include external/mspack/rules.mk
