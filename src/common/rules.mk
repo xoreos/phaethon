@@ -63,6 +63,7 @@ src_common_libcommon_la_SOURCES += \
     src/common/binsearch.h \
     src/common/streamtokenizer.h \
     src/common/string.h \
+    src/common/lzx.h \
     $(EMPTY)
 
 src_common_libcommon_la_SOURCES += \
@@ -95,4 +96,9 @@ src_common_libcommon_la_SOURCES += \
     src/common/thread.cpp \
     src/common/streamtokenizer.cpp \
     src/common/string.cpp \
+    src/common/lzx.cpp \
+    $(EMPTY)
+
+src_common_libcommon_la_LIBADD = \
+    external/mspack/libmspack.la \
     $(EMPTY)
