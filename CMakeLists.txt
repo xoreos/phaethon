@@ -329,6 +329,9 @@ if(CMAKE_USE_PTHREADS_INIT)
   list(APPEND PHAETHON_LIBRARIES ${PTHREAD_LIBS})
 endif()
 
+# libmspack
+parse_automake(external/mspack/rules.mk)
+
 
 # -------------------------------------------------------------------------
 # custom unit testing target, because CMake's make test is pretty useless
