@@ -10,8 +10,16 @@ Phaethon is licensed under the terms of the [GNU General Public License
 version 3](https://www.gnu.org/licenses/agpl-3.0.html) (or later).
 
 
-Status [![Build status (AppVeyor)](https://ci.appveyor.com/api/projects/status/e6lj9qp4av6hbptt?svg=true)](https://ci.appveyor.com/project/DrMcCoy/phaethon/branch/master) [![Coverity Status](https://scan.coverity.com/projects/3295/badge.svg)](https://scan.coverity.com/projects/3295)
-------
+CI Status
+---------
+
+- [![Build status (linux autoconf gcc)](https://github.com/xoreos/phaethon/actions/workflows/linux_autoconf_gcc.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/linux_autoconf_gcc.yml/)
+- [![Build status (linux autoconf clang)](https://github.com/xoreos/phaethon/actions/workflows/linux_autoconf_clang.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/linux_autoconf_clang.yml/)
+- [![Build status (linux cmake gcc)](https://github.com/xoreos/phaethon/actions/workflows/linux_cmake_gcc.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/linux_cmake_gcc.yml/)
+- [![Build status (linux cmake clang)](https://github.com/xoreos/phaethon/actions/workflows/linux_cmake_clang.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/linux_cmake_clang.yml/)
+- [![Build status (macos autoconf clang)](https://github.com/xoreos/phaethon/actions/workflows/macos_autoconf_clang.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/macos_autoconf_clang.yml/)
+- [![Build status (macos cmake clang)](https://github.com/xoreos/phaethon/actions/workflows/macos_cmake_clang.yml/badge.svg)](https://github.com/xoreos/phaethon/actions/workflows/macos_cmake_clang.yml/)
+- [![Coverity Status](https://scan.coverity.com/projects/3295/badge.svg)](https://scan.coverity.com/projects/3295)
 
 
 Getting Phaethon
