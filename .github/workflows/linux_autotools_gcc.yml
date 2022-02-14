@@ -1,4 +1,4 @@
-name: linux autoconf gcc
+name: linux autotools gcc
 
 on:
   [push, pull_request]
