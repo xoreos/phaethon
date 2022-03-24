@@ -4,7 +4,7 @@ Source: https://xoreos.org/
 
 Files: *
 Copyright: 2010-2022 The xoreos Team
-License: GPL-3.0+
+License: GPL-3.0-or-later
 Comment:
  See list of copyright holders and upstream authors in
  "/usr/share/doc/phaethon/AUTHORS".
@@ -12,16 +12,16 @@ Comment:
 Files: debian/*
        dists/debian/*
 Copyright: 2015-2016 Sven Hesse <drmccoy@drmccoy.de>
-License: GPL-3.0+
+License: GPL-3.0-or-later
 
 Files: dists/arch/PKGBUILD
 Copyright: 2015-2016 Sven Hesse <drmccoy@drmccoy.de>
-License: GPL-3.0+
+License: GPL-3.0-or-later
 
 Files: dists/fedora/build-from-git.sh
        dists/fedora/phaethon.spec
 Copyright: 2016 Ben Rosser <rosser.bjr@gmail.com>
-License: GPL-3.0+
+License: GPL-3.0-or-later
 
 Files: CODE_OF_CONDUCT
 Copyright: 2014-2016 Coraline Ada Ehmke
@@ -29,12 +29,12 @@ License: Expat
 
 Files: m4/boost.m4
 Copyright: 2007-2011, 2014 Benoit Sigoure <tsuna@lrde.epita.fr>
-License: GPL-3.0+
+License: GPL-3.0-or-later
 
 Files: m4/ax_check_compiler_flags.m4
 Copyright: 2005 Steven G. Johnson <stevenj@alum.mit.edu>
            2005 Matteo Frigo
-License: GPL-1.0+
+License: GPL-1.0-or-later
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation.
@@ -128,7 +128,7 @@ Files: external/verdigris/wobjectdefs.h
        external/verdigris/wobjectimpl.h
        external/verdigris/wobjectcpp.h
 Copyright: 2016-2018 Woboq GmbH
-License: LGPL-3.0+
+License: LGPL-3.0-or-later
 
 Files: external/mingw-std-threads/mingw.mutex.h
        external/mingw-std-threads/mingw.thread.h
@@ -162,7 +162,7 @@ Files: src/common/system.h
        src/common/memwritestream.cpp
 Copyright: 2001-2010 The ScummVM Project
            2010-2015 The xoreos Team
-License: GPL-2.0+, GPL-3.0+
+License: GPL-2.0-or-later, GPL-3.0-or-later
 
 Files: src/sound/audiostream.h
        src/sound/audiostream.cpp
@@ -176,13 +176,13 @@ Files: src/sound/audiostream.h
        src/sound/decoders/vorbis.cpp
 Copyright: 2003-2010 The ScummVM Project
            2010-2015 The xoreos Team
-License: GPL-2.0+, GPL-3.0+
+License: GPL-2.0-or-later, GPL-3.0-or-later
 
 Files: src/images/tga.h
        src/images/tga.cpp
 Copyright: 2010-2015 The xoreos Team
            2012 The ScummVM Project
-License: GPL-2.0+, GPL-3.0+
+License: GPL-2.0-or-later, GPL-3.0-or-later
 
 Files: src/common/md5.cpp
 Copyright: 2001 Alexander Peslyak
@@ -203,7 +203,7 @@ License:
 Files: src/common/blowfish.cpp
 Copyright: 2006-2015 ARM Limited
            2015 The xoreos Team
-License: Apache-2, GPL-3.0+
+License: Apache-2.0, GPL-3.0-or-later
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -223,7 +223,7 @@ Comment:
 
 Files: src/common/hash.h
 Copyright: 2012-2015 The xoreos Team
-License: GPL-3.0+
+License: GPL-3.0-or-later
 Comment:
  Includes an implementation of the CRC32 hash function, based on an
  implementation by Gary S. Brown:
@@ -236,7 +236,7 @@ Files: src/common/fft.h
 Copyright: 2008 Loren Merritt
            2002 Fabrice Bellard
            2010-2015 The xoreos Team
-License: LGPL-2.1+, GPL-3.0+
+License: LGPL-2.1-or-later, GPL-3.0-or-later
 Comment:
  Originally found in FFmpeg.
 
@@ -244,7 +244,7 @@ Files: src/common/mdct.h
        src/common/mdct.cpp
 Copyright: 2002 Fabrice Bellard
            2011-2015 The xoreos Team
-License: LGPL-2.1+, GPL-3.0+
+License: LGPL-2.1-or-later, GPL-3.0-or-later
 Comment:
  Originally found in FFmpeg.
 
@@ -253,7 +253,7 @@ Files: src/sound/decoders/asf.h
 Copyright: 2000-2001 Fabrice Bellard
            2001-2011 The FFmpeg Project
            2011 The xoreos Team
-License: LGPL-2.1+, GPL-3.0+
+License: LGPL-2.1-or-later, GPL-3.0-or-later
 Comment:
  Originally found in FFmpeg.
 
@@ -262,7 +262,7 @@ Files: src/sound/decoders/wma.h
        src/sound/decoders/wmadata.h
 Copyright: 2002-2007 The FFmpeg Project
            2011 The xoreos Team
-License: LGPL-2.1+, GPL-3.0+
+License: LGPL-2.1-or-later, GPL-3.0-or-later
 Comment:
  Originally found in FFmpeg.
 
@@ -275,7 +275,7 @@ Copyright: 2003, 2005-2009, 2015 Google Inc.
 License: BSD-3-clause
 
 
-License: GPL-2.0+
+License: GPL-2.0-or-later
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 2 of the License, or
@@ -289,7 +289,7 @@ License: GPL-2.0+
  On Debian systems, the complete text of the GNU General
  Public License version 3 can be found in "/usr/share/common-licenses/GPL-2".
 
-License: GPL-3.0+
+License: GPL-3.0-or-later
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
@@ -303,7 +303,7 @@ License: GPL-3.0+
  On Debian systems, the complete text of the GNU General
  Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
 
-License: LGPL-2.1+
+License: LGPL-2.1-or-later
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -393,7 +393,7 @@ License: BSD-3-clause
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 
-License: LGPL-3.0+
+License: LGPL-3.0-or-later
  This package is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
