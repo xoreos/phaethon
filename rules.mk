@@ -36,7 +36,6 @@ EXTRA_DIST += \
     cmake/CMakeAM.cmake \
     cmake/CMakeUninstall.cmake \
     cmake/FindFaad.cmake \
-    cmake/FindIconv.cmake \
     cmake/FindLibLZMA.cmake \
     cmake/FindMad.cmake \
     cmake/FindOgg.cmake \
