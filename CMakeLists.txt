@@ -266,6 +266,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # find the required libraries
 set(PHAETHON_LIBRARIES "")
 
+find_package(Iconv REQUIRED)
+include_directories(${ICONV_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES ${ICONV_LIBRARIES})
+
 find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${ZLIB_LIBRARIES})
@@ -307,10 +311,6 @@ list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::Concurrent)
 if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
-
-find_package(Iconv REQUIRED)
-include_directories(${ICONV_INCLUDE_DIRS})
-list(APPEND PHAETHON_LIBRARIES ${ICONV_LIBRARIES})
 
 if(ICONV_SECOND_ARGUMENT_IS_CONST)
   add_definitions(-DICONV_CONST=const)
