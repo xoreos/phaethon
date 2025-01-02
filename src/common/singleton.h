@@ -62,8 +62,8 @@ namespace Common {
 template<class T>
 class Singleton : boost::noncopyable {
 private:
-	Singleton<T>(const Singleton<T> &);
-	Singleton<T> &operator=(const Singleton<T> &);
+	Singleton(const Singleton<T> &);
+	Singleton &operator=(const Singleton<T> &);
 
 	static T *_singleton;
 
@@ -107,8 +107,8 @@ public:
 		T::destroyInstance();
 	}
 protected:
-	Singleton<T>() { }
-	virtual ~Singleton<T>() { }
+	Singleton() { }
+	virtual ~Singleton() { }
 
 	typedef T SingletonBaseType;
 };
