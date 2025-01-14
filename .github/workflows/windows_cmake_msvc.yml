@@ -25,7 +25,7 @@ jobs:
 
     - name: Cache Qt
       id: cache_qt
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ../Qt
         key: windows_msvc_qtcache
