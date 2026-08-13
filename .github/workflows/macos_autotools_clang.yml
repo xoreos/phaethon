@@ -12,7 +12,7 @@ jobs:
 
     - name: Install dependencies
       id: install_dependencies
-      run: brew install automake boost qt5 openal-soft faad2
+      run: brew install automake libtool boost qt5 openal-soft faad2 mad libogg libvorbis
 
     - name: Set additional env vars
       id: set_additional_env_vars

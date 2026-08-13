@@ -12,7 +12,7 @@ jobs:
 
     - name: Install dependencies
       id: install_dependencies
-      run: brew install ninja boost qt5 openal-soft faad2
+      run: brew install ninja boost qt5 openal-soft faad2 mad libogg libvorbis
 
     - name: Set clang as the compiler to use
       id: set_clang
