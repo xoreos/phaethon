@@ -5,14 +5,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
       id: install_dependencies
-      run: sudo apt-get update -qq && sudo apt-get -y install ninja-build libboost-all-dev libopenal-dev libmad0-dev libvorbis-dev libfaad-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5 libgl-dev libglu-dev
+      run: sudo apt-get update -qq && sudo apt-get -y install ninja-build libboost-all-dev liblzma-dev libopenal-dev libmad0-dev libvorbis-dev libfaad-dev qtbase5-dev libqt5gui5 libqt5multimedia5 qtmultimedia5-dev libqt5multimediawidgets5 libgl-dev libglu-dev
 
     - name: Set clang as the compiler to use
       id: set_clang

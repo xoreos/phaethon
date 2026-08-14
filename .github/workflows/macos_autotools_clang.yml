@@ -14,12 +14,12 @@ jobs:
       id: install_dependencies
       run: brew install automake boost qt5 openal-soft faad2
 
-    - name: Set clang as the compiler to use
-      id: set_clang
+    - name: Set additional env vars
+      id: set_additional_env_vars
       run: |
         echo "CC=clang" >> $GITHUB_ENV
         echo "CXX=clang++" >> $GITHUB_ENV
-        echo "PKG_CONFIG_PATH=/usr/local/opt/qt5/lib/pkgconfig" >> $GITHUB_ENV
+        echo "PKG_CONFIG_PATH=$(brew --prefix qt5)/lib/pkgconfig:$(brew --prefix openal-soft)/lib/pkgconfig" >> $GITHUB_ENV
 
     - name: Configure
       id: configure
