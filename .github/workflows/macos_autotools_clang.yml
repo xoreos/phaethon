@@ -19,6 +19,7 @@ jobs:
       run: |
         echo "CC=clang" >> $GITHUB_ENV
         echo "CXX=clang++" >> $GITHUB_ENV
+        echo "BOOST_ROOT=$(brew --prefix boost)" >> $GITHUB_ENV
         echo "PKG_CONFIG_PATH=$(brew --prefix qt5)/lib/pkgconfig:$(brew --prefix openal-soft)/lib/pkgconfig" >> $GITHUB_ENV
 
     - name: Configure
