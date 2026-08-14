@@ -217,7 +217,7 @@ PKG_CHECK_MODULES([OGG], [ogg >= 1.2.0], [], AC_MSG_ERROR([libOgg (>= 1.2.0) is 
 PKG_CHECK_MODULES([VORBIS], [vorbis >= 1.3.1 vorbisfile >= 1.3.1], [], AC_MSG_ERROR([libVorbis/libVorbisFile (>= 1.3.1) are required and could not be found!]))
 
 dnl Boost
-BOOST_REQUIRE(1.53.0)
+BOOST_REQUIRE(1.70.0)
 BOOST_UTILITY
 BOOST_STRING_ALGO
 BOOST_SYSTEM

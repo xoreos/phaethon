@@ -5,7 +5,7 @@ Build-time library dependencies
 - zlib (>= 1.2.3)
 - liblzma (>= 5.0.3)
 
-- Boost (>= 1.53.0)
+- Boost (>= 1.70.0)
   - Boost.Utility
   - Boost.StringAlgo
   - Boost.System
