@@ -164,12 +164,10 @@ if test "x$with_std" = "xyes"; then
 			AX_CHECK_COMPILER_FLAGS_VAR([C++], [STD], [-std=c++14])
 			;;
 	esac;
+	CXXFLAGS="$CXXFLAGS $STD"
 fi
 
-BOOST_STD="$STD"
-
 AC_SUBST(STD)
-AC_SUBST(BOOST_STD)
 
 dnl Link-time optimization
 AC_ARG_WITH([lto], [AS_HELP_STRING([--with-lto], [Compile with link-time optimization @<:@default=no@:>@])], [], [with_lto=no])
