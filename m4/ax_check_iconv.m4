@@ -7,13 +7,13 @@ dnl Defines LIBICONV and LTLIBICONV.
 dnl
 dnl @category InstalledPackages
 dnl @author Sven Hesse <drmccoy@drmccoy.de>
-dnl @version 2013-12-14
+dnl @version 2026-08-16
 dnl @license Creative Commons CC0 1.0 Universal Public Domain Dedication
 
 AC_DEFUN([AX_CHECK_ICONV], [
 	AM_ICONV
 
-	if test "x$am_cv_func_iconv" != "xyes"; then
+	if test "x$am_cv_func_iconv_works" != "xyes"; then
 		ifelse([$2], , :, [$2])
 	else
 		ifelse([$1], , :, [$1])

@@ -12,7 +12,7 @@ jobs:
 
     - name: Install dependencies
       id: install_dependencies
-      run: brew install automake libtool boost qt5 openal-soft faad2 mad libogg libvorbis
+      run: brew install automake libtool boost qt5 openal-soft faad2 mad libiconv libogg libvorbis
 
     - name: Set additional env vars
       id: set_additional_env_vars
@@ -24,7 +24,7 @@ jobs:
 
     - name: Configure
       id: configure
-      run: ( ./autogen.sh && ./configure ) || ( cat config.log; exit 1 )
+      run: ( ./autogen.sh && ./configure --with-libiconv-prefix="$(brew --prefix libiconv)") || ( cat config.log; exit 1 )
 
     - name: Compile
       id: compile
